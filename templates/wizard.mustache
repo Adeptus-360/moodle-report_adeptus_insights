@@ -1,0 +1,644 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Report Wizard Template - Modern, Beautiful, Animated Interface
+}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+
+<style>
+/* Premium Report Styles */
+.premium-report {
+    position: relative;
+    border: 2px solid #f39c12 !important;
+    background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%) !important;
+}
+
+.premium-badge {
+    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(243, 156, 18, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.premium-badge i {
+    font-size: 8px;
+}
+
+.report-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+/* Upgrade Popup Styles */
+.upgrade-popup .swal2-popup {
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.upgrade-popup .swal2-title {
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+/* Category Card Free Tier Indicator */
+.report-count {
+    font-size: 12px;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.category-card {
+    position: relative;
+}
+
+/* Loading indicator styles - removed categories loading since we use full-screen loader */
+
+/* New Section Styles */
+.wizard-section {
+    margin: 40px 0;
+    padding: 0 20px;
+}
+
+.wizard-section .step-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.wizard-section .step-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wizard-section .step-header p {
+    margin: 5px 0 0 0;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+.wizard-section .section-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.wizard-section .section-actions button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.wizard-section .section-actions button:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+}
+
+/* Report Card Styles (similar to category cards but with differences) */
+.report-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.report-card::after {
+    content: '\f105';
+    font-family: 'FontAwesome';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #007bff;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.report-card .card-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    color: white;
+    font-size: 20px;
+}
+
+.report-card .card-content h4 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.report-card .card-content p {
+    margin: 0 0 5px 0;
+    color: #7f8c8d;
+    font-size: 13px;
+}
+
+.report-card .card-content .card-date {
+    color: #95a5a6;
+    font-size: 11px;
+}
+
+.report-card .card-actions {
+    position: absolute;
+    top: 15px;
+    right: 50px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.report-card:hover .card-actions {
+    opacity: 1;
+}
+
+.report-card .card-actions button {
+    min-width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    white-space: nowrap;
+}
+
+.report-card .card-actions button span {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.report-card .card-actions .btn-load-config {
+    background: #28a745;
+    color: white;
+}
+
+.report-card .card-actions .btn-load-config:hover {
+    background: #218838;
+}
+
+.report-card .card-actions .btn-remove {
+    background: #dc3545;
+    color: white;
+}
+
+.report-card .card-actions .btn-remove:hover {
+    background: #c82333;
+}
+
+/* Category title styling */
+.category-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Blue arrow for category cards */
+.category-card::after {
+    content: '\f105'; /* FontAwesome arrow-right icon */
+    font-family: 'FontAwesome';
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #3498db;
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+/* Form Controls Styling */
+.form-control {
+    width: 100% !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    background-color: #fff !important;
+    color: #333 !important;
+    box-sizing: border-box !important;
+}
+
+.form-control:focus {
+    border-color: #3498db !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2) !important;
+}
+
+select.form-control {
+    height: auto !important;
+    min-height: 38px !important;
+}
+
+select.form-control option {
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+}
+
+/* Parameter field styling */
+.parameter-field {
+    margin-bottom: 20px;
+}
+
+.parameter-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 14px;
+}
+
+.parameter-field .form-control {
+    width: 100%;
+}
+
+.parameter-field .help-text {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-top: 4px;
+    font-style: italic;
+}
+</style>
+
+{{#js}}
+require(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'report_adeptus_insights/global_auth'], function($, Ajax, Notification, Chart, Templates, GlobalAuth) {
+    console.log('Moodle modules loaded, initializing global authentication...');
+    
+    // Initialize global authentication first
+    GlobalAuth.init().then(() => {
+        console.log('Global authentication initialized, checking for AdeptusWizard...');
+        
+        // Wait a bit longer to ensure the wizard.js file is loaded
+        setTimeout(function() {
+            console.log('Delayed check for AdeptusWizard...');
+            console.log('AdeptusWizard type:', typeof AdeptusWizard);
+            
+            if (typeof AdeptusWizard !== 'undefined') {
+                console.log('AdeptusWizard class found, initializing...');
+                const wizard = new AdeptusWizard();
+                window.adeptusWizardInstance = wizard; // Store globally
+                wizard.init().catch(error => {
+                    console.error('Failed to initialize AdeptusWizard:', error);
+                });
+            } else {
+                console.error('AdeptusWizard class not found after delay');
+                console.log('Available global variables:', Object.keys(window).filter(key => key.includes('Adeptus') || key.includes('Wizard')));
+                
+                // Try to test the wizard manually
+                if (typeof window.testAdeptusWizard === 'function') {
+                    console.log('Testing wizard manually...');
+                    window.testAdeptusWizard();
+                }
+            }
+        }, 1000); // Wait 1 second
+    }).catch((error) => {
+        console.error('Failed to initialize global authentication:', error);
+    });
+});
+{{/js}}
+
+<!-- Global Authentication Header -->
+{{> report_adeptus_insights/global_auth_header }}
+
+<div class="adeptus-wizard-container" id="wizard-container">
+    <!-- Header Section -->
+    <div class="wizard-header">
+        <div class="wizard-header-content">
+            <h1 class="wizard-title">
+                <i class="fa fa-magic wizard-icon"></i>
+                {{wizard_title}}
+            </h1>
+            <p class="wizard-subtitle">Generate powerful reports in just a few clicks</p>
+            
+        </div>
+        <div class="wizard-header-section">
+            <a style="margin-bottom: 17px;" href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
+                    <i class="fa fa-arrow-left"></i> Back to Dashboard
+                </a>
+            
+            {{#is_free_plan}}
+            <div class="reports-left-indicator" style="margin-top: 15px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa fa-file-text-o" style="font-size: 16px; opacity: 0.9;"></i>
+                    <span style="font-size: 14px; font-weight: 600;" id="reports-counter-content">
+                        <i class="fa fa-spinner fa-spin"></i> Loading...
+                    </span>
+                </div>
+                <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;" id="usage-type-text">
+                    Free Plan Total Limit
+                </div>
+            </div>
+            
+            <div class="exports-left-indicator" style="margin-top: 10px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="fa fa-download" style="font-size: 16px; opacity: 0.9;"></i>
+                    <span style="font-size: 14px; font-weight: 600;" id="exports-counter-content">
+                        <i class="fa fa-spinner fa-spin"></i> Loading...
+                    </span>
+                </div>
+                <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
+                    Monthly Export Limit
+                </div>
+            </div>
+            {{/is_free_plan}}
+        </div>
+    </div>
+
+    <!-- Main Wizard Steps -->
+    <div class="wizard-steps-container">
+        
+        <!-- Step 1: Select Report Category -->
+        <div class="wizard-step active" id="step-select-category">
+            <div class="step-header">
+                <h2><span class="step-number">1</span> Choose Report Category</h2>
+                <p>Select from our comprehensive report categories</p>
+            </div>
+            
+            <div class="category-grid">
+                {{#categories}}
+                <div class="category-card" data-category="{{name}}">
+                    <div class="category-icon">
+                        <i class="fa {{icon}}"></i>
+                    </div>
+                    <div class="category-content">
+                        <h6>{{name}}</h6>
+                        {{#is_free_plan}}
+                        <span class="report-count">{{free_reports_count}} out of {{report_count}} reports on free tier</span>
+                        {{/is_free_plan}}
+                        {{^is_free_plan}}
+                        <span class="report-count">{{report_count}} reports</span>
+                        {{/is_free_plan}}
+                    </div>
+                    <div class="category-arrow">
+                        <i class="fa fa-chevron-right"></i>
+                    </div>
+                </div>
+                {{/categories}}
+            </div>
+        </div>
+
+        <!-- Step 2: Select Specific Report -->
+        <div class="wizard-step" id="step-select-report">
+            <div class="step-header" style="display: flex; justify-content: space-between;">
+                <div class="assistant-header">
+                    <h2><span class="step-number">2</span> Choose Your Report</h2>
+                    <p id="selected-category-name">Reports in this category</p>
+               </div>
+               <div class="back-to-categories-btn">
+                    <button class="btn-back" id="back-to-categories">
+                        <i class="fa fa-arrow-left"></i> Back to Categories
+                    </button>
+                </div> 
+            </div>
+            
+            <div class="reports-grid" id="reports-grid">
+                <!-- Reports will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Step 3: Configure Parameters -->
+        <div class="wizard-step" id="step-configure">
+            <div class="step-header" style="display: flex; justify-content: space-between;">
+                <div class="assistant-header"> 
+                    <h2><span class="step-number">3</span> Configure Report</h2>
+                    <p id="selected-report-name">Set up your report parameters</p>
+                
+                </div>
+               <div class="back-to-categories-btn">
+                    <button class="btn-back" id="back-to-reports">
+                        <i class="fa fa-arrow-left"></i> Back to Reports
+                    </button>
+                </div>
+            </div>
+            
+            <div class="configuration-container">
+                <div class="config-form" id="config-form">
+                    <!-- Parameters will be populated dynamically -->
+                </div>
+                
+                <div class="config-preview">
+                    <h3>Report Preview</h3>
+                    <div class="preview-content" id="preview-content">
+                        <div class="preview-placeholder">
+                            <i class="fa fa-eye"></i>
+                            <p>Configure parameters to see preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step-actions">
+                <button class="btn-primary btn-generate-report" id="generate-report">
+                    <i class="fa fa-play"></i> Generate Report
+                </button>
+                <button class="btn-secondary btn-save-config" id="save-config">
+                    <i class="fa fa-bookmark"></i> Bookmark Configuration
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: View Results -->
+        <div class="wizard-step" id="step-results">
+            <div class="step-header" style="display: flex; justify-content: space-between;">
+                <div class="assistant-header">
+                    <h2><span class="step-number">4</span> Report Results</h2>
+                    <p id="results-report-name">Your generated report</p>
+                </div>
+               <div class="back-to-categories-btn">
+                     <button class="btn-back" id="back-to-config">
+                    <i class="fa fa-arrow-left"></i> Back to Configuration
+                     </button>
+                </div>
+            </div>
+            
+            <div class="results-container">
+                <div class="results-toolbar">
+                    <div class="results-info">
+                        <span id="results-count">Loading...</span>
+                    </div>
+                    <div class="results-actions">
+                        <div class="export-dropdown">
+                            <button class="btn-export" id="export-btn">
+                                <i class="fa fa-download"></i> Export
+                                <i class="fa fa-chevron-down"></i>
+                            </button>
+                            <div class="export-menu" id="export-menu">
+                                <a href="#" data-format="csv" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                                    <i class="fa fa-file-text-o"></i> CSV
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                </a>
+                                <a href="#" data-format="excel" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                                    <i class="fa fa-file-excel-o"></i> Excel
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                </a>
+                                <a href="#" data-format="pdf"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                                <a href="#" data-format="json" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                                    <i class="fa fa-code"></i> JSON
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                </a>
+                            </div>
+                        </div>
+                        <button class="btn-bookmark" id="bookmark-report">
+                            <i class="fa fa-star-o"></i> Bookmark
+                        </button>
+                        <button class="btn-regenerate" id="regenerate-report">
+                            <i class="fa fa-refresh"></i> Regenerate
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="results-content">
+                    <div class="results-tabs">
+                        <button class="tab-btn active" data-tab="table">
+                            <i class="fa fa-table"></i> Table View
+                        </button>
+                        <button class="tab-btn" data-tab="chart">
+                            <i class="fa fa-bar-chart"></i> Chart View
+                        </button>
+                    </div>
+                    
+                    <div class="results-data">
+                        <div class="tab-content active" id="table-view">
+                            <div class="table-container" id="results-table">
+                                <!-- Table will be populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="tab-content" id="chart-view">
+                            <div class="chart-container" id="results-chart">
+                                <!-- Chart will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generated Reports Section -->
+    <div class="wizard-section" id="generated-reports-section" style="display: none;">
+        <div class="step-header">
+            <h2><span class="step-number">📊</span> Generated Reports</h2>
+            <p>Your recently generated reports with data</p>
+        </div>
+        
+        <div class="category-grid" id="generated-reports-grid">
+            <!-- Generated report cards will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Recent Reports Section -->
+    <div class="wizard-section" id="recent-reports-section" style="display: none;">
+        <div class="step-header">
+            <h2><span class="step-number">🕒</span> Recent Reports</h2>
+            <p>Your recently accessed reports</p>
+            <div class="section-actions">
+                <button class="btn-toggle-recent" id="toggle-recent-reports">
+                    <i class="fa fa-eye"></i> Show All
+                </button>
+                <button class="btn-clear-recent" id="clear-recent-reports">
+                    <i class="fa fa-trash"></i> Clear All
+                </button>
+            </div>
+        </div>
+        
+        <div class="category-grid" id="recent-reports-grid">
+            <!-- Recent report cards will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Bookmarks Section -->
+    <div class="wizard-section" id="bookmarks-section" style="display: none;">
+        <div class="step-header">
+            <h2><span class="step-number">⭐</span> Bookmarked Reports</h2>
+            <p>Your saved favorite reports</p>
+            <div class="section-actions">
+                <button class="btn-clear-bookmarks" id="clear-bookmarked-reports">
+                    <i class="fa fa-trash"></i> Clear All
+                </button>
+            </div>
+        </div>
+        
+        <div class="category-grid" id="bookmarks-grid">
+            <!-- Bookmark cards will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Generating Report...</h3>
+            <p>Please wait while we process your request</p>
+        </div>
+    </div>
+
+    <!-- Success/Error Popup -->
+    <div class="popup-overlay" id="popup-overlay">
+        <div class="popup-content" id="popup-content">
+            <h3 id="popup-title">Message</h3>
+            <p id="popup-message">This is a message</p>
+            <button class="btn-close" id="popup-close">OK</button>
+        </div>
+    </div>
+
+    <!-- Hidden Data for JavaScript -->
+    <script type="application/json" id="wizard-data">
+        {
+            "categories": {{{categories_json}}},
+            "wwwroot": "{{wwwroot}}",
+            "sesskey": "{{sesskey}}",
+            "api_key": "{{api_key}}",
+            "backend_api_url": "{{backend_api_url}}",
+            "bookmarked_report_ids": {{{bookmarked_report_ids}}},
+            "is_free_plan": {{is_free_plan}},
+            "subscription": {{{subscription_json}}},
+            "recent_reports": {{{recent_reports_json}}},
+            "generated_reports": {{{generated_reports_json}}},
+            "bookmarks": {{{bookmarks_json}}}
+        }
+    </script>
+</div>
+

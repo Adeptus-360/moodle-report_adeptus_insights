@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="report/adeptus_insights/db" VERSION="2024050801" COMMENT="Adeptus Insights DB schema with Stripe integration">
+    <TABLES>
+
+        <!-- 1. Materialized Base Table -->
+        <TABLE NAME="ai_analytics_base" COMMENT="Nightly flattened snapshot of user-course interactions">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="logins" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="assignments_submitted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="forum_posts" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="resource_clicks" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="last_login" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="average_grade" TYPE="number" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 2. Report Result Cache -->
+        <TABLE NAME="ai_report_cache" COMMENT="Cached report results by user/session for fast reloads">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="jsondata" TYPE="text" NOTNULL="true"/>
+                <FIELD NAME="hashkey" TYPE="char" LENGTH="64" NOTNULL="true"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="uniqcache" TYPE="unique" FIELDS="userid,hashkey"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 3. Report Configurations -->
+        <TABLE NAME="ai_report_config" COMMENT="User-created report metadata (fields, filters, questions)">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+                <FIELD NAME="question" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="fields" TYPE="text" NOTNULL="true"/>
+                <FIELD NAME="filters" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="visualization" TYPE="char" LENGTH="50" NOTNULL="false"/>
+                <FIELD NAME="shared" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 4. Predefined and Custom Reports Table for Report Wizard -->
+        <TABLE NAME="adeptus_reports" COMMENT="Predefined and custom reports for the wizard">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="category" TYPE="char" LENGTH="100" NOTNULL="true"/>
+                <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="sqlquery" TYPE="text" NOTNULL="true"/>
+                <FIELD NAME="parameters" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="charttype" TYPE="char" LENGTH="50" NOTNULL="false"/>
+                <FIELD NAME="isactive" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+                <FIELD NAME="min_moodle_version" TYPE="char" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="max_moodle_version" TYPE="char" LENGTH="10" NOTNULL="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 5. User Report History Table for Report Wizard -->
+        <TABLE NAME="adeptus_report_history" COMMENT="User report generation history for wizard">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="parameters" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="generatedat" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="resultpath" TYPE="char" LENGTH="255" NOTNULL="false"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 6. User Bookmarks Table for Report Wizard -->
+        <TABLE NAME="adeptus_report_bookmarks" COMMENT="User report bookmarks for wizard">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="createdat" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 7. Installation Settings Table -->
+        <TABLE NAME="adeptus_install_settings" COMMENT="Plugin installation settings and API configuration">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="api_key" TYPE="char" LENGTH="64" NOTNULL="true"/>
+                <FIELD NAME="api_url" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="installation_id" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="is_registered" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="registration_date" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="last_sync" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="settings" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="uniqapikey" TYPE="unique" FIELDS="api_key"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 8. Enhanced Subscription Status Table with Stripe Integration -->
+        <TABLE NAME="adeptus_subscription_status" COMMENT="Local subscription status tracking with Stripe integration">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="stripe_customer_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
+                <FIELD NAME="stripe_subscription_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
+                <FIELD NAME="plan_name" TYPE="char" LENGTH="100" NOTNULL="true"/>
+                <FIELD NAME="plan_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
+                <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true"/>
+                <FIELD NAME="current_period_start" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="current_period_end" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="ai_credits_remaining" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="ai_credits_pro_remaining" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="ai_credits_basic_remaining" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="exports_remaining" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="billing_email" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="last_updated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="stripe_customer" TYPE="unique" FIELDS="stripe_customer_id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 9. Stripe Webhook Events Table -->
+        <TABLE NAME="adeptus_stripe_webhooks" COMMENT="Stripe webhook event tracking">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="stripe_event_id" TYPE="char" LENGTH="100" NOTNULL="true"/>
+                <FIELD NAME="event_type" TYPE="char" LENGTH="100" NOTNULL="true"/>
+                <FIELD NAME="stripe_customer_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
+                <FIELD NAME="stripe_subscription_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
+                <FIELD NAME="event_data" TYPE="text" NOTNULL="true"/>
+                <FIELD NAME="processed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="stripe_event" TYPE="unique" FIELDS="stripe_event_id"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- 10. Usage Tracking Table -->
+        <TABLE NAME="adeptus_usage_tracking" COMMENT="Track AI credits and export usage">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="usage_type" TYPE="char" LENGTH="20" NOTNULL="true"/>
+                <FIELD NAME="credits_used" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1"/>
+                <FIELD NAME="model_type" TYPE="char" LENGTH="20" NOTNULL="false"/>
+                <FIELD NAME="description" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="user_usage" TYPE="unique" FIELDS="userid,usage_type"/>
+            </KEYS>
+        </TABLE>
+
+        <!-- Export Tracking for Free Plan Users -->
+        <TABLE NAME="adeptus_export_tracking" COMMENT="Track exports for free plan users">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportname" TYPE="text" NOTNULL="true"/>
+                <FIELD NAME="format" TYPE="char" LENGTH="20" NOTNULL="true"/>
+                <FIELD NAME="exportedat" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+                <INDEX NAME="exportedat_idx" UNIQUE="false" FIELDS="exportedat"/>
+            </INDEXES>
+        </TABLE>
+
+    </TABLES>
+</XMLDB>

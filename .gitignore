@@ -1,0 +1,28 @@
+# Moodle plugin .gitignore
+
+# Sensitive configuration
+config.php
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Node modules (if any)
+node_modules/
+
+# Compiled files
+*.min.js
+*.min.css
