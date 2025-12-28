@@ -273,17 +273,27 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                     // Color picker toggle
                     $('#color-picker-toggle').on('click', function(e) {
+                        e.preventDefault();
                         e.stopPropagation();
-                        $('#color-dropdown').toggleClass('show');
+                        var dropdown = $('#color-dropdown');
+                        dropdown.toggleClass('show');
+                    });
+
+                    // Prevent dropdown from closing when clicking inside it
+                    $('#color-dropdown').on('click', function(e) {
+                        e.stopPropagation();
                     });
 
                     // Close dropdown when clicking outside
-                    $(document).on('click.colorDropdown', function() {
-                        $('#color-dropdown').removeClass('show');
+                    $(document).on('click.colorDropdown', function(e) {
+                        if (!$(e.target).closest('.cat-add-color-wrapper').length) {
+                            $('#color-dropdown').removeClass('show');
+                        }
                     });
 
                     // Color swatch selection
                     $('.cat-color-swatch').on('click', function(e) {
+                        e.preventDefault();
                         e.stopPropagation();
                         selectedColor = $(this).data('color');
                         $('#selected-color-preview').css('background', selectedColor);
@@ -292,7 +302,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     });
 
                     // Custom color picker
-                    $('#new-category-color').on('input', function() {
+                    $('#new-category-color').on('input change', function(e) {
+                        e.stopPropagation();
                         selectedColor = $(this).val();
                         $('#selected-color-preview').css('background', selectedColor);
                     });
@@ -1803,7 +1814,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 .cat-modal-popup {
     border-radius: 16px !important;
     padding: 0 !important;
-    overflow: hidden;
+    overflow: visible !important;
 }
 
 .cat-modal-popup .swal2-title {
@@ -1899,6 +1910,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
 .cat-add-color-wrapper {
     position: relative;
+    z-index: 10;
+}
+
+/* Ensure SweetAlert doesn't clip the dropdown */
+.cat-modal-popup .swal2-html-container {
+    overflow: visible !important;
+}
+
+.cat-add-section {
+    overflow: visible;
+}
+
+.cat-add-form {
+    overflow: visible;
+}
+
+.cat-add-input-wrapper {
+    overflow: visible;
 }
 
 .cat-add-color-btn {
@@ -1911,10 +1940,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     background: transparent;
     cursor: pointer;
     transition: background 0.15s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
 }
 
 .cat-add-color-btn:hover {
-    background: #f8fafc;
+    background: #f1f5f9;
+}
+
+.cat-add-color-btn:focus {
+    background: #f1f5f9;
+    outline: none;
 }
 
 .cat-add-color-preview {
@@ -1935,19 +1973,22 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     right: 0;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
     padding: 12px;
-    z-index: 100;
+    z-index: 9999;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-8px);
-    transition: all 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+    min-width: 180px;
 }
 
 .cat-color-dropdown.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+    pointer-events: auto;
 }
 
 .cat-color-swatches {
