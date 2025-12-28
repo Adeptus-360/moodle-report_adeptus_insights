@@ -73,8 +73,20 @@
             <!-- Report Preview -->
             <div class="col-md-8">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0 report-view-title">Select a Report</h5>
+                        <div class="report-category-selector d-none" id="report-category-selector">
+                            <div class="category-dropdown-wrapper">
+                                <button type="button" class="category-current-btn" id="category-current-btn">
+                                    <span class="category-dot" id="category-dot"></span>
+                                    <span class="category-name" id="category-name">General</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="category-dropdown-menu" id="category-dropdown-menu">
+                                    <!-- Categories will be injected here -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body p-4 report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                         <div id="report-placeholder" class="text-center py-5">
@@ -564,6 +576,111 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             });
         },
 
+        /**
+         * Show the category selector for the current report
+         */
+        showReportCategorySelector: function(report) {
+            var self = this;
+            var categoryInfo = report.category_info || { name: report.category || 'General', color: '#6c757d' };
+
+            // Update current category display
+            $('#category-dot').css('background', categoryInfo.color || '#6c757d');
+            $('#category-name').text(categoryInfo.name || 'General');
+            $('#report-category-selector').removeClass('d-none');
+
+            // Build dropdown menu
+            var menuHtml = this.cachedCategories.map(function(cat) {
+                var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
+                                 (!categoryInfo.id && cat.name.toLowerCase() === (categoryInfo.name || 'general').toLowerCase());
+                return '<button type="button" class="category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
+                    '<span class="category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                    '<span class="category-menu-name">' + cat.name + '</span>' +
+                    (isSelected ? '<svg class="category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+                '</button>';
+            }).join('');
+
+            $('#category-dropdown-menu').html(menuHtml);
+
+            // Bind events (remove old ones first)
+            $('#category-current-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#category-dropdown-menu').toggleClass('show');
+            });
+
+            $('#category-dropdown-menu').off('click').on('click', function(e) {
+                e.stopPropagation();
+            });
+
+            $('.category-menu-item').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var catId = $(this).data('id');
+                var catName = $(this).data('name');
+                var catColor = $(this).data('color');
+                $('#category-dropdown-menu').removeClass('show');
+                self.updateReportCategory(report.slug, catId, catName, catColor);
+            });
+
+            // Close on outside click
+            $(document).off('click.categoryDropdown').on('click.categoryDropdown', function(e) {
+                if (!$(e.target).closest('.category-dropdown-wrapper').length) {
+                    $('#category-dropdown-menu').removeClass('show');
+                }
+            });
+        },
+
+        /**
+         * Update a report's category
+         */
+        updateReportCategory: function(slug, categoryId, categoryName, categoryColor) {
+            var self = this;
+            var token = this.getAuthToken();
+            if (!token) return;
+
+            // Optimistic update
+            $('#category-dot').css('background', categoryColor);
+            $('#category-name').text(categoryName);
+
+            $.ajax({
+                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports/' + slug + '/category',
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({ category_id: categoryId }),
+                success: function(response) {
+                    if (response.success) {
+                        // Update cached report
+                        var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
+                        if (cacheIndex !== -1) {
+                            self.cachedReports[cacheIndex].category = categoryName;
+                            self.cachedReports[cacheIndex].category_id = categoryId;
+                            self.cachedReports[cacheIndex].category_info = {
+                                id: categoryId,
+                                name: categoryName,
+                                color: categoryColor
+                            };
+                        }
+
+                        // Show subtle success feedback
+                        $('#category-current-btn').addClass('success-flash');
+                        setTimeout(function() {
+                            $('#category-current-btn').removeClass('success-flash');
+                        }, 600);
+                    } else {
+                        // Revert on failure
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to update category' });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.message || 'Failed to update category';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            });
+        },
+
         detectNumericColumns: function(data, headers) {
             if (!data || data.length === 0) return [];
 
@@ -841,6 +958,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             if (cachedReport) {
                 $('.report-view-title').text(cachedReport.description || cachedReport.name || 'Report Details');
+                // Show category selector for assistant reports
+                if (source === 'assistant') {
+                    self.showReportCategorySelector(cachedReport);
+                } else {
+                    $('#report-category-selector').addClass('d-none');
+                }
             }
 
             // Handle wizard reports differently - they need to be executed
@@ -2433,5 +2556,167 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 .cat-edit-cancel-btn:hover {
     background: #e2e8f0 !important;
     color: #475569 !important;
+}
+
+/* Report Category Selector in Header */
+.report-category-selector {
+    position: relative;
+}
+
+.category-dropdown-wrapper {
+    position: relative;
+}
+
+.category-current-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.category-current-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.category-current-btn:focus {
+    background: rgba(255, 255, 255, 0.25);
+    outline: none;
+}
+
+.category-current-btn .category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.category-current-btn .category-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-current-btn svg {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.category-current-btn.success-flash {
+    animation: categorySuccessFlash 0.6s ease;
+}
+
+@keyframes categorySuccessFlash {
+    0%, 100% { background: rgba(255, 255, 255, 0.15); }
+    50% { background: rgba(16, 185, 129, 0.5); }
+}
+
+/* Category Dropdown Menu */
+.category-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    padding: 6px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+
+.category-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.category-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.category-menu-item:hover {
+    background: #f1f5f9;
+}
+
+.category-menu-item.selected {
+    background: #eff6ff;
+}
+
+.category-menu-item.selected .category-menu-name {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.category-menu-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.category-menu-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-menu-check {
+    color: #2563eb;
+    flex-shrink: 0;
+}
+
+/* Dropdown scrollbar */
+.category-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 </style>
