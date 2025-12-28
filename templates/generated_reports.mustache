@@ -165,58 +165,146 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         showCategoryManagementModal: function() {
             var self = this;
 
-            // Build category list HTML
-            var categoriesHtml = self.cachedCategories.length > 0 ?
-                self.cachedCategories.map(function(cat) {
-                    var isSystem = cat.is_system;
-                    var editBtn = !isSystem ? '<button class="btn btn-sm btn-outline-primary edit-cat-btn" data-id="' + cat.id + '"><i class="fa fa-edit"></i></button>' : '';
-                    var deleteBtn = !isSystem ? '<button class="btn btn-sm btn-outline-danger delete-cat-btn" data-id="' + cat.id + '"><i class="fa fa-trash"></i></button>' : '';
-                    var systemBadge = isSystem ? '<span class="badge bg-secondary ms-2">System</span>' : '';
+            // Separate system and custom categories
+            var systemCategories = self.cachedCategories.filter(function(c) { return c.is_system; });
+            var customCategories = self.cachedCategories.filter(function(c) { return !c.is_system; });
 
-                    return '<div class="category-item d-flex justify-content-between align-items-center py-2 px-3 border-bottom" data-id="' + cat.id + '">' +
-                        '<div class="d-flex align-items-center">' +
-                            '<span class="category-color-dot me-2" style="background-color: ' + (cat.color || '#6c757d') + ';"></span>' +
-                            '<i class="fa ' + (cat.icon || 'fa-folder') + ' me-2 text-muted"></i>' +
-                            '<span class="category-name">' + cat.name + '</span>' +
-                            systemBadge +
-                            '<span class="badge bg-info ms-2">' + (cat.report_count || 0) + ' reports</span>' +
+            // Preset colors for quick selection
+            var presetColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+            // Build custom categories HTML
+            var customCategoriesHtml = customCategories.length > 0 ?
+                customCategories.map(function(cat) {
+                    return '<div class="cat-card" data-id="' + cat.id + '">' +
+                        '<div class="cat-card-color" style="background: ' + (cat.color || '#6c757d') + ';"></div>' +
+                        '<div class="cat-card-content">' +
+                            '<div class="cat-card-name">' + cat.name + '</div>' +
+                            '<div class="cat-card-meta">' + (cat.report_count || 0) + ' report' + (cat.report_count !== 1 ? 's' : '') + '</div>' +
                         '</div>' +
-                        '<div class="category-actions d-flex gap-1">' +
-                            editBtn + deleteBtn +
+                        '<div class="cat-card-actions">' +
+                            '<button class="cat-action-btn edit-cat-btn" data-id="' + cat.id + '" title="Edit">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+                            '</button>' +
+                            '<button class="cat-action-btn cat-action-btn-danger delete-cat-btn" data-id="' + cat.id + '" title="Delete">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
+                            '</button>' +
                         '</div>' +
                     '</div>';
                 }).join('') :
-                '<div class="text-center text-muted py-4"><i class="fa fa-folder-open fa-2x mb-2"></i><p>No categories found</p></div>';
+                '<div class="cat-empty-state">' +
+                    '<div class="cat-empty-icon">' +
+                        '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>' +
+                    '</div>' +
+                    '<div class="cat-empty-text">No custom categories yet</div>' +
+                    '<div class="cat-empty-hint">Create your first category above</div>' +
+                '</div>';
+
+            // Build system categories HTML
+            var systemCategoriesHtml = systemCategories.map(function(cat) {
+                return '<div class="cat-system-item">' +
+                    '<span class="cat-system-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                    '<span class="cat-system-name">' + cat.name + '</span>' +
+                    '<span class="cat-system-count">' + (cat.report_count || 0) + '</span>' +
+                '</div>';
+            }).join('');
+
+            // Build color swatches HTML
+            var colorSwatchesHtml = presetColors.map(function(color) {
+                return '<button type="button" class="cat-color-swatch" data-color="' + color + '" style="background: ' + color + ';"></button>';
+            }).join('');
 
             Swal.fire({
-                title: '<i class="fa fa-tags me-2"></i> Manage Categories',
-                html: '<div class="category-management-modal">' +
-                    '<div class="category-add-form mb-3">' +
-                        '<div class="input-group">' +
-                            '<input type="text" id="new-category-name" class="form-control" placeholder="New category name...">' +
-                            '<input type="color" id="new-category-color" class="form-control form-control-color" value="#6c757d" title="Pick a color">' +
-                            '<button type="button" class="btn btn-primary" id="add-category-btn">' +
-                                '<i class="fa fa-plus"></i> Add' +
+                title: 'Categories',
+                html: '<div class="cat-modal">' +
+                    // Add new category section
+                    '<div class="cat-add-section">' +
+                        '<div class="cat-add-header">Create new category</div>' +
+                        '<div class="cat-add-form">' +
+                            '<div class="cat-add-input-wrapper">' +
+                                '<input type="text" id="new-category-name" class="cat-add-input" placeholder="Category name">' +
+                                '<div class="cat-add-color-wrapper">' +
+                                    '<button type="button" class="cat-add-color-btn" id="color-picker-toggle">' +
+                                        '<span class="cat-add-color-preview" id="selected-color-preview" style="background: #3b82f6;"></span>' +
+                                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+                                    '</button>' +
+                                    '<div class="cat-color-dropdown" id="color-dropdown">' +
+                                        '<div class="cat-color-swatches">' + colorSwatchesHtml + '</div>' +
+                                        '<div class="cat-color-custom">' +
+                                            '<input type="color" id="new-category-color" value="#3b82f6">' +
+                                            '<span>Custom color</span>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<button type="button" class="cat-add-btn" id="add-category-btn">' +
+                                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
+                                'Add' +
                             '</button>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="categories-list" style="max-height: 350px; overflow-y: auto;">' +
-                        categoriesHtml +
+                    // Custom categories section
+                    '<div class="cat-section">' +
+                        '<div class="cat-section-header">' +
+                            '<span class="cat-section-title">Your Categories</span>' +
+                            '<span class="cat-section-count">' + customCategories.length + '</span>' +
+                        '</div>' +
+                        '<div class="cat-cards-list">' + customCategoriesHtml + '</div>' +
+                    '</div>' +
+                    // System categories section
+                    '<div class="cat-section cat-section-system">' +
+                        '<div class="cat-section-header">' +
+                            '<span class="cat-section-title">Default Categories</span>' +
+                            '<span class="cat-section-badge">Read-only</span>' +
+                        '</div>' +
+                        '<div class="cat-system-list">' + systemCategoriesHtml + '</div>' +
                     '</div>' +
                 '</div>',
                 showConfirmButton: false,
                 showCloseButton: true,
-                width: '550px',
+                width: '480px',
                 customClass: {
-                    popup: 'category-modal-popup'
+                    popup: 'cat-modal-popup',
+                    title: 'cat-modal-title',
+                    closeButton: 'cat-modal-close',
+                    htmlContainer: 'cat-modal-container'
                 },
                 didOpen: function() {
+                    var selectedColor = '#3b82f6';
+
+                    // Color picker toggle
+                    $('#color-picker-toggle').on('click', function(e) {
+                        e.stopPropagation();
+                        $('#color-dropdown').toggleClass('show');
+                    });
+
+                    // Close dropdown when clicking outside
+                    $(document).on('click.colorDropdown', function() {
+                        $('#color-dropdown').removeClass('show');
+                    });
+
+                    // Color swatch selection
+                    $('.cat-color-swatch').on('click', function(e) {
+                        e.stopPropagation();
+                        selectedColor = $(this).data('color');
+                        $('#selected-color-preview').css('background', selectedColor);
+                        $('#new-category-color').val(selectedColor);
+                        $('#color-dropdown').removeClass('show');
+                    });
+
+                    // Custom color picker
+                    $('#new-category-color').on('input', function() {
+                        selectedColor = $(this).val();
+                        $('#selected-color-preview').css('background', selectedColor);
+                    });
+
                     // Add category button handler
                     $('#add-category-btn').on('click', function() {
                         var name = $('#new-category-name').val().trim();
-                        var color = $('#new-category-color').val();
                         if (name) {
-                            self.createCategory(name, color);
+                            self.createCategory(name, selectedColor);
+                        } else {
+                            $('#new-category-name').addClass('error').focus();
+                            setTimeout(function() { $('#new-category-name').removeClass('error'); }, 500);
                         }
                     });
 
@@ -228,22 +316,29 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     });
 
                     // Edit button handlers
-                    $('.edit-cat-btn').on('click', function() {
+                    $('.edit-cat-btn').on('click', function(e) {
+                        e.stopPropagation();
                         var catId = $(this).data('id');
                         var cat = self.cachedCategories.find(function(c) { return c.id == catId; });
                         if (cat) {
+                            $(document).off('click.colorDropdown');
                             self.showEditCategoryDialog(cat);
                         }
                     });
 
                     // Delete button handlers
-                    $('.delete-cat-btn').on('click', function() {
+                    $('.delete-cat-btn').on('click', function(e) {
+                        e.stopPropagation();
                         var catId = $(this).data('id');
                         var cat = self.cachedCategories.find(function(c) { return c.id == catId; });
                         if (cat) {
+                            $(document).off('click.colorDropdown');
                             self.confirmDeleteCategory(cat);
                         }
                     });
+                },
+                willClose: function() {
+                    $(document).off('click.colorDropdown');
                 }
             });
         },
@@ -287,20 +382,67 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         showEditCategoryDialog: function(category) {
             var self = this;
+            var presetColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+            var colorSwatchesHtml = presetColors.map(function(color) {
+                var isSelected = color.toLowerCase() === (category.color || '#6c757d').toLowerCase();
+                return '<button type="button" class="edit-color-swatch' + (isSelected ? ' selected' : '') + '" data-color="' + color + '" style="background: ' + color + ';"></button>';
+            }).join('');
 
             Swal.fire({
                 title: 'Edit Category',
-                html: '<div class="mb-3">' +
-                    '<label class="form-label">Name</label>' +
-                    '<input type="text" id="edit-cat-name" class="form-control" value="' + category.name.replace(/"/g, '&quot;') + '">' +
-                '</div>' +
-                '<div class="mb-3">' +
-                    '<label class="form-label">Color</label>' +
-                    '<input type="color" id="edit-cat-color" class="form-control form-control-color w-100" value="' + (category.color || '#6c757d') + '">' +
+                html: '<div class="cat-edit-modal">' +
+                    '<div class="cat-edit-preview" id="edit-preview">' +
+                        '<div class="cat-edit-preview-color" id="edit-preview-color" style="background: ' + (category.color || '#6c757d') + ';"></div>' +
+                        '<span class="cat-edit-preview-name" id="edit-preview-name">' + category.name + '</span>' +
+                    '</div>' +
+                    '<div class="cat-edit-field">' +
+                        '<label class="cat-edit-label">Name</label>' +
+                        '<input type="text" id="edit-cat-name" class="cat-edit-input" value="' + category.name.replace(/"/g, '&quot;') + '">' +
+                    '</div>' +
+                    '<div class="cat-edit-field">' +
+                        '<label class="cat-edit-label">Color</label>' +
+                        '<div class="cat-edit-colors">' +
+                            '<div class="cat-edit-swatches">' + colorSwatchesHtml + '</div>' +
+                            '<div class="cat-edit-custom">' +
+                                '<input type="color" id="edit-cat-color" value="' + (category.color || '#6c757d') + '">' +
+                                '<span>Custom</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
                 '</div>',
                 showCancelButton: true,
                 confirmButtonText: 'Save Changes',
-                confirmButtonColor: '#28a745',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'cat-edit-popup',
+                    confirmButton: 'cat-edit-confirm-btn',
+                    cancelButton: 'cat-edit-cancel-btn'
+                },
+                didOpen: function() {
+                    var selectedColor = category.color || '#6c757d';
+
+                    // Live preview update
+                    $('#edit-cat-name').on('input', function() {
+                        $('#edit-preview-name').text($(this).val() || 'Category');
+                    });
+
+                    // Color swatch selection
+                    $('.edit-color-swatch').on('click', function() {
+                        selectedColor = $(this).data('color');
+                        $('.edit-color-swatch').removeClass('selected');
+                        $(this).addClass('selected');
+                        $('#edit-preview-color').css('background', selectedColor);
+                        $('#edit-cat-color').val(selectedColor);
+                    });
+
+                    // Custom color picker
+                    $('#edit-cat-color').on('input', function() {
+                        selectedColor = $(this).val();
+                        $('.edit-color-swatch').removeClass('selected');
+                        $('#edit-preview-color').css('background', selectedColor);
+                    });
+                },
                 preConfirm: function() {
                     var name = document.getElementById('edit-cat-name').value.trim();
                     var color = document.getElementById('edit-cat-color').value;
@@ -1657,64 +1799,598 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     }
 }
 
-/* Category Management Modal */
-.category-management-modal .categories-list {
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background: #f8f9fa;
-}
-
-.category-management-modal .category-item {
-    background: white;
-    transition: background-color 0.15s ease;
-}
-
-.category-management-modal .category-item:hover {
-    background-color: #f8f9fa;
-}
-
-.category-management-modal .category-item:first-child {
-    border-radius: 8px 8px 0 0;
-}
-
-.category-management-modal .category-item:last-child {
-    border-radius: 0 0 8px 8px;
-    border-bottom: none;
-}
-
-.category-color-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    border: 1px solid rgba(0,0,0,0.1);
-}
-
-.category-management-modal .input-group {
-    border-radius: 8px;
+/* Category Management Modal - Modern Design */
+.cat-modal-popup {
+    border-radius: 16px !important;
+    padding: 0 !important;
     overflow: hidden;
 }
 
-.category-management-modal .form-control-color {
-    width: 45px;
-    padding: 0.375rem;
-    cursor: pointer;
+.cat-modal-popup .swal2-title {
+    display: none !important;
 }
 
-.category-management-modal .category-actions {
-    opacity: 0.6;
+.cat-modal-popup .swal2-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 24px;
+    transition: all 0.15s ease;
+    z-index: 10;
+}
+
+.cat-modal-popup .swal2-close:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.cat-modal-popup .swal2-html-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.cat-modal {
+    text-align: left;
+}
+
+/* Add Section */
+.cat-add-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cat-add-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.cat-add-form {
+    display: flex;
+    gap: 10px;
+}
+
+.cat-add-input-wrapper {
+    flex: 1;
+    display: flex;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.15s ease;
+}
+
+.cat-add-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cat-add-input {
+    flex: 1;
+    border: none;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    background: transparent;
+}
+
+.cat-add-input::placeholder {
+    color: #94a3b8;
+}
+
+.cat-add-input.error {
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.cat-add-color-wrapper {
+    position: relative;
+}
+
+.cat-add-color-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-left: 1px solid #e2e8f0;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.cat-add-color-btn:hover {
+    background: #f8fafc;
+}
+
+.cat-add-color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-add-color-btn svg {
+    color: #94a3b8;
+}
+
+/* Color Dropdown */
+.cat-color-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 12px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+}
+
+.cat-color-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.cat-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cat-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-color-custom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cat-color-custom input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cat-color-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.cat-color-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+}
+
+.cat-color-custom span {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Add Button */
+.cat-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.cat-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.cat-add-btn:active {
+    transform: translateY(0);
+}
+
+/* Sections */
+.cat-section {
+    padding: 20px 24px;
+}
+
+.cat-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.cat-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.cat-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    background: #e2e8f0;
+    color: #64748b;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cat-section-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Custom Category Cards */
+.cat-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.cat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+}
+
+.cat-card:hover {
+    background: #f1f5f9;
+}
+
+.cat-card-color {
+    width: 6px;
+    height: 40px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.cat-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.cat-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cat-card-meta {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.cat-card-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
     transition: opacity 0.15s ease;
 }
 
-.category-management-modal .category-item:hover .category-actions {
+.cat-card:hover .cat-card-actions {
     opacity: 1;
 }
 
-.category-modal-popup {
-    border-radius: 12px !important;
+.cat-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.category-modal-popup .swal2-title {
-    font-size: 1.25rem;
+.cat-action-btn:hover {
+    background: white;
+    color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.cat-action-btn-danger:hover {
+    color: #ef4444;
+}
+
+/* Empty State */
+.cat-empty-state {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.cat-empty-icon {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.cat-empty-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.cat-empty-hint {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* System Categories */
+.cat-section-system {
+    background: #fafbfc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cat-system-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cat-system-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.cat-system-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cat-system-name {
+    color: #475569;
+    font-weight: 500;
+}
+
+.cat-system-count {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* Scrollbar styling */
+.cat-cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cat-cards-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cat-cards-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.cat-cards-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Edit Category Dialog */
+.cat-edit-popup {
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
+
+.cat-edit-popup .swal2-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+}
+
+.cat-edit-modal {
+    text-align: left;
+}
+
+.cat-edit-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.cat-edit-preview-color {
+    width: 8px;
+    height: 36px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.cat-edit-preview-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.cat-edit-field {
+    margin-bottom: 16px;
+}
+
+.cat-edit-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.cat-edit-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.cat-edit-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cat-edit-colors {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cat-edit-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.edit-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.edit-color-swatch.selected {
+    border-color: #1e293b;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+}
+
+.cat-edit-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 16px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.cat-edit-custom input[type="color"] {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.cat-edit-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.cat-edit-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-edit-custom span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.cat-edit-confirm-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+.cat-edit-confirm-btn:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.cat-edit-cancel-btn {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+}
+
+.cat-edit-cancel-btn:hover {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
 }
 </style>
