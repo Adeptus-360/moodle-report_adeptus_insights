@@ -19,7 +19,7 @@ class installation_manager {
     
     public function __construct() {
         global $DB;
-        
+
         // Load existing settings
         try {
         $settings = $DB->get_record('adeptus_install_settings', ['id' => 1]);
@@ -30,14 +30,16 @@ class installation_manager {
             $this->is_registered = (bool)$settings->is_registered;
             } else {
                 $this->api_key = '';
-                $this->api_url = 'https://ai-backend.stagingwithswift.com/api';
+                // Use centralized API config
+                $this->api_url = api_config::get_backend_url();
                 $this->installation_id = null;
                 $this->is_registered = false;
             }
         } catch (\Exception $e) {
             debugging('Failed to load installation settings: ' . $e->getMessage());
             $this->api_key = '';
-            $this->api_url = 'https://ai-backend.stagingwithswift.com/api';
+            // Use centralized API config
+            $this->api_url = api_config::get_backend_url();
             $this->installation_id = null;
             $this->is_registered = false;
         }
@@ -677,9 +679,9 @@ class installation_manager {
      * Get subscription details from the backend API
      */
     private function get_backend_subscription_details($api_key) {
-        $endpoint = 'subscription/show';
-        
-        $response = $this->make_api_request($endpoint, [], 'POST');
+        $endpoint = 'subscriptions/status';
+
+        $response = $this->make_api_request($endpoint, [], 'GET');
         
         if (!$response || !isset($response['success']) || !$response['success']) {
             debugging('Backend subscription API failed: ' . json_encode($response));
@@ -1008,14 +1010,19 @@ class installation_manager {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        // Only set POSTFIELDS for non-GET requests
+        if ($method !== 'GET' && !empty($data)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
         // Add API key to headers for authenticated endpoints
         $headers = ['Content-Type: application/json'];
         if ($this->api_key && !in_array($endpoint, ['subscription/config'])) {
-            $headers[] = 'X-API-Key: ' . $this->api_key;
-            debugging('Adding API key to headers for endpoint: ' . $endpoint);
+            $headers[] = 'Authorization: Bearer ' . $this->api_key;
+            debugging('Adding API key (Bearer token) to headers for endpoint: ' . $endpoint);
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
@@ -1475,7 +1482,7 @@ class installation_manager {
                 'return_url' => $return_url,
                 'stripe_customer_id' => $stripe_customer_id
             ]);
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 return [
                     'success' => true,
@@ -1492,6 +1499,380 @@ class installation_manager {
                 'success' => false,
                 'message' => 'Error creating portal session: ' . $e->getMessage()
             ];
+        }
+    }
+
+    // =======================================================================
+    // USAGE TRACKING METHODS (Enterprise-grade subscription tier management)
+    // =======================================================================
+
+    /**
+     * Get subscription status with full usage data
+     * Returns current usage, limits, and remaining quotas
+     */
+    public function get_subscription_with_usage() {
+        try {
+            if (!$this->is_registered()) {
+                return $this->get_free_tier_defaults();
+            }
+
+            $response = $this->make_api_request('subscriptions/status', [], 'GET');
+
+            if (!$response || !isset($response['success']) || !$response['success']) {
+                debugging('Failed to get subscription with usage: ' . json_encode($response));
+                return $this->get_free_tier_defaults();
+            }
+
+            $data = $response['data'];
+
+            // Transform to standardized format
+            return [
+                'subscription' => $data['subscription'] ?? null,
+                'plan' => $data['plan'] ?? null,
+                'limits' => $data['limits'] ?? [],
+                'usage' => $data['usage'] ?? [],
+                'is_active' => $data['subscription']['is_active'] ?? false,
+                'tier' => $data['plan']['tier'] ?? 'free',
+
+                // Convenience accessors for usage
+                'reports_remaining' => $data['usage']['reports_remaining'] ?? 10,
+                'reports_total' => $data['usage']['reports_generated_total'] ?? 0,
+                'reports_limit' => $data['usage']['reports_total_limit'] ?? 10,
+                'is_over_report_limit' => $data['usage']['is_over_report_limit'] ?? false,
+
+                'exports_remaining' => $data['usage']['exports_remaining'] ?? 3,
+                'exports_used' => $data['usage']['exports_used_this_period'] ?? 0,
+                'exports_limit' => $data['usage']['exports_limit'] ?? 3,
+
+                'ai_credits_basic_remaining' => $data['usage']['ai_credits_basic_remaining'] ?? 100,
+                'ai_credits_premium_remaining' => $data['usage']['ai_credits_premium_remaining'] ?? 5,
+
+                // Billing period
+                'billing_period_start' => $data['usage']['billing_period_start'] ?? null,
+                'billing_period_end' => $data['usage']['billing_period_end'] ?? null,
+
+                // Export formats
+                'export_formats' => $data['limits']['export_formats'] ?? ['pdf'],
+            ];
+
+        } catch (\Exception $e) {
+            debugging('Exception getting subscription with usage: ' . $e->getMessage());
+            return $this->get_free_tier_defaults();
+        }
+    }
+
+    /**
+     * Get free tier default values
+     */
+    private function get_free_tier_defaults() {
+        return [
+            'subscription' => null,
+            'plan' => ['tier' => 'free', 'name' => 'Free'],
+            'limits' => [
+                'reports_total_limit' => 10,
+                'exports_per_month' => 3,
+                'ai_credits_basic' => 100,
+                'ai_credits_premium' => 5,
+                'export_formats' => ['pdf'],
+            ],
+            'usage' => [],
+            'is_active' => false,
+            'tier' => 'free',
+
+            'reports_remaining' => 10,
+            'reports_total' => 0,
+            'reports_limit' => 10,
+            'is_over_report_limit' => false,
+
+            'exports_remaining' => 3,
+            'exports_used' => 0,
+            'exports_limit' => 3,
+
+            'ai_credits_basic_remaining' => 100,
+            'ai_credits_premium_remaining' => 5,
+
+            'billing_period_start' => null,
+            'billing_period_end' => null,
+
+            'export_formats' => ['pdf'],
+        ];
+    }
+
+    /**
+     * Check if user can generate a specific report
+     *
+     * @param string $report_key The report key to check
+     * @return array Result with 'allowed', 'reason', 'message' keys
+     */
+    public function check_report_access($report_key) {
+        try {
+            if (!$this->is_registered()) {
+                // For unregistered installations, allow free tier reports only
+                return [
+                    'allowed' => true, // Allow generation but track locally
+                    'reason' => 'unregistered',
+                    'message' => 'Installation not registered - using free tier defaults',
+                    'tier' => 'free'
+                ];
+            }
+
+            // Call backend API to check report access
+            $response = $this->make_api_request('v1/reports/check-access', [
+                'report_key' => $report_key
+            ]);
+
+            if (!$response || !isset($response['success'])) {
+                debugging('Failed to check report access: ' . json_encode($response));
+                return [
+                    'allowed' => true, // Fail open for now
+                    'reason' => 'api_error',
+                    'message' => 'Could not verify access - allowing by default',
+                ];
+            }
+
+            if ($response['success'] && isset($response['data']['allowed'])) {
+                return [
+                    'allowed' => $response['data']['allowed'],
+                    'reason' => $response['data']['reason'] ?? 'allowed',
+                    'message' => $response['data']['message'] ?? '',
+                    'required_tier' => $response['data']['required_tier'] ?? null,
+                    'current_tier' => $response['data']['current_tier'] ?? null,
+                    'current_usage' => $response['data']['current_usage'] ?? null,
+                    'limit' => $response['data']['limit'] ?? null,
+                    'upgrade_url' => $response['data']['upgrade_url'] ?? null,
+                ];
+            }
+
+            return [
+                'allowed' => false,
+                'reason' => $response['data']['reason'] ?? 'unknown',
+                'message' => $response['data']['message'] ?? 'Access denied',
+            ];
+
+        } catch (\Exception $e) {
+            debugging('Exception checking report access: ' . $e->getMessage());
+            return [
+                'allowed' => true, // Fail open
+                'reason' => 'exception',
+                'message' => 'Could not verify access - allowing by default',
+            ];
+        }
+    }
+
+    /**
+     * Track report generation after successful execution
+     *
+     * @param string $report_key The report key that was generated
+     * @param bool $is_ai_generated Whether this is an AI-generated report
+     * @return bool Success status
+     */
+    public function track_report_generation($report_key, $is_ai_generated = false) {
+        try {
+            if (!$this->is_registered()) {
+                debugging('Cannot track report generation - not registered');
+                return false;
+            }
+
+            $response = $this->make_api_request('v1/usage/track-report', [
+                'report_key' => $report_key,
+                'is_ai_generated' => $is_ai_generated,
+            ]);
+
+            if ($response && isset($response['success']) && $response['success']) {
+                debugging('Report generation tracked: ' . $report_key);
+                return true;
+            }
+
+            debugging('Failed to track report generation: ' . json_encode($response));
+            return false;
+
+        } catch (\Exception $e) {
+            debugging('Exception tracking report generation: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Track report deletion (decrements usage count)
+     *
+     * @param string $report_key The report key that was deleted
+     * @param bool $is_ai_generated Whether this was an AI-generated report
+     * @return bool Success status
+     */
+    public function track_report_deletion($report_key, $is_ai_generated = false) {
+        try {
+            if (!$this->is_registered()) {
+                return false;
+            }
+
+            $response = $this->make_api_request('v1/usage/track-report-deletion', [
+                'report_key' => $report_key,
+                'is_ai_generated' => $is_ai_generated,
+            ]);
+
+            return $response && isset($response['success']) && $response['success'];
+
+        } catch (\Exception $e) {
+            debugging('Exception tracking report deletion: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if user can export in a specific format
+     *
+     * @param string $format Export format (pdf, csv, xlsx, json)
+     * @return array Result with 'allowed', 'reason', 'message' keys
+     */
+    public function check_export_access($format) {
+        try {
+            $subscription = $this->get_subscription_with_usage();
+
+            // Check format access
+            $allowed_formats = $subscription['export_formats'] ?? ['pdf'];
+            if (!in_array(strtolower($format), array_map('strtolower', $allowed_formats))) {
+                return [
+                    'allowed' => false,
+                    'reason' => 'format_restricted',
+                    'message' => "Export to {$format} requires a higher tier plan",
+                    'allowed_formats' => $allowed_formats,
+                    'upgrade_required' => true,
+                ];
+            }
+
+            // Check export limit
+            $exports_remaining = $subscription['exports_remaining'] ?? 0;
+            if ($exports_remaining !== -1 && $exports_remaining <= 0) {
+                return [
+                    'allowed' => false,
+                    'reason' => 'limit_reached',
+                    'message' => 'Monthly export limit reached',
+                    'remaining' => 0,
+                    'limit' => $subscription['exports_limit'] ?? 3,
+                    'upgrade_required' => true,
+                ];
+            }
+
+            return [
+                'allowed' => true,
+                'remaining' => $exports_remaining,
+                'format' => $format,
+            ];
+
+        } catch (\Exception $e) {
+            debugging('Exception checking export access: ' . $e->getMessage());
+            return [
+                'allowed' => true, // Fail open
+                'reason' => 'exception',
+                'message' => 'Could not verify access - allowing by default',
+            ];
+        }
+    }
+
+    /**
+     * Track export usage
+     *
+     * @param string $format Export format used
+     * @return bool Success status
+     */
+    public function track_export($format) {
+        try {
+            if (!$this->is_registered()) {
+                return false;
+            }
+
+            $response = $this->make_api_request('v1/usage/track-export', [
+                'format' => $format,
+            ]);
+
+            return $response && isset($response['success']) && $response['success'];
+
+        } catch (\Exception $e) {
+            debugging('Exception tracking export: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Track AI credit usage
+     *
+     * @param string $type Credit type ('basic' or 'premium')
+     * @param int $amount Number of credits used
+     * @return bool Success status
+     */
+    public function track_ai_credits($type, $amount) {
+        try {
+            if (!$this->is_registered()) {
+                return false;
+            }
+
+            $response = $this->make_api_request('v1/usage/track-ai-credits', [
+                'type' => $type,
+                'amount' => $amount,
+            ]);
+
+            return $response && isset($response['success']) && $response['success'];
+
+        } catch (\Exception $e) {
+            debugging('Exception tracking AI credits: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Check if user is within a specific limit
+     *
+     * @param string $limit_type The limit type to check ('reports_total', 'exports', 'ai_credits_basic', 'ai_credits_premium')
+     * @return bool True if within limit
+     */
+    public function is_within_limit($limit_type) {
+        $subscription = $this->get_subscription_with_usage();
+
+        switch ($limit_type) {
+            case 'reports_total':
+                return !($subscription['is_over_report_limit'] ?? false);
+
+            case 'exports':
+                $remaining = $subscription['exports_remaining'] ?? 0;
+                return $remaining === -1 || $remaining > 0;
+
+            case 'ai_credits_basic':
+                $remaining = $subscription['ai_credits_basic_remaining'] ?? 0;
+                return $remaining === -1 || $remaining > 0;
+
+            case 'ai_credits_premium':
+                $remaining = $subscription['ai_credits_premium_remaining'] ?? 0;
+                return $remaining === -1 || $remaining > 0;
+
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * Get remaining quota for a limit type
+     *
+     * @param string $limit_type The limit type
+     * @return int Remaining quota (-1 for unlimited)
+     */
+    public function get_remaining_quota($limit_type) {
+        $subscription = $this->get_subscription_with_usage();
+
+        switch ($limit_type) {
+            case 'reports_total':
+                return $subscription['reports_remaining'] ?? 10;
+
+            case 'exports':
+                return $subscription['exports_remaining'] ?? 3;
+
+            case 'ai_credits_basic':
+                return $subscription['ai_credits_basic_remaining'] ?? 100;
+
+            case 'ai_credits_premium':
+                return $subscription['ai_credits_premium_remaining'] ?? 5;
+
+            default:
+                return -1;
         }
     }
 } 

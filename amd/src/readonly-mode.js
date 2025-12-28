@@ -11,8 +11,6 @@ define(['jquery', 'core/notification'], function($, Notification) {
          * Initialize read-only mode
          */
         init: function() {
-            console.log('[Readonly Mode] Initializing...');
-            
             // Listen for read-only mode enable event
             $(document).on('adeptus:enableReadOnly', function() {
                 ReadonlyMode.enable();
@@ -40,7 +38,6 @@ define(['jquery', 'core/notification'], function($, Notification) {
                                      (authData.auth_errors && authData.auth_errors > 0);
             
             if (shouldEnableReadOnly) {
-                console.log('[Readonly Mode] Enabling readonly mode');
                 this.enable();
             }
         },
@@ -49,8 +46,6 @@ define(['jquery', 'core/notification'], function($, Notification) {
          * Enable read-only mode
          */
         enable: function() {
-            console.log('[Readonly Mode] Enabling readonly mode');
-            
             // Add read-only class to body
             $('body').addClass('adeptus-readonly-mode');
             
@@ -74,8 +69,6 @@ define(['jquery', 'core/notification'], function($, Notification) {
          * Disable read-only mode
          */
         disable: function() {
-            console.log('[Readonly Mode] Disabling readonly mode');
-            
             // Remove read-only class from body
             $('body').removeClass('adeptus-readonly-mode');
             

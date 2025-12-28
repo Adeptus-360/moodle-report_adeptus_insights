@@ -1,5 +1,6 @@
 <?php
 require(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/classes/api_config.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
@@ -21,7 +22,7 @@ if ($action === 'login') {
         echo json_encode(['error' => 'Missing credentials']);
         exit;
     }
-    $loginUrl = 'https://swiftlearn.co.uk/opt/adeptus_ai_backend/public/api/auth/login';
+    $loginUrl = \report_adeptus_insights\api_config::get_ai_login_endpoint();
     $postData = json_encode(['email' => $email, 'password' => $password]);
     $context = stream_context_create([
         'http' => [
@@ -63,7 +64,7 @@ if (!$prompt) {
 }
 
 // Proxy request to AI backend, including auth header
-$backendUrl = 'https://swiftlearn.co.uk/opt/adeptus_ai_backend/public/report-ai?prompt=' . urlencode($prompt);
+$backendUrl = \report_adeptus_insights\api_config::get_ai_report_endpoint() . '?prompt=' . urlencode($prompt);
 $opts = [
     'http' => [
         'method' => 'GET',

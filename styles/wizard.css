@@ -625,6 +625,65 @@
     gap: 3px;
 }
 
+/* View Toggle Header */
+.results-view-header {
+    display: flex;
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    background: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* View Toggle Buttons */
+.view-toggle {
+    display: flex;
+}
+
+.view-toggle .view-toggle-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-toggle .view-toggle-btn:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.view-toggle .view-toggle-btn:last-child {
+    border-radius: 0 6px 6px 0;
+    border-left: none;
+}
+
+.view-toggle .view-toggle-btn:hover {
+    background: #e9ecef;
+}
+
+.view-toggle .view-toggle-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.view-toggle .view-toggle-btn i {
+    font-size: 14px;
+}
+
+/* View Panels */
+.view-panel {
+    padding: 1.5rem;
+}
+
+.view-panel.d-none {
+    display: none !important;
+}
+
+/* Legacy tab styles for backwards compatibility */
 .results-tabs {
     display: flex;
     background: var(--accent-color);
@@ -656,6 +715,61 @@
 
 .tab-content.active {
     display: block;
+}
+
+/* Chart Controls */
+.chart-controls-wrapper {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    margin-bottom: 1rem;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-controls .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.chart-controls .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chart-controls .form-select {
+    font-size: 13px;
+    padding: 0.4rem 2rem 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    min-width: 140px;
+}
+
+.chart-controls .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(15, 108, 191, 0.15);
+    outline: none;
+}
+
+#results-chart {
+    min-height: 400px;
+    position: relative;
+}
+
+#results-chart canvas {
+    max-height: 450px;
 }
 
 /* Loading Overlay */

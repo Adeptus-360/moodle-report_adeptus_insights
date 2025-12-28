@@ -37,8 +37,8 @@ require(__DIR__ . '/version.php');
 $cache_buster = '?v=' . $plugin->version;
 $PAGE->requires->css('/report/adeptus_insights/styles/wizard.css' . $cache_buster);
 
-// Load Chart.js from Moodle's core AMD system
-$PAGE->requires->js_call_amd('core/chartjs');
+// Chart.js is loaded by wizard.js itself (no need for AMD loader)
+// Removed: $PAGE->requires->js_call_amd('core/chartjs'); to avoid RequireJS conflicts
 
 // Then load our wizard JavaScript with version parameter
 $PAGE->requires->js('/report/adeptus_insights/js/wizard.js' . $cache_buster);

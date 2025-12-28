@@ -109,9 +109,78 @@ adeptus_insights/
 
 ### **Prerequisites**
 - **Moodle**: Version 3.9 or higher
-- **PHP**: Version 7.4 or higher
+- **PHP**: Version 7.4 or higher (8.1+ recommended)
 - **HTTPS**: Required for security
 - **Backup**: Complete system backup
+
+### **Recommended PHP Configuration**
+
+For optimal performance with large datasets and report exports, configure the following PHP settings:
+
+#### **PHP-FPM Pool Configuration** (Recommended)
+
+Edit your PHP-FPM pool configuration file (e.g., `/etc/php/8.1/fpm/pool.d/moodle.conf`):
+
+```ini
+; Memory and Execution
+php_admin_value[memory_limit] = 512M
+php_admin_value[max_execution_time] = 600
+
+; POST and Upload Limits (for large dataset exports)
+php_admin_value[post_max_size] = 100M
+php_admin_value[upload_max_filesize] = 100M
+
+; Input Variables (for reports with many parameters)
+php_admin_value[max_input_vars] = 5000
+php_admin_value[max_input_time] = 300
+
+; Session Configuration
+php_admin_value[session.save_path] = /var/lib/php/sessions/moodle/
+php_admin_value[session.gc_maxlifetime] = 7200
+```
+
+#### **Alternative: php.ini Configuration**
+
+If not using PHP-FPM pools, edit your `php.ini` file:
+
+```ini
+memory_limit = 512M
+max_execution_time = 600
+post_max_size = 100M
+upload_max_filesize = 100M
+max_input_vars = 5000
+max_input_time = 300
+```
+
+#### **Why These Settings Matter**
+
+- **memory_limit (512M)**: Handles large report generation (100K+ records) without running out of memory
+- **max_execution_time (600s)**: Allows complex queries and large exports to complete
+- **post_max_size (100M)**: Enables exporting reports with 10K-50K records via POST
+- **max_input_vars (5000)**: Supports reports with multiple parameters and filters
+- **session.gc_maxlifetime (7200s)**: Prevents session timeout during long-running report generation
+
+#### **Large Dataset Handling**
+
+The plugin includes intelligent safeguards for large datasets:
+
+- **<10K records**: Display normally in browser with pagination
+- **10K-50K records**: Show warning, offer browser view or Export Mode
+- **>50K records**: Automatic Export Mode (download only, no browser display)
+- **Backend safety limit**: Automatic LIMIT 100,000 on queries without explicit LIMIT clause
+
+#### **Restart Services After Configuration**
+
+```bash
+# Restart PHP-FPM
+sudo systemctl restart php8.1-fpm
+
+# Or for Apache with mod_php
+sudo systemctl restart apache2
+
+# Clear Moodle caches
+sudo -u www-data php /path/to/moodle/admin/cli/purge_caches.php
+```
 
 ### **Deployment Steps**
 1. **Backend Update**: Deploy new authentication middleware

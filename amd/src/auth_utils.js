@@ -11,10 +11,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Initialize authentication from Moodle data
          */
         initializeFromMoodle: function(authData) {
-            console.log('[Auth Utils] Initializing with data:', authData);
-            
             if (!authData) {
-                console.warn('[Auth Utils] No moodle auth data provided');
                 return;
             }
             
@@ -48,19 +45,11 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Check if read-only mode should be enabled
          */
         checkReadOnlyMode: function(authData) {
-            console.log('[Auth Utils] Checking read-only mode with auth data:', authData);
-            
-            var shouldEnableReadOnly = !authData || 
-                                     !authData.user_authorized || 
-                                     !authData.has_api_key || 
+            var shouldEnableReadOnly = !authData ||
+                                     !authData.user_authorized ||
+                                     !authData.has_api_key ||
                                      (authData.auth_errors && authData.auth_errors > 0);
-            
-            console.log('[Auth Utils] Read-only mode should be enabled:', shouldEnableReadOnly, 
-                       '| authData:', !!authData, 
-                       '| user_authorized:', authData?.user_authorized, 
-                       '| has_api_key:', authData?.has_api_key, 
-                       '| auth_errors:', authData?.auth_errors);
-            
+
             if (shouldEnableReadOnly) {
                 // Trigger read-only mode initialization
                 $(document).trigger('adeptus:enableReadOnly');
@@ -124,7 +113,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         setAuthStatus: function(authData) {
             if (!authData) {
-                console.warn('[Auth Utils] Attempting to set null auth data');
                 return;
             }
             
@@ -145,7 +133,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             }
             
             window.adeptusAuthData = authData;
-            console.log('[Auth Utils] Authentication status updated with mapped fields');
         },
 
         /**
@@ -153,7 +140,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         clearAuthData: function() {
             window.adeptusAuthData = null;
-            console.log('[Auth Utils] Authentication data cleared');
         },
         
         /**
@@ -176,7 +162,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Keeping for backward compatibility but making it a no-op
          */
         refreshAuthStatus: function() {
-            console.log('[Auth Utils] refreshAuthStatus called - auth data is now provided directly from PHP');
             // Auth data is provided directly from PHP via initializeFromMoodle
             // No need to make additional AJAX calls
         }

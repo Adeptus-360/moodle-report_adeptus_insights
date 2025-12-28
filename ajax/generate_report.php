@@ -6,6 +6,7 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 
 // Require login and capability
 require_login();
@@ -27,7 +28,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Fetch the report from backend API
     $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = isset($CFG->adeptus_backend_api_url) ? $CFG->adeptus_backend_api_url : 'https://ai-backend.stagingwithswift.com/api';
+    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
     
     if (!$backendEnabled) {
@@ -42,7 +43,7 @@ try {
     
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/adeptus-reports/all');
+    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -86,19 +87,91 @@ try {
         exit;
     }
 
+    // VALIDATE REPORT COMPATIBILITY
+    // Check if this report can run on current Moodle installation
+    require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
+    $validation = \report_adeptus_insights\report_validator::validate_report($report);
+
+    if (!$validation['valid']) {
+        // Report cannot be executed - missing required tables
+        $missing = implode(', ', $validation['missing_tables']);
+        error_log("Report '{$report['name']}' validation failed: {$validation['reason']}");
+
+        echo json_encode([
+            'success' => false,
+            'error' => 'report_incompatible',
+            'message' => "This report requires Moodle modules or features that are not installed on your system.",
+            'details' => $validation['reason'],
+            'missing_tables' => $validation['missing_tables']
+        ]);
+        exit;
+    }
+
+    // =========================================================================
+    // SERVER-SIDE ENFORCEMENT: Check subscription tier and usage limits
+    // =========================================================================
+    $report_key = $report['report_key'] ?? $report['name'] ?? $reportid;
+    $is_ai_generated = $report['is_ai_generated'] ?? false;
+
+    // Check if user can access this report based on tier and limits
+    $access_check = $installation_manager->check_report_access($report_key);
+
+    if (!$access_check['allowed']) {
+        $error_response = [
+            'success' => false,
+            'error' => 'access_denied',
+            'error_type' => $access_check['reason'], // 'tier_required' or 'limit_reached'
+            'message' => $access_check['message'],
+        ];
+
+        // Add upgrade info for tier-related issues
+        if ($access_check['reason'] === 'tier_required') {
+            $error_response['required_tier'] = $access_check['required_tier'] ?? null;
+            $error_response['current_tier'] = $access_check['current_tier'] ?? null;
+            $error_response['upgrade_required'] = true;
+        }
+
+        // Add usage info for limit-related issues
+        if ($access_check['reason'] === 'limit_reached') {
+            $error_response['current_usage'] = $access_check['current_usage'] ?? null;
+            $error_response['limit'] = $access_check['limit'] ?? null;
+            $error_response['upgrade_required'] = true;
+        }
+
+        // Add upgrade URL if available
+        if (!empty($access_check['upgrade_url'])) {
+            $error_response['upgrade_url'] = $access_check['upgrade_url'];
+        }
+
+        error_log("Report access denied: " . json_encode($access_check));
+        echo json_encode($error_response);
+        exit;
+    }
+    // =========================================================================
+
     // Collect ALL parameters from the request (not just those defined in backend)
     $report_params = [];
-    
+
     // First, collect parameters defined in backend report definition
     if (!empty($report['parameters'])) {
         $param_definitions = $report['parameters'];
         if (is_array($param_definitions)) {
-            foreach ($param_definitions as $param_def) {
+            // Extract actual parameter definitions (arrays with 'name' key)
+            // Skip metadata entries like 'charttype' which are scalar values
+            foreach ($param_definitions as $key => $param_def) {
+                // Check if this is a parameter definition (array with 'name' key)
+                if (!is_array($param_def) || !isset($param_def['name'])) {
+                    continue; // Skip non-parameter entries (like 'charttype')
+                }
                 $param_name = $param_def['name'];
                 $param_value = optional_param($param_name, '', PARAM_RAW);
                 // Check if parameter has a value (including 0)
                 if ($param_value !== '' && $param_value !== null) {
-                $report_params[$param_name] = $param_value;
+                    $report_params[$param_name] = $param_value;
+                } else if (isset($param_def['default'])) {
+                    // Apply default value if no value provided
+                    $report_params[$param_name] = $param_def['default'];
+                    error_log("Applied default value for parameter '{$param_name}': {$param_def['default']}");
                 }
             }
         }
@@ -138,7 +211,33 @@ try {
 
     // Execute the SQL query with parameters
     $sql = $report['sqlquery'];
-    
+
+    // SAFETY CHECK: Add safety limit if no LIMIT clause exists
+    $SAFETY_LIMIT = 100000; // Maximum 100K records to prevent browser freeze
+    // Match LIMIT with number OR named parameter (e.g., LIMIT 100 or LIMIT :limit)
+    $has_limit = preg_match('/\bLIMIT\s+(\d+|:\w+|\?)/i', $sql);
+
+    if (!$has_limit) {
+        // Log warning that safety limit is being applied
+        error_log("WARNING: Report '{$report['name']}' has no LIMIT clause. Applying safety limit of $SAFETY_LIMIT records.");
+
+        // Add LIMIT clause to the end of the query
+        // Handle queries that may end with semicolon
+        $sql = rtrim($sql);
+        $sql = rtrim($sql, ';');
+        $sql .= " LIMIT $SAFETY_LIMIT";
+
+        error_log("Modified SQL with safety limit: " . substr($sql, 0, 200) . "...");
+    }
+
+    // Handle :limit parameter specially - MySQL LIMIT doesn't support bound parameters
+    // Replace :limit directly in SQL with sanitized integer value
+    if (isset($report_params['limit']) && is_numeric($report_params['limit'])) {
+        $limit_val = min(intval($report_params['limit']), 100000); // Cap at 100K for safety
+        $sql = preg_replace('/\bLIMIT\s+:limit\b/i', 'LIMIT ' . $limit_val, $sql);
+        unset($report_params['limit']); // Remove from params as it's now in SQL
+    }
+
     // Handle both named (:param) and positional (?) parameters
     if (!empty($report_params)) {
         // Check if SQL uses named parameters (:param) or positional (?) parameters
@@ -146,24 +245,25 @@ try {
             // Convert named parameters to positional parameters for Moodle compatibility
             $sql_params = [];
             $param_order = [];
-            
+
             // Extract parameter names from SQL in order
             preg_match_all('/:(\w+)/', $sql, $matches);
             $param_order = $matches[1];
-            
+
             // Replace named parameters with positional ones
             $positional_sql = $sql;
             foreach ($param_order as $index => $param_name) {
                 $positional_sql = preg_replace('/:' . preg_quote($param_name, '/') . '\b/', '?', $positional_sql, 1);
-                
+
                 // Get parameter value with special handling
-                if ($param_name === 'days' && is_numeric($report_params[$param_name])) {
-                    $sql_params[] = time() - ($report_params[$param_name] * 24 * 60 * 60);
+                if ($param_name === 'days' && is_numeric($report_params[$param_name] ?? '')) {
+                    // Convert days to Unix timestamp cutoff
+                    $sql_params[] = time() - (intval($report_params[$param_name]) * 24 * 60 * 60);
                 } else {
                     $sql_params[] = $report_params[$param_name] ?? '';
                 }
             }
-            
+
             // Use get_records_sql with positional parameters
             if (defined('CFG_DEBUG') && CFG_DEBUG) {
                 error_log("Original SQL: " . $sql);
@@ -174,12 +274,12 @@ try {
         } else {
             // Use positional parameters
             $sql_params = [];
-        foreach ($report_params as $name => $value) {
-            // Special handling: convert 'days' to cutoff timestamp
-            if ($name === 'days' && is_numeric($value)) {
-                $sql_params[] = time() - ($value * 24 * 60 * 60);
+            foreach ($report_params as $name => $value) {
+                // Special handling: convert 'days' to cutoff timestamp
+                if ($name === 'days' && is_numeric($value)) {
+                    $sql_params[] = time() - (intval($value) * 24 * 60 * 60);
                 } else {
-                $sql_params[] = $value;
+                    $sql_params[] = $value;
                 }
             }
             // Use get_records_sql with positional parameters
@@ -276,44 +376,13 @@ try {
     if (!$is_duplicate && $report_generated && $is_new_generation) {
         error_log("DEBUG: Attempting to track report generation - is_duplicate: {$is_duplicate}, report_generated: {$report_generated}, is_new_generation: {$is_new_generation}");
         try {
-            // Get API configuration from installation manager
-        require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-            
-            $backend_api_url = $installation_manager->get_api_url();
-        $api_key = $installation_manager->get_api_key();
-        
-            error_log("DEBUG: Backend API URL: {$backend_api_url}");
-            error_log("DEBUG: API Key present: " . (!empty($api_key) ? 'YES' : 'NO'));
-            
-            $update_data = [
-                'report_name' => $report['name'],
-                'result_count' => count($results_array)
-            ];
-            
-            error_log("DEBUG: Update data: " . json_encode($update_data));
-            
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $backend_api_url . '/subscription/track-report-generation');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($update_data));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'X-API-Key: ' . $api_key
-            ]);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            
-            $response = curl_exec($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            
-            error_log("DEBUG: Backend API response - HTTP Code: {$http_code}, Response: {$response}");
-            
-            if ($http_code === 200) {
-                error_log("Successfully tracked report generation for user {$USER->id}: {$response}");
+            // Track report generation using the installation manager method
+            $tracking_result = $installation_manager->track_report_generation($report_key, $is_ai_generated);
+
+            if ($tracking_result) {
+                error_log("Successfully tracked report generation for user {$USER->id}, report: {$report_key}");
             } else {
-                error_log("Failed to track report generation: HTTP {$http_code}, Response: {$response}");
+                error_log("Failed to track report generation for report: {$report_key}");
             }
         } catch (Exception $e) {
             error_log("Error tracking report generation: " . $e->getMessage());
@@ -324,7 +393,7 @@ try {
 
     // Prepare chart data if chart type is specified
     $chart_data = null;
-    if (!empty($report->charttype) && !empty($results_array)) {
+    if (!empty($report['charttype']) && !empty($results_array)) {
         // Find the best columns for labels and values
         $label_column = $headers[0] ?? 'id';
         $value_column = null;

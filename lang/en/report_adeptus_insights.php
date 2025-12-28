@@ -42,6 +42,13 @@ $string['subscription_management'] = 'Subscription Management';
 $string['subscription_management_desc'] = 'Manage your subscription, billing, and plan upgrades.';
 $string['manage_subscription'] = 'Manage Subscription';
 
+$string['generated_reports'] = 'Generated Reports';
+$string['generated_reports_desc'] = 'View and manage all your saved reports.';
+$string['view_reports'] = 'View Reports';
+$string['generated_reports_title'] = 'Generated Reports';
+$string['no_reports_yet'] = 'No reports generated yet';
+$string['no_reports_yet_desc'] = 'Use the AI Assistant to generate reports and they will appear here.';
+
 $string['ai_driven_assistant'] = 'AI-Generated Reports';
 $string['ai_driven_assistant_desc'] = 'Get instant help and reports from our AI assistant.';
 $string['start_chat'] = 'Start Chat';

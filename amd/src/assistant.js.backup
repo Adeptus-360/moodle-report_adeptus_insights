@@ -6,30 +6,30 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         mcqQueue: [],
         reportsDataTable: null,
         cachedReports: [],
-        cachedCategories: [],
         _initCalled: false,
         isCreditLimitExceeded: false,
         init: function (authenticated) {
             if (this._initCalled) return;
             this._initCalled = true;
+            console.log('[AI Assistant] init called, authenticated:', authenticated);
             this.currentChatId = 0;
+            console.log('[AI Assistant] currentChatId set to', this.currentChatId);
             $('.container-fluid').hide();
-
-            // Initialize loader CSS styles on startup
-            this.initializeLoaderStyles();
+            console.log('[AI Assistant] .container-fluid hidden');
 
             // Initialize authentication system
             try {
                 // Check if user is authenticated
                 if (AuthUtils.isAuthenticated()) {
+                    console.log('[AI Assistant] User authenticated, proceeding with initialization');
                     this.setUserName(AuthUtils.getAuthStatus()?.user?.name || "User");
                     this.updateSubscriptionInfo();
                     this.setupEventListeners();
                     this.loadChatHistory();
                     this.loadReportsHistory();
-                    this.loadCategories(); // Load report categories for save dialog
                     $('.container-fluid').fadeIn(200);
                 } else {
+                    console.log('[AI Assistant] User not authenticated, checking auth status');
                     // Try to refresh authentication
                     AuthUtils.refreshAuthStatus();
                     
@@ -41,7 +41,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             this.setupEventListeners();
                             this.loadChatHistory();
                             this.loadReportsHistory();
-                            this.loadCategories(); // Load report categories for save dialog
                             $('.container-fluid').fadeIn(200);
                         } else {
                             // Show read-only mode or error message
@@ -57,59 +56,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        initializeLoaderStyles: function() {
-            // Add loader CSS styles early to ensure they're available
-            if ($('#ai-loader-styles').length === 0) {
-                $('head').append(`
-                    <style id="ai-loader-styles">
-                        .ai-thinking-loader-wrapper {
-                            animation: fadeInLoader 0.3s ease-out forwards;
-                        }
-
-                        .ai-thinking-loader {
-                            opacity: 1 !important;
-                        }
-
-                        @keyframes bounce-loader {
-                            0%, 80%, 100% {
-                                transform: scale(0.8);
-                                opacity: 0.5;
-                            }
-                            40% {
-                                transform: scale(1.2);
-                                opacity: 1;
-                            }
-                        }
-
-                        @keyframes fadeInLoader {
-                            from {
-                                opacity: 0;
-                                transform: translateY(10px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-
-                        @keyframes pulse-glow-loader {
-                            0% {
-                                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
-                            }
-                            70% {
-                                box-shadow: 0 0 0 8px rgba(14, 165, 233, 0);
-                            }
-                            100% {
-                                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
-                            }
-                        }
-                    </style>
-                `);
-            }
-        },
-
         showAuthenticationError: function() {
             // Show authentication error message
+            console.log('[AI Assistant] Showing authentication error');
             $('.container-fluid').html(`
                 <div class="alert alert-danger">
                     <h4>Authentication Required</h4>
@@ -207,6 +156,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     return { questions: questions, selectedAnswer: null };
                 }
             } catch (e) {
+                console.log('Error extracting MCQ from text:', e);
             }
             
             return null;
@@ -260,6 +210,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         checkAuth: function () {
             if (!AuthUtils.isAuthenticated()) {
+                console.log('[AI Assistant] User not authenticated');
                 this.showAuthenticationError();
                 return false;
             } else {
@@ -290,25 +241,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // show multiple-choice question
                 this.enqueueMCQs(response.questions);
                 return;
-            } else if (response.type === 'sql' || response.type === 'report') {
-                // Handle report generation with confirmation workflow
-                if (response.awaiting_confirmation && response.report) {
-                    // Show report data first, then confirmation prompt
-                    this.showReportConfirmation(
-                        response.report,
-                        response.report_data || null,
-                        response.message,
-                        response.credit_info,
-                        response.execution_error || null
-                    );
-                    return;
-                }
-                // Legacy handling for direct report generation
-                const reportData = response.report || response;
-                this.addMessage(reportData.description || response.message, 'ai', true, reportData, null, null, response.credit_info);
+            } else if (response.type === 'sql') {
+                // Add SQL as AI message first with report link
+                this.addMessage(response.report.description, 'ai', true, response.report, null, null, response.credit_info);
                 this.updateChatHistoryBadge(this.currentChatId);
                 // Update cache and UI directly
-                this.cachedReports.unshift(reportData);
+                this.cachedReports.unshift(response.report);
                 this.updateReportsHistory(this.cachedReports);
                 // Reinitialize DataTable for updated history
                 if (this.reportsDataTable) {
@@ -339,14 +277,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 this.reportsDataTable = new simpleDatatables.DataTable("#reports-history-table", {
                     searchable: true,
                     fixedHeight: false,
-                    perPage: 10,
-                    loading: false  // Disable loading indicator
+                    perPage: 10
                 });
-                                        // Remove the loading class from the wrapper
-                                        setTimeout(() => {
-                                            $('.datatable-wrapper').removeClass('datatable-loading');
-                                            $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
-                                        }, 100);
                                     }
                                 }
                             }
@@ -510,11 +442,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         addMessage: function (text, type, isReportLink = false, reportData = null, messageId = null, timestamp = null, creditInfo = null) {
-            // Filter out "Confidence: X%" from AI messages as it's not useful for users
-            if (type === 'ai' && text) {
-                text = text.replace(/\nConfidence:\s*\d+%\n?/gi, '\n').replace(/Confidence:\s*\d+%/gi, '').trim();
-            }
-
             const template = document.getElementById('message-template');
             const frag = template.content.cloneNode(true);
             const messageEl = frag.querySelector('.message');
@@ -522,7 +449,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (messageId) {
                 messageEl.setAttribute('data-message-id', messageId);
             }
-
+            
             // Check if message contains MCQ JSON
             const mcqData = this.extractMCQFromText(text);
             
@@ -533,8 +460,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             } else if (isReportLink && reportData) {
                 // Create a clickable report link
                 frag.querySelector('.message-text').innerHTML = `
-                    <a href="javascript:void(0)"
-                       class="report-link"
+                    <a href="javascript:void(0)" 
+                       class="report-link" 
                        data-report-slug="${reportData.slug}"
                        style="color: #007bff; text-decoration: none; cursor:pointer; padding:4px 8px; border:1px solid #dee2e6; border-radius:4px; background:#f8f9fa; display:inline-block; transition:all 0.2s;">
                         📊 ${text}
@@ -547,30 +474,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     link.onmouseenter = function() { $(this).css({'background-color':'#e9ecef','border-color':'#adb5bd','transform':'translateY(-1px)'}); };
                     link.onmouseleave = function() { $(this).css({'background-color':'#f8f9fa','border-color':'#dee2e6','transform':'translateY(0)'}); };
                 }, 0);
-            } else if (type === 'report-preview' || type === 'system-action') {
-                // Render HTML content directly for report previews and system actions
-                frag.querySelector('.message-text').innerHTML = text;
-                // Remove the message bubble styling for these types
-                messageEl.classList.add(type + '-message');
-                if (type === 'report-preview') {
-                    messageEl.style.background = 'transparent';
-                    messageEl.style.padding = '0';
-                    messageEl.style.border = 'none';
-                    messageEl.style.maxWidth = '100%';
-                } else if (type === 'system-action') {
-                    messageEl.style.background = 'transparent';
-                    messageEl.style.padding = '0';
-                    messageEl.style.border = 'none';
-                    messageEl.style.maxWidth = '100%';
-                }
             } else {
-                // Check if this is a multiple choice question from AI
-                if (type === 'ai' && this.isMultipleChoiceQuestion(text)) {
-                    const mcqHtml = this.renderMultipleChoiceOptions(text);
-                    frag.querySelector('.message-text').innerHTML = mcqHtml;
-                } else {
-                    frag.querySelector('.message-text').textContent = text;
-                }
+            frag.querySelector('.message-text').textContent = text;
             }
             
             // Add credit information for AI messages
@@ -619,211 +524,18 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             messageText.appendChild(creditBadge);
         },
 
-        /**
-         * Check if the message contains multiple choice options
-         */
-        isMultipleChoiceQuestion: function(text) {
-            // Look for pattern like "A. option" or "A) option" or "1. option" with at least 2 options
-            const letterPattern = /^[A-Z][\.\)]\s+.+$/gmi;
-            const numberPattern = /^[1-9][0-9]*[\.\)]\s+.+$/gm;
-            const letterMatches = text.match(letterPattern);
-            const numberMatches = text.match(numberPattern);
-
-
-            // Check if we have consecutive letters or consecutive numbers
-            if (letterMatches && letterMatches.length >= 2) {
-                // Check if options are consecutive (A, B, C...)
-                const letters = letterMatches.map(m => m.match(/^([A-Z])/i)[1].toUpperCase());
-                const firstLetter = letters[0].charCodeAt(0);
-                let isConsecutive = true;
-                for (let i = 1; i < Math.min(letters.length, 4); i++) {
-                    if (letters[i].charCodeAt(0) !== firstLetter + i) {
-                        isConsecutive = false;
-                        break;
-                    }
-                }
-                return isConsecutive;
-            }
-
-            if (numberMatches && numberMatches.length >= 2) {
-                // Check if options are consecutive (1, 2, 3...)
-                const numbers = numberMatches.map(m => parseInt(m.match(/^([0-9]+)/)[1]));
-                let isConsecutive = true;
-                for (let i = 1; i < Math.min(numbers.length, 4); i++) {
-                    if (numbers[i] !== numbers[0] + i) {
-                        isConsecutive = false;
-                        break;
-                    }
-                }
-                return isConsecutive;
-            }
-
-            return false;
-        },
-
-        /**
-         * Render multiple choice options as clickable buttons
-         */
-        renderMultipleChoiceOptions: function(text) {
-            const self = this;
-
-            // Split the text into question and options
-            const lines = text.split('\n');
-            let questionText = [];
-            let options = [];
-
-            lines.forEach(line => {
-                const trimmedLine = line.trim();
-                // Check if line is an option (A., B., C., D. or A), B), C), D) or 1., 2., etc.)
-                const letterMatch = trimmedLine.match(/^([A-Z])[\.\)]\s+(.+)$/i);
-                const numberMatch = trimmedLine.match(/^([1-9][0-9]*)[\.\)]\s+(.+)$/);
-
-                if (letterMatch) {
-                    options.push({
-                        letter: letterMatch[1].toUpperCase(),
-                        text: letterMatch[2].trim(),
-                        isLetter: true
-                    });
-                } else if (numberMatch) {
-                    options.push({
-                        letter: numberMatch[1],
-                        text: numberMatch[2].trim(),
-                        isLetter: false
-                    });
-                } else if (trimmedLine) {
-                    questionText.push(trimmedLine);
-                }
-            });
-
-            // Build the HTML
-            let html = '<div class="mcq-question-container">';
-
-            // Add the question text
-            html += '<div class="mcq-question-text" style="margin-bottom: 15px; white-space: pre-wrap;">';
-            html += this.escapeHtml(questionText.join('\n'));
-            html += '</div>';
-
-            // Add the options as buttons
-            if (options.length > 0) {
-                html += '<div class="mcq-options-grid" style="display: grid; gap: 10px; grid-template-columns: 1fr;">';
-
-                options.forEach(option => {
-                    const optionId = 'mcq-option-' + Date.now() + '-' + option.letter;
-                    html += `
-                        <button class="mcq-option-button"
-                                data-option="${option.letter}"
-                                id="${optionId}"
-                                style="
-                                    padding: 12px 16px;
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 12px;
-                                    font-size: 14px;
-                                    line-height: 1.5;
-                                    color: #333;
-                                    min-height: 50px;
-                                ">
-                            <span class="mcq-option-letter" style="
-                                background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
-                                color: white;
-                                width: 32px;
-                                height: 32px;
-                                border-radius: 50%;
-                                display: flex;
-                                align-items: center;
-                                justify-content: center;
-                                font-weight: bold;
-                                flex-shrink: 0;
-                            ">${option.letter}</span>
-                            <span class="mcq-option-text" style="flex: 1;">${this.escapeHtml(option.text)}</span>
-                        </button>
-                    `;
-                });
-
-                html += '</div>';
-            }
-
-            html += '</div>';
-
-            // Attach click handlers after DOM insertion
-            setTimeout(() => {
-                const container = document.querySelector('#chat-container');
-                const latestButtons = container.querySelectorAll('.mcq-option-button:not([data-handler-attached])');
-
-                latestButtons.forEach(button => {
-                    button.setAttribute('data-handler-attached', 'true');
-                    button.addEventListener('click', function() {
-                        // Prevent if already disabled
-                        if (this.disabled) return;
-
-                        const selectedOption = this.getAttribute('data-option');
-                        const selectedText = options.find(o => o.letter === selectedOption);
-
-                        // Disable all buttons in this question to prevent double-clicking
-                        const parentContainer = this.closest('.mcq-question-container');
-                        const allButtons = parentContainer.querySelectorAll('.mcq-option-button');
-
-                        allButtons.forEach(btn => {
-                            btn.disabled = true;
-                            btn.classList.add('disabled');
-                        });
-
-                        // Highlight selected option
-                        this.classList.add('selected');
-
-                        // Add checkmark to selected option
-                        const letterSpan = this.querySelector('.mcq-option-letter');
-                        letterSpan.innerHTML = '✓';
-
-                        // Format and send the answer
-                        let answer;
-                        if (selectedText.isLetter !== false) {
-                            // Letter option: send full text for clarity
-                            answer = `${selectedOption}. ${selectedText.text}`;
-                        } else {
-                            // Number option: send full text
-                            answer = `${selectedOption}. ${selectedText.text}`;
-                        }
-
-                        // Send the answer (this will show it as a user message)
-                        self.sendMessage(answer);
-                    });
-                });
-            }, 100);
-
-            return html;
-        },
-
-        /**
-         * Escape HTML to prevent XSS
-         */
-        escapeHtml: function(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, m => map[m]);
-        },
-
         handleCreditLimitError: function (message, creditData = null) {
             // Update subscription data with latest credit information from API response
             if (creditData && creditData.summary) {
                 this.updateSubscriptionDataFromCreditResponse(creditData);
             }
-
-            // Set credit limit exceeded flag to disable send button
-            this.isCreditLimitExceeded = true;
-            this.updateSendMessageandCreateNewChatButton();
-
+            
             // Show persistent credit limit message at the top
             this.showPersistentCreditLimitMessage(message);
-
+            
             // Show user-friendly credit limit error in chat
             this.addMessage(message, 'error');
-
+            
             // Show upgrade prompt
             Swal.fire({
                 icon: 'warning',
@@ -963,7 +675,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Fetch detailed usage data
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/credits/detailed-usage',
+                url: 'https://ai-backend.stagingwithswift.com/api/chat/credits/detailed-usage',
                 method: 'GET',
                 success: (response) => {
                     if (response.success) {
@@ -980,11 +692,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         displayDetailedUsageModal: function (data) {
             const summary = data.summary;
-            // dailyUsage and userBreakdown are available in data but not currently displayed
+            const dailyUsage = data.daily_usage;
+            const userBreakdown = data.user_breakdown;
             const usage = data.usage;
             const pagination = data.pagination;
             const filters = data.filters;
 
+            console.log('displayDetailedUsageModal', data);
 
             // Create the comprehensive modal HTML with optimized styling
             const modalHtml = `
@@ -1172,6 +886,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 }
                 
                 try {
+                    console.log('Initializing Simple DataTable for usage analytics...');
                     
                     // Check if table has data before initializing
                     const tableElement = document.getElementById('usage-datatable');
@@ -1193,7 +908,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 }
                             });
                             
+                            console.log('Simple DataTable initialized successfully:', self.usageDataTable);
                         } else {
+                            console.log('No data in table, skipping DataTable initialization');
                         }
                     }
                 } catch (error) {
@@ -1291,10 +1008,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             params.append('per_page', 1000); // Get more data for DataTable
 
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/chat/credits/detailed-usage?${params.toString()}`,
+                url: `https://ai-backend.stagingwithswift.com/api/chat/credits/detailed-usage?${params.toString()}`,
                 method: 'GET',
                 success: (response) => {
                     if (response.success) {
+                        console.log('usage data', response.data);
                         this.updateUsageModalData(response.data);
                     } else {
                         Swal.fire('Error', 'Failed to load filtered data', 'error');
@@ -1361,10 +1079,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         if (this.usageDataTable && typeof this.usageDataTable.refresh === 'function') {
             try {
                 this.usageDataTable.refresh();
+                console.log('Simple DataTable refreshed with new data');
             } catch (error) {
                 console.error('Error refreshing Simple DataTable:', error);
             }
         } else {
+            console.log('Simple DataTable not found, skipping update');
             }
         },
 
@@ -1431,274 +1151,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        /**
-         * Detect numeric columns in data
-         */
-        detectNumericColumns: function(data, headers) {
-            if (!data || data.length === 0) return [];
-            return headers.filter(header => {
-                let numericCount = 0;
-                const sampleSize = Math.min(data.length, 20);
-                for (let i = 0; i < sampleSize; i++) {
-                    const val = data[i][header];
-                    if (val !== null && val !== undefined && val !== '') {
-                        const num = parseFloat(val);
-                        if (!isNaN(num) && isFinite(num)) {
-                            numericCount++;
-                        }
-                    }
-                }
-                return numericCount >= sampleSize * 0.5;
-            });
-        },
-
-        /**
-         * Generate chart colors
-         */
-        generateChartColors: function(count) {
-            const baseColors = [
-                '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
-                '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1',
-                '#14b8a6', '#a855f7', '#eab308', '#22c55e', '#3b82f6'
-            ];
-            const colors = [];
-            for (let i = 0; i < count; i++) {
-                colors.push(baseColors[i % baseColors.length]);
-            }
-            return colors;
-        },
-
-        /**
-         * Create chart configuration
-         */
-        createReportChartConfig: function(chartType, labels, values, valueKey, colors, reportName) {
-            const baseConfig = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: reportName || 'Report Chart',
-                        font: { size: 16, weight: 'bold' },
-                        padding: { top: 10, bottom: 20 }
-                    },
-                    legend: {
-                        display: chartType === 'pie' || chartType === 'doughnut',
-                        position: 'right'
-                    }
-                }
-            };
-
-            if (chartType === 'pie' || chartType === 'doughnut') {
-                return {
-                    type: chartType,
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: colors,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: baseConfig
-                };
-            } else if (chartType === 'line') {
-                return {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: valueKey,
-                            data: values,
-                            borderColor: colors[0],
-                            backgroundColor: colors[0] + '40',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        ...baseConfig,
-                        scales: {
-                            y: { beginAtZero: true },
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
-                        }
-                    }
-                };
-            } else {
-                // Bar chart (default)
-                return {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: valueKey,
-                            data: values,
-                            backgroundColor: colors,
-                            borderColor: colors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        ...baseConfig,
-                        scales: {
-                            y: { beginAtZero: true },
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
-                        }
-                    }
-                };
-            }
-        },
-
-        /**
-         * Render report chart with current settings
-         */
-        renderReportChartFromSelectors: function(data, reportName) {
-            const self = this;
-            if (!data || data.length === 0) return;
-
-            const chartType = $('#report-chart-type').val() || 'bar';
-            const labelKey = $('#report-chart-x-axis').val();
-            const valueKey = $('#report-chart-y-axis').val();
-
-            if (!labelKey || !valueKey) return;
-
-            const valueKeyFormatted = valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-            // Limit data for chart (max 50 items for readability)
-            const chartData = data.slice(0, 50);
-            const labels = chartData.map(r => {
-                const label = r[labelKey];
-                if (label === null || label === undefined) return 'Unknown';
-                const labelStr = String(label);
-                return labelStr.length > 30 ? labelStr.substring(0, 30) + '...' : labelStr;
-            });
-            const values = chartData.map(r => parseFloat(r[valueKey]) || 0);
-            const colors = this.generateChartColors(values.length);
-
-            const chartConfig = this.createReportChartConfig(chartType, labels, values, valueKeyFormatted, colors, reportName);
-
-            const chartEl = document.getElementById('reportChart');
-            if (!chartEl) return;
-
-            if (self.reportChartInstance) {
-                self.reportChartInstance.destroy();
-            }
-
-            try {
-                self.reportChartInstance = new Chart(chartEl.getContext('2d'), chartConfig);
-            } catch (error) {
-                console.error('Error creating chart:', error);
-            }
-        },
-
         showLoading: function () {
-            // Remove any existing loader first (use wrapper class for complete cleanup)
-            $('.ai-thinking-loader-wrapper').remove();
-
-            // Track when loader was shown for minimum display time
-            this.loaderShownAt = Date.now();
-            // Create the loader element with proper message wrapper structure
-            const loaderHtml = `
-                <div class="message-wrapper ai-message-wrapper ai-thinking-loader-wrapper" style="margin: 10px 0;">
-                    <div class="message ai-message ai-thinking-loader" style="
-                        max-width: 70%;
-                        margin-left: 20px;
-                        padding: 15px 20px;
-                        background: linear-gradient(135deg, #f0f4f8 0%, #e9ecef 100%);
-                        border-radius: 18px 18px 18px 4px;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                    ">
-                        <div class="ai-avatar-loader" style="
-                            padding: 8px 12px;
-                            background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
-                            border-radius: 20px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: white;
-                            font-weight: 600;
-                            font-size: 13px;
-                            flex-shrink: 0;
-                            animation: pulse-glow-loader 2s infinite;
-                            font-family: system-ui, -apple-system, sans-serif;
-                            letter-spacing: 0.5px;
-                        ">Adeptus AI</div>
-                        <div class="thinking-dots" style="
-                            display: flex;
-                            align-items: center;
-                            gap: 4px;
-                        ">
-                            <span class="thinking-text" style="
-                                color: #6c757d;
-                                font-size: 14px;
-                                margin-right: 8px;
-                                font-style: italic;
-                            ">Thinking</span>
-                            <span class="dot dot-1" style="
-                                width: 8px;
-                                height: 8px;
-                                border-radius: 50%;
-                                background: #0ea5e9;
-                                display: inline-block;
-                                animation: bounce-loader 1.4s infinite ease-in-out both;
-                                animation-delay: -0.32s;
-                            "></span>
-                            <span class="dot dot-2" style="
-                                width: 8px;
-                                height: 8px;
-                                border-radius: 50%;
-                                background: #2563eb;
-                                display: inline-block;
-                                animation: bounce-loader 1.4s infinite ease-in-out both;
-                                animation-delay: -0.16s;
-                            "></span>
-                            <span class="dot dot-3" style="
-                                width: 8px;
-                                height: 8px;
-                                border-radius: 50%;
-                                background: #0ea5e9;
-                                display: inline-block;
-                                animation: bounce-loader 1.4s infinite ease-in-out both;
-                            "></span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Add the loader to chat container
-            const $chatContainer = $('#chat-container');
-            if ($chatContainer.length > 0) {
-                $chatContainer.append(loaderHtml);
-
-                // Scroll to bottom immediately to show the loader
-                this.scrollToBottom();
-            }
+            $('#loading-indicator').removeClass('d-none');
         },
 
         hideLoading: function () {
-            // Calculate how long the loader has been shown
-            const loaderShownDuration = this.loaderShownAt ? Date.now() - this.loaderShownAt : 0;
-            const minimumDisplayTime = 800; // Minimum 800ms display time
-            const remainingTime = Math.max(0, minimumDisplayTime - loaderShownDuration);
-
-            // Delay removal to ensure minimum display time
-            setTimeout(() => {
-                // Remove the thinking loader wrapper with fade animation
-                $('.ai-thinking-loader-wrapper').fadeOut(200, function() {
-                    $(this).remove();
-                });
-                // Also remove just the loader element if wrapper doesn't exist
-                $('.ai-thinking-loader').fadeOut(200, function() {
-                    $(this).remove();
-                });
-                // Also hide the old loading indicator if it exists
-                $('#loading-indicator').addClass('d-none');
-            }, remainingTime);
+            $('#loading-indicator').addClass('d-none');
         },
 
         showError: function (message) {
@@ -1745,36 +1203,18 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         loadChatHistory: function () {
             const list = $('#chat-history-list');
-
-            // Show loading spinner
             list.html(`
                 <li class="list-group-item d-flex justify-content-center" id="chat-history-loading">
                     <div class="spinner-border text-secondary" role="status">
-                        <span class="sr-only">Loading...</span>
                     </div>
                 </li>
-            `);
+                `);
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/history',
+                url: 'https://ai-backend.stagingwithswift.com/api/chat/history',
                 method: 'GET',
                 success: (response) => {
                     list.empty();
-
-                    // Ensure response has chats array
-                    if (!response || !response.chats || !Array.isArray(response.chats)) {
-                        list.append(`
-                            <li class="list-group-item text-center">
-                                <div class="text-muted">
-                                    <i class="fa fa-comments fa-2x mb-2"></i>
-                                    <p class="mb-1">No chat history available</p>
-                                    <small>Start a conversation to see your chat history here</small>
-                                </div>
-                            </li>
-                        `);
-                        return;
-                    }
-
                     if (!response.chats.length) {
                         // Check if we also have no reports
                         const authStatus = AuthUtils.getAuthStatus();
@@ -1791,71 +1231,40 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     </div>
                                 </li>
                             `);
-
-                            // Show welcome message in chat container when no history exists
-                            if ($('#chat-container').children().length === 0) {
-                                this.showWelcomeMessage();
-                            }
                         } else {
-                            list.append(`<li class="list-group-item text-center">No chats yet</li>`);
+                        list.append(`<li class="list-group-item text-center">No chats yet</li>`);
                         }
                     } else {
-                        response.chats.forEach((chat) => {
-                            // Safely handle date with fallback
-                            const date = chat.created_at ? new Date(chat.created_at).toLocaleString() : 'Unknown date';
-
-                            // Map backend field names to frontend expected names
-                            // Backend returns: title, last_message, message_count
-                            // Frontend expects: snippet or first_message
-                            // Prefer last_message as it contains actual content, title is often "New Chat"
-                            const snippet = chat.last_message || chat.title || chat.snippet || chat.first_message || 'Chat session';
-
-                            // Safely handle report count
+                        response.chats.forEach(chat => {
+                            const date = new Date(chat.created_at).toLocaleString();
+                            const snippet = chat.snippet;
                             const reportCount = chat.report_count || 0;
                             const badgeHtml = reportCount > 0
                                 ? `<span class="badge bg-primary d-flex align-items-center report-count"><i class="fa fa-chart-bar me-1"></i>${reportCount}</span>`
                                 : '';
-
-                            // Only create item if we have a valid chat ID
-                            if (chat.id) {
-                                const item = $(`
-                                    <li class="list-group-item d-flex justify-content-between align-items-start chat-history-item" data-chat-id="${chat.id}">
-                                        <div>
-                                            <small class="text-muted">${date}</small><br>
-                                            ${snippet}
-                                        </div>
-                                        ${badgeHtml}
-                                    </li>
-                                `);
-                                list.append(item);  // Changed from prepend to append - backend already returns newest first
-                            }
+                            const item = $(`
+                                <li class="list-group-item d-flex justify-content-between align-items-start chat-history-item" data-chat-id="${chat.id}">
+                                    <div>
+                                        <small class="text-muted">${date}</small><br>
+                                        ${snippet}
+                                    </div>
+                                    ${badgeHtml}
+                                </li>
+                            `);
+                            list.prepend(item);
                         });
-
-                        // Set up click handlers
                         $('.chat-history-item').on('click', (e) => {
                             const li = $(e.currentTarget);
                             const chatId = li.data('chat-id');
                             this.loadChatMessages(chatId, li);
                         });
-
-                        // Don't auto-load any chat - show welcome message on initial page load
-                        // Only show welcome message if chat container is empty
-                        if (this.currentChatId === 0 && $('#chat-container').children().length === 0) {
-                            this.showWelcomeMessage();
-                        }
                     }
                 },
-                error: (xhr, status, error) => {
-                    console.error('[Chat History] Failed to load:', error);
+                error: () => {
                     list.html(`
-                        <li class="list-group-item text-center">
-                            <div class="text-danger">
-                                <i class="fa fa-exclamation-triangle fa-2x mb-2"></i>
-                                <p class="mb-2">Failed to load chat history</p>
-                                <button id="reload-chat-history" class="btn btn-outline-primary btn-sm">
-                                    <i class="fa fa-refresh"></i> Try Again
-                                </button>
-                            </div>
+                        <li class="list-group-item text-danger d-flex flex-column align-items-center">
+                            <span>Failed to load chats</span>
+                            <button id="reload-chat-history" class="btn btn-outline-primary btn-sm mt-2">Reload</button>
                         </li>
                     `);
                     $('#reload-chat-history').on('click', () => this.loadChatHistory());
@@ -1867,6 +1276,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Load a specific chat's messages, highlight the selected item
          */
         loadChatMessages: function (chatId, listItem) {
+            console.log('loadChatMessages', chatId, listItem);
             this.currentChatId = chatId;
             $('#chat-history-list li').removeClass('active');
             listItem.addClass('active');
@@ -1874,13 +1284,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.clearMCQ(); // Clear and hide MCQ container when loading different chat
             this.showLoading();
 
-            const messageUrl = `https://a360backend.stagingwithswift.com/api/v1/chat/${chatId}/messages`;
-
             this.ajaxWithAuth({
-                url: messageUrl,
+                url: `https://ai-backend.stagingwithswift.com/api/chat/${chatId}/messages`,
                 method: 'GET',
                 success: (response) => {
                     this.hideLoading();
+                    console.log(response);
                     
                     // Check for credit limit information in response and update button state
                     if (response.credit_data && response.credit_data.summary) {
@@ -1889,22 +1298,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     
                     // Always check current subscription status and update button state
                     const authStatus = AuthUtils.getAuthStatus();
+                    console.log('[loadChatMessages] Checking credit limit status:', authStatus);
                     if (authStatus && authStatus.subscription) {
+                        console.log('[loadChatMessages] Subscription data:', authStatus.subscription);
                         this.checkAndShowCreditLimitWarning(authStatus.subscription);
                     }
                     
                     // Render chat messages with message IDs, filtering out SQL-tagged messages and passing timestamp
                     response.messages.forEach((msg, idx) => {
-                        // Map backend field names to frontend expected names
-                        msg.sender_type = msg.role || msg.sender_type;  // Backend uses 'role', frontend expects 'sender_type'
-                        msg.body = msg.content || msg.body;              // Backend uses 'content', frontend expects 'body'
-                        msg.timestamp = msg.created_at || msg.timestamp; // Backend uses 'created_at', frontend expects 'timestamp'
-
-                        // Convert 'ai' role to 'ai' sender_type if needed
-                        if (msg.sender_type === 'assistant') {
-                            msg.sender_type = 'ai';
-                        }
-
                         if (msg.tag === 'sql') {
                             return;
                         }
@@ -1942,35 +1343,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 return;
                             }
                         }
-
-                        // Check if this is a report message
-                        // Check both metadata and message content pattern for backward compatibility
-                        const isReportMessage = (msg.metadata && msg.metadata.type === 'report') ||
-                                               (msg.body && msg.body.startsWith('📊 Report saved:'));
-
-                        if (isReportMessage) {
-                            // Extract report info from message if metadata is missing
-                            if (!msg.metadata && msg.body) {
-                                // Parse report name from message like "📊 Report saved: Daily Login Activity"
-                                const reportNameMatch = msg.body.match(/📊 Report saved: (.+)/);
-                                const reportName = reportNameMatch ? reportNameMatch[1] : 'Report';
-
-                                // Try to guess slug from report name
-                                const reportSlug = reportName.toLowerCase()
-                                    .replace(/\s+/g, '-')
-                                    .replace(/[^a-z0-9-]/g, '');
-
-                                msg.metadata = {
-                                    type: 'report',
-                                    report_name: reportName,
-                                    report_slug: reportSlug
-                                };
-                            }
-                            // Display as a report link
-                            this.displayReportLink(msg);
-                        } else {
-                            this.addMessage(msg.body, msg.sender_type, false, null, msg.id, msg.timestamp);
-                        }
+                        
+                        this.addMessage(msg.body, msg.sender_type, false, null, msg.id, msg.timestamp);
                     });
                     this.scrollToBottom();
                     // After messages, insert report links from response
@@ -2058,6 +1432,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             
             const input = $('#message-input');
             const rawValue = (input.val() || '').trim();
+            console.log('rawValue', rawValue);
             if (!rawValue) {
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please enter a message' });
                 return;
@@ -2068,33 +1443,25 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
 
             this.isSending = true;
-
-            // Clear welcome message if it exists
-            $('.welcome-message').remove();
-
-            // Add user message first
-            const $userMsg = this.addMessage(message, 'user');
-            input.val('').trigger('input');
-
-            // Show the AI thinking loader immediately after the user message
             this.showLoading();
+            const $userMsg = this.addMessage(message, 'user');
+
+            input.val('').trigger('input');
 
             // Get user information from auth status
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
 
-            const requestData = {
-                message: message,
-                chat_id: this.currentChatId || 0,
-                user_id: userInfo.id || null,
-                user_name: userInfo.name || null
-            };
-
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: 'https://ai-backend.stagingwithswift.com/api/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(requestData),
+                data: JSON.stringify({
+                    message: message,
+                    chat_id: this.currentChatId || 0,
+                    user_id: userInfo.id || null,
+                    user_name: userInfo.name || null
+                }),
                 success: (response) => {
                     this.hideLoading();
                     this.isSending = false;
@@ -2134,22 +1501,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     if (err.status === 401) {
                         AuthUtils.clearAuthData();
                         this.showAuthenticationError();
-                    } else if (err.status === 429) {
-                        // Handle credit limit exceeded (429 Too Many Requests)
-                        let errorMessage = 'You have reached your credit limit. Please upgrade your plan or wait until your credits refresh.';
-                        let creditData = null;
-
-                        // Try to extract error details from response
-                        if (err.responseJSON) {
-                            errorMessage = err.responseJSON.message || errorMessage;
-                            creditData = err.responseJSON.credit_data || null;
-                        }
-
-                        // Handle credit limit error with proper UI updates
-                        this.handleCreditLimitError(errorMessage, creditData);
-
-                        // Don't show resend icon for credit limit errors
-                        $userMsg.remove(); // Remove the user message that couldn't be sent
                     } else {
                         // Show resend icon on the specific user message that failed
                         this.showResendIconOnMessage($userMsg, message);
@@ -2161,105 +1512,55 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         updateSendMessageandCreateNewChatButton: function() {
+            console.log('[updateSendMessageandCreateNewChatButton] isCreditLimitExceeded:', this.isCreditLimitExceeded);
             if (this.isCreditLimitExceeded) {
-                $('#send-button')
-                    .prop('disabled', true)
-                    .attr('title', 'Credit limit reached. Your credits will reset on the 1st of next month.')
-                    .addClass('credit-limit-disabled');
-                $('#create-new-chat')
-                    .prop('disabled', true)
-                    .attr('title', 'Credit limit reached. Your credits will reset on the 1st of next month.')
-                    .addClass('credit-limit-disabled');
-                $('#message-input')
-                    .prop('disabled', true)
-                    .attr('placeholder', 'Credit limit reached. Your credits will reset on the 1st of next month.');
+                console.log('[updateSendMessageandCreateNewChatButton] Disabling send button and create new chat button');
+                $('#send-button').prop('disabled', true);
+                $('#create-new-chat').prop('disabled', true);
             } else {
-                $('#send-button')
-                    .prop('disabled', false)
-                    .removeAttr('title')
-                    .removeClass('credit-limit-disabled');
-                $('#create-new-chat')
-                    .prop('disabled', false)
-                    .removeAttr('title')
-                    .removeClass('credit-limit-disabled');
-                $('#message-input')
-                    .prop('disabled', false)
-                    .attr('placeholder', 'Type your message...');
+                console.log('[updateSendMessageandCreateNewChatButton] Enabling send button and create new chat button');
+                $('#send-button').prop('disabled', false);
+                $('#create-new-chat').prop('disabled', false);
             }
         },
 
         createNewChat: function () {
+            // if (this.currentChatId == 0) {
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Oops...',
+            //         text: 'No chat in progress, please start a new chat',
+            //     });
+            //     return;
+            // } else {
+            console.log('createNewChat', this.currentChatId);
             this.currentChatId = 0;
             $('#chat-history-list li').removeClass('active');
             $('#chat-container').empty();
             this.clearMCQ(); // Clear and hide MCQ container
-
-            // Show welcome message in the new empty chat
-            this.showWelcomeMessage();
-        },
-
-        showWelcomeMessage: function() {
-            const welcomeHtml = `
-                <div class="welcome-message text-center p-5">
-                    <div style="max-width: 600px; margin: 0 auto;">
-                        <h3 class="mb-4">Welcome to Adeptus AI Assistant</h3>
-                        <p class="text-muted mb-4">
-                            I'm here to help you analyze your Moodle data and generate insightful reports.
-                        </p>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="p-3 bg-light rounded">
-                                    <i class="fa fa-chart-bar fa-2x mb-2 text-primary"></i>
-                                    <h5>Generate Reports</h5>
-                                    <small class="text-muted">Ask me to create custom reports about courses, users, grades, and more.</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="p-3 bg-light rounded">
-                                    <i class="fa fa-question-circle fa-2x mb-2 text-info"></i>
-                                    <h5>Get Insights</h5>
-                                    <small class="text-muted">I can help you understand your data and provide actionable insights.</small>
-                                </div>
-                            </div>
-                        </div>
-                        <hr class="my-4">
-                        <p class="text-muted">
-                            <i class="fa fa-lightbulb"></i> Try asking: "Show me all active courses with their enrollment counts"
-                        </p>
-                    </div>
-                </div>
-            `;
-            $('#chat-container').html(welcomeHtml);
+            // }
         },
 
         addChatToChatHistory(chatId, firstMessage) {
-
             const list = $('#chat-history-list');
-
-            // Remove any placeholders
-            list.find('li:contains("No chat history")').remove();
-            list.find('li:contains("No chats yet")').remove();
-            list.find('li:contains("Start a conversation")').remove();
-
+            
+            // Remove "No chat history yet" placeholder if it exists
+            list.find('li:contains("No chat history yet")').remove();
+            
             const date = new Date().toLocaleString();
-            // Truncate message if too long for display
-            const displayMessage = firstMessage && firstMessage.length > 100
-                ? firstMessage.substring(0, 97) + '...'
-                : firstMessage || 'New chat';
-
             const item = $(
                 `<li class="list-group-item d-flex justify-content-between align-items-start chat-history-item" data-chat-id="${chatId}">
                     <div>
                         <small class="text-muted">${date}</small><br>
-                        ${displayMessage}
+                        ${firstMessage}
                     </div>
                 </li>`
             );
             list.prepend(item);
             item.on('click', (e) => {
                 const li = $(e.currentTarget);
-                const clickedChatId = li.data('chat-id');
-                this.loadChatMessages(clickedChatId, li);
+                const chatId = li.data('chat-id');
+                this.loadChatMessages(chatId, li);
             });
         },
 
@@ -2314,6 +1615,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Check if user has exceeded credit limits and show persistent warning
          */
         checkAndShowCreditLimitWarning: function(subscription) {
+            console.log('[checkAndShowCreditLimitWarning] Checking subscription:', subscription);
             
             // Check if any credit type is exceeded
             const basicExceeded = this.isCreditExceeded(
@@ -2329,13 +1631,27 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 subscription.plan_ai_credits_limit || 0
             );
             
+            console.log('[checkAndShowCreditLimitWarning] Credit status:', {
+                basicExceeded,
+                premiumExceeded, 
+                totalExceeded,
+                basicUsed: subscription.basic_credits_used_this_month || 0,
+                basicLimit: subscription.plan_basic_credits_limit || 0,
+                premiumUsed: subscription.premium_credits_used_this_month || 0,
+                premiumLimit: subscription.plan_premium_credits_limit || 0,
+                totalUsed: subscription.ai_credits_used_this_month || 0,
+                totalLimit: subscription.plan_ai_credits_limit || 0
+            });
+            
             if (basicExceeded || premiumExceeded || totalExceeded) {
+                console.log('[checkAndShowCreditLimitWarning] Credit limit exceeded, disabling send button');
                 const message = "You've used all your AI credits for this month. Your credits will reset on the 1st of next month. Consider upgrading your plan for more credits.";
                 this.showPersistentCreditLimitMessage(message);
                 // set global variable to true
                 this.isCreditLimitExceeded = true;
                 this.updateSendMessageandCreateNewChatButton();
             }else{
+                console.log('[checkAndShowCreditLimitWarning] Credit limit not exceeded, enabling send button');
                 this.isCreditLimitExceeded = false;
                 this.updateSendMessageandCreateNewChatButton();
             }
@@ -2346,6 +1662,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             
             // First, fetch latest subscription data from the server (like wizard does)
             try {
+                console.log('[AI Assistant] Fetching latest subscription status...');
                 const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`, {
                     method: 'GET',
                     headers: {
@@ -2355,9 +1672,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 });
 
                 const data = await response.json();
+                console.log('[AI Assistant] Latest subscription status response:', data);
                 
                 // Log exactly what fields we're receiving for debugging
                 if (data.success && data.data) {
+                    console.log('[AI Assistant] ===== SUBSCRIPTION DATA BREAKDOWN =====');
+                    console.log('[AI Assistant] Plan Name:', data.data.plan_name);
+                    console.log('[AI Assistant] Status:', data.data.status);
+                    console.log('[AI Assistant] Credit Type:', data.data.credit_type);
+                    console.log('[AI Assistant] Reports Generated:', data.data.reports_generated_this_month);
+                    console.log('[AI Assistant] Reports Limit:', data.data.plan_exports_limit);
+                    console.log('[AI Assistant] AI Credits Used:', data.data.total_credits_used_this_month);
+                    console.log('[AI Assistant] AI Credits Limit:', data.data.plan_total_credits_limit);
+                    console.log('[AI Assistant] Exports Used:', data.data.exports_used);
+                    console.log('[AI Assistant] Exports Remaining:', data.data.exports_remaining);
+                    console.log('[AI Assistant] ========================================');
                     
                     // Update AuthUtils with fresh data
                     const authStatus = AuthUtils.getAuthStatus() || {};
@@ -2374,6 +1703,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Get subscription info from auth status (now updated with fresh data)
             const authStatus = AuthUtils.getAuthStatus();
             
+            console.log('[AI Assistant] Updating subscription info with auth status:', authStatus);
             
             if (authStatus && authStatus.subscription) {
                 const subscription = authStatus.subscription;
@@ -2508,6 +1838,7 @@ if (tabContainer.length) {
                     }, 1000);
                 });
             } else {
+                console.log('[AI Assistant] No subscription data available in auth status');
                 // Remove subscription info if no data available
                 $('.subscription-info').remove();
             }
@@ -2553,6 +1884,7 @@ if (tabContainer.length) {
          * Refresh subscription info by getting fresh data from backend
          */
         refreshSubscriptionInfo: async function() {
+            console.log('[AI Assistant] Refreshing subscription info...');
             
             // Show loading state on refresh button
             const $refreshBtn = $('#refresh-subscription-btn');
@@ -2573,6 +1905,7 @@ if (tabContainer.length) {
                 });
 
                 const localData = await localResponse.json();
+                console.log('[AI Assistant] Latest local subscription status:', localData);
 
                 if (localData.success && localData.data) {
                     // Update AuthUtils with fresh data
@@ -2588,6 +1921,7 @@ if (tabContainer.length) {
                 // Then update the display with fresh data
                 await this.updateSubscriptionInfo();
                 
+                console.log('[AI Assistant] Subscription info refreshed successfully');
                 
                 // Show success feedback
                 this.showRefreshSuccessFeedback();
@@ -2722,54 +2056,6 @@ if (tabContainer.length) {
             return $.ajax(options);
         },
 
-        /**
-         * Load report categories from the backend API
-         * Caches the categories for use in save dialogs
-         */
-        loadCategories: function() {
-            const self = this;
-
-            this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories',
-                method: 'GET',
-                contentType: 'application/json',
-                success: (response) => {
-                    if (response.success && response.data) {
-                        self.cachedCategories = response.data;
-                    }
-                },
-                error: (xhr) => {
-                    console.error('[AI Assistant] Failed to load categories:', xhr);
-                    // Set default category as fallback
-                    self.cachedCategories = [
-                        { id: null, name: 'General', slug: 'general', color: '#6c757d', icon: 'fa-folder' }
-                    ];
-                }
-            });
-        },
-
-        /**
-         * Get category options HTML for the save dialog dropdown
-         * @param {string} suggestedCategory - The AI-suggested category name
-         * @returns {string} HTML options string
-         */
-        getCategoryOptionsHtml: function(suggestedCategory) {
-            if (!this.cachedCategories || this.cachedCategories.length === 0) {
-                return '<option value="">General</option>';
-            }
-
-            // Normalize the suggested category for comparison
-            const normalizedSuggested = (suggestedCategory || 'general').toLowerCase().replace(/[^a-z0-9]/g, '');
-
-            return this.cachedCategories.map(cat => {
-                const normalizedCatName = cat.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-                const normalizedCatSlug = (cat.slug || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-                const isSelected = normalizedCatName === normalizedSuggested ||
-                                   normalizedCatSlug === normalizedSuggested;
-                return `<option value="${cat.id}" ${isSelected ? 'selected' : ''}>${cat.name}</option>`;
-            }).join('');
-        },
-
         validateToken: function () {
             return AuthUtils.isAuthenticated();
         },
@@ -2780,16 +2066,13 @@ if (tabContainer.length) {
             }
             
             this.isSending = true;
-
-            // Show the AI thinking loader after the user's choice
             this.showLoading();
-
             // Get user information from auth status
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
             
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: 'https://ai-backend.stagingwithswift.com/api/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ 
@@ -2916,7 +2199,7 @@ if (tabContainer.length) {
             const userInfo = authStatus?.user || {};
             
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: 'https://ai-backend.stagingwithswift.com/api/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -2953,580 +2236,9 @@ if (tabContainer.length) {
         },
 
         /**
-         * Show report confirmation dialog
-         */
-        showReportConfirmation: function(report, reportData, message, creditInfo, executionError) {
-            // First add the AI message to chat
-            this.addMessage(message || `I've generated a report: ${report.description}`, 'ai', false, null, null, null, creditInfo);
-
-            // Display the report data immediately
-            if (reportData && reportData.length > 0) {
-                // Create a report display in the chat
-                this.displayReportInChat(report, reportData);
-            } else if (executionError) {
-                // Show error message but still allow saving
-                this.addMessage(`⚠️ The report could not be executed: ${executionError}\n\nYou can still save it and try executing it later.`, 'system');
-            } else {
-                // No data returned
-                this.addMessage('ℹ️ The report returned no data. You can still save it for later use.', 'system');
-            }
-
-            // Add save/decline buttons directly in the chat
-            this.addReportActionButtons(report);
-        },
-
-        /**
-         * Display report data in the chat
-         */
-        displayReportInChat: function(report, data) {
-            // Create a nice table display
-            let tableHtml = '<div class="report-preview-container" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">';
-            tableHtml += `<h5 style="margin-bottom: 10px; color: #495057;">${report.name || report.description}</h5>`;
-
-            if (data && data.length > 0) {
-                const headers = Object.keys(data[0]);
-                // Show more rows for better preview (20 instead of 10)
-                const maxPreviewRows = 20;
-                const previewRows = data.slice(0, maxPreviewRows);
-
-                // Remove fixed height and scrolling - let table be its natural size
-                tableHtml += '<div class="table-responsive">';
-                tableHtml += '<table class="table table-sm table-striped table-hover" style="font-size: 0.9rem; margin-bottom: 0;">';
-
-                // Simplified header without sticky positioning in chat preview
-                tableHtml += '<thead class="table-light"><tr>';
-                headers.forEach(header => {
-                    tableHtml += `<th style="background: #e9ecef; white-space: nowrap;">${header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</th>`;
-                });
-                tableHtml += '</tr></thead><tbody>';
-
-                previewRows.forEach(row => {
-                    tableHtml += '<tr>';
-                    headers.forEach(header => {
-                        let value = row[header] || '';
-                        // Truncate long values
-                        if (value.toString().length > 50) {
-                            value = value.toString().substring(0, 47) + '...';
-                        }
-                        tableHtml += `<td>${value}</td>`;
-                    });
-                    tableHtml += '</tr>';
-                });
-                tableHtml += '</tbody></table></div>';
-
-                // Show remaining row count and add view full report hint
-                if (data.length > maxPreviewRows) {
-                    const remainingRows = data.length - maxPreviewRows;
-                    tableHtml += `<div class="text-center mt-3">`;
-                    tableHtml += `<p class="text-muted mb-2" style="font-size: 0.85rem;">`;
-                    tableHtml += `<strong>Showing ${maxPreviewRows} of ${data.length} rows</strong>`;
-                    tableHtml += ` (${remainingRows} more rows available)`;
-                    tableHtml += `</p>`;
-                    tableHtml += `<small class="text-info"><i class="fa fa-info-circle"></i> Save the report to view all data in the Reports panel</small>`;
-                    tableHtml += `</div>`;
-                } else {
-                    tableHtml += `<p class="text-muted text-center mt-2" style="font-size: 0.85rem;">Showing all ${data.length} rows</p>`;
-                }
-
-                // Add report metadata (category only)
-                tableHtml += '<div class="mt-3 p-2 bg-light rounded" style="font-size: 0.85rem;">';
-                tableHtml += `<span class="badge badge-secondary">${report.category}</span>`;
-                tableHtml += '</div>';
-            }
-
-            tableHtml += '</div>';
-
-            // Add the table as a special message in the chat
-            this.addMessage(tableHtml, 'report-preview', false);
-        },
-
-        /**
-         * Add report action buttons in the chat
-         */
-        addReportActionButtons: function(report) {
-            const self = this;
-
-            // Check if action buttons for this report already exist
-            const existingActions = document.querySelectorAll('.report-action-container');
-            if (existingActions.length > 0) {
-                // Remove any existing action containers to prevent duplicates
-                existingActions.forEach(container => {
-                    if (!container.querySelector('.fa-check-circle') &&
-                        !container.querySelector('.fa-info-circle') &&
-                        !container.querySelector('.fa-exclamation-triangle')) {
-                        // Only remove if it's still showing buttons (not completed/error state)
-                        container.remove();
-                    }
-                });
-            }
-
-            const buttonId = 'report-action-' + Date.now();
-
-            // Create the action buttons HTML
-            const buttonsHtml = `
-                <div class="report-action-container" id="${buttonId}" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-                    <p style="margin-bottom: 15px; font-weight: 500;">Would you like to save this report to your Reports list?</p>
-                    <div class="report-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn btn-primary btn-save-report" style="padding: 8px 20px;">
-                            <i class="fa fa-check-circle"></i> Save Report
-                        </button>
-                        <button class="btn btn-secondary btn-decline-report" style="padding: 8px 20px;">
-                            <i class="fa fa-times-circle"></i> Don't Save
-                        </button>
-                        <button class="btn btn-outline-secondary btn-decline-feedback" style="padding: 8px 20px;">
-                            <i class="fa fa-comment"></i> Decline & Give Feedback
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            // Add the buttons as a system message
-            this.addMessage(buttonsHtml, 'system-action', false);
-
-            // Attach event handlers after DOM insertion
-            setTimeout(() => {
-                const container = document.getElementById(buttonId);
-                if (!container) return;
-
-                // Save button
-                const saveBtn = container.querySelector('.btn-save-report');
-                if (saveBtn && !saveBtn.hasAttribute('data-handler-attached')) {
-                    // Mark that we've attached a handler to prevent duplicates
-                    saveBtn.setAttribute('data-handler-attached', 'true');
-                    saveBtn.addEventListener('click', function() {
-                        // Get category options HTML
-                        const categoryOptions = self.getCategoryOptionsHtml(report.category);
-                        const defaultName = report.name || report.description || 'SCORM Activities Report';
-
-                        // Prompt for report name and category using SweetAlert
-                        Swal.fire({
-                            title: 'Save Your Report',
-                            html: `
-                                <div style="text-align: left;">
-                                    <div style="margin-bottom: 15px;">
-                                        <label for="swal-report-name" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            Report Name
-                                        </label>
-                                        <input type="text" id="swal-report-name" class="swal2-input"
-                                               placeholder="e.g., Monthly Student Progress Report"
-                                               value="${defaultName.replace(/"/g, '&quot;')}"
-                                               style="margin: 0; width: 100%;">
-                                    </div>
-                                    <div>
-                                        <label for="swal-report-category" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            Category
-                                        </label>
-                                        <select id="swal-report-category" class="swal2-select"
-                                                style="margin: 0; width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px;">
-                                            ${categoryOptions}
-                                        </select>
-                                    </div>
-                                </div>
-                            `,
-                            showCancelButton: true,
-                            confirmButtonText: '<i class="fa fa-save"></i> Save Report',
-                            cancelButtonText: 'Cancel',
-                            confirmButtonColor: '#28a745',
-                            focusConfirm: false,
-                            preConfirm: () => {
-                                const name = document.getElementById('swal-report-name').value;
-                                const categoryId = document.getElementById('swal-report-category').value;
-
-                                if (!name || name.trim() === '') {
-                                    Swal.showValidationMessage('Please enter a name for the report');
-                                    return false;
-                                }
-                                if (name.length > 255) {
-                                    Swal.showValidationMessage('Report name is too long (max 255 characters)');
-                                    return false;
-                                }
-
-                                return { name: name.trim(), categoryId: categoryId };
-                            }
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Update report with user input
-                                report.name = result.value.name;
-                                report.description = result.value.name;
-                                report.category_id = result.value.categoryId ? parseInt(result.value.categoryId) : null;
-
-                                // Disable all buttons
-                                container.querySelectorAll('button').forEach(btn => btn.disabled = true);
-
-                                // Update the container to show saving state
-                                container.innerHTML = `
-                                    <div style="text-align: center; color: #28a745;">
-                                        <i class="fa fa-spinner fa-spin"></i> Saving "${report.name}" to your Reports list...
-                                    </div>
-                                `;
-
-                                // Send confirmation to backend
-                                self.confirmReport('accept', report, null);
-                            }
-                        });
-                    });
-                }
-
-                // Don't save button
-                const declineBtn = container.querySelector('.btn-decline-report');
-                if (declineBtn && !declineBtn.hasAttribute('data-handler-attached')) {
-                    declineBtn.setAttribute('data-handler-attached', 'true');
-                    declineBtn.addEventListener('click', function() {
-                        // Update container to show declined state
-                        container.innerHTML = `
-                            <div style="text-align: center; color: #6c757d;">
-                                <i class="fa fa-info-circle"></i> Report not saved. You can ask me to generate it again anytime.
-                            </div>
-                        `;
-
-                        // Also add a message in the chat
-                        self.addMessage("Report was not saved. Feel free to ask me to generate a different report or refine this one.", 'system');
-                    });
-                }
-
-                // Decline with feedback button
-                const feedbackBtn = container.querySelector('.btn-decline-feedback');
-                if (feedbackBtn && !feedbackBtn.hasAttribute('data-handler-attached')) {
-                    feedbackBtn.setAttribute('data-handler-attached', 'true');
-                    feedbackBtn.addEventListener('click', function() {
-                        // Replace buttons with feedback form
-                        container.innerHTML = `
-                            <div class="feedback-form">
-                                <p style="margin-bottom: 10px;">What would you like to change about this report?</p>
-                                <textarea id="feedback-text-${buttonId}" class="form-control" rows="3" placeholder="Please provide your feedback..."></textarea>
-                                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                                    <button class="btn btn-primary btn-send-feedback">
-                                        <i class="fa fa-paper-plane"></i> Send Feedback
-                                    </button>
-                                    <button class="btn btn-secondary btn-cancel-feedback">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-
-                        // Attach feedback form handlers
-                        const sendFeedbackBtn = container.querySelector('.btn-send-feedback');
-                        const cancelFeedbackBtn = container.querySelector('.btn-cancel-feedback');
-                        const feedbackText = container.querySelector(`#feedback-text-${buttonId}`);
-
-                        if (sendFeedbackBtn) {
-                            sendFeedbackBtn.addEventListener('click', function() {
-                                const feedback = feedbackText ? feedbackText.value : '';
-                                if (feedback.trim()) {
-                                    container.innerHTML = `
-                                        <div style="text-align: center; color: #007bff;">
-                                            <i class="fa fa-spinner fa-spin"></i> Sending feedback...
-                                        </div>
-                                    `;
-                                    self.confirmReport('decline', report, feedback);
-                                } else {
-                                    feedbackText.style.borderColor = '#dc3545';
-                                    feedbackText.focus();
-                                }
-                            });
-                        }
-
-                        if (cancelFeedbackBtn) {
-                            cancelFeedbackBtn.addEventListener('click', function() {
-                                container.innerHTML = `
-                                    <div style="text-align: center; color: #6c757d;">
-                                        <i class="fa fa-info-circle"></i> Report not saved.
-                                    </div>
-                                `;
-                            });
-                        }
-                    });
-                }
-            }, 100);
-        },
-
-        /**
-         * Send report confirmation to backend
-         */
-        /**
-         * View a saved report by slug
-         */
-        viewSavedReport: function(slug) {
-            if (!slug) {
-                return;
-            }
-
-            // Switch to Reports tab
-            $('[href="#reports-history"]').tab('show');
-
-            // Give the tab time to render
-            setTimeout(() => {
-                // Find the report row with the matching slug
-                const reportRow = $(`.report-row[data-report-slug="${slug}"]`);
-
-                if (reportRow.length) {
-                    // Trigger click on the report row
-                    reportRow.click();
-                } else {
-                    // If not found, try to refresh the reports list
-                    this.loadReportsHistory(() => {
-                        setTimeout(() => {
-                            const refreshedRow = $(`.report-row[data-report-slug="${slug}"]`);
-                            if (refreshedRow.length) {
-                                refreshedRow.click();
-                            } else {
-                                // Show error message to user
-                                Notification.addNotification({
-                                    message: 'Report not found. Please check if it still exists in the Reports tab.',
-                                    type: 'error'
-                                });
-                            }
-                        }, 500);
-                    });
-                }
-            }, 300);
-        },
-
-        /**
-         * Display a report link in the chat
-         */
-        displayReportLink: function(msg) {
-            const template = document.getElementById('message-template');
-            const frag = template.content.cloneNode(true);
-            const messageEl = frag.querySelector('.message');
-            messageEl.classList.add('ai-message');
-            messageEl.setAttribute('data-message-id', msg.id);
-
-            // Create report link HTML
-            const reportSlug = msg.metadata?.report_slug || '';
-            const reportName = msg.metadata?.report_name || 'Report';
-            const reportDescription = msg.metadata?.report_description || '';
-
-            const reportLinkHtml = `
-                <div class="report-link-message">
-                    <div style="padding: 15px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border-radius: 10px; margin: 10px 0;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-                            <div style="flex: 1;">
-                                <h5 style="margin: 0; color: white;">
-                                    <i class="fa fa-chart-bar"></i> ${reportName}
-                                </h5>
-                                ${reportDescription ? `<small style="opacity: 0.9;">${reportDescription}</small>` : ''}
-                            </div>
-                            ${reportSlug ? `
-                                <button class="btn btn-light btn-sm view-saved-report-btn"
-                                        data-slug="${reportSlug}"
-                                        style="cursor: pointer; border-radius: 5px; flex-shrink: 0;">
-                                    <i class="fa fa-eye"></i> View Report
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            frag.querySelector('.message-text').innerHTML = reportLinkHtml;
-            frag.querySelector('.message-time').textContent = this.formatTimestamp(msg.timestamp);
-            $('#chat-container').append(frag);
-
-            // Add click handler using the same pattern as the working buttons
-            const self = this;
-            setTimeout(() => {
-                const viewBtn = $('#chat-container').find('.view-saved-report-btn[data-slug="' + reportSlug + '"]').last();
-                if (viewBtn.length && !viewBtn.hasClass('click-handler-attached')) {
-                    viewBtn.addClass('click-handler-attached');
-                    viewBtn.on('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // Use the same pattern as the working View Report button
-                        self.switchToReportsTab();
-
-                        // Find and click the report row
-                        const reportRow = $(`.report-row[data-report-slug="${reportSlug}"]`);
-                        if (reportRow.length > 0) {
-                            reportRow.trigger('click');
-                        } else {
-                            // If row doesn't exist, fetch and display directly
-                            self.fetchAndDisplayReport(reportSlug);
-                        }
-                    });
-                }
-            }, 100);
-        },
-
-        /**
-         * Send a message to persist report link in chat history
-         */
-        sendReportMessage: function(report) {
-            // Get user information from auth status
-            const authStatus = AuthUtils.getAuthStatus();
-            const userInfo = authStatus?.user || {};
-
-            // Create a message that includes report metadata
-            const reportMessage = `📊 Report saved: ${report.description || report.name}`;
-
-            // Also display the report link immediately in the current chat
-            const reportLinkMsg = {
-                id: Date.now(), // Temporary ID
-                sender_type: 'ai',
-                body: reportMessage,
-                timestamp: new Date().toISOString(),
-                metadata: {
-                    type: 'report',
-                    report_slug: report.slug,
-                    report_name: report.name || report.description,
-                    report_description: report.description
-                }
-            };
-
-            // Display the report link in the chat immediately
-            this.displayReportLink(reportLinkMsg);
-
-            // Send to backend with report metadata
-            this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    message: reportMessage,
-                    chat_id: this.currentChatId,
-                    user_id: userInfo.id || null,
-                    user_name: userInfo.name || null,
-                    // Include report metadata
-                    metadata: {
-                        type: 'report',
-                        report_slug: report.slug,
-                        report_name: report.name || report.description,
-                        report_description: report.description
-                    }
-                }),
-                success: () => {
-                    // Report message saved successfully
-                },
-                error: () => {
-                    // Failed to save report message - non-critical
-                }
-            });
-        },
-
-        confirmReport: function(action, report, feedback) {
-            this.showLoading();
-            const authStatus = AuthUtils.getAuthStatus();
-            const userInfo = authStatus?.user || {};
-
-            // Ensure all required fields are present
-            const reportData = {
-                name: report.name || report.description || 'Generated Report',
-                description: report.description || '',
-                sql: report.sql || '',
-                category: report.category || 'general',
-                category_id: report.category_id || null
-            };
-
-            // Ensure chat_id is a valid integer
-            const chatId = parseInt(this.currentChatId) || 0;
-
-            this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/report-confirmation',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    chat_id: chatId,
-                    action: action,
-                    feedback: feedback || null,
-                    report: reportData,
-                    user_id: userInfo.id || null
-                }),
-                success: (response) => {
-                    this.hideLoading();
-                    if (action === 'accept' && response.report) {
-                        // Report accepted - add to list
-                        if (!Array.isArray(this.cachedReports)) {
-                            this.cachedReports = [];
-                        }
-                        this.cachedReports.unshift(response.report);
-                        this.updateReportsHistory(this.cachedReports);
-
-                        // Send a message to persist the report link in chat history
-                        this.sendReportMessage(response.report);
-
-                        // Make sure the reports table is visible and loader is hidden
-                        $('#report-history-loader').addClass('d-none');
-                        $('#report-history-table-wrapper').removeClass('d-none');
-
-                        // Ensure the report history table is fully visible
-                        $('#reports-history-table').removeClass('d-none');
-
-                        // Update any active report action containers to show simple success
-                        // The blue gradient card (from sendReportMessage) will have the View Report button
-                        document.querySelectorAll('.report-action-container').forEach(container => {
-                            container.innerHTML = `
-                                <div style="text-align: center; color: #28a745; padding: 10px;">
-                                    <i class="fa fa-check-circle"></i> Report saved successfully!
-                                </div>
-                            `;
-                        });
-                    } else {
-                        // Feedback sent - handle refined response
-                        if (response.chat_response) {
-                            // Update any active report action containers
-                            document.querySelectorAll('.report-action-container').forEach(container => {
-                                container.innerHTML = `
-                                    <div style="text-align: center; color: #007bff;">
-                                        <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
-                                    </div>
-                                `;
-                            });
-
-                            this.handleResponse(response.chat_response);
-                        }
-                    }
-                },
-                error: (xhr) => {
-                    this.hideLoading();
-
-                    // Log the error for debugging
-                    console.error('[AI Assistant] Report confirmation failed:', {
-                        status: xhr.status,
-                        responseText: xhr.responseText,
-                        responseJSON: xhr.responseJSON
-                    });
-
-                    // Update any active report action containers to show error
-                    document.querySelectorAll('.report-action-container').forEach(container => {
-                        container.innerHTML = `
-                            <div style="text-align: center; color: #dc3545;">
-                                <i class="fa fa-exclamation-triangle"></i> Failed to save report. Please try again.
-                            </div>
-                        `;
-                    });
-
-                    let errorMessage = 'Failed to save report. Please try again.';
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        console.error('[AI Assistant] Validation errors:', xhr.responseJSON.errors);
-                        // Show specific validation errors
-                        const errors = xhr.responseJSON.errors;
-                        const errorDetails = Object.keys(errors).map(field => `${field}: ${errors[field].join(', ')}`).join('; ');
-                        errorMessage = `Validation failed: ${errorDetails}`;
-                    }
-
-                    // Update any active report action containers to show error
-                    document.querySelectorAll('.report-action-container').forEach(container => {
-                        container.innerHTML = `
-                            <div style="text-align: center; color: #dc3545;">
-                                <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
-                            </div>
-                        `;
-                    });
-                }
-            });
-        },
-
-        /**
          * Switch to the reports tab
          */
         switchToReportsTab: function() {
-            // Remove the datatable-loading class when switching to Reports tab
-            setTimeout(() => {
-                $('.datatable-wrapper').removeClass('datatable-loading');
-                $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
-            }, 200);
             $('#reports-tab').tab('show');
             $('#assistant-tab').removeClass('active').attr('aria-selected', 'false');
             $('#reports-tab').addClass('active').attr('aria-selected', 'true');
@@ -3539,49 +2251,26 @@ if (tabContainer.length) {
                 '<div class="text-center py-4"><p class="text-muted">Select a report from history to view details here.</p></div>'
             );
 
-            // Check if reports have been loaded
-            if (!this.cachedReports || (Array.isArray(this.cachedReports) && this.cachedReports.length === 0 && !this.reportsLoaded)) {
-                // Reports not loaded yet, trigger loading
-                this.loadReportsHistory();
-            } else {
-                // Reports already loaded, just ensure table is visible
-                $('#report-history-loader').addClass('d-none');
-                $('#report-history-table-wrapper').removeClass('d-none');
-
-                // Update the table with cached reports
-                if (this.cachedReports) {
-                    this.updateReportsHistory(this.cachedReports);
-                }
-            }
+            // Ensure report history table is visible
+            $('#report-history-loader').addClass('d-none');
+            $('#report-history-table-wrapper').removeClass('d-none');
+            // No reload here; use cachedReports
         },
 
         /**
          * Load reports history
          */
         loadReportsHistory: function(callback) {
-            // Initialize cachedReports if not already
-            if (!this.cachedReports) {
-                this.cachedReports = [];
-            }
-
             $('#report-history-loader').removeClass('d-none');
             $('#report-history-table-wrapper').addClass('d-none');
             
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports',
+                url: 'https://ai-backend.stagingwithswift.com/api/reports',
                 method: 'GET',
-                timeout: 10000, // 10 second timeout
                 success: (response) => {
-
-                    // Cache reports for reuse - handle different response formats
-                    const reports = response.reports || response.data || [];
-                    this.cachedReports = Array.isArray(reports) ? reports : [];
-
-                    // Mark that reports have been loaded
-                    this.reportsLoaded = true;
-
-
-                    this.updateReportsHistory(this.cachedReports);
+                    // Cache reports for reuse
+                    this.cachedReports = response.reports;
+                    this.updateReportsHistory(response.reports);
                     $('#report-history-loader').addClass('d-none');
                     $('#report-history-table-wrapper').removeClass('d-none');
 
@@ -3620,6 +2309,7 @@ if (tabContainer.length) {
                                     dataCells = dataRows[0].cells.length;
                                 }
                                 
+                                console.log(`Table structure check - Headers: ${headerCells}, Data: ${dataCells}`);
                                 
                                 if (headerCells === dataCells && headerCells > 0) {
                                     // Only initialize DataTable if we have actual data rows (not just empty state)
@@ -3627,19 +2317,11 @@ if (tabContainer.length) {
                     this.reportsDataTable = new simpleDatatables.DataTable("#reports-history-table", {
                         searchable: true,
                         fixedHeight: false,
-                        perPage: 10,
-                        loading: false  // Disable loading indicator
+                        perPage: 10
                     });
-
-                                        // Remove the loading class from the wrapper
-                                        setTimeout(() => {
-                                            // Remove the datatable-loading class from the wrapper
-                                            $('.datatable-wrapper').removeClass('datatable-loading');
-                                            $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
-                                            // Also remove any actual loading elements if they exist
-                                            $('.dataTable-loading').remove();
-                                        }, 100);
+                                        console.log('DataTable initialized successfully');
                                     } else {
+                                        console.log('Skipping DataTable initialization - no data rows or empty state');
                                     }
                                 } else {
                                     console.warn(`Column mismatch - Headers: ${headerCells}, Data: ${dataCells}`);
@@ -3658,43 +2340,17 @@ if (tabContainer.length) {
                     }, 100); // Small delay to ensure DOM is ready
                 },
                 error: (xhr, status, error) => {
-                    console.error('[AI Assistant] Failed to load report history:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        error: error,
-                        responseText: xhr.responseText
-                    });
-
-                    // Always hide loader and show table
+                    console.error('Failed to load report history:', error);
+                    this.showError('Failed to load report history');
                     $('#report-history-loader').addClass('d-none');
-                    $('#report-history-table-wrapper').removeClass('d-none');
-
-                    // Show appropriate error message
+                    
+                    // Show error message in table
                     const tbody = $('#reports-history-table tbody');
                     tbody.empty();
-
-                    if (status === 'timeout') {
-                        tbody.append(
-                            `<tr><td colspan="3" class="text-center text-warning">Loading reports timed out. Please refresh the page.</td></tr>`
-                        );
-                    } else if (xhr.status === 401 || xhr.status === 403) {
-                        tbody.append(
-                            `<tr><td colspan="3" class="text-center text-danger">Authentication error. Please log in again.</td></tr>`
-                        );
-                    } else {
-                        // Use cached reports if available
-                        if (this.cachedReports && this.cachedReports.length > 0) {
-                            this.updateReportsHistory(this.cachedReports);
-                        } else {
-                            tbody.append(
-                                `<tr><td colspan="3" class="text-center text-muted">Unable to load reports. Please try again later.</td></tr>`
-                            );
-                        }
-                    }
-
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
+                    tbody.append(
+                        `<tr><td colspan="3" class="text-center text-danger">Failed to load reports</td></tr>`
+                    );
+                    $('#report-history-table-wrapper').removeClass('d-none');
                 }
             });
         },
@@ -3741,72 +2397,62 @@ if (tabContainer.length) {
                         <td>${statusBadge}</td>
                     </tr>`
                 );
-                // Don't attach click handler here - we'll use event delegation instead
-                tbody.append(row);
-            });
-
-            // Use event delegation for report row clicks to handle filtered/searched results
-            // Remove any existing delegated handlers first to avoid duplicates
-            $('#report-history-table-wrapper').off('click', '.report-row');
-
-            // Attach delegated click handler that will work even after DataTable filtering
-            $('#report-history-table-wrapper').on('click', '.report-row', function() {
-                const $row = $(this);
-                const reportSlug = $row.data('report-slug');
-
-                // Find the report from cached reports
-                const report = self.cachedReports.find(r => r.slug === reportSlug);
-                if (!report) {
-                    console.error('Report not found in cache:', reportSlug);
-                    return;
-                }
-
-                // Hide the report history loader when clicking on a report
-                $('#report-history-loader').addClass('d-none');
-                $('#report-history-table-wrapper').removeClass('d-none');
-
-                // Always show loading spinner in carousel container
-                const reportsView = $('#reports-panel .col-md-8 .card-body');
-                reportsView.find('.report-display-wrapper').html('<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>');
-
-                // Check if cachedReports exists and has the report WITH DATA
-                if (Array.isArray(self.cachedReports) && self.cachedReports.length > 0) {
-                    const rep = self.cachedReports.find(r => r.slug === report.slug);
-                    if (rep) {
-
-                        // Check if cached report has data, if not fetch it
-                        if (rep.data && Array.isArray(rep.data) && rep.data.length > 0) {
-                            setTimeout(() => { self.updateReportsView(rep, rep.data); }, 300); // simulate async for spinner UX
+                row.on('click', function() { // use function() to get row as 'this', use 'self' for assistant
+                    // Always show loading spinner in carousel container
+                    const reportsView = $('#reports-panel .col-md-8 .card-body');
+                    reportsView.find('.report-display-wrapper').html('<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>');
+                    // Check if cachedReports exists and has the report WITH DATA
+                    console.log('cachedReports', self.cachedReports);
+                    console.log('report', report);
+                    if (Array.isArray(self.cachedReports) && self.cachedReports.length > 0) {
+                        const rep = self.cachedReports.find(r => r.slug === report.slug);
+                        if (rep) {
+                            console.log('Found in cache - rep:', rep);
+                            console.log('Has data?', rep.data ? 'YES' : 'NO');
+                            console.log('Data length:', rep.data ? rep.data.length : 'N/A');
+                            
+                            // Check if cached report has data, if not fetch it
+                            if (rep.data && Array.isArray(rep.data) && rep.data.length > 0) {
+                                console.log('Using cached data');
+                                setTimeout(() => { self.updateReportsView(rep, rep.data); }, 300); // simulate async for spinner UX
+                            } else {
+                                console.log('Cached report has no data, fetching from API');
+                                self.fetchAndDisplayReport(report.slug, row);
+                            }
                         } else {
-                            self.fetchAndDisplayReport(report.slug, $row);
+                            console.log('Report not in cache, fetching from API');
+                            self.fetchAndDisplayReport(report.slug, row);
                         }
                     } else {
-                        self.fetchAndDisplayReport(report.slug, $row);
+                        console.log('No cached reports, fetching from API');
+                        self.fetchAndDisplayReport(report.slug, row);
                     }
-                } else {
-                    self.fetchAndDisplayReport(report.slug, $row);
-                }
-                // Highlight the current report in the history
-                $('.report-row').removeClass('table-primary');
-                $row.addClass('table-primary');
+                    // Highlight the current report in the history
+                    $('.report-row').removeClass('table-primary');
+                    row.addClass('table-primary');
+                });
+                tbody.append(row);
             });
         },
 
         // Helper to fetch report from API, update cache, and display
         fetchAndDisplayReport: function(reportSlug, rowElem) {
+            console.log('fetchAndDisplayReport', reportSlug, rowElem);
             const reportsView = $('#reports-panel .col-md-8 .card-body');
-
-            // Ensure report history loader is hidden since we're displaying a report
-            $('#report-history-loader').addClass('d-none');
-            $('#report-history-table-wrapper').removeClass('d-none');
-
+            
             // Ensure loading spinner is visible
             reportsView.html('<div class="report-display-wrapper w-100"><div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div></div>');
             
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}`,
+                url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}`,
                 method: 'GET',
                 success: (response) => {
+                    console.log('fetchAndDisplayReport success - full response:', response);
+                    console.log('fetchAndDisplayReport - report:', response.report);
+                    console.log('fetchAndDisplayReport - data:', response.data);
+                    console.log('fetchAndDisplayReport - data type:', typeof response.data);
+                    console.log('fetchAndDisplayReport - data is array:', Array.isArray(response.data));
+                    console.log('fetchAndDisplayReport - data length:', response.data ? response.data.length : 'null/undefined');
                     
                     // Add or update in cache
                     if (!Array.isArray(this.cachedReports)) this.cachedReports = [];
@@ -3824,6 +2470,7 @@ if (tabContainer.length) {
                         return;
                     }
                     
+                    console.log('Calling updateReportsView with:', response.report, response.data);
                     this.updateReportsView(response.report, response.data);
                     
                     // Highlight the current report in the history
@@ -3867,11 +2514,6 @@ if (tabContainer.length) {
          */
         updateReportsView: function(report, data = null) {
             const self = this;
-
-            // Store current report and data for export functionality
-            self.currentViewedReport = report;
-            self.currentViewedReportData = data;
-
             // Always destroy any existing chart/graph instances to prevent data mixup
             if (self.reportChartInstance) {
                 self.reportChartInstance.destroy();
@@ -3891,76 +2533,10 @@ if (tabContainer.length) {
                 self._vteController = null;
             }
             const reportsView = $('#reports-panel .col-md-8 .card-body');
-            // Inject custom styles for view toggle and chart controls
+            // Inject custom styles for icon button animation, highlight, and fade-in
             if ($('#display-type-icon-style').length === 0) {
                 $('head').append(`
                     <style id="display-type-icon-style">
-                        /* View toggle buttons */
-                        .view-toggle .view-toggle-btn {
-                            background: #f8f9fa;
-                            border: 1px solid #dee2e6;
-                            color: #495057;
-                            padding: 0.35rem 0.75rem;
-                            font-size: 13px;
-                            transition: all 0.2s ease;
-                        }
-                        .view-toggle .view-toggle-btn:first-child {
-                            border-radius: 6px 0 0 6px;
-                        }
-                        .view-toggle .view-toggle-btn:last-child {
-                            border-radius: 0 6px 6px 0;
-                        }
-                        .view-toggle .view-toggle-btn:hover {
-                            background: #e9ecef;
-                        }
-                        .view-toggle .view-toggle-btn.active {
-                            background: #2563eb;
-                            border-color: #2563eb;
-                            color: white;
-                        }
-                        .view-toggle .view-toggle-btn i {
-                            margin-right: 5px;
-                        }
-
-                        /* Chart controls wrapper */
-                        .chart-controls-wrapper {
-                            background: #f8f9fa;
-                            border-radius: 8px;
-                            padding: 1rem;
-                            border: 1px solid #e9ecef;
-                        }
-                        .chart-controls {
-                            display: flex;
-                            align-items: flex-end;
-                            flex-wrap: wrap;
-                        }
-                        .chart-controls .control-group {
-                            display: flex;
-                            flex-direction: column;
-                            gap: 0.25rem;
-                        }
-                        .chart-controls .form-label {
-                            font-size: 11px;
-                            font-weight: 600;
-                            color: #6c757d;
-                            margin-bottom: 0;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                        }
-                        .chart-controls .form-select {
-                            font-size: 13px;
-                            padding: 0.4rem 2rem 0.4rem 0.75rem;
-                            border-radius: 6px;
-                            border: 1px solid #dee2e6;
-                            background-color: white;
-                            min-width: 140px;
-                        }
-                        .chart-controls .form-select:focus {
-                            border-color: #2563eb;
-                            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-                        }
-
-                        /* Legacy icon button styles */
                         .btn-icon {
                             transition: transform 0.15s cubic-bezier(.4,2,.6,1), background 0.2s, border 0.2s;
                             background: #f8f9fa;
@@ -3980,6 +2556,13 @@ if (tabContainer.length) {
                             color: #007bff;
                             box-shadow: 0 0 0 2px #b3d7ff33;
                         }
+                        .display-fade {
+                            opacity: 0;
+                            transition: opacity 0.25s;
+                        }
+                        .display-fade.display-fade-in {
+                            opacity: 1;
+                        }
                     </style>
                 `);
             }
@@ -3989,58 +2572,14 @@ if (tabContainer.length) {
                 reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-muted py-4">No data available for this report.</div>');
                 return;
             }
-
-            // Get headers and detect numeric columns for chart axes
-            const headers = Object.keys(data[0] || {});
-            const numericCols = this.detectNumericColumns(data, headers);
-
-            // Build chart controls HTML
-            let chartControlsHtml = '<div class="chart-controls-wrapper mb-3">';
-            chartControlsHtml += '<div class="chart-controls d-flex flex-wrap align-items-end gap-3">';
-
-            // Chart type selector
-            chartControlsHtml += '<div class="control-group">';
-            chartControlsHtml += '<label for="report-chart-type" class="form-label">Chart Type</label>';
-            chartControlsHtml += '<select id="report-chart-type" class="form-select form-select-sm">';
-            chartControlsHtml += '<option value="bar">Bar Chart</option>';
-            chartControlsHtml += '<option value="line">Line Chart</option>';
-            chartControlsHtml += '<option value="pie">Pie Chart</option>';
-            chartControlsHtml += '<option value="doughnut">Doughnut Chart</option>';
-            chartControlsHtml += '</select></div>';
-
-            // X-Axis selector
-            chartControlsHtml += '<div class="control-group">';
-            chartControlsHtml += '<label for="report-chart-x-axis" class="form-label">X-Axis (Labels)</label>';
-            chartControlsHtml += '<select id="report-chart-x-axis" class="form-select form-select-sm">';
-            headers.forEach((header, idx) => {
-                const formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                const selected = idx === 0 ? ' selected' : '';
-                chartControlsHtml += `<option value="${header}"${selected}>${formattedHeader}</option>`;
-            });
-            chartControlsHtml += '</select></div>';
-
-            // Y-Axis selector (only numeric columns)
-            chartControlsHtml += '<div class="control-group">';
-            chartControlsHtml += '<label for="report-chart-y-axis" class="form-label">Y-Axis (Values)</label>';
-            chartControlsHtml += '<select id="report-chart-y-axis" class="form-select form-select-sm">';
-            if (numericCols.length > 0) {
-                numericCols.forEach((col, idx) => {
-                    const formattedHeader = col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const selected = idx === numericCols.length - 1 ? ' selected' : '';
-                    chartControlsHtml += `<option value="${col}"${selected}>${formattedHeader}</option>`;
-                });
-            } else {
-                // Fallback to all columns if no numeric found
-                headers.forEach((header, idx) => {
-                    const formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const selected = idx === headers.length - 1 ? ' selected' : '';
-                    chartControlsHtml += `<option value="${header}"${selected}>${formattedHeader}</option>`;
-                });
-            }
-            chartControlsHtml += '</select></div>';
-            chartControlsHtml += '</div></div>'; // End chart-controls and wrapper
-
-            // Controls row: export buttons (left), view toggle (right)
+            const types = ['table', 'chart', 'graph'];
+            const typeLabels = { table: 'Table', chart: 'Chart', graph: 'Graph' };
+            const typeIcons = {
+                table: '<i class="fa fa-table"></i>',
+                chart: '<i class="fa fa-bar-chart"></i>',
+                graph: '<i class="fa fa-line-chart"></i>'
+            };
+            // Controls row: export buttons (left), display icons (right)
             let controlsHtml = `
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
                     <div class="action-buttons d-flex gap-2">
@@ -4051,29 +2590,27 @@ if (tabContainer.length) {
                             <i class="fa fa-code me-1"></i>Export JSON
                         </button>
                     </div>
-                    <div class="view-toggle btn-group" role="group">
-                        <button type="button" class="btn btn-sm view-toggle-btn${report.display_type !== 'chart' ? ' active' : ''}" data-type="table"><i class="fa fa-table"></i> Table</button>
-                        <button type="button" class="btn btn-sm view-toggle-btn${report.display_type === 'chart' ? ' active' : ''}" data-type="chart"><i class="fa fa-bar-chart"></i> Chart</button>
-                    </div>
-                </div>
+                    <div class="display-type-icons d-flex gap-2 align-items-center">
             `;
-
+            types.forEach(type => {
+                const active = report.display_type === type ? ' active' : '';
+                controlsHtml += `<button class="btn btn-icon mr-10 mb-0${active}" data-type="${type}" title="${typeLabels[type]} View" style="font-size:1.5rem; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; padding:0;">${typeIcons[type]}</button>`;
+            });
+            controlsHtml += '</div></div>';
             // Display containers
-            const isChartActive = report.display_type === 'chart';
-            let displayHtml = '<div class="report-display-area w-100">';
-
-            // Table view
-            displayHtml += `<div class="report-view-panel${!isChartActive ? '' : ' d-none'}" data-type="table">`;
-            displayHtml += this.renderReportData(data);
-            displayHtml += '</div>';
-
-            // Chart view with controls
-            displayHtml += `<div class="report-view-panel${isChartActive ? '' : ' d-none'}" data-type="chart">`;
-            displayHtml += chartControlsHtml;
-            displayHtml += '<div class="chart-container" style="position: relative; height: 400px; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background: #fff;">';
-            displayHtml += '<canvas id="reportChart"></canvas>';
-            displayHtml += '</div></div>';
-
+            let displayHtml = '<div class="report-display-area w-100 position-relative" style="min-height:300px;">';
+            types.forEach(type => {
+                const isActive = report.display_type === type;
+                let content = '';
+                if (type === 'table') {
+                    content = this.renderReportData(data);
+                } else if (type === 'chart') {
+                    content = '<div class="chart-container"><canvas id="reportChart"></canvas></div>';
+                } else if (type === 'graph') {
+                    content = '<div class="chart-container"><canvas id="reportGraph"></canvas></div>';
+                }
+                displayHtml += `<div class="display-fade${isActive ? ' display-fade-in' : ''}" data-type="${type}" style="position:absolute; top:0; left:0; width:100%;${isActive ? 'z-index:1;' : 'z-index:0; pointer-events:none;'}">${content}</div>`;
+            });
             displayHtml += '</div>';
             reportsView.html(`
                 ${controlsHtml}
@@ -4082,15 +2619,12 @@ if (tabContainer.length) {
                 </div>
             `);
             
-            // Store current report data for chart rendering
-            self._currentReportData = data;
-            self._currentReportName = report.description || report.name || 'Report';
-
             // Initialize Vanilla Table Enhancer if table is active
-            if (this._pendingTableId && report.display_type !== 'chart') {
+            if (this._pendingTableId && report.display_type === 'table') {
                 setTimeout(() => {
                     const tableElement = document.getElementById(this._pendingTableId);
                     if (tableElement && window.VTE) {
+                        console.log('Initializing Vanilla Table Enhancer on table:', this._pendingTableId);
                         try {
                             this._vteController = window.VTE.enhance('#' + this._pendingTableId, {
                                 perPage: 10,
@@ -4109,29 +2643,74 @@ if (tabContainer.length) {
                     this._pendingTableId = null;
                 }, 100);
             }
-
-            // Initialize chart if chart view is active
-            if (report.display_type === 'chart') {
+            
+            // Immediately initialize chart/graph if default is not table
+            const initialType = report.display_type;
+            if (initialType === 'chart') {
                 setTimeout(() => {
-                    self.renderReportChartFromSelectors(data, self._currentReportName);
+                    const chartEl = document.getElementById('reportChart');
+                    if (chartEl) {
+                        const headers = Object.keys(data[0] || {});
+                        // Find first string column for labels, first numeric for values (but skip id columns for values)
+                        let labelKey = headers.find(h => typeof data[0][h] === 'string') || headers[0];
+                        let valueKey = headers.find(h => typeof data[0][h] === 'number' && !/^([a-zA-Z0-9]*_)?id$/.test(h))
+                            || headers.find(h => typeof data[0][h] === 'number' && !h.endsWith('_id'))
+                            || headers.find(h => typeof data[0][h] === 'number')
+                            || headers[1];
+                        const labels = data.map(r => r[labelKey]);
+                        const values = data.map(r => r[valueKey]);
+                        if (self.reportChartInstance) { self.reportChartInstance.destroy(); }
+                        self.reportChartInstance = new Chart(chartEl.getContext('2d'), {
+                            type: 'bar',
+                            data: { labels: labels, datasets: [{ label: valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1 }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
+                }, 100);
+            } else if (initialType === 'graph') {
+                setTimeout(() => {
+                    const graphEl = document.getElementById('reportGraph');
+                    if (graphEl) {
+                        const headers = Object.keys(data[0] || {});
+                        // Find first string column for labels, first numeric for values (but skip id columns for values)
+                        let labelKey = headers.find(h => typeof data[0][h] === 'string') || headers[0];
+                        let valueKey = headers.find(h => typeof data[0][h] === 'number' && !/^([a-zA-Z0-9]*_)?id$/.test(h))
+                            || headers.find(h => typeof data[0][h] === 'number' && !h.endsWith('_id'))
+                            || headers.find(h => typeof data[0][h] === 'number')
+                            || headers[1];
+                        const labels = data.map(r => r[labelKey]);
+                        const values = data.map(r => r[valueKey]);
+                        if (self.reportGraphInstance) { self.reportGraphInstance.destroy(); }
+                        self.reportGraphInstance = new Chart(graphEl.getContext('2d'), {
+                            type: 'line',
+                            data: { labels: labels, datasets: [{ label: valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 1 }] },
+                            options: { responsive: true, maintainAspectRatio: false }
+                        });
+                    }
                 }, 100);
             }
-
-            // View toggle button click handler
-            reportsView.find('.view-toggle-btn').on('click', function() {
+            // Animate display change on icon click
+            const iconButtons = reportsView.find('.display-type-icons .btn-icon');
+            iconButtons.on('click', function() {
                 const type = $(this).data('type');
-                reportsView.find('.view-toggle-btn').removeClass('active');
+                iconButtons.removeClass('active');
                 $(this).addClass('active');
-
-                // Toggle view panels
-                reportsView.find('.report-view-panel').addClass('d-none');
-                reportsView.find(`.report-view-panel[data-type="${type}"]`).removeClass('d-none');
-
-                // Initialize table enhancer if switching to table
+                // Animate fade out/in
+                types.forEach(t => {
+                    const $el = reportsView.find(`.display-fade[data-type="${t}"]`);
+                    if (t === type) {
+                        $el.addClass('display-fade-in').css({ 'z-index': 1, 'pointer-events': 'auto' });
+                    } else {
+                        $el.removeClass('display-fade-in').css({ 'z-index': 0, 'pointer-events': 'none' });
+                    }
+                });
+                
+                // If switching to table view and VTE not initialized, initialize it
                 if (type === 'table' && !self._vteController && self._pendingTableId) {
                     setTimeout(() => {
                         const tableElement = document.getElementById(self._pendingTableId);
                         if (tableElement && window.VTE) {
+                            console.log('Initializing Vanilla Table Enhancer on table (view switch):', self._pendingTableId);
                             try {
                                 self._vteController = window.VTE.enhance('#' + self._pendingTableId, {
                                     perPage: 10,
@@ -4149,33 +2728,74 @@ if (tabContainer.length) {
                         }
                     }, 100);
                 }
-
-                // Render chart if switching to chart view
+                
+                // If chart or graph, (re)initialize chart
                 if (type === 'chart') {
                     setTimeout(() => {
-                        self.renderReportChartFromSelectors(self._currentReportData, self._currentReportName);
+                        const chartEl = document.getElementById('reportChart');
+                        if (chartEl) {
+                            const headers = Object.keys(data[0] || {});
+                            // Find first string column for labels, first numeric for values (but skip id columns for values)
+                            let labelKey = headers.find(h => typeof data[0][h] === 'string') || headers[0];
+                            let valueKey = headers.find(h => typeof data[0][h] === 'number' && !/^([a-zA-Z0-9]*_)?id$/.test(h))
+                                || headers.find(h => typeof data[0][h] === 'number' && !h.endsWith('_id'))
+                                || headers.find(h => typeof data[0][h] === 'number')
+                                || headers[1];
+                            const labels = data.map(r => r[labelKey]);
+                            const values = data.map(r => r[valueKey]);
+                            if (self.reportChartInstance) { self.reportChartInstance.destroy(); }
+                            self.reportChartInstance = new Chart(chartEl.getContext('2d'), {
+                                type: 'bar',
+                                data: { labels: labels, datasets: [{ label: valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1 }] },
+                                options: { responsive: true, maintainAspectRatio: false }
+                            });
+                        }
+                    }, 100);
+                } else if (type === 'graph') {
+                    setTimeout(() => {
+                        const graphEl = document.getElementById('reportGraph');
+                        if (graphEl) {
+                            const headers = Object.keys(data[0] || {});
+                            // Find first string column for labels, first numeric for values (but skip id columns for values)
+                            let labelKey = headers.find(h => typeof data[0][h] === 'string') || headers[0];
+                            let valueKey = headers.find(h => typeof data[0][h] === 'number' && !/^([a-zA-Z0-9]*_)?id$/.test(h))
+                                || headers.find(h => typeof data[0][h] === 'number' && !h.endsWith('_id'))
+                                || headers.find(h => typeof data[0][h] === 'number')
+                                || headers[1];
+                            const labels = data.map(r => r[labelKey]);
+                            const values = data.map(r => r[valueKey]);
+                            if (self.reportGraphInstance) { self.reportGraphInstance.destroy(); }
+                            self.reportGraphInstance = new Chart(graphEl.getContext('2d'), {
+                                type: 'line',
+                                data: { labels: labels, datasets: [{ label: valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 1 }] },
+                                options: { responsive: true, maintainAspectRatio: false }
+                            });
+                        }
                     }, 100);
                 }
-
                 // Save display type if changed
                 if (type !== report.display_type) {
                     if (reportsView.find('.save-display-type-btn').length === 0) {
-                        reportsView.find('.view-toggle').after('<button class="btn btn-sm btn-outline-primary save-display-type-btn ms-2"><i class="fa fa-save"></i> Save View</button>');
+                        reportsView.find('.display-type-icons').append('<button class="btn btn-icon save-display-type-btn" style="font-size:1.5rem; width:40px; height:40px; border-radius:50%;"><i class="fa fa-save"></i></button>');
                         reportsView.find('.save-display-type-btn').on('click', function() { self.saveDisplayType(report.slug, type); });
                     }
                 } else {
                     reportsView.find('.save-display-type-btn').remove();
                 }
             });
-
-            // Chart controls change handlers
-            reportsView.find('#report-chart-type, #report-chart-x-axis, #report-chart-y-axis').on('change', function() {
-                self.renderReportChartFromSelectors(self._currentReportData, self._currentReportName);
-            });
-
             // Export buttons
             reportsView.find('.export-csv-btn').on('click', () => self.exportReport(report.slug, 'csv'));
             reportsView.find('.export-json-btn').on('click', () => self.exportReport(report.slug, 'json'));
+            
+            // Compare Data button - Disabled for v2
+            // setTimeout(function() {
+            //     if ($('.compare-data-btn').length === 0) {
+            //         $('.display-type-icons').after('<button class="btn btn-outline-info btn-sm compare-data-btn ms-2"><i class="fa fa-balance-scale"></i> Compare Data</button>');
+            //         $('.compare-data-btn').on('click', function() {
+            //             self.showCompareDataModal(report);
+            //         });
+            //     }
+            // }, 100);
         },
 
         /**
@@ -4241,11 +2861,9 @@ if (tabContainer.length) {
         getStatusBadgeClass: function(status) {
             switch (status) {
                 case 'completed': return 'bg-success';
-                case 'ready': return 'bg-success';  // Ready reports are successfully ready to view
                 case 'processing': return 'bg-warning text-dark';
                 case 'pending': return 'bg-info';
                 case 'failed': return 'bg-danger';
-                case 'error': return 'bg-danger';
                 default: return 'bg-secondary';
             }
         },
@@ -4260,7 +2878,7 @@ if (tabContainer.length) {
             reportRow.html('<td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Executing...</span></div> Executing report...</td>');
             
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/execute`,
+                url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/execute`,
                 method: 'POST',
                 success: (response) => {
                     if (response.success) {
@@ -4313,93 +2931,51 @@ if (tabContainer.length) {
         },
 
         /**
-         * Export report using local Moodle endpoint (same as Wizard)
+         * Export report
          */
-        exportReport: async function(reportSlug, format) {
-            const self = this;
-
+        exportReport: function(reportSlug, format) {
+            const url = `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/export/${format}`;
+            const token = sessionStorage.getItem('ai_token');
+            if (!token) {
+                this.showError('You must be logged in to export reports.');
+                return;
+            }
             // Show loader
             Swal.fire({
-                title: `Exporting as ${format.toUpperCase()}...`,
+                title: 'Exporting report...',
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
-
-            try {
-                // Build the request body
-                let body = `reportid=${encodeURIComponent(reportSlug)}&format=${format}&sesskey=${M.cfg.sesskey}`;
-
-                // Add view type (default to table)
-                body += `&view=table`;
-
-                // Include the report data if we have it stored
-                if (self.currentViewedReportData && Array.isArray(self.currentViewedReportData)) {
-                    // Get headers from the first row's keys
-                    const headers = self.currentViewedReportData.length > 0
-                        ? Object.keys(self.currentViewedReportData[0])
-                        : [];
-
-                    const reportDataPayload = {
-                        results: self.currentViewedReportData,
-                        headers: headers
-                    };
-                    body += `&report_data=${encodeURIComponent(JSON.stringify(reportDataPayload))}`;
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
                 }
-
-                // Make the request to the local Moodle endpoint
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/export_report.php`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: body
-                });
-
-                // Check if response is an error (JSON without Content-Disposition is an error)
-                const contentType = response.headers.get('content-type');
-                const contentDisposition = response.headers.get('content-disposition');
-
-                // If it's JSON but has Content-Disposition: attachment, it's a valid JSON file download
-                // If it's JSON without Content-Disposition, it's an error response
-                if (contentType && contentType.includes('application/json') && !contentDisposition) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Export failed');
-                }
-
-                // Check if response is OK
-                if (!response.ok) {
-                    throw new Error(`Export failed with status: ${response.status}`);
-                }
-
-                // Generate meaningful filename
-                const reportName = self.currentViewedReport?.description || self.currentViewedReport?.name || 'report';
-                const sanitizedName = reportName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_').toLowerCase();
-                const dateSuffix = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-
-                // Download the file
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Export failed');
+                return response.blob();
+            })
+            .then(blob => {
+                Swal.close();
                 const link = document.createElement('a');
-                link.href = url;
-                link.download = `${sanitizedName}_${dateSuffix}.${format}`;
+                link.href = window.URL.createObjectURL(blob);
+                link.download = `report-${reportSlug}.${format}`;
                 document.body.appendChild(link);
                 link.click();
-                window.URL.revokeObjectURL(url);
                 document.body.removeChild(link);
-
+            })
+            .catch(() => {
                 Swal.close();
-                self.showSuccess(`${format.toUpperCase()} file downloaded successfully!`);
-
-            } catch (error) {
-                Swal.close();
-                self.showError(error.message || 'Failed to export report.');
-            }
+                this.showError('Failed to export report.');
+            });
         },
 
         /**
          * Open report from chat link
          */
         openReportFromLink: function(reportSlug) {
+            console.log('openReportFromLink called with slug:', reportSlug);
             
             // Switch to reports tab
             this.switchToReportsTab();
@@ -4414,11 +2990,16 @@ if (tabContainer.length) {
             
             // Check if report has full data in cache
             const cached = this.cachedReports.find(r => r.slug === reportSlug);
+            console.log('Cached report found:', cached);
+            console.log('Has data?', cached && cached.data ? 'YES' : 'NO');
+            console.log('Data length:', cached && cached.data ? cached.data.length : 'N/A');
             
             // If cached report has data, use it; otherwise fetch from API
             if (cached && cached.data && Array.isArray(cached.data) && cached.data.length > 0) {
+                console.log('Using cached data for report:', reportSlug);
                 this.updateReportsView(cached, cached.data);
             } else {
+                console.log('Fetching report data from API:', reportSlug);
                 this.fetchAndDisplayReport(reportSlug, reportRow);
             }
         },
@@ -4479,7 +3060,7 @@ if (tabContainer.length) {
                 didOpen: () => Swal.showLoading()
             });
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/display-type`,
+                url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/display-type`,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ display_type: displayType }),
@@ -4558,15 +3139,17 @@ if (tabContainer.length) {
             // Helper: fetch timeline
             function fetchTimeline(cb) {
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots`,
+                    url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/snapshots`,
                     method: 'GET',
                     success: function(res) {
                         timeline = res.snapshots || [];
                         currentSnapshotId = (timeline.find(s => s.is_current_version) || {}).id || null;
+                        console.log('[DEBUG] Timeline fetched:', timeline);
                         if (cb) cb();
                     },
                     error: function() {
                         error = 'Failed to load timeline.';
+                        console.error('[DEBUG] Timeline fetch error:', error);
                         if (cb) cb();
                     }
                 });
@@ -4578,7 +3161,7 @@ if (tabContainer.length) {
                 if (section === 'b') loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/data/current`,
+                    url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/data/current`,
                     method: 'GET',
                     success: function(res) {
                         currentData = res.data || [];
@@ -4611,7 +3194,7 @@ if (tabContainer.length) {
                 if (section === 'b') loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots/${snapId}`,
+                    url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/snapshots/${snapId}`,
                     method: 'GET',
                     success: function(res) {
                         if (section === 'a') {
@@ -4642,7 +3225,7 @@ if (tabContainer.length) {
                 loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots/${aId}/compare/${bId}`,
+                    url: `https://ai-backend.stagingwithswift.com/api/reports/${reportSlug}/snapshots/${aId}/compare/${bId}`,
                     method: 'GET',
                     success: function(res) {
                         compareDataA = res.a.data;
@@ -4825,6 +3408,7 @@ if (tabContainer.length) {
 
             // Helper: render timeline sidebar (unchanged)
             function renderTimeline(selectedAId, selectedBId) {
+                console.log('[DEBUG] renderTimeline called. Timeline:', timeline);
                 let html = '<div class="timeline-sidebar" style="width:220px;max-width:220px;overflow-y:auto;height:100%;background:#f8f9fa;border-right:1.5px solid #e0e0e0;padding:0.5rem 0.25rem;">';
                 html += '<div class="d-flex flex-column gap-2 mb-3">';
                 html += `<button class="btn btn-outline-primary btn-sm w-100 mb-1 fetch-current-btn" title="Fetch current data from database" aria-label="Fetch current data"><i class="fa fa-sync"></i> Fetch Current Data</button>`;
@@ -5040,39 +3624,6 @@ if (tabContainer.length) {
             html += '</tbody></table></div>';
             return html;
         },
-
-        /**
-         * Test method to simulate a multiple choice question
-         * Call this from browser console: require(['report_adeptus_insights/assistant'], function(a) { a.testMCQ(); });
-         */
-        testMCQ: function() {
-            const testMessage = `I found an existing wizard report that might meet your needs. However, it doesn't include all the fields you requested.
-
-What would you like to do?
-
-A. Use the existing wizard report as-is
-B. Generate a new custom SQL report with all fields
-C. Use the wizard report and create a separate supplementary report
-D. Cancel and try a different approach`;
-
-            // Add the test message as if it came from AI
-            this.addMessage(testMessage, 'ai');
-        },
-
-        /**
-         * Test with numbered options
-         */
-        testMCQNumbered: function() {
-            const testMessage = `Please select your preferred report format:
-
-1. PDF Export with charts and graphs
-2. Excel spreadsheet with raw data
-3. CSV file for data analysis
-4. Interactive web dashboard
-5. Email summary report`;
-
-            this.addMessage(testMessage, 'ai');
-        }
     };
 
     // Expose assistant to global scope for onclick handlers

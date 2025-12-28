@@ -74,7 +74,7 @@ Assistant.init({{authenticated}});
                                     </button>
                                 </div>
                             </div>
-                            <div class="card-body p-0 position-relative">
+                            <div class="card-body p-0 position-relative" style="height: calc(100vh - 390px); overflow-y: auto; min-height: 400px; max-height: 710px;">
                                 <!-- Chat Messages -->
                                 <div id="chat-container" class="chat-container fade-in"></div>
                                 <!-- MCQ Container -->
@@ -113,7 +113,7 @@ Assistant.init({{authenticated}});
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0" style="padding:12px 0;">Chat History</h5>
                             </div>
-                            <div class="card-body" style="height: 673px;">
+                            <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <ul id="chat-history-list" class="list-group list-group-flush">
                                     <li id="chat-history-loading"
                                         class="list-group-item d-flex justify-content-center">
@@ -139,7 +139,7 @@ Assistant.init({{authenticated}});
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0 report-view-title">Select a Report</h5>
                             </div>
-                            <div class="card-body p-4 report-view-body" style="max-height: 700px; overflow-y: auto;">
+                            <div class="card-body p-4 report-view-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <div class="text-center py-4">
                                     <p class="text-muted">Select a report from history to view details here.</p>
                                 </div>
@@ -152,9 +152,11 @@ Assistant.init({{authenticated}});
                             <div class="card-header bg-primary text-white">
                                 <h5 class="card-title mb-0">Report History</h5>
                             </div>
-                            <div class="card-body p-0 position-relative">
+                            <div class="card-body p-0 position-relative" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <div id="report-history-loader" class="p-4 d-flex justify-content-center">
-                                   
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
                                 </div>
                                 <div class="table-responsive d-none" id="report-history-table-wrapper">
                                     <table id="reports-history-table" class="table mb-0">
@@ -203,8 +205,7 @@ Assistant.init({{authenticated}});
 </template>
 <style>
 .chat-container {
-    height: 600px;
-    overflow-y: auto;
+    /* Height managed by parent card-body */
     padding: 1rem;
     background-color: #f8f9fa;
 }
@@ -242,6 +243,12 @@ Assistant.init({{authenticated}});
 .user-message .message-content {
     background-color: #007bff;
     color: white;
+}
+
+/* Fix time label visibility in user messages */
+.user-message .message-time {
+    color: rgba(255, 255, 255, 0.85) !important;
+    opacity: 1;
 }
 
 .ai-message .message-content {
@@ -448,10 +455,10 @@ Assistant.init({{authenticated}});
   padding-left: 2.5rem; /* make room for the retry icon */
 }
 
-/* Chat History and Report History fixed height containers */
+/* Chat History - scroll managed by parent card-body */
 #chat-history-list {
-    height: 600px;
-    overflow-y: auto;
+    /* Height managed by parent container */
+    overflow-y: visible;
     margin: 0;
     padding: 0;
 }
@@ -474,34 +481,58 @@ Assistant.init({{authenticated}});
     overflow: hidden;
 }
 
-/* Specific styling for chat history and report history cards */
-#chat-history-list {
-    height: 600px;
-    overflow-y: auto;
+/* Specific styling for chat history - already defined above */
+
+/* Report history table container - scroll managed by parent card-body */
+#reports-panel .col-md-4 .table-responsive {
+    /* Height managed by parent card-body */
+    overflow: visible;
     margin: 0;
     padding: 0;
 }
 
-/* Report history table container */
-#reports-panel .table-responsive {
-    height: 600px;
-    overflow-y: auto;
-    margin: 0;
-    padding: 0;
-}
-
-/* Chat history card body */
-#assistant-panel .col-md-4 .card-body {
-    padding: 0;
-    height: 600px;
+/* Main report display area - single scroll container */
+#reports-panel .col-md-8 .report-view-body {
+    position: relative;
     display: flex;
     flex-direction: column;
 }
 
-/* Report history card body */
+/* Main report display table - no separate scroll */
+#reports-panel .col-md-8 .table-responsive {
+    margin: 0;
+    padding: 0;
+    overflow: visible !important;
+    /* Table expands within the scrollable card body */
+}
+
+/* Make table headers sticky within the scrolling container */
+#reports-panel .col-md-8 table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure proper scrolling behavior */
+#reports-panel .col-md-8 .card-body.report-view-body {
+    overflow-y: auto !important;
+    overflow-x: hidden;
+}
+
+/* Chat history card body - dynamic height matching reports tab */
+#assistant-panel .col-md-4 .card-body {
+    padding: 0;
+    /* Height managed by inline styles for consistency */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Report history card body - dynamic height matching preview */
 #reports-panel .col-md-4 .card-body {
     padding: 0;
-    height: 600px;
+    /* Height managed by inline styles for consistency */
     display: flex;
     flex-direction: column;
 }
@@ -606,11 +637,31 @@ Assistant.init({{authenticated}});
 /* Report display type controls */
 .report-display-wrapper {
     display: flex;
-    height: 100%;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Report display area for switching between views */
+.report-display-area {
+    position: relative;
+    min-height: 300px;
 }
 .report-content {
     flex: 1;
 }
+
+/* Ensure charts and graphs have reasonable heights */
+.chart-container {
+    height: 400px;
+    width: 100%;
+    position: relative;
+}
+
+#reportChart, #reportGraph {
+    max-height: 400px;
+    width: 100%;
+}
+
 .display-type-controls {
     display: flex;
     flex-direction: column;
@@ -625,5 +676,83 @@ Assistant.init({{authenticated}});
 }
 .mr-10{
     margin-right: 10px;
+}
+
+/* Multiple choice question styles */
+.mcq-question-container {
+    width: 100%;
+}
+
+.mcq-options-grid {
+    margin-top: 15px;
+}
+
+.mcq-option-button {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.mcq-option-button:hover:not(:disabled) {
+    background-color: #f8f9fa !important;
+    border-color: #007bff !important;
+    transform: translateX(5px);
+}
+
+.mcq-option-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mcq-option-button.selected {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.mcq-option-button .mcq-option-letter {
+    transition: all 0.3s ease;
+}
+
+.mcq-option-button.selected .mcq-option-letter {
+    background: #28a745 !important;
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+    /* On mobile, let containers adapt naturally */
+    .card-body[style*="calc(100vh"] {
+        height: auto !important;
+        max-height: 500px !important;
+        min-height: 300px !important;
+    }
+
+    /* Stack columns on mobile */
+    .col-md-4, .col-md-8 {
+        width: 100%;
+    }
+}
+
+/* Don't Save button hover styling */
+.btn-decline-report.btn-secondary:hover {
+    color: #007bff !important;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* General secondary button hover for consistency */
+.btn-secondary:hover {
+    color: #007bff !important;
 }
 </style>

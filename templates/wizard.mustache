@@ -305,35 +305,26 @@ select.form-control option {
 
 {{#js}}
 require(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'report_adeptus_insights/global_auth'], function($, Ajax, Notification, Chart, Templates, GlobalAuth) {
-    console.log('Moodle modules loaded, initializing global authentication...');
-    
     // Initialize global authentication first
     GlobalAuth.init().then(() => {
-        console.log('Global authentication initialized, checking for AdeptusWizard...');
-        
-        // Wait a bit longer to ensure the wizard.js file is loaded
+        // Reduced delay to 100ms for faster perceived load time
         setTimeout(function() {
-            console.log('Delayed check for AdeptusWizard...');
-            console.log('AdeptusWizard type:', typeof AdeptusWizard);
-            
             if (typeof AdeptusWizard !== 'undefined') {
-                console.log('AdeptusWizard class found, initializing...');
                 const wizard = new AdeptusWizard();
-                window.adeptusWizardInstance = wizard; // Store globally
-                wizard.init().catch(error => {
-                    console.error('Failed to initialize AdeptusWizard:', error);
-                });
+                window.adeptusWizardInstance = wizard;
+
+                // Show loading modal IMMEDIATELY before async initialization
+                wizard.showLoading('Loading categories...');
+
+                wizard.init()
+                    .catch(error => {
+                        console.error('Failed to initialize AdeptusWizard:', error);
+                        wizard.hideLoading();
+                    });
             } else {
-                console.error('AdeptusWizard class not found after delay');
-                console.log('Available global variables:', Object.keys(window).filter(key => key.includes('Adeptus') || key.includes('Wizard')));
-                
-                // Try to test the wizard manually
-                if (typeof window.testAdeptusWizard === 'function') {
-                    console.log('Testing wizard manually...');
-                    window.testAdeptusWizard();
-                }
+                console.error('AdeptusWizard class not found');
             }
-        }, 1000); // Wait 1 second
+        }, 100); // Reduced from 1000ms to 100ms
     }).catch((error) => {
         console.error('Failed to initialize global authentication:', error);
     });
@@ -355,7 +346,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templ
             
         </div>
         <div class="wizard-header-section">
-            <a style="margin-bottom: 17px;" href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
+            <a style="margin-bottom: 17px;" href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
                     <i class="fa fa-arrow-left"></i> Back to Dashboard
                 </a>
             
@@ -531,22 +522,27 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templ
                 </div>
                 
                 <div class="results-content">
-                    <div class="results-tabs">
-                        <button class="tab-btn active" data-tab="table">
-                            <i class="fa fa-table"></i> Table View
-                        </button>
-                        <button class="tab-btn" data-tab="chart">
-                            <i class="fa fa-bar-chart"></i> Chart View
-                        </button>
+                    <div class="results-view-header">
+                        <div class="view-toggle btn-group" role="group">
+                            <button type="button" class="btn btn-sm view-toggle-btn active" data-view="table">
+                                <i class="fa fa-table"></i> Table
+                            </button>
+                            <button type="button" class="btn btn-sm view-toggle-btn" data-view="chart">
+                                <i class="fa fa-bar-chart"></i> Chart
+                            </button>
+                        </div>
                     </div>
-                    
+
                     <div class="results-data">
-                        <div class="tab-content active" id="table-view">
+                        <div class="view-panel" id="table-view">
                             <div class="table-container" id="results-table">
                                 <!-- Table will be populated dynamically -->
                             </div>
                         </div>
-                        <div class="tab-content" id="chart-view">
+                        <div class="view-panel d-none" id="chart-view">
+                            <div class="chart-controls-wrapper" id="chart-controls">
+                                <!-- Chart controls will be populated dynamically -->
+                            </div>
                             <div class="chart-container" id="results-chart">
                                 <!-- Chart will be populated dynamically -->
                             </div>

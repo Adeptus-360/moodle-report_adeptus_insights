@@ -1,12 +1,18 @@
 <?php
 /**
  * API Proxy for Adeptus Insights
- * 
+ *
  * This script handles API requests for the Moodle plugin and routes them to the Laravel backend
  */
 
+// Load centralized API configuration
+require_once(__DIR__ . '/classes/api_config.php');
+
+// Get CORS origin from centralized config
+$cors_origin = \report_adeptus_insights\api_config::get_cors_origin();
+
 // Set CORS headers
-header('Access-Control-Allow-Origin: https://plugin.stagingwithswift.com');
+header('Access-Control-Allow-Origin: ' . $cors_origin);
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origin');
 header('Access-Control-Allow-Credentials: true');
@@ -18,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-// Backend API URL
-$BACKEND_URL = 'https://ai-backend.stagingwithswift.com/api';
+// Backend API URL - using legacy URL for backward compatibility
+$BACKEND_URL = \report_adeptus_insights\api_config::get_legacy_api_url();
 
 // Get the request path
 $request_uri = $_SERVER['REQUEST_URI'];
@@ -153,10 +159,10 @@ function handleRegistration() {
             return;
         }
     }
-    
+
     // Add missing fields that the installation manager expects
     if (empty($input['site_url'])) {
-        $input['site_url'] = 'https://plugin.stagingwithswift.com';
+        $input['site_url'] = \report_adeptus_insights\api_config::get_site_url();
     }
     if (empty($input['site_name'])) {
         $input['site_name'] = 'Moodle Site';

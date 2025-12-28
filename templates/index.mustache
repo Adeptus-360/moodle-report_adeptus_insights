@@ -81,6 +81,20 @@ require(['jquery'], function($) {
         {{/subscription}}
         <br>
         <div class="row">
+            <!-- Generated Reports Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/generated_reports.php';">
+                    <div class="card-body text-center">
+                        <div class="lottie-container mb-3">
+                            <div data-lottie-path="report/adeptus_insights/amd/lottie/generated_reports.json"></div>
+                        </div>
+                        <h5 class="card-title">{{#str}}generated_reports, report_adeptus_insights{{/str}}</h5>
+                        <p class="card-text">{{#str}}generated_reports_desc, report_adeptus_insights{{/str}}</p>
+                        <a href="{{config.wwwroot}}/report/adeptus_insights/generated_reports.php" class="btn btn-generated-reports">{{#str}}view_reports, report_adeptus_insights{{/str}}</a>
+                    </div>
+                </div>
+            </div>
+
             <!-- Report Wizard Card -->
             <div class="col-md-4 mb-4">
                 <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/wizard.php';">
@@ -95,7 +109,7 @@ require(['jquery'], function($) {
                 </div>
             </div>
 
-            <!-- Usage Analytics Card -->
+            <!-- AI Assistant Card -->
             <div class="col-md-4 mb-4">
                 <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/assistant.php';">
                 <div class="card-body text-center">
@@ -108,21 +122,29 @@ require(['jquery'], function($) {
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Subscription Management Card -->
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
-                    <div class="card-body text-center">
-                        <div class="lottie-container mb-3">
-                            <div data-lottie-path="report/adeptus_insights/amd/lottie/subscription_plan.json"></div>
+        <!-- Subscription Management Banner -->
+        <div class="row mt-2">
+            <div class="col-12">
+                <div class="subscription-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
+                    <div class="subscription-banner-content">
+                        <div class="subscription-banner-icon">
+                            <i class="fa fa-credit-card"></i>
                         </div>
-                        <h5 class="card-title">{{#str}}subscription_management, report_adeptus_insights{{/str}}</h5>
-                        <p class="card-text">{{#str}}subscription_management_desc, report_adeptus_insights{{/str}}</p>
-                        <a href="{{config.wwwroot}}/report/adeptus_insights/subscription.php" class="btn btn-subscription">{{#str}}manage_subscription, report_adeptus_insights{{/str}}</a>
+                        <div class="subscription-banner-text">
+                            <h6 class="mb-0">{{#str}}subscription_management, report_adeptus_insights{{/str}}</h6>
+                            <small class="text-muted-light">{{#str}}subscription_management_desc, report_adeptus_insights{{/str}}</small>
+                        </div>
+                        <div class="subscription-banner-action">
+                            <a href="{{config.wwwroot}}/report/adeptus_insights/subscription.php" class="btn btn-light btn-sm">
+                                {{#str}}manage_subscription, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-    </div>
+        </div>
     </div>
 </div>
 
@@ -133,16 +155,28 @@ require(['jquery'], function($) {
         color: #fff;
     }
 
-    .btn-report-wizard {
+    .btn-generated-reports {
         background-color: #2fa4e9;
         border-color: #2fa4e9;
         color: #fff;
     }
 
-    .btn-start-chat {
+    .btn-report-wizard {
         background-color: #2f85ea;
         border-color: #2f85ea;
         color: #fff;
+    }
+
+    .btn-start-chat {
+        background-color: #2f63eb;
+        border-color: #2f63eb;
+        color: #fff;
+    }
+
+    .btn-generated-reports:hover {
+        background-color: #fff;
+        border-color: #2fa4e9;
+        color: #2fa4e9;
     }
 
     .btn-subscription:hover {
@@ -152,14 +186,82 @@ require(['jquery'], function($) {
 
     .btn-report-wizard:hover {
         background-color: #fff;
-        border-color: #2fa4e9;
+        border-color: #2f85ea;
     }
 
     .btn-start-chat:hover {
         background-color: #fff;
-        border-color: #2f85ea;
+        border-color: #2f63eb;
     }
 
+    /* Subscription Banner Styles */
+    .subscription-banner {
+        background: linear-gradient(135deg, #2fa4e9 0%, #2f63eb 100%);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+    }
+
+    .subscription-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .subscription-banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .subscription-banner-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .subscription-banner-text {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .subscription-banner-text h6 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .subscription-banner-text .text-muted-light {
+        color: rgba(255,255,255,0.85);
+    }
+
+    .subscription-banner-action .btn {
+        white-space: nowrap;
+    }
+
+    .subscription-banner-action .btn:hover {
+        background-color: white;
+        color: #2f63eb;
+    }
+
+    @media (max-width: 768px) {
+        .subscription-banner-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .subscription-banner-text {
+            min-width: 100%;
+        }
+    }
 
     .adeptus-insights-dashboard {
         /* padding: 2rem 0; */

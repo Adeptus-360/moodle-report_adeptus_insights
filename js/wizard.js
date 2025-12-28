@@ -3,9 +3,6 @@
  * Modern, interactive wizard for generating reports
  */
 
-console.log('=== WIZARD.JS FILE LOADING ===');
-console.log('Loading AdeptusWizard class...');
-
 class AdeptusWizard {
     constructor() {
         this.currentStep = 'step-categories';
@@ -24,25 +21,30 @@ class AdeptusWizard {
     }
 
     async init() {
-        console.log('AdeptusWizard.init() called');
-        await this.loadWizardData();
-        this.bindEvents();
-        this.initializeQuickActions();
-        this.initializeRecentReports();
-        this.updateBookmarkStates();
-        this.updateReportsLeftCounter();
-        this.updateExportsCounter();
-        
-        // Render sections with persisted data immediately
-        this.renderGeneratedReports();
-        this.renderRecentReports();
-        this.renderBookmarks();
-        
-        console.log('AdeptusWizard initialization complete');
+        try {
+            await this.loadWizardData();
+            this.bindEvents();
+            this.initializeQuickActions();
+            this.initializeRecentReports();
+            this.updateBookmarkStates();
+            this.updateReportsLeftCounter();
+            this.updateExportsCounter();
+
+            // Render sections with persisted data immediately
+            this.renderGeneratedReports();
+            this.renderRecentReports();
+            this.renderBookmarks();
+
+            // Hide loading modal after everything is initialized
+            this.hideLoading();
+        } catch (error) {
+            this.hideLoading();
+            console.error('Initialization failed:', error);
+            throw error;
+        }
     }
 
     async loadWizardData() {
-        console.log('Loading wizard data...');
         
         // First, try to load data from the template (this is the main source)
         const wizardDataElement = document.getElementById('wizard-data');
@@ -50,7 +52,6 @@ class AdeptusWizard {
             try {
                 const templateData = JSON.parse(wizardDataElement.textContent);
                 this.wizardData = { ...this.wizardData, ...templateData };
-                console.log('Wizard data loaded from template:', this.wizardData);
             } catch (error) {
                 console.error('Error parsing template data:', error);
             }
@@ -82,7 +83,6 @@ class AdeptusWizard {
             
             if (data.success) {
                 this.wizardData = { ...this.wizardData, ...data.data };
-                console.log('Additional wizard data loaded:', data.data);
             } else {
                 console.error('Failed to load additional wizard data:', data);
             }
@@ -98,17 +98,11 @@ class AdeptusWizard {
     }
     
     async loadReportsFromBackend() {
-        console.log('Loading reports from backend API...');
-        
         // Prevent duplicate loading if already loaded
         if (this.categoriesLoaded) {
-            console.log('Categories already loaded, skipping...');
             return;
         }
-        
-        // Show loading indicator
-        this.showLoading('Loading categories...');
-        
+
         try {
             const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/get_reports_from_backend.php`, {
                 method: 'POST',
@@ -117,35 +111,26 @@ class AdeptusWizard {
                 },
                 body: `sesskey=${this.wizardData.sesskey}`
             });
-            
+
             const data = await response.json();
-            
+
             if (data.success) {
                 this.wizardData.categories = data.categories;
-                this.categoriesLoaded = true; // Mark categories as loaded
-                console.log('Reports loaded from backend:', data.total_reports, 'reports in', data.categories.length, 'categories');
-                
+                this.categoriesLoaded = true;
+
                 // Initialize the wizard with the loaded data
                 this.renderCategories();
-                this.hideLoading();
-                
-                // Enhance recent reports and bookmarks with backend data (this will also render sections)
+
+                // Enhance recent reports and bookmarks with backend data
                 this.enhanceRecentReportsAndBookmarks();
-        // Don't call bindEvents() again - it's already called in init()
-                // Don't call initializeQuickActions() again - it's already called in init()
-                // Don't call initializeRecentReports() again - it's already called in init()
                 this.updateBookmarkStates();
             } else {
                 console.error('Failed to load reports from backend:', data.message);
-                this.hideLoading();
                 throw new Error(data.message || 'Failed to load reports from backend');
             }
         } catch (error) {
             console.error('Error loading reports from backend:', error);
-            
-            // Hide loading indicator on error
-            this.hideLoading();
-            
+
             // Check if this is an authentication error (301/302 redirect to login)
             if (error.message.includes('HTTP 301') || error.message.includes('HTTP 302')) {
                 this.showError('Your session has expired. Please refresh the page and log in again.');
@@ -159,12 +144,10 @@ class AdeptusWizard {
     // Method to reset categories loaded flag (useful for forcing a reload)
     resetCategoriesLoaded() {
         this.categoriesLoaded = false;
-        console.log('Categories loaded flag reset');
     }
     
     
     renderCategories() {
-        console.log('Rendering categories...');
         
         const categoryGrid = document.querySelector('.category-grid');
         if (!categoryGrid) {
@@ -181,11 +164,9 @@ class AdeptusWizard {
             categoryGrid.appendChild(categoryCard);
         });
         
-        console.log(`Rendered ${this.wizardData.categories.length} category cards`);
     }
 
     renderGeneratedReports() {
-        console.log('Rendering generated reports...');
         const section = document.getElementById('generated-reports-section');
         const grid = document.getElementById('generated-reports-grid');
         
@@ -224,11 +205,9 @@ class AdeptusWizard {
         // Add or update "Show All" button
         this.updateShowAllButton('generated-reports-section', hasMore, generatedReports.length);
 
-        console.log(`Rendered ${generatedReports.length} generated report cards (showing ${Math.min(maxVisible, generatedReports.length)})`);
     }
 
     renderRecentReports() {
-        console.log('Rendering recent reports...');
         const section = document.getElementById('recent-reports-section');
         const grid = document.getElementById('recent-reports-grid');
         
@@ -264,11 +243,9 @@ class AdeptusWizard {
         // Add or update "Show All" button
         this.updateShowAllButton('recent-reports-section', hasMore, this.wizardData.recent_reports.length);
 
-        console.log(`Rendered ${this.wizardData.recent_reports.length} recent report cards (showing ${Math.min(maxVisible, this.wizardData.recent_reports.length)})`);
     }
 
     renderBookmarks() {
-        console.log('Rendering bookmarks...');
         const section = document.getElementById('bookmarks-section');
         const grid = document.getElementById('bookmarks-grid');
         
@@ -304,7 +281,6 @@ class AdeptusWizard {
         // Add or update "Show All" button
         this.updateShowAllButton('bookmarks-section', hasMore, this.wizardData.bookmarks.length);
 
-        console.log(`Rendered ${this.wizardData.bookmarks.length} bookmark cards (showing ${Math.min(maxVisible, this.wizardData.bookmarks.length)})`);
     }
     
     getCategoryIcon(categoryName) {
@@ -380,7 +356,6 @@ class AdeptusWizard {
     }
     
     enhanceRecentReportsAndBookmarks() {
-        console.log('Enhancing recent reports and bookmarks with backend data...');
         
         // Create a lookup map of all reports by name and index (for legacy numeric IDs)
         const reportLookup = {};
@@ -435,7 +410,7 @@ class AdeptusWizard {
         if (this.wizardData.bookmarks) {
             this.wizardData.bookmarks.forEach(bookmark => {
                 let backendReport = null;
-                
+
                 // Try to find by name first (new system)
                 if (reportLookup[bookmark.name]) {
                     backendReport = reportLookup[bookmark.name];
@@ -449,7 +424,7 @@ class AdeptusWizard {
                         bookmark.name = backendReport.name;
                     }
                 }
-                
+
                 if (backendReport) {
                     bookmark.category = backendReport.category;
                     bookmark.description = backendReport.description;
@@ -457,9 +432,35 @@ class AdeptusWizard {
                 }
             });
         }
-        
-        console.log('Enhanced recent reports and bookmarks with backend data');
-        
+
+        // Enhance generated reports
+        if (this.wizardData.generated_reports) {
+            this.wizardData.generated_reports.forEach(generatedReport => {
+                let backendReport = null;
+
+                // Try to find by name first (new system)
+                if (reportLookup[generatedReport.name]) {
+                    backendReport = reportLookup[generatedReport.name];
+                }
+                // Try to find by numeric ID (legacy system)
+                else if (typeof generatedReport.name === 'number' || !isNaN(generatedReport.name)) {
+                    const numericId = parseInt(generatedReport.name);
+                    if (reportIndexLookup[numericId]) {
+                        backendReport = reportIndexLookup[numericId];
+                        // Update the generated report name to the actual report name
+                        generatedReport.name = backendReport.name;
+                    }
+                }
+
+                if (backendReport) {
+                    generatedReport.category = backendReport.category;
+                    generatedReport.description = backendReport.description;
+                    generatedReport.charttype = backendReport.charttype;
+                }
+            });
+        }
+
+
         // Re-render all sections after enhancement only if categories are loaded
         if (this.categoriesLoaded) {
             this.renderGeneratedReports();
@@ -477,7 +478,6 @@ class AdeptusWizard {
             if (typeof require !== 'undefined') {
                 require(['core/chartjs'], (ChartJS) => {
                     this.chartJS = ChartJS;
-                    console.log('Chart.js loaded successfully from Moodle core');
                 });
             } else {
                 console.warn('RequireJS not available, trying CDN fallback');
@@ -497,7 +497,6 @@ class AdeptusWizard {
             // Check if Chart.js is already loaded globally
             if (typeof Chart !== 'undefined') {
                 this.chartJS = Chart;
-                console.log('Chart.js loaded from global scope');
                 resolve();
                 return;
             }
@@ -508,7 +507,6 @@ class AdeptusWizard {
             script.onload = () => {
                 if (typeof Chart !== 'undefined') {
                     this.chartJS = Chart;
-                    console.log('Chart.js loaded successfully from CDN');
                     resolve();
                 } else {
                     reject(new Error('Chart.js failed to load from CDN'));
@@ -548,29 +546,23 @@ class AdeptusWizard {
     }
 
     bindEvents() {
-        console.log('Binding events...');
         
         // Prevent duplicate event binding
         if (this.eventsBound) {
-            console.log('Events already bound, skipping...');
             return;
         }
         this.eventsBound = true;
         
         // Debug: Check what category cards are available
         const categoryCards = document.querySelectorAll('.category-card');
-        console.log('Found category cards:', categoryCards.length);
         categoryCards.forEach((card, index) => {
-            console.log(`Category ${index}:`, card.dataset.category, card.textContent.trim());
         });
         
         // Category selection
         document.addEventListener('click', (e) => {
             if (e.target.closest('.category-card')) {
-                console.log('Category card clicked!');
                 const categoryCard = e.target.closest('.category-card');
                 const categoryName = categoryCard.dataset.category;
-                console.log('Category name:', categoryName);
                 this.selectCategory(categoryName);
             }
         });
@@ -687,7 +679,6 @@ class AdeptusWizard {
             // Prevent dropdown if button is disabled
             const exportBtn = e.currentTarget;
             if (exportBtn.disabled || exportBtn.classList.contains('disabled')) {
-                console.log('Export button is disabled, preventing dropdown');
                 e.preventDefault();
                 e.stopPropagation();
                 return false;
@@ -711,12 +702,12 @@ class AdeptusWizard {
             }
         });
 
-        // Tab switching
+        // View toggle switching
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.tab-btn')) {
-                const tabBtn = e.target.closest('.tab-btn');
-                const tabName = tabBtn.dataset.tab;
-                this.switchTab(tabName);
+            if (e.target.closest('.view-toggle-btn')) {
+                const toggleBtn = e.target.closest('.view-toggle-btn');
+                const viewName = toggleBtn.dataset.view;
+                this.switchView(viewName);
             }
         });
 
@@ -734,7 +725,6 @@ class AdeptusWizard {
     initializeQuickActions() {
         // Prevent duplicate initialization
         if (this.quickActionsInitialized) {
-            console.log('Quick actions already initialized, skipping...');
             return;
         }
         this.quickActionsInitialized = true;
@@ -754,7 +744,6 @@ class AdeptusWizard {
     initializeRecentReports() {
         // Prevent duplicate initialization
         if (this.recentReportsInitialized) {
-            console.log('Recent reports already initialized, skipping...');
             return;
         }
         this.recentReportsInitialized = true;
@@ -845,7 +834,6 @@ class AdeptusWizard {
     }
 
     selectCategory(categoryName) {
-        console.log('selectCategory called with:', categoryName);
         this.selectedCategory = categoryName;
         
         // Animate category selection
@@ -869,17 +857,13 @@ class AdeptusWizard {
     }
 
     loadReportsForCategory(categoryName) {
-        console.log('loadReportsForCategory called with:', categoryName);
-        console.log('wizardData.categories:', this.wizardData.categories);
         
         const category = this.wizardData.categories.find(cat => cat.name === categoryName);
         if (!category) {
             console.error('Category not found:', categoryName);
-            console.log('Available categories:', this.wizardData.categories?.map(cat => cat.name));
             return;
         }
 
-        console.log('Found category:', category);
         document.getElementById('selected-category-name').textContent = `Reports in ${categoryName}`;
         
         const reportsGrid = document.getElementById('reports-grid');
@@ -1083,7 +1067,6 @@ class AdeptusWizard {
                 
                 // Show backend status if debug mode is enabled
                 if (this.debugMode && data.backend_enhanced !== undefined) {
-                    console.log('Backend enhancement status:', data.backend_enhanced);
                 }
             } else {
                 this.showError('Failed to load report parameters');
@@ -1163,7 +1146,6 @@ class AdeptusWizard {
                         enhancedParameters.push(enhancedParam);
                         
                         if (this.debugMode) {
-                            console.log(`Enhanced parameter ${param.name}:`, enhancedParam);
                         }
                     } else {
                         // Fallback to original parameter if backend processing fails
@@ -1286,14 +1268,12 @@ class AdeptusWizard {
     async generateReport() {
         // Prevent multiple simultaneous calls
         if (this.isGeneratingReport) {
-            console.log('Report generation already in progress, ignoring duplicate call');
             return;
         }
         
         // Check if generate button is disabled (limit reached)
         const generateBtn = document.getElementById('generate-report');
         if (generateBtn && generateBtn.disabled) {
-            console.log('Report generation limit reached, ignoring call');
             return;
         }
         
@@ -1375,7 +1355,6 @@ class AdeptusWizard {
                 this.renderRecentReports();
                 this.renderBookmarks();
                 
-                console.log('Recent reports refreshed after report generation');
             }
         } catch (error) {
             console.error('Error refreshing recent reports:', error);
@@ -1389,31 +1368,30 @@ class AdeptusWizard {
     displayResults(data) {
         // Store current results for export
         this.currentResults = data;
-        
+
         // Store report name for chart titles
         if (data.report_name) {
             this.wizardData.current_report_name = data.report_name;
         }
-        
+
+        // SAFETY CHECK: Protect against massive datasets
+        const recordCount = data.results.length;
+        const WARN_THRESHOLD = 10000;
+        const MAX_DISPLAY_THRESHOLD = 50000;
+
         document.getElementById('results-report-name').textContent = data.report_name;
-        document.getElementById('results-count').textContent = `${data.results.length} records found`;
-        
-        console.log('Display Results - Record count:', data.results.length);
-        
-        // Disable/enable export button based on whether there are results
+        document.getElementById('results-count').textContent = `${recordCount.toLocaleString()} records found`;
+
+        // Enable export button for all result sizes
         const exportBtn = document.getElementById('export-btn');
-        console.log('Export button element found:', !!exportBtn);
-        
         if (exportBtn) {
-            if (data.results.length === 0) {
-                console.log('DISABLING export button - no data');
+            if (recordCount === 0) {
                 exportBtn.disabled = true;
                 exportBtn.classList.add('disabled');
                 exportBtn.title = 'No data available to export';
                 exportBtn.style.opacity = '0.5';
                 exportBtn.style.cursor = 'not-allowed';
             } else {
-                console.log('ENABLING export button - has data');
                 exportBtn.disabled = false;
                 exportBtn.classList.remove('disabled');
                 exportBtn.title = 'Export report in various formats';
@@ -1421,21 +1399,177 @@ class AdeptusWizard {
                 exportBtn.style.cursor = 'pointer';
             }
         }
-        
-        // Display table
+
+        // CHECK 1: Large dataset - Enable Export Mode
+        if (recordCount > MAX_DISPLAY_THRESHOLD) {
+            const tableContainer = document.getElementById('results-table');
+            tableContainer.innerHTML = `
+                <div class="alert alert-info" style="padding: 20px; margin: 20px 0; border-left: 4px solid #5bc0de;">
+                    <h4 style="margin-top: 0;"><i class="fa fa-download"></i> Large Dataset - Export Mode</h4>
+                    <p style="font-size: 16px;">Your report has successfully generated <strong>${recordCount.toLocaleString()} records</strong>.</p>
+                    <p>For datasets of this size, we've automatically enabled <strong>Export Mode</strong> to provide you with the best experience.</p>
+                    <hr style="margin: 15px 0;">
+                    <h5><i class="fa fa-file-text-o"></i> Download Your Data:</h5>
+                    <p>Use the <strong>Export</strong> button above to download your complete report:</p>
+                    <ul>
+                        <li><strong>CSV</strong> - Perfect for Excel, data analysis, and pivot tables</li>
+                        <li><strong>Excel (.xlsx)</strong> - Formatted spreadsheet with all features</li>
+                        <li><strong>PDF</strong> - Professional document for presentations and reports</li>
+                    </ul>
+                    <hr style="margin: 15px 0;">
+                    <p><i class="fa fa-lightbulb-o"></i> <strong>Pro Tip:</strong> For browser viewing, consider adding filters or date ranges to your report parameters to narrow down the results.</p>
+                </div>
+            `;
+
+            this.goToStep('step-results');
+            this.hideLoading();
+            return; // Export mode activated
+        }
+
+        // CHECK 2: Large dataset - Offer viewing options
+        if (recordCount > WARN_THRESHOLD) {
+            const proceed = confirm(
+                `📊 Large Dataset Detected\n\n` +
+                `Your report contains ${recordCount.toLocaleString()} records.\n\n` +
+                `Choose how you'd like to proceed:\n\n` +
+                `✓ Click OK to view in browser\n` +
+                `   (Data will be paginated for easy browsing)\n\n` +
+                `✓ Click Cancel to use Export Mode\n` +
+                `   (Recommended for data analysis and Excel)\n\n` +
+                `Which would you prefer?`
+            );
+
+            if (!proceed) {
+                // User chose Export Mode
+                const tableContainer = document.getElementById('results-table');
+                tableContainer.innerHTML = `
+                    <div class="alert alert-success" style="padding: 20px; margin: 20px 0; border-left: 4px solid #5cb85c;">
+                        <h4 style="margin-top: 0;"><i class="fa fa-check-circle"></i> Export Mode Selected</h4>
+                        <p style="font-size: 16px;">Great choice! Export Mode is optimized for datasets with <strong>${recordCount.toLocaleString()} records</strong>.</p>
+                        <hr style="margin: 15px 0;">
+                        <p><i class="fa fa-download"></i> Use the <strong>Export</strong> button above to download your complete report in your preferred format.</p>
+                        <p style="margin-top: 10px;"><em>Your data is ready and waiting for you!</em></p>
+                    </div>
+                `;
+
+                this.goToStep('step-results');
+                this.hideLoading();
+                return;
+            }
+
+            // User chose to view in browser
+            this.showLoading(`Preparing ${recordCount.toLocaleString()} records for display... Please wait.`);
+        }
+
+        // Display table (with progressive rendering for large datasets)
         this.displayTable(data.results, data.headers);
 
-        console.log('data', data);
-        
-        // Display chart if available
+        // Setup chart controls with configurable axes
+        this.setupChartControls(data.results, data.headers);
+
+        // Display initial chart if available, or render from selectors
         if (data.chart_data) {
             this.displayChart(data.chart_data, data.chart_type);
+        } else {
+            // Render chart using selectors
+            this.renderChartFromSelectors();
         }
+    }
+
+    /**
+     * Format a value if it's a date/timestamp
+     * @param {string} header - Column header name
+     * @param {*} value - The value to potentially format
+     * @returns {string} Formatted value
+     */
+    formatDateIfNeeded(header, value) {
+        // If value is empty, return as-is
+        if (value === null || value === undefined || value === '') {
+            return '';
+        }
+
+        // Convert to string for processing
+        const strValue = String(value);
+
+        // Check if column name suggests it's a date/time field
+        const headerLower = header.toLowerCase();
+
+        // First, check if column name suggests it's a COUNT/NUMBER field (not a date)
+        // These should never be formatted as dates even if they contain date-like keywords
+        const isCountColumn = headerLower.includes('count') ||
+                             headerLower.includes('total') ||
+                             headerLower.includes('sum') ||
+                             headerLower.includes('avg') ||
+                             headerLower.includes('num_') ||
+                             headerLower.includes('_num') ||
+                             headerLower.includes('amount') ||
+                             headerLower.includes('quantity') ||
+                             headerLower.includes('distinct') ||
+                             headerLower.includes('unique') ||
+                             headerLower.includes('hits') ||
+                             headerLower.includes('_id') ||
+                             headerLower.endsWith('id');
+
+        // If it's a count/number column, return as-is (don't format as date)
+        if (isCountColumn) {
+            return strValue;
+        }
+
+        const isDateColumn = headerLower.includes('date') ||
+                            headerLower.includes('time') ||
+                            headerLower.includes('created') ||
+                            headerLower.includes('modified') ||
+                            headerLower.includes('lastaccess') ||
+                            headerLower.includes('last_access') ||
+                            headerLower.includes('timestamp') ||
+                            headerLower.includes('login') ||
+                            headerLower.includes('logout');
+
+        // Check if value looks like a Unix timestamp
+        // Unix timestamps are typically 10 digits (seconds) or 13 digits (milliseconds)
+        // Range: 946684800 (Jan 1, 2000) to 2147483647 (Jan 19, 2038 for 32-bit)
+        const numValue = Number(strValue);
+        const isTimestamp = !isNaN(numValue) &&
+                           numValue > 946684800 &&
+                           numValue < 2147483647;
+
+        // If it's a date column or looks like a timestamp, format it
+        if ((isDateColumn || isTimestamp) && !isNaN(numValue) && numValue > 0) {
+            try {
+                // Handle both seconds and milliseconds timestamps
+                const timestamp = numValue < 10000000000 ? numValue * 1000 : numValue;
+                const date = new Date(timestamp);
+
+                // Check if date is valid
+                if (!isNaN(date.getTime())) {
+                    // Format as DD-MM-YYYY or DD-MM-YYYY HH:MM
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    const hours = date.getHours();
+                    const minutes = date.getMinutes();
+
+                    // If it's midnight (00:00), just show the date
+                    if (hours === 0 && minutes === 0) {
+                        return `${day}-${month}-${year}`;
+                    }
+
+                    // Otherwise show date and time
+                    const hoursStr = String(hours).padStart(2, '0');
+                    const minutesStr = String(minutes).padStart(2, '0');
+                    return `${day}-${month}-${year} ${hoursStr}:${minutesStr}`;
+                }
+            } catch (e) {
+                console.warn('Failed to format date:', value, e);
+            }
+        }
+
+        return strValue;
     }
 
     displayTable(results, headers) {
         const tableContainer = document.getElementById('results-table');
-        
+
         if (results.length === 0) {
             tableContainer.innerHTML = '<p>No data found for the selected criteria.</p>';
             return;
@@ -1450,7 +1584,8 @@ class AdeptusWizard {
         results.forEach(row => {
             tableHtml += '<tr>';
             headers.forEach(header => {
-                tableHtml += `<td>${row[header] || ''}</td>`;
+                const formattedValue = this.formatDateIfNeeded(header, row[header]);
+                tableHtml += `<td>${formattedValue}</td>`;
             });
             tableHtml += '</tr>';
         });
@@ -1501,7 +1636,6 @@ class AdeptusWizard {
     }
 
     displayChart(chartData, chartType) {
-        console.log('displayChart', chartData, chartType);
         const chartContainer = document.getElementById('results-chart');
         if (!chartContainer || !chartData) {
             console.error('Chart container or data not available');
@@ -1888,8 +2022,9 @@ class AdeptusWizard {
 
     generateChartColors(count, chartType) {
         const baseColors = [
-            '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
-            '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8'
+            '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+            '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1',
+            '#14b8a6', '#a855f7', '#eab308', '#22c55e', '#3b82f6'
         ];
 
         if (chartType.toLowerCase() === 'pie' || chartType.toLowerCase() === 'donut' || chartType.toLowerCase() === 'polar') {
@@ -1900,8 +2035,232 @@ class AdeptusWizard {
             }
             return colors;
         } else {
-            // Use single color for bar, line, radar charts
-            return [baseColors[0]];
+            // Use colors for each bar/point
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            return colors;
+        }
+    }
+
+    /**
+     * Detect numeric columns in data
+     */
+    detectNumericColumns(data, headers) {
+        if (!data || data.length === 0) return [];
+        return headers.filter(header => {
+            let numericCount = 0;
+            const sampleSize = Math.min(data.length, 20);
+            for (let i = 0; i < sampleSize; i++) {
+                const val = data[i][header];
+                if (val !== null && val !== undefined && val !== '') {
+                    const num = parseFloat(val);
+                    if (!isNaN(num) && isFinite(num)) {
+                        numericCount++;
+                    }
+                }
+            }
+            return numericCount >= sampleSize * 0.5;
+        });
+    }
+
+    /**
+     * Setup chart controls with axis selectors
+     */
+    setupChartControls(data, headers) {
+        const chartControls = document.getElementById('chart-controls');
+        if (!chartControls || !data || data.length === 0) return;
+
+        const numericCols = this.detectNumericColumns(data, headers);
+
+        let controlsHtml = '<div class="chart-controls d-flex flex-wrap align-items-end gap-3">';
+
+        // Chart type selector
+        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<label for="wizard-chart-type" class="form-label">Chart Type</label>';
+        controlsHtml += '<select id="wizard-chart-type" class="form-select form-select-sm">';
+        controlsHtml += '<option value="bar">Bar Chart</option>';
+        controlsHtml += '<option value="line">Line Chart</option>';
+        controlsHtml += '<option value="pie">Pie Chart</option>';
+        controlsHtml += '<option value="doughnut">Doughnut Chart</option>';
+        controlsHtml += '</select></div>';
+
+        // X-Axis selector
+        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<label for="wizard-chart-x-axis" class="form-label">X-Axis (Labels)</label>';
+        controlsHtml += '<select id="wizard-chart-x-axis" class="form-select form-select-sm">';
+        headers.forEach((header, idx) => {
+            const formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const selected = idx === 0 ? ' selected' : '';
+            controlsHtml += `<option value="${header}"${selected}>${formattedHeader}</option>`;
+        });
+        controlsHtml += '</select></div>';
+
+        // Y-Axis selector (only numeric columns)
+        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<label for="wizard-chart-y-axis" class="form-label">Y-Axis (Values)</label>';
+        controlsHtml += '<select id="wizard-chart-y-axis" class="form-select form-select-sm">';
+        if (numericCols.length > 0) {
+            numericCols.forEach((col, idx) => {
+                const formattedHeader = col.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const selected = idx === numericCols.length - 1 ? ' selected' : '';
+                controlsHtml += `<option value="${col}"${selected}>${formattedHeader}</option>`;
+            });
+        } else {
+            // Fallback to all columns if no numeric found
+            headers.forEach((header, idx) => {
+                const formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const selected = idx === headers.length - 1 ? ' selected' : '';
+                controlsHtml += `<option value="${header}"${selected}>${formattedHeader}</option>`;
+            });
+        }
+        controlsHtml += '</select></div>';
+
+        controlsHtml += '</div>'; // End chart-controls
+
+        chartControls.innerHTML = controlsHtml;
+
+        // Bind change events
+        const self = this;
+        document.getElementById('wizard-chart-type')?.addEventListener('change', () => self.renderChartFromSelectors());
+        document.getElementById('wizard-chart-x-axis')?.addEventListener('change', () => self.renderChartFromSelectors());
+        document.getElementById('wizard-chart-y-axis')?.addEventListener('change', () => self.renderChartFromSelectors());
+    }
+
+    /**
+     * Render chart using selected axis values
+     */
+    renderChartFromSelectors() {
+        const data = this.currentResults?.results;
+        if (!data || data.length === 0) return;
+
+        const chartType = document.getElementById('wizard-chart-type')?.value || 'bar';
+        const labelKey = document.getElementById('wizard-chart-x-axis')?.value;
+        const valueKey = document.getElementById('wizard-chart-y-axis')?.value;
+
+        if (!labelKey || !valueKey) return;
+
+        const chartContainer = document.getElementById('results-chart');
+        if (!chartContainer) return;
+
+        // Destroy existing chart
+        if (window.adeptusResultsChartInstance) {
+            window.adeptusResultsChartInstance.destroy();
+        }
+
+        // Create canvas
+        chartContainer.innerHTML = '<canvas id="chart-canvas"></canvas>';
+        const ctx = document.getElementById('chart-canvas');
+
+        // Limit data for chart (max 50 items)
+        const chartData = data.slice(0, 50);
+        const labels = chartData.map(r => {
+            const label = r[labelKey];
+            if (label === null || label === undefined) return 'Unknown';
+            const labelStr = String(label);
+            return labelStr.length > 30 ? labelStr.substring(0, 30) + '...' : labelStr;
+        });
+        const values = chartData.map(r => parseFloat(r[valueKey]) || 0);
+        const colors = this.generateChartColors(values.length, chartType);
+
+        const valueKeyFormatted = valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const reportName = this.getReportTitle();
+
+        const chartConfig = this.createConfigurableChartConfig(chartType, labels, values, valueKeyFormatted, colors, reportName);
+
+        try {
+            if (this.chartJS) {
+                window.adeptusResultsChartInstance = new this.chartJS(ctx.getContext('2d'), chartConfig);
+            } else if (typeof Chart !== 'undefined') {
+                window.adeptusResultsChartInstance = new Chart(ctx.getContext('2d'), chartConfig);
+            }
+        } catch (error) {
+            console.error('Error creating chart:', error);
+            chartContainer.innerHTML = `<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Error rendering chart</p></div>`;
+        }
+    }
+
+    /**
+     * Create chart config for configurable axes
+     */
+    createConfigurableChartConfig(chartType, labels, values, valueKey, colors, reportName) {
+        const baseConfig = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: reportName || 'Report Chart',
+                    font: { size: 16, weight: 'bold' },
+                    padding: { top: 10, bottom: 20 }
+                },
+                legend: {
+                    display: chartType === 'pie' || chartType === 'doughnut',
+                    position: 'right'
+                }
+            }
+        };
+
+        if (chartType === 'pie' || chartType === 'doughnut') {
+            return {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: baseConfig
+            };
+        } else if (chartType === 'line') {
+            return {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: valueKey,
+                        data: values,
+                        borderColor: colors[0],
+                        backgroundColor: colors[0] + '40',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...baseConfig,
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            };
+        } else {
+            // Bar chart (default)
+            return {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: valueKey,
+                        data: values,
+                        backgroundColor: colors,
+                        borderColor: colors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...baseConfig,
+                    scales: {
+                        y: { beginAtZero: true },
+                        x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                    }
+                }
+            };
         }
     }
 
@@ -2209,7 +2568,6 @@ class AdeptusWizard {
         // Check if export button is disabled
         const exportBtn = document.getElementById('export-btn');
         if (exportBtn && (exportBtn.disabled || exportBtn.classList.contains('disabled'))) {
-            console.log('Export menu disabled - button is disabled');
             return;
         }
         
@@ -2221,7 +2579,6 @@ class AdeptusWizard {
         // Check if export button is disabled (limit reached)
         const exportBtn = document.getElementById('export-btn');
         if (exportBtn && exportBtn.disabled) {
-            console.log('Export limit reached, ignoring call');
             return;
         }
         
@@ -2291,16 +2648,20 @@ class AdeptusWizard {
                 body: body
             });
 
-            console.log('Export response status:', response.status);
-            console.log('Export response content-type:', response.headers.get('content-type'));
             
             // Check if response is an error (JSON)
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 // This is an error response, not a file
                 const errorData = await response.json();
-                console.error('Export error response:', errorData);
-                throw new Error(errorData.message || 'Export failed');
+                // Only log actual errors, not restrictions
+                if (errorData.error !== 'dataset_too_large') {
+                    console.error('Export error:', errorData.message || errorData.error);
+                }
+                const error = new Error(errorData.message || 'Export failed');
+                error.customTitle = errorData.title; // Store custom title if provided
+                error.errorType = errorData.error; // Store error type
+                throw error;
             }
             
             // Check if response is OK
@@ -2319,8 +2680,6 @@ class AdeptusWizard {
             
             // Download the file
                 const blob = await response.blob();
-            console.log('Export blob size:', blob.size, 'bytes');
-            console.log('Export blob type:', blob.type);
             
             if (blob.size < 1000) {
                 console.warn('Export file is suspiciously small:', blob.size, 'bytes - might be an error');
@@ -2346,13 +2705,19 @@ class AdeptusWizard {
             
             this.hideExportMenu();
         } catch (error) {
-            console.error('Error exporting report:', error);
-            
+            // Only log actual errors, not restrictions
+            if (error.errorType !== 'dataset_too_large') {
+                console.error('Error exporting report:', error);
+            }
+
             // Check if it's a response error
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 this.showError('Network error. Please check your connection and try again.');
             } else {
-                this.showError('Error exporting report. Please try again.');
+                // Show the specific error message from the backend
+                const message = error.message || 'Error exporting report. Please try again.';
+                const title = error.customTitle || 'Error';
+                this.showPopup(title, message, 'error');
             }
         } finally {
             this.hideLoading();
@@ -2516,21 +2881,37 @@ class AdeptusWizard {
         }
     }
 
-    switchTab(tabName) {
-        // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+    switchView(viewName) {
+        // Update toggle buttons
+        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        // Update tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
+        const activeBtn = document.querySelector(`[data-view="${viewName}"]`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+
+        // Update view panels
+        document.querySelectorAll('.view-panel').forEach(panel => {
+            panel.classList.add('d-none');
         });
-        document.getElementById(`${tabName}-view`).classList.add('active');
-        
+        const activePanel = document.getElementById(`${viewName}-view`);
+        if (activePanel) {
+            activePanel.classList.remove('d-none');
+        }
+
         // Track current view
-        this.currentView = tabName;
+        this.currentView = viewName;
+
+        // Render chart when switching to chart view
+        if (viewName === 'chart' && this.currentResults?.results) {
+            this.renderChartFromSelectors();
+        }
+    }
+
+    // Keep legacy switchTab for backward compatibility
+    switchTab(tabName) {
+        this.switchView(tabName);
     }
 
     showLoading(message = 'Loading...') {
@@ -2580,11 +2961,9 @@ class AdeptusWizard {
     }
 
     async     updateReportsLeftCounter() {
-        console.log('updateReportsLeftCounter called, is_free_plan:', this.wizardData.is_free_plan);
         
         // Only update if user is on free plan
         if (!this.wizardData.is_free_plan) {
-            console.log('Skipping counter update - not on free plan');
             return;
         }
 
@@ -2601,7 +2980,6 @@ class AdeptusWizard {
         
         this._counterUpdateTimeout = setTimeout(async () => {
             try {
-            console.log('Fetching subscription status for counter update...');
             
             // Get current subscription status
             const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`, {
@@ -2613,24 +2991,8 @@ class AdeptusWizard {
             });
 
             const data = await response.json();
-            console.log('[WIZARD HOME] ========================================');
-            console.log('[WIZARD HOME] SUBSCRIPTION STATUS API RESPONSE');
-            console.log('[WIZARD HOME] ========================================');
-            console.log('[WIZARD HOME] Full response:', JSON.stringify(data, null, 2));
-            console.log('[WIZARD HOME] Endpoint: /report/adeptus_insights/ajax/check_subscription_status.php');
             
             if (data.success && data.data) {
-                console.log('[WIZARD HOME] Extracted fields for display:');
-                console.log('[WIZARD HOME]   - plan_name:', data.data.plan_name);
-                console.log('[WIZARD HOME]   - status:', data.data.status);
-                console.log('[WIZARD HOME]   - credit_type:', data.data.credit_type);
-                console.log('[WIZARD HOME]   - reports_generated_this_month:', data.data.reports_generated_this_month);
-                console.log('[WIZARD HOME]   - plan_exports_limit:', data.data.plan_exports_limit);
-                console.log('[WIZARD HOME]   - total_credits_used_this_month:', data.data.total_credits_used_this_month);
-                console.log('[WIZARD HOME]   - plan_total_credits_limit:', data.data.plan_total_credits_limit);
-                console.log('[WIZARD HOME]   - exports_used:', data.data.exports_used);
-                console.log('[WIZARD HOME]   - exports_remaining:', data.data.exports_remaining);
-                console.log('[WIZARD HOME] ========================================');
                 
                 // Get values from data.data (which includes values from subscription plan)
                 const reportsUsed = data.data.reports_generated_this_month || 0;
@@ -2639,13 +3001,11 @@ class AdeptusWizard {
                 const usageType = data.data.usage_type || 'all-time';
                 const isFreePlan = data.data.is_free_plan || false;
 
-                console.log('[WIZARD HOME] Counter values:', { reportsUsed, reportsLimit, reportsRemaining, usageType, isFreePlan });
 
                 // Update the counter display
                 const counterContent = document.getElementById('reports-counter-content');
                 if (counterContent) {
                     counterContent.innerHTML = `<span id="reports-used-count">${reportsUsed}</span>/<span id="reports-limit-count">${reportsLimit}</span> Reports Generated`;
-                    console.log('Updated reports counter to:', reportsUsed, '/', reportsLimit);
                 }
                 
                 // Update usage type text
@@ -2679,7 +3039,6 @@ class AdeptusWizard {
                 // Disable/enable generate button based on remaining reports
                 this.updateGenerateButtonState(reportsRemaining <= 0);
 
-                console.log('Reports left counter updated successfully');
             } else {
                 console.error('Failed to get subscription data:', data);
                 // Show error in counter
@@ -2764,9 +3123,6 @@ class AdeptusWizard {
     }
 
     async trackExport(format) {
-        console.log('=== TRACK EXPORT STARTED ===');
-        console.log('Format:', format);
-        console.log('Report name:', this.selectedReport);
         
         try {
             // Use Moodle endpoint which handles both free and paid plans
@@ -2778,18 +3134,12 @@ class AdeptusWizard {
                 body: `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`
             });
 
-            console.log('Track export response status:', response.status);
             
             const data = await response.json();
-            console.log('Track export response data:', data);
             
             if (data.success) {
-                console.log('✓ Export tracked successfully');
-                console.log('Exports used:', data.exports_used);
-                console.log('Updating exports counter...');
                 // Update export counter in UI
                 await this.updateExportsCounter();
-                console.log('✓ Exports counter update completed');
             } else {
                 console.warn('✗ Failed to track export:', data.message);
                 // Still try to update the counter
@@ -2806,11 +3156,9 @@ class AdeptusWizard {
             }
         }
         
-        console.log('=== TRACK EXPORT FINISHED ===');
     }
 
     async updateExportsCounter() {
-        console.log('=== UPDATE EXPORTS COUNTER STARTED ===');
         
         // Show loader
         const counterContent = document.getElementById('exports-counter-content');
@@ -2821,7 +3169,6 @@ class AdeptusWizard {
         try {
             // Get current subscription status
             const statusUrl = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`;
-            console.log('Fetching status from:', statusUrl);
             
             const response = await fetch(statusUrl, {
                 method: 'GET',
@@ -2832,30 +3179,18 @@ class AdeptusWizard {
             });
 
             const data = await response.json();
-            console.log('[WIZARD HOME - EXPORTS] ========================================');
-            console.log('[WIZARD HOME - EXPORTS] SUBSCRIPTION STATUS API RESPONSE');
-            console.log('[WIZARD HOME - EXPORTS] ========================================');
-            console.log('[WIZARD HOME - EXPORTS] Full response:', JSON.stringify(data, null, 2));
-            console.log('[WIZARD HOME - EXPORTS] Endpoint: /report/adeptus_insights/ajax/check_subscription_status.php');
             
             if (data.success && data.data) {
-                console.log('[WIZARD HOME - EXPORTS] Extracted fields for display:');
-                console.log('[WIZARD HOME - EXPORTS]   - exports_used:', data.data.exports_used);
-                console.log('[WIZARD HOME - EXPORTS]   - plan_exports_limit:', data.data.plan_exports_limit);
-                console.log('[WIZARD HOME - EXPORTS]   - exports_remaining:', data.data.exports_remaining);
-                console.log('[WIZARD HOME - EXPORTS] ========================================');
                 
                 // Get values directly from data.data (top level)
                 const exportsUsed = data.data.exports_used || 0;
                 const exportsLimit = data.data.plan_exports_limit || 10; // From subscription plan
                 const exportsRemaining = data.data.exports_remaining || Math.max(0, exportsLimit - exportsUsed);
 
-                console.log('[WIZARD HOME - EXPORTS] Exports values:', { exportsUsed, exportsLimit, exportsRemaining });
 
                 // Update the counter display
                 if (counterContent) {
                     counterContent.innerHTML = `<span id="exports-used-count">${exportsUsed}</span>/<span id="exports-limit-count">${exportsLimit}</span> Exports Used`;
-                    console.log('✓ Exports counter updated in UI:', exportsUsed, '/', exportsLimit);
                 }
 
                 // Update indicator styling based on remaining exports
@@ -2879,7 +3214,6 @@ class AdeptusWizard {
                 // Disable/enable export functionality based on remaining exports
                 this.updateExportButtonState(exportsRemaining <= 0);
 
-                console.log('✓ Exports counter update completed:', { exportsUsed, exportsLimit, exportsRemaining });
             } else {
                 console.error('✗ Failed to get exports counter data:', data);
                 // Show error in counter
@@ -2896,7 +3230,6 @@ class AdeptusWizard {
             }
         }
         
-        console.log('=== UPDATE EXPORTS COUNTER FINISHED ===');
     }
 
     updateGenerateButtonState(disabled) {
@@ -3228,19 +3561,14 @@ class AdeptusWizard {
 
 }
 
-console.log('AdeptusWizard class loaded successfully');
 
 // Make the class globally available
 window.AdeptusWizard = AdeptusWizard;
-console.log('AdeptusWizard made globally available');
 
 // Test function to verify the class is working
 window.testAdeptusWizard = function() {
-    console.log('Testing AdeptusWizard...');
     if (typeof AdeptusWizard === 'function') {
-        console.log('✓ AdeptusWizard class is available');
         const wizard = new AdeptusWizard();
-        console.log('✓ Wizard instance created:', wizard);
         return true;
     } else {
         console.error('✗ AdeptusWizard class not available');
@@ -3248,7 +3576,6 @@ window.testAdeptusWizard = function() {
     }
 };
 
-console.log('=== WIZARD.JS FILE LOADED SUCCESSFULLY ===');
 
 // Fallback initialization removed - template handles initialization properly
 

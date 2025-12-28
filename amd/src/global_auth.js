@@ -11,12 +11,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Initialize global authentication
          */
         init: function() {
-            console.log('[GlobalAuth] Initializing...');
-            
+            // Removed debug logs for production
             return new Promise((resolve, reject) => {
                 // Check if already authenticated
                 if (this.isAuthenticated()) {
-                    console.log('[GlobalAuth] Already authenticated');
                     resolve();
                     return;
                 }
@@ -62,8 +60,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Handle successful authentication
          */
         handleAuthSuccess: function(authData) {
-            console.log('[GlobalAuth] Authentication successful:', authData);
-            
+            // Removed sensitive debug log for production
+
             // Store auth data globally
             window.adeptusAuthData = authData;
             
@@ -81,8 +79,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Handle authentication failure
          */
         handleAuthFailure: function(message) {
-            console.log('[GlobalAuth] Authentication failed:', message);
-            
+            // Removed debug log for production
+
             // Show login modal
             this.showModal();
             

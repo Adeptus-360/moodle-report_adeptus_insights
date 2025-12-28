@@ -5,40 +5,68 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once(__DIR__ . '/../../../config.php');
-require_once($CFG->libdir . '/dataformatlib.php');
+// Debug to file
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - EXPORT START\n", FILE_APPEND);
 
-// Require login and capability
-require_login();
-$context = context_system::instance();
-$PAGE->set_context($context);
-require_capability('report/adeptus_insights:view', $context);
+try {
+    require_once(__DIR__ . '/../../../config.php');
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Config loaded\n", FILE_APPEND);
 
-// Get parameters
-$reportid = required_param('reportid', PARAM_TEXT); // Changed to PARAM_TEXT to handle report names
-$format = required_param('format', PARAM_ALPHA);
-$sesskey = required_param('sesskey', PARAM_ALPHANUM);
-$view = optional_param('view', 'table', PARAM_ALPHA); // 'table' or 'chart'
+    require_once($CFG->libdir . '/dataformatlib.php');
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Dataformatlib loaded\n", FILE_APPEND);
+
+    // Require login and capability
+    require_login();
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Login required\n", FILE_APPEND);
+
+    $context = context_system::instance();
+    $PAGE->set_context($context);
+    require_capability('report/adeptus_insights:view', $context);
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Capability checked\n", FILE_APPEND);
+
+    // Get parameters
+    $reportid = required_param('reportid', PARAM_TEXT);
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - reportid: $reportid\n", FILE_APPEND);
+
+    $format = required_param('format', PARAM_ALPHA);
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - format: $format\n", FILE_APPEND);
+
+    $sesskey = required_param('sesskey', PARAM_ALPHANUM);
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - sesskey received\n", FILE_APPEND);
+} catch (Exception $e) {
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
+    throw $e;
+}
+
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Getting optional params\n", FILE_APPEND);
+
+$view = optional_param('view', 'table', PARAM_ALPHA);
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - view: $view\n", FILE_APPEND);
+
 $chart_data = optional_param('chart_data', '', PARAM_RAW);
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - chart_data length: " . strlen($chart_data) . "\n", FILE_APPEND);
+
 $chart_type = optional_param('chart_type', 'bar', PARAM_ALPHA);
-$chart_image = optional_param('chart_image', '', PARAM_RAW); // Base64 chart image for PDF
+$chart_image = optional_param('chart_image', '', PARAM_RAW);
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - chart_image length: " . strlen($chart_image) . "\n", FILE_APPEND);
 
 // Validate chart image if provided
 if (!empty($chart_image)) {
-    // Check if it's a valid base64 image
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Validating chart image\n", FILE_APPEND);
     if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chart_image)) {
-        $chart_image = ''; // Reset if invalid
+        $chart_image = '';
     }
-    
-    // Check size (limit to 2MB)
     $image_size = strlen($chart_image);
     if ($image_size > 2000000) {
-        $chart_image = ''; // Reset if too large
+        $chart_image = '';
     }
 }
 
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - About to validate sesskey\n", FILE_APPEND);
+
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - SESSKEY INVALID!\n", FILE_APPEND);
     if ($format === 'json') {
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Invalid session key']);
@@ -48,57 +76,155 @@ if (!confirm_sesskey($sesskey)) {
     exit;
 }
 
+file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Sesskey validated OK\n", FILE_APPEND);
+
 try {
-    // Check if we have report data from frontend first
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Entering try block\n", FILE_APPEND);
+
+    // Check if we have report data from frontend
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - About to get report_data param\n", FILE_APPEND);
+
     $report_data_json = optional_param('report_data', '', PARAM_RAW);
-    $has_frontend_data = !empty($report_data_json);
-    
-    // Only query database for report config if we don't have frontend data
-    $report = null;
-    if (!$has_frontend_data) {
-        // Get the report by name (reportid is actually the report name)
-        $report = $DB->get_record_sql(
-            "SELECT * FROM {adeptus_reports} WHERE " . $DB->sql_compare_text('name') . " = ? AND isactive = 1",
-            [$reportid]
-        );
-        
-        if (!$report) {
-            if ($format === 'json') {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Report not found']);
-            } else {
-                print_error('Report not found');
-            }
-            exit;
+
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Got report_data, length: " . strlen($report_data_json) . "\n", FILE_APPEND);
+
+    // SAFETY CHECK: Refuse to process frontend data if it's too large (>10MB)
+    // Large datasets should be regenerated from backend instead
+    $MAX_FRONTEND_DATA_SIZE = 10 * 1024 * 1024; // 10MB
+    $data_size = strlen($report_data_json);
+
+    if ($data_size > $MAX_FRONTEND_DATA_SIZE) {
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Frontend data too large ($data_size bytes), forcing backend regeneration\n", FILE_APPEND);
+        $has_frontend_data = false; // Force backend regeneration
+    } else {
+        $has_frontend_data = !empty($report_data_json);
+    }
+
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - has_frontend_data: " . ($has_frontend_data ? 'yes' : 'no') . "\n", FILE_APPEND);
+
+    $results_array = [];
+    $headers = [];
+    $report_params = [];
+    $report = new stdClass();
+
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Initialized variables\n", FILE_APPEND);
+
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Checking if has_frontend_data: " . ($has_frontend_data ? 'yes' : 'no') . "\n", FILE_APPEND);
+
+    // Try to use frontend data first (preferred for small/medium datasets)
+    if ($has_frontend_data) {
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Has frontend data, attempting decode\n", FILE_APPEND);
+        $report_data = json_decode($report_data_json, true);
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - JSON decoded\n", FILE_APPEND);
+
+        if ($report_data && isset($report_data['results']) && isset($report_data['headers'])) {
+            $results_array = $report_data['results'];
+            $headers = $report_data['headers'];
+            error_log('Export - Successfully using frontend data: ' . count($results_array) . ' rows');
+
+            // Create report object with metadata from frontend
+            $report->name = $report_data['report_name'] ?? $reportid;
+            $report->category = $report_data['report_category'] ?? '';
+            $report->charttype = $report_data['chart_type'] ?? 'bar';
+        } else {
+            error_log('Export - Frontend data invalid, falling back to regeneration');
+            $has_frontend_data = false; // Force regeneration
         }
     }
 
-    // Get the full report data using the same logic as generate_report.php
-    // This ensures we have the same data structure and chart data
-    
-    // Initialize variables
-    $report_params = [];
-    $sql = null;
-    
-    // Only collect parameters and SQL if we need to query the database
-    if (!$has_frontend_data && $report) {
-        // Collect parameters from the request - collect ALL POST parameters
-        
-        // First, get parameters defined in the backend report
-        if (!empty($report->parameters)) {
-            $param_definitions = json_decode($report->parameters, true);
-            if (is_array($param_definitions)) {
-                foreach ($param_definitions as $param_def) {
-                    $param_name = $param_def['name'];
-                    $param_value = optional_param($param_name, '', PARAM_RAW);
+    // If no frontend data or frontend data invalid, regenerate from backend
+    if (!$has_frontend_data || empty($results_array)) {
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - ENTERING BACKEND REGENERATION for report: " . $reportid . "\n", FILE_APPEND);
+        error_log('Export - Regenerating data from backend for report: ' . $reportid);
+
+        // Fetch report definition from Laravel backend (same as generate_report.php)
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - About to require api_config.php\n", FILE_APPEND);
+        require_once(__DIR__ . '/../classes/api_config.php');
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - api_config.php loaded\n", FILE_APPEND);
+        require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - installation_manager.php loaded\n", FILE_APPEND);
+
+        $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+        $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
+        $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Backend config: enabled=$backendEnabled, url=$backendApiUrl\n", FILE_APPEND);
+
+        if (!$backendEnabled) {
+            throw new Exception('Backend API is disabled and no data provided');
+        }
+
+        // Get API key
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Creating installation_manager\n", FILE_APPEND);
+        $installation_manager = new \report_adeptus_insights\installation_manager();
+        $api_key = $installation_manager->get_api_key();
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Got API key\n", FILE_APPEND);
+
+        // Fetch report definition
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Preparing curl request to backend\n", FILE_APPEND);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'X-API-Key: ' . $api_key
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Curl executed, HTTP code: $httpCode\n", FILE_APPEND);
+
+        if (!$response || $httpCode !== 200) {
+            file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - ERROR: Failed to fetch from backend, HTTP $httpCode\n", FILE_APPEND);
+            throw new Exception('Failed to fetch report definition from backend');
+        }
+
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Decoding backend response\n", FILE_APPEND);
+        $backendData = json_decode($response, true);
+        if (!$backendData || !$backendData['success']) {
+            file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - ERROR: Invalid backend response\n", FILE_APPEND);
+            throw new Exception('Invalid response from backend API');
+        }
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Backend response valid, searching for report\n", FILE_APPEND);
+
+        // Find the report
+        $backendReport = null;
+        foreach ($backendData['data'] as $r) {
+            if (trim($r['name']) === trim($reportid)) {
+                $backendReport = $r;
+                break;
+            }
+        }
+
+        if (!$backendReport) {
+            file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - ERROR: Report not found: $reportid\n", FILE_APPEND);
+            throw new Exception('Report not found: ' . $reportid);
+        }
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Report found, building report object\n", FILE_APPEND);
+
+        // Create report object
+        $report->name = $backendReport['name'];
+        $report->category = $backendReport['category'] ?? '';
+        $report->charttype = $backendReport['charttype'] ?? 'bar';
+        $report->sqlquery = $backendReport['sqlquery'];
+        $report->parameters = json_encode($backendReport['parameters'] ?? []);
+
+        // Collect parameters from request (same logic as generate_report.php)
+        if (!empty($backendReport['parameters'])) {
+            foreach ($backendReport['parameters'] as $param_def) {
+                if (isset($param_def['name'])) {
+                    $param_value = optional_param($param_def['name'], '', PARAM_RAW);
                     if (!empty($param_value)) {
-                        $report_params[$param_name] = $param_value;
+                        $report_params[$param_def['name']] = $param_value;
                     }
                 }
             }
         }
-        
-        // Also collect common parameters that might not be in the backend definition
+
+        // Collect common parameters
         $common_params = ['courseid', 'minimum_grade', 'categoryid', 'userid', 'roleid', 'startdate', 'enddate'];
         foreach ($common_params as $param_name) {
             $param_value = optional_param($param_name, '', PARAM_RAW);
@@ -106,98 +232,84 @@ try {
                 $report_params[$param_name] = $param_value;
             }
         }
-        
-        // Fallback: collect any other POST data that might be parameters
-        foreach ($_POST as $key => $value) {
-            if (!in_array($key, ['reportid', 'format', 'sesskey', 'view', 'chart_data', 'chart_type', 'chart_image', 'report_data']) 
-                && !isset($report_params[$key]) 
-                && !empty($value)) {
-                $report_params[$key] = $value;
-            }
+
+        // Execute SQL query
+        $sql = $report->sqlquery;
+
+        // Add safety limit
+        $SAFETY_LIMIT = 100000;
+        $has_limit = preg_match('/\bLIMIT\s+\d+/i', $sql);
+        if (!$has_limit) {
+            $sql = rtrim(rtrim($sql), ';') . " LIMIT $SAFETY_LIMIT";
         }
 
-        // Execute the SQL query with parameters
-        $sql = $report->sqlquery;
-    
-        // Extract parameter names from SQL query
+        // Extract parameter names and build parameter array
         $required_params = [];
         preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $sql, $matches);
         if (!empty($matches[1])) {
             $required_params = array_unique($matches[1]);
         }
-        
-        // Build parameter array in the order they appear in the SQL
+
+        // Convert named to positional parameters
+        $positional_sql = $sql;
         $sql_params_ordered = [];
         foreach ($required_params as $param_name) {
             if (!isset($report_params[$param_name])) {
-                $error_msg = 'Missing required parameter: ' . $param_name;
-                if ($format === 'json') {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => $error_msg]);
-                } else {
-                    print_error($error_msg);
-                }
-                exit;
+                throw new Exception('Missing required parameter: ' . $param_name);
             }
+            $positional_sql = preg_replace('/:' . $param_name . '\b/', '?', $positional_sql, 1);
             $sql_params_ordered[] = $report_params[$param_name];
         }
-    }
-    
-    // Get or generate the report data
-    $results_array = [];
-    $headers = [];
 
-    if ($has_frontend_data) {
-        // Use data sent from frontend
-        $report_data = json_decode($report_data_json, true);
-        if ($report_data && isset($report_data['results']) && isset($report_data['headers'])) {
-            $results_array = $report_data['results'];
-            $headers = $report_data['headers'];
-            error_log('Export - Using frontend data: ' . count($results_array) . ' rows, ' . count($headers) . ' headers');
-        } else {
-            throw new Exception('Invalid report data received from frontend');
-        }
-    } else {
-        // Fallback: Generate data from database (old method)
-        error_log('Export - No frontend data, falling back to database generation');
-        
-        // Convert named parameters (:param) to positional parameters (?) for Moodle compatibility
-        $positional_sql = $sql;
-        foreach ($required_params as $param_name) {
-            $positional_sql = preg_replace('/:' . $param_name . '\b/', '?', $positional_sql, 1);
-        }
+        // Execute query
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - About to execute SQL query\n", FILE_APPEND);
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - SQL: " . substr($positional_sql, 0, 200) . "\n", FILE_APPEND);
+        error_log('Export - Executing SQL: ' . substr($positional_sql, 0, 200));
+        $results = $DB->get_records_sql($positional_sql, $sql_params_ordered);
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - SQL executed, got " . count($results) . " results\n", FILE_APPEND);
 
-        error_log('Export - Original SQL: ' . $sql);
-        error_log('Export - Positional SQL: ' . $positional_sql);
-        error_log('Export - SQL Parameters: ' . json_encode($sql_params_ordered));
-        error_log('Export - Report Parameters: ' . json_encode($report_params));
-
-        // Execute the query with positional parameters
-        try {
-            $results = $DB->get_records_sql($positional_sql, $sql_params_ordered);
-            error_log('Export - Query executed successfully, result count: ' . count($results));
-        } catch (Exception $sql_error) {
-            error_log('Export - SQL Execution Error: ' . $sql_error->getMessage());
-            throw new Exception('Database query failed: ' . $sql_error->getMessage());
-        }
-        
-        // Convert to array format
+        // Convert to array
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Converting results to array\n", FILE_APPEND);
         foreach ($results as $row) {
             $results_array[] = (array)$row;
         }
-        
-        // Get headers from first row
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Converted " . count($results_array) . " rows\n", FILE_APPEND);
+
+        // Get headers
         if (!empty($results_array)) {
             $headers = array_keys($results_array[0]);
         }
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Got headers, count: " . count($headers) . "\n", FILE_APPEND);
+
+        error_log('Export - Regenerated data: ' . count($results_array) . ' rows');
     }
-    
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - EXITED backend regeneration block\n", FILE_APPEND);
+
+    // PDF-specific row limit check
+    // PDFs cannot realistically render massive datasets due to memory and file size constraints
+    $PDF_MAX_ROWS = 5000;
+    if ($format === 'pdf' && count($results_array) > $PDF_MAX_ROWS) {
+        $row_count = count($results_array);
+        file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - ERROR: Dataset too large for PDF export ($row_count rows > $PDF_MAX_ROWS limit)\n", FILE_APPEND);
+
+        // Return user-friendly error
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => 'dataset_too_large',
+            'title' => 'Export Restriction',
+            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of $PDF_MAX_ROWS rows. Please use CSV, Excel, or JSON export for large datasets, or add filters to reduce the result set."
+        ]);
+        exit;
+    }
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - PDF row limit check passed: " . count($results_array) . " rows\n", FILE_APPEND);
+
     // Helper function to convert headers to title case
     function format_header($header) {
         // Convert to title case: capitalize first letter of each word
         return ucwords(str_replace('_', ' ', strtolower($header)));
     }
-    
+
     // Prepare table data for export
     $table_data = [];
     if (!empty($results_array)) {

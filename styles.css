@@ -48,6 +48,147 @@
     background: #ffffff;
 }
 
+/* Credit Limit Disabled State */
+.credit-limit-disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+.credit-limit-disabled:hover {
+    opacity: 0.6 !important;
+}
+
+#message-input:disabled {
+    background-color: #f8d7da !important;
+    border-color: #f5c6cb !important;
+    color: #721c24 !important;
+    cursor: not-allowed !important;
+}
+
+#message-input:disabled::placeholder {
+    color: #721c24 !important;
+    opacity: 0.8;
+}
+
+.credit-limit-alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Hide DataTable loading indicator */
+.dataTable-loading {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hide loading state from datatable-wrapper */
+.datatable-wrapper.datatable-loading::before,
+.datatable-wrapper.datatable-loading::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Hide the datatable wrapper spinner completely */
+.datatable-wrapper::before,
+.datatable-wrapper::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Ensure datatable-loading class doesn't show any spinner */
+.datatable-loading {
+    background: none !important;
+}
+
+.datatable-loading::before,
+.datatable-loading::after {
+    display: none !important;
+}
+
+/* Specifically target the report history table wrapper */
+#report-history-table-wrapper .datatable-wrapper::before,
+#report-history-table-wrapper .datatable-wrapper::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Remove any background images that might show a spinner */
+#report-history-table-wrapper .datatable-wrapper {
+    background: none !important;
+    background-image: none !important;
+}
+
+/* Hide any element that might be a spinner in the wrapper */
+#report-history-table-wrapper .spinner,
+#report-history-table-wrapper .spinner-border,
+#report-history-table-wrapper .loading {
+    display: none !important;
+}
+
+/* Override any animation on the wrapper */
+#report-history-table-wrapper .datatable-wrapper {
+    animation: none !important;
+}
+
+/* NUCLEAR OPTION - Hide ALL spinners in the report history section */
+#report-history-table-wrapper *[class*="spinner"],
+#report-history-table-wrapper *[class*="loading"],
+.card-body.p-0.position-relative *[class*="spinner"],
+.card-body.p-0.position-relative *[class*="loading"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Force hide the report-history-loader even if d-none is somehow overridden */
+#report-history-loader {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide any processing indicators from simple-datatables */
+.dataTable-sorter::before,
+.dataTable-sorter::after {
+    display: none !important;
+}
+
+/* Ensure the dataTable wrapper doesn't show loading states */
+#reports-history-table_wrapper .dataTable-loading,
+#reports-history-table_wrapper .loading {
+    display: none !important;
+}
+
+/* Hide pseudo elements that might show loading */
+.dataTable-top::before,
+.dataTable-top::after,
+.dataTable-container::before,
+.dataTable-container::after {
+    display: none !important;
+}
+
+/* Ensure DataTable info and pagination don't show loading */
+.dataTable-info::before,
+.dataTable-info::after,
+.dataTable-pagination::before,
+.dataTable-pagination::after {
+    display: none !important;
+}
+
 /* Error state */
 .lottie-error {
     background: #fff5f5;

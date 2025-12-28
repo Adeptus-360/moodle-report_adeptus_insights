@@ -6,7 +6,7 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../config.php'); // Load plugin configuration
+require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 
 // Require login and capability
 require_login();
@@ -30,7 +30,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Fetch the report from backend API
     $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = isset($CFG->adeptus_backend_api_url) ? $CFG->adeptus_backend_api_url : 'https://ai-backend.stagingwithswift.com/api';
+    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
     $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
     
@@ -46,7 +46,7 @@ try {
     
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/adeptus-reports/all');
+    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -94,18 +94,27 @@ try {
     $parameters = [];
     if (!empty($report['parameters'])) {
         if (is_array($report['parameters'])) {
-            $parameters = $report['parameters'];
+            // Extract actual parameter definitions (arrays with 'name' key)
+            // Skip metadata entries like 'charttype' which are scalar values
+            foreach ($report['parameters'] as $key => $value) {
+                // Check if this is a parameter definition (array with 'name' key)
+                if (is_array($value) && isset($value['name'])) {
+                    $parameters[] = $value;
+                }
+            }
         }
     }
 
     $fallbackEnabled = isset($CFG->adeptus_wizard_fallback_to_local) ? $CFG->adeptus_wizard_fallback_to_local : true;
-    
+
     // Enhance parameters with dynamic data based on type
+    // Only process if we have actual parameters (not just metadata)
     foreach ($parameters as &$param) {
         // Try to get parameter type mapping from backend first if enabled
         $enhancedParam = null;
-        
-        if ($backendEnabled) {
+
+        // Backend parameter enhancement disabled - endpoint not available in new backend
+        if (false) {
             try {
                 // Call backend API to get enhanced parameter data
                 $ch = curl_init();

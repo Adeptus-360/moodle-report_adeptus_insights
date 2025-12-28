@@ -6,7 +6,7 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../config.php'); // Load plugin configuration
+require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 
 // Require login and capability
 require_login();
@@ -32,10 +32,10 @@ try {
     // Get current Moodle version for compatibility filtering
     $moodle_version = $CFG->version;
     $moodle_version_string = '4.2'; // Hardcoded for now
-    
-    // Backend API configuration
+
+    // Backend API configuration using centralized API config
     $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = isset($CFG->adeptus_backend_api_url) ? $CFG->adeptus_backend_api_url : 'https://ai-backend.stagingwithswift.com/api';
+    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
     $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
     
@@ -68,8 +68,9 @@ try {
     }
     
     // Fetch reports from backend API
+    // Use the reports/definitions endpoint
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/adeptus-reports/all');
+    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -109,29 +110,59 @@ try {
     }
     
     $all_reports = $backendData['data'];
-    
-    // Filter reports for Moodle version compatibility
+
+    // Load report validator for table/module compatibility checking
+    require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
+
+    // Filter reports for Moodle version AND table/module compatibility
     $compatible_reports = [];
+    $filtered_count = 0;
+
     foreach ($all_reports as $report) {
         $is_compatible = true;
-        
+        $filter_reason = '';
+
         // Check minimum version
         if (!empty($report['min_moodle_version'])) {
             if (version_compare($moodle_version_string, $report['min_moodle_version'], '<')) {
                 $is_compatible = false;
+                $filter_reason = 'moodle_version_min';
             }
         }
-        
+
         // Check maximum version
         if (!empty($report['max_moodle_version'])) {
             if (version_compare($moodle_version_string, $report['max_moodle_version'], '>')) {
                 $is_compatible = false;
+                $filter_reason = 'moodle_version_max';
             }
         }
-        
+
+        // Check table/module compatibility (NEW)
+        if ($is_compatible) {
+            $validation = \report_adeptus_insights\report_validator::validate_report($report);
+            if (!$validation['valid']) {
+                $is_compatible = false;
+                $filter_reason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
+
+                if ($debugMode) {
+                    error_log("Report '{$report['name']}' filtered out: {$validation['reason']}");
+                }
+            }
+        }
+
         if ($is_compatible && $report['isactive']) {
             $compatible_reports[] = $report;
+        } else {
+            $filtered_count++;
+            if ($debugMode && !empty($filter_reason)) {
+                error_log("Filtered report '{$report['name']}': {$filter_reason}");
+            }
         }
+    }
+
+    if ($debugMode) {
+        error_log("Report filtering: " . count($all_reports) . " total, " . count($compatible_reports) . " compatible, {$filtered_count} filtered");
     }
     
     // Organize reports by category
