@@ -320,52 +320,49 @@ try {
     
     $DB->insert_record('adeptus_report_history', $history_record);
     
-    // Save to generated reports (for Generated Reports section) - only save if report has data
+    // Save to generated reports via backend API (for Generated Reports section) - only save if report has data
     if ($report_generated && $has_data) {
-        error_log("DEBUG: Saving to generated reports table - report_generated: {$report_generated}");
-        
-        // Check if a record already exists with same userid, reportid, and parameters
-        // Use sql_compare_text() for TEXT column comparison
-        $params_json = json_encode($report_params);
-        $sql = "SELECT * FROM {adeptus_generated_reports} 
-                WHERE userid = :userid 
-                AND reportid = :reportid 
-                AND " . $DB->sql_compare_text('parameters') . " = " . $DB->sql_compare_text(':parameters');
-        
-        $existing_records = $DB->get_records_sql($sql, array(
-            'userid' => $USER->id,
-            'reportid' => $reportid,
-            'parameters' => $params_json
-        ));
-        
-        $existing_record = !empty($existing_records) ? reset($existing_records) : null;
-        
+        error_log("DEBUG: Saving wizard report to backend API - report_generated: {$report_generated}");
+
         $is_new_generation = false; // Track if this is a new generation or update
-        
-        if ($existing_record) {
-            // Update existing record with new timestamp
-            error_log("DEBUG: Found existing generated report record, updating timestamp");
-            $existing_record->generatedat = time();
-            $existing_record->counted_for_usage = (!$is_duplicate) ? 1 : 0; // Update usage flag
-            $DB->update_record('adeptus_generated_reports', $existing_record);
-            error_log("DEBUG: Generated report updated with ID: {$existing_record->id}");
-            $is_new_generation = false; // This is an update, not a new generation
+
+        // Prepare the report data for the backend
+        $wizard_report_data = [
+            'user_id' => $USER->id,
+            'report_template_id' => $reportid,
+            'name' => $report['name'] ?? $reportid,
+            'parameters' => $report_params,
+        ];
+
+        // Call backend API to save the wizard report
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizard_report_data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer ' . $api_key
+        ]);
+
+        $save_response = curl_exec($ch);
+        $save_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $save_curl_error = curl_error($ch);
+        curl_close($ch);
+
+        if ($save_http_code === 201 || $save_http_code === 200) {
+            $save_data = json_decode($save_response, true);
+            if (!empty($save_data['success'])) {
+                error_log("DEBUG: Wizard report saved to backend successfully: " . json_encode($save_data['report'] ?? []));
+                $is_new_generation = true;
+            } else {
+                error_log("DEBUG: Backend returned success=false: " . ($save_data['message'] ?? 'Unknown error'));
+            }
         } else {
-            // Insert new record
-            error_log("DEBUG: No existing record found, creating new generated report record");
-            $generated_record = new stdClass();
-            $generated_record->userid = $USER->id;
-            $generated_record->reportid = $reportid;
-            $generated_record->parameters = json_encode($report_params);
-            $generated_record->generatedat = time();
-            $generated_record->resultpath = ''; // Could save to file if needed
-            $generated_record->counted_for_usage = (!$is_duplicate) ? 1 : 0; // Flag to track if this generation was counted
-            
-            error_log("DEBUG: Generated record data: " . json_encode($generated_record));
-            
-            $insert_id = $DB->insert_record('adeptus_generated_reports', $generated_record);
-            error_log("DEBUG: Generated report saved with ID: {$insert_id}");
-            $is_new_generation = true; // This is a new generation
+            error_log("DEBUG: Failed to save wizard report to backend. HTTP Code: {$save_http_code}, Error: {$save_curl_error}, Response: {$save_response}");
         }
     } else {
         error_log("DEBUG: Not saving to generated reports - report_generated: {$report_generated}");

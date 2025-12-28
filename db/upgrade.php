@@ -34,6 +34,14 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025010805, 'report', 'adeptus_insights');
     }
 
+    // Version 2025111930: Wizard reports moved to backend API
+    // The adeptus_generated_reports local table is deprecated but kept for backwards compatibility
+    // All new wizard reports are now stored on the backend for unified management and subscription control
+    if ($oldversion < 2025111930) {
+        // No local database changes needed - wizard reports are now stored on the backend
+        upgrade_plugin_savepoint(true, 2025111930, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
 ?>

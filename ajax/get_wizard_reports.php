@@ -1,12 +1,13 @@
 <?php
 /**
- * AJAX endpoint to get wizard-generated reports for the Generated Reports page
+ * AJAX endpoint to get wizard-generated reports from the backend API
  */
 
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once(__DIR__ . '/../classes/api_config.php');
 
 // Check for valid login
 require_login();
@@ -21,43 +22,61 @@ header('Content-Type: application/json');
 try {
     $userid = $USER->id;
 
-    // Get generated reports from Moodle database
-    $generated_reports = $DB->get_records_sql("
-        SELECT g.*
-        FROM {adeptus_generated_reports} g
-        WHERE g.userid = ?
-        ORDER BY g.generatedat DESC
-    ", [$userid]);
+    // Get API key and backend URL
+    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
+    $installation_manager = new \report_adeptus_insights\installation_manager();
+    $api_key = $installation_manager->get_api_key();
+    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
 
-    $reports = [];
-
-    foreach ($generated_reports as $report) {
-        // Parse saved parameters
-        $parameters = [];
-        if (!empty($report->parameters)) {
-            $params = json_decode($report->parameters, true);
-            if (is_array($params)) {
-                $parameters = $params;
-            }
-        }
-
-        // Create a slug from the report ID and timestamp
-        $slug = 'wizard-' . md5($report->reportid . '-' . $report->generatedat);
-
-        $reports[] = [
-            'id' => $report->id,
-            'slug' => $slug,
-            'name' => $report->reportid,
-            'description' => $report->reportid, // Use report name as description
-            'category' => 'Wizard Report',
-            'created_at' => date('c', $report->generatedat),
-            'formatted_date' => userdate($report->generatedat, '%d %B %Y at %H:%M'),
-            'parameters' => $parameters,
-            'source' => 'wizard',
-            'has_data' => false, // Data needs to be generated on demand
-            'row_count' => null
-        ];
+    if (empty($api_key)) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'API key not configured',
+            'reports' => []
+        ]);
+        exit;
     }
+
+    // Fetch wizard reports from backend API
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports?user_id=' . $userid);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'Authorization: Bearer ' . $api_key
+    ]);
+
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+
+    if ($httpCode !== 200) {
+        error_log("Error fetching wizard reports from backend. HTTP Code: {$httpCode}, Error: {$curlError}, Response: {$response}");
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to fetch wizard reports from server',
+            'reports' => []
+        ]);
+        exit;
+    }
+
+    $data = json_decode($response, true);
+
+    if (empty($data['success'])) {
+        echo json_encode([
+            'success' => false,
+            'message' => $data['message'] ?? 'Failed to fetch wizard reports',
+            'reports' => []
+        ]);
+        exit;
+    }
+
+    // The backend already returns properly formatted reports
+    $reports = $data['reports'] ?? [];
 
     echo json_encode([
         'success' => true,

@@ -583,6 +583,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var self = this;
             var categoryInfo = report.category_info || { name: report.category || 'General', color: '#6c757d' };
 
+            // Store current report for category updates
+            this.currentCategoryReport = report;
+
             // Update current category display
             $('#category-dot').css('background', categoryInfo.color || '#6c757d');
             $('#category-name').text(categoryInfo.name || 'General');
@@ -619,7 +622,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var catName = $(this).data('name');
                 var catColor = $(this).data('color');
                 $('#category-dropdown-menu').removeClass('show');
-                self.updateReportCategory(report.slug, catId, catName, catColor);
+                self.updateReportCategory(report.slug, catId, catName, catColor, report);
             });
 
             // Close on outside click
@@ -633,17 +636,25 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         /**
          * Update a report's category
          */
-        updateReportCategory: function(slug, categoryId, categoryName, categoryColor) {
+        updateReportCategory: function(slug, categoryId, categoryName, categoryColor, report) {
             var self = this;
-            var token = this.getAuthToken();
-            if (!token) return;
+            var source = report ? (report.source || 'assistant') : 'assistant';
 
             // Optimistic update
             $('#category-dot').css('background', categoryColor);
             $('#category-name').text(categoryName);
 
+            // Both wizard and assistant reports use the backend API
+            var token = this.getAuthToken();
+            if (!token) return;
+
+            // Determine the correct API endpoint based on report source
+            var apiUrl = source === 'wizard'
+                ? 'https://a360backend.stagingwithswift.com/api/v1/wizard-reports/' + slug + '/category'
+                : 'https://a360backend.stagingwithswift.com/api/v1/ai-reports/' + slug + '/category';
+
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports/' + slug + '/category',
+                url: apiUrl,
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -958,12 +969,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             if (cachedReport) {
                 $('.report-view-title').text(cachedReport.description || cachedReport.name || 'Report Details');
-                // Show category selector for assistant reports
-                if (source === 'assistant') {
-                    self.showReportCategorySelector(cachedReport);
-                } else {
-                    $('#report-category-selector').addClass('d-none');
-                }
+                // Show category selector for all report types (both assistant and wizard)
+                self.showReportCategorySelector(cachedReport);
             }
 
             // Handle wizard reports differently - they need to be executed
