@@ -5,7 +5,7 @@ require_once('../../config.php');
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
-echo "<h1>Language Cache Fix for Adeptus AI Insights</h1>";
+echo "<h1>Language Cache Fix for Adeptus Insights</h1>";
 
 // Check if language file exists and has content
 $lang_file = __DIR__ . '/lang/en/report_adeptus_insights.php';

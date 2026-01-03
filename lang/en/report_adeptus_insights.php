@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Language strings for the Adeptus AI Insights report plugin
+ * Language strings for the Adeptus Insights report plugin
  *
  * @package     report_adeptus_insights
  * @category    string
@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 // Plugin name
-$string['pluginname'] = 'Adeptus AI Insights';
+$string['pluginname'] = 'Adeptus Insights';
 $string['pluginname_help'] = 'AI-powered insights and analytics for Moodle';
 
 // Welcome section
@@ -126,8 +126,8 @@ $string['notification_warning'] = 'Please note';
 $string['notification_info'] = 'Information';
 
 // Capabilities
-$string['adeptus_insights:view'] = 'View Adeptus AI Insights';
-$string['adeptus_insights:manage'] = 'Manage Adeptus AI Insights';
+$string['adeptus_insights:view'] = 'View Adeptus Insights';
+$string['adeptus_insights:manage'] = 'Manage Adeptus Insights';
 $string['adeptus_insights:create_reports'] = 'Create reports';
 $string['adeptus_insights:export_reports'] = 'Export reports';
 $string['adeptus_insights:manage_subscription'] = 'Manage subscription';
@@ -193,11 +193,11 @@ $string['release_notes'] = 'Release Notes';
 
 // Admin Settings - General Configuration
 $string['general_configuration'] = 'General Configuration';
-$string['general_configuration_desc'] = 'Configure the basic settings for the Adeptus AI Insights plugin.';
+$string['general_configuration_desc'] = 'Configure the basic settings for the Adeptus Insights plugin.';
 
 // Admin Settings - Plugin Enablement
 $string['enable_plugin'] = 'Enable Plugin';
-$string['enable_plugin_desc'] = 'Enable or disable the Adeptus AI Insights plugin. When disabled, the plugin will not be accessible to users.';
+$string['enable_plugin_desc'] = 'Enable or disable the Adeptus Insights plugin. When disabled, the plugin will not be accessible to users.';
 
 // Admin Settings - Usage Tracking
 $string['usage_tracking'] = 'Usage Tracking';
