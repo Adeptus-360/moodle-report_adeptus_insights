@@ -97,9 +97,6 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
             <p class="subscription-subtitle">Manage your subscription and billing</p>
         </div>
         <div class="subscription-header-actions">
-            <a href="{{config.wwwroot}}/report/adeptus_insights/diagnostic.php" style="margin: 0 20px 17px 0;" class="btn btn-outline-primary diagnostics-btn">
-                <i class="fa fa-stethoscope"></i> View Diagnostics
-            </a>
             <a style="margin-bottom: 17px;" href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
                 <i class="fa fa-arrow-left"></i> Back to Dashboard
             </a>
@@ -115,30 +112,30 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
             <div class="analytics-card">
                 <div class="analytics-header">
                     <div class="analytics-icon">
-                        <i class="fa fa-credit-card"></i>
+                        <i class="fa fa-code"></i>
                     </div>
                     <div class="analytics-title">
-                        <h3>AI Credits</h3>
-                        <p>Monthly Usage &amp; Remaining</p>
+                        <h3>AI Tokens</h3>
+                        <p>Monthly Usage &amp; Limit</p>
                     </div>
                 </div>
                 <div class="analytics-details">
                     <div class="detail-row">
-                        <span class="detail-label">Monthly Credits:</span>
-                        <span class="detail-value total numeric">{{#current_subscription}}{{ai_credits_remaining}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
+                        <span class="detail-label">Monthly Limit:</span>
+                        <span class="detail-value total numeric">{{#current_subscription}}{{tokens_limit_formatted}}{{/current_subscription}}{{^current_subscription}}50K{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Used:</span>
-                        <span class="detail-value used numeric">{{#usage}}{{ai_credits_used_this_month}}{{/usage}}{{^usage}}0{{/usage}}</span>
+                        <span class="detail-value used numeric">{{#current_subscription}}{{tokens_used_formatted}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Left:</span>
-                        <span class="detail-value remaining numeric">{{#current_subscription}}{{ai_credits_remaining}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
+                        <span class="detail-label">Remaining:</span>
+                        <span class="detail-value remaining numeric">{{#current_subscription}}{{tokens_remaining_formatted}}{{/current_subscription}}{{^current_subscription}}50K{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
                     <div class="analytics-progress">
                         <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{#usage}}{{ai_credits_used_this_month}}{{/usage}}{{^usage}}0{{/usage}}%"></div>
+                            <div class="progress-fill" style="width: {{tokens_usage_percent}}%"></div>
                         </div>
                     </div>
                     {{/current_subscription}}

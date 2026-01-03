@@ -115,6 +115,6 @@ if ($response === false) {
 }
 
 echo '<h2>Summary</h2>';
-echo '<p><a href="diagnostic.php" class="btn btn-primary">Back to Diagnostic</a></p>';
+echo '<p><a href="index.php" class="btn btn-primary">Back to Dashboard</a></p>';
 
 echo $OUTPUT->footer(); 

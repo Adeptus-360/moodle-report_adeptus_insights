@@ -145,7 +145,6 @@ if ($subscription) {
 echo '<h2>Next Steps</h2>';
 echo '<ul>';
 echo '<li><a href="subscription.php" class="btn btn-primary">Go to Subscription Management</a></li>';
-echo '<li><a href="diagnostic.php" class="btn btn-secondary">Run Full Diagnostic</a></li>';
 echo '<li><a href="index.php" class="btn btn-success">Go to Dashboard</a></li>';
 echo '</ul>';
 

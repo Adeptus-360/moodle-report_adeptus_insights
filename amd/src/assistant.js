@@ -2426,8 +2426,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             </div>
                         </div>
                         <div class="assistant-header-actions">
-                            <a style="margin: 0 20px 17px 0" href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn btn-primary diagnostics-btn">
-                                <i class="fa fa-stethoscope"></i> View Usage
+                            <a style="margin: 0 20px 17px 0" href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn btn-primary">
+                                <i class="fa fa-chart-bar"></i> View Usage
                             </a>
                         </div>
                     </div>
