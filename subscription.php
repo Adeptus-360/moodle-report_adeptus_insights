@@ -30,6 +30,12 @@ if (!$installation_manager->is_registered()) {
     redirect(new moodle_url('/report/adeptus_insights/register_plugin.php'));
 }
 
+// Check if installation is completed - if not, redirect to installation step
+$installation_completed = get_config('report_adeptus_insights', 'installation_completed');
+if (!$installation_completed) {
+    redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
+}
+
 // Handle form submissions
 $action = optional_param('action', '', PARAM_ALPHA);
 $plan_id = optional_param('plan_id', 0, PARAM_INT);
