@@ -106,9 +106,16 @@ if (!$current_subscription) {
 $available_plans = $installation_manager->get_available_plans();
 
 // Transform plans data to match template expectations
+// Only include plans for Adeptus Insights (product_key = 'insights')
 $transformed_plans = [];
 if (!empty($available_plans['plans'])) {
     foreach ($available_plans['plans'] as $plan) {
+        // Filter to only show Insights plans
+        $product_key = $plan['product_key'] ?? '';
+        if ($product_key !== 'insights') {
+            continue;
+        }
+
         // Handle price - can be object or string
         $price = $plan['price'] ?? 'Free';
         if (is_array($price)) {

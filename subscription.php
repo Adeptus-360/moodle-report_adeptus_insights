@@ -173,30 +173,51 @@ if ($subscription) {
 }
 
 // Add available plans with upgrade/downgrade logic
+// Only include plans for Adeptus Insights (product_key = 'insights')
 if (!empty($available_plans['plans'])) {
     $plans = [];
     foreach ($available_plans['plans'] as $plan) {
+        // Filter to only show Insights plans
+        $product_key = $plan['product_key'] ?? '';
+        if ($product_key !== 'insights') {
+            continue;
+        }
+
+        // Handle price - can be object or string
+        $price = $plan['price'] ?? 'Free';
+        if (is_array($price)) {
+            $price = $price['formatted'] ?? 'Free';
+        }
+
+        // Handle limits
+        $limits = $plan['limits'] ?? [];
+
         $is_current = false;
         if ($subscription && isset($subscription['plan_name'])) {
             $is_current = (strtolower($plan['name']) === strtolower($subscription['plan_name']));
         }
-        
+
         // Determine if this is an upgrade or downgrade
-        $plan_price = floatval(str_replace(['£', ','], '', $plan['price']));
+        $plan_price = 0;
+        if (is_array($plan['price'])) {
+            $plan_price = ($plan['price']['cents'] ?? 0) / 100;
+        } else {
+            $plan_price = floatval(str_replace(['$', '£', ',', '/mo'], '', $plan['price']));
+        }
         $is_upgrade = $plan_price > $current_plan_price;
         $is_downgrade = $plan_price < $current_plan_price;
-        
+
         $plans[] = [
             'id' => $plan['id'],
             'name' => $plan['name'],
-            'price' => $plan['price'],
-            'billing_cycle' => $plan['billing_cycle'],
-            'description' => $plan['description'],
-            'ai_credits' => $plan['ai_credits'],
-            'ai_credits_pro' => $plan['ai_credits_pro'] ?? 0,
-            'ai_credits_basic' => $plan['ai_credits_basic'] ?? 0,
-            'exports' => $plan['exports'],
-            'is_free' => $plan['is_free'] ?? false,
+            'price' => $price,
+            'billing_cycle' => $plan['billing_interval'] ?? $plan['billing_cycle'] ?? 'monthly',
+            'description' => $plan['description'] ?? '',
+            'ai_credits' => $limits['ai_credits_basic'] ?? $plan['ai_credits'] ?? 0,
+            'ai_credits_pro' => $limits['ai_credits_premium'] ?? $plan['ai_credits_pro'] ?? 0,
+            'ai_credits_basic' => $limits['ai_credits_basic'] ?? $plan['ai_credits_basic'] ?? 0,
+            'exports' => $limits['exports'] ?? $limits['exports_per_month'] ?? $plan['exports'] ?? 0,
+            'is_free' => ($plan['tier'] ?? '') === 'free',
             'is_current' => $is_current,
             'is_upgrade' => $is_upgrade,
             'is_downgrade' => $is_downgrade,
