@@ -4,6 +4,7 @@
 // Generate report with parameters from wizard
 
 define('AJAX_SCRIPT', true);
+define('READ_ONLY_SESSION', true); // Allow parallel requests
 
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
@@ -11,6 +12,9 @@ require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 // Require login and capability
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
+
+// Release session lock early to allow parallel AJAX requests
+\core\session\manager::write_close();
 
 // Set content type
 header('Content-Type: application/json');

@@ -58,6 +58,7 @@ $string['current_subscription'] = 'Current Subscription';
 $string['plan'] = 'Plan';
 $string['status'] = 'Status';
 $string['ai_credits_remaining'] = 'AI Credits Remaining';
+$string['ai_tokens_remaining'] = 'AI Tokens Remaining';
 $string['exports_remaining'] = 'Exports Remaining';
 
 // Authentication and registration

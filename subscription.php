@@ -155,6 +155,14 @@ if ($subscription) {
         'failed_payment_attempts' => $subscription['failed_payment_attempts'] ?? 0,
         'last_payment_failed_at' => $subscription['last_payment_failed_at'] ?? null,
         'last_payment_succeeded_at' => $subscription['last_payment_succeeded_at'] ?? null,
+        // Token-based usage metrics
+        'tokens_used' => $subscription['tokens_used'] ?? 0,
+        'tokens_remaining' => $subscription['tokens_remaining'] ?? -1,
+        'tokens_limit' => $subscription['tokens_limit'] ?? 50000,
+        'tokens_used_formatted' => $subscription['tokens_used_formatted'] ?? '0',
+        'tokens_remaining_formatted' => $subscription['tokens_remaining_formatted'] ?? '50K',
+        'tokens_limit_formatted' => $subscription['tokens_limit_formatted'] ?? '50K',
+        'tokens_usage_percent' => $subscription['tokens_usage_percent'] ?? 0,
     ];
 }
 

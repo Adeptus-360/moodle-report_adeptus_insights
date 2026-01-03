@@ -60,11 +60,11 @@ require(['jquery'], function($) {
                     <div class="stat-value stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
                 </div>
 
-                <!-- AI credits remaining -->
-                <div class="stat-card" role="group" aria-label="AI credits remaining">
-                    <div class="stat-icon icon-credits"><i class="icon fa fa-line-chart" aria-hidden="true"></i></div>
-                    <div class="stat-label">{{#str}}ai_credits_remaining, report_adeptus_insights{{/str}}</div>
-                    <div class="stat-value" data-count-to="{{ai_credits_remaining}}">0</div>
+                <!-- AI tokens remaining -->
+                <div class="stat-card" role="group" aria-label="AI tokens remaining">
+                    <div class="stat-icon icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
+                    <div class="stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
+                    <div class="stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
                 </div>
 
                 <!-- Exports remaining -->

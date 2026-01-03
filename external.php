@@ -528,15 +528,56 @@ class external extends \external_api {
         return new \external_single_structure([
             'success' => new \external_value(PARAM_BOOL, 'Whether the operation was successful'),
             'data' => new \external_single_structure([
+                // Basic plan info
                 'plan_id' => new \external_value(PARAM_INT, 'Plan ID', VALUE_OPTIONAL),
                 'plan_name' => new \external_value(PARAM_TEXT, 'Plan name', VALUE_OPTIONAL),
                 'price' => new \external_value(PARAM_TEXT, 'Plan price', VALUE_OPTIONAL),
                 'billing_cycle' => new \external_value(PARAM_TEXT, 'Billing cycle', VALUE_OPTIONAL),
                 'status' => new \external_value(PARAM_TEXT, 'Subscription status', VALUE_OPTIONAL),
+                // Legacy credits
                 'ai_credits_remaining' => new \external_value(PARAM_INT, 'AI credits remaining', VALUE_OPTIONAL),
                 'exports_remaining' => new \external_value(PARAM_INT, 'Exports remaining', VALUE_OPTIONAL),
-                'current_period_start' => new \external_value(PARAM_INT, 'Current period start timestamp', VALUE_OPTIONAL),
-                'current_period_end' => new \external_value(PARAM_INT, 'Current period end timestamp', VALUE_OPTIONAL),
+                // Billing period
+                'current_period_start' => new \external_value(PARAM_TEXT, 'Current period start', VALUE_OPTIONAL),
+                'current_period_end' => new \external_value(PARAM_TEXT, 'Current period end', VALUE_OPTIONAL),
+                'next_billing' => new \external_value(PARAM_TEXT, 'Next billing date', VALUE_OPTIONAL),
+                // Trial and cancellation
+                'is_trial' => new \external_value(PARAM_BOOL, 'Is trial subscription', VALUE_OPTIONAL),
+                'trial_ends_at' => new \external_value(PARAM_TEXT, 'Trial end date', VALUE_OPTIONAL),
+                'cancel_at_period_end' => new \external_value(PARAM_BOOL, 'Cancel at period end', VALUE_OPTIONAL),
+                'cancelled_at' => new \external_value(PARAM_TEXT, 'Cancellation date', VALUE_OPTIONAL),
+                // Payment info
+                'failed_payment_attempts' => new \external_value(PARAM_INT, 'Failed payment attempts', VALUE_OPTIONAL),
+                'last_payment_failed_at' => new \external_value(PARAM_TEXT, 'Last failed payment date', VALUE_OPTIONAL),
+                'last_payment_succeeded_at' => new \external_value(PARAM_TEXT, 'Last successful payment date', VALUE_OPTIONAL),
+                // Status flags
+                'is_active' => new \external_value(PARAM_BOOL, 'Is subscription active', VALUE_OPTIONAL),
+                'is_cancelled' => new \external_value(PARAM_BOOL, 'Is subscription cancelled', VALUE_OPTIONAL),
+                'has_payment_issues' => new \external_value(PARAM_BOOL, 'Has payment issues', VALUE_OPTIONAL),
+                'should_disable_api_access' => new \external_value(PARAM_BOOL, 'Should disable API access', VALUE_OPTIONAL),
+                'status_message' => new \external_value(PARAM_TEXT, 'Status message', VALUE_OPTIONAL),
+                'is_registered' => new \external_value(PARAM_BOOL, 'Is registered', VALUE_OPTIONAL),
+                // Subscription IDs
+                'subscription_id' => new \external_value(PARAM_INT, 'Subscription ID', VALUE_OPTIONAL),
+                'stripe_subscription_id' => new \external_value(PARAM_TEXT, 'Stripe subscription ID', VALUE_OPTIONAL),
+                'stripe_customer_id' => new \external_value(PARAM_TEXT, 'Stripe customer ID', VALUE_OPTIONAL),
+                // Enhanced status (as raw structures - Moodle will accept any structure)
+                'status_details' => new \external_value(PARAM_RAW, 'Status details JSON', VALUE_OPTIONAL),
+                'cancellation_info' => new \external_value(PARAM_RAW, 'Cancellation info JSON', VALUE_OPTIONAL),
+                'payment_info' => new \external_value(PARAM_RAW, 'Payment info JSON', VALUE_OPTIONAL),
+                // Legacy usage metrics
+                'ai_credits_used_this_month' => new \external_value(PARAM_INT, 'AI credits used this month', VALUE_OPTIONAL),
+                'reports_generated_this_month' => new \external_value(PARAM_INT, 'Reports generated this month', VALUE_OPTIONAL),
+                'plan_ai_credits_limit' => new \external_value(PARAM_INT, 'Plan AI credits limit', VALUE_OPTIONAL),
+                'plan_exports_limit' => new \external_value(PARAM_INT, 'Plan exports limit', VALUE_OPTIONAL),
+                // Token-based usage metrics
+                'tokens_used' => new \external_value(PARAM_INT, 'Tokens used this period', VALUE_OPTIONAL),
+                'tokens_remaining' => new \external_value(PARAM_INT, 'Tokens remaining (-1 for unlimited)', VALUE_OPTIONAL),
+                'tokens_limit' => new \external_value(PARAM_INT, 'Token limit for plan', VALUE_OPTIONAL),
+                'tokens_used_formatted' => new \external_value(PARAM_TEXT, 'Formatted tokens used', VALUE_OPTIONAL),
+                'tokens_remaining_formatted' => new \external_value(PARAM_TEXT, 'Formatted tokens remaining', VALUE_OPTIONAL),
+                'tokens_limit_formatted' => new \external_value(PARAM_TEXT, 'Formatted token limit', VALUE_OPTIONAL),
+                'tokens_usage_percent' => new \external_value(PARAM_INT, 'Token usage percentage', VALUE_OPTIONAL),
             ], 'Subscription data', VALUE_OPTIONAL),
             'message' => new \external_value(PARAM_TEXT, 'Response message', VALUE_OPTIONAL),
         ]);

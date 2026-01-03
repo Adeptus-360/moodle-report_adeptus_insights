@@ -703,6 +703,17 @@ class installation_manager {
         // Ensure plan_id is always included, with fallback
         $plan_id = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
         
+        // Token usage data from API (flattened fields first, then nested as fallback)
+        $tokens_used = $data['tokens_used'] ?? 0;
+        $tokens_remaining = $data['tokens_remaining'] ?? -1;
+        $tokens_limit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? 50000;
+
+        // Calculate usage percentage
+        $tokens_usage_percent = 0;
+        if ($tokens_limit > 0 && $tokens_remaining !== -1) {
+            $tokens_usage_percent = min(100, round(($tokens_used / $tokens_limit) * 100));
+        }
+
         return [
             'plan_id' => $plan_id,
             'plan_name' => $plan['name'],
@@ -730,16 +741,37 @@ class installation_manager {
             'subscription_id' => $subscription['id'],
             'stripe_subscription_id' => $subscription['stripe_subscription_id'],
             'stripe_customer_id' => $subscription['stripe_customer_id'],
-            // Enhanced status information
-            'status_details' => $subscription['status_details'] ?? [],
-            'cancellation_info' => $subscription['cancellation_info'] ?? [],
-            'payment_info' => $subscription['payment_info'] ?? [],
-            // Add usage metrics
+            // Enhanced status information (JSON encoded for external API compatibility)
+            'status_details' => json_encode($subscription['status_details'] ?? []),
+            'cancellation_info' => json_encode($subscription['cancellation_info'] ?? []),
+            'payment_info' => json_encode($subscription['payment_info'] ?? []),
+            // Legacy usage metrics
             'ai_credits_used_this_month' => $usage['ai_credits_used_this_month'] ?? 0,
             'reports_generated_this_month' => $usage['reports_generated_this_month'] ?? 0,
             'plan_ai_credits_limit' => $plan['ai_credits'],
-            'plan_exports_limit' => $plan['exports']
+            'plan_exports_limit' => $plan['exports'],
+            // Token-based usage metrics
+            'tokens_used' => $tokens_used,
+            'tokens_remaining' => $tokens_remaining,
+            'tokens_limit' => $tokens_limit,
+            'tokens_used_formatted' => $this->format_token_count($tokens_used),
+            'tokens_remaining_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_remaining),
+            'tokens_limit_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_limit),
+            'tokens_usage_percent' => $tokens_usage_percent,
         ];
+    }
+
+    /**
+     * Format token count for display (e.g., "50K", "1.2M").
+     */
+    private function format_token_count($tokens) {
+        if ($tokens >= 1000000) {
+            return round($tokens / 1000000, 1) . 'M';
+        }
+        if ($tokens >= 1000) {
+            return round($tokens / 1000, 1) . 'K';
+        }
+        return (string) $tokens;
     }
     
 
