@@ -53,88 +53,6 @@
     border-top: 1px solid #dee2e6;
 }
 
-.plan-upgrade {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.plan-option {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-}
-
-.plan-option:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
-}
-
-.plan-option h4 {
-    color: #495057;
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.plan-option p {
-    color: #6c757d;
-    margin-bottom: 15px;
-    line-height: 1.5;
-}
-
-.plan-features {
-    list-style: none;
-    padding: 0;
-    margin: 15px 0;
-}
-
-.plan-features li {
-    padding: 5px 0;
-    color: #495057;
-    position: relative;
-    padding-left: 20px;
-}
-
-.plan-features li:before {
-    content: "✓";
-    color: #28a745;
-    font-weight: bold;
-    position: absolute;
-    left: 0;
-}
-
-.no-subscription {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-}
-
-.no-subscription h3 {
-    color: #495057;
-    margin-bottom: 15px;
-}
-
-.no-subscription p {
-    color: #6c757d;
-    margin-bottom: 30px;
-    font-size: 16px;
-}
-
-.subscription-form {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 20px;
-}
-
 .form-group {
     margin-bottom: 15px;
 }
@@ -206,18 +124,6 @@
     .subscription-info strong {
         min-width: 120px;
         font-size: 13px;
-    }
-    
-    .plan-option {
-        padding: 15px;
-    }
-    
-    .plan-option h4 {
-        font-size: 16px;
-    }
-    
-    .subscription-form {
-        padding: 15px;
     }
 }
 
