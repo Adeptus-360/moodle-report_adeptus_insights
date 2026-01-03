@@ -22,18 +22,21 @@ class installation_manager {
 
         // Load existing settings
         try {
-        $settings = $DB->get_record('adeptus_install_settings', ['id' => 1]);
-        if ($settings) {
-            $this->api_key = $settings->api_key;
+            // Get ANY existing record (not just id=1, as insert_record auto-generates IDs)
+            $settings = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+            if ($settings) {
+                $this->api_key = $settings->api_key;
                 $this->api_url = $settings->api_url;
-            $this->installation_id = $settings->installation_id;
-            $this->is_registered = (bool)$settings->is_registered;
+                $this->installation_id = $settings->installation_id;
+                $this->is_registered = (bool)$settings->is_registered;
+                debugging('Loaded installation settings: registered=' . ($this->is_registered ? 'true' : 'false') . ', id=' . $settings->id);
             } else {
                 $this->api_key = '';
                 // Use centralized API config
                 $this->api_url = api_config::get_backend_url();
                 $this->installation_id = null;
                 $this->is_registered = false;
+                debugging('No installation settings found in database');
             }
         } catch (\Exception $e) {
             debugging('Failed to load installation settings: ' . $e->getMessage());
@@ -1103,11 +1106,11 @@ class installation_manager {
     
     private function save_installation_settings() {
         global $DB;
-        
+
         try {
-            $record = [
-                'api_key' => $this->api_key,
-                'api_url' => $this->api_url,
+            $record = (object)[
+                'api_key' => $this->api_key ?: '',
+                'api_url' => $this->api_url ?: api_config::get_backend_url(),
                 'installation_id' => $this->installation_id,
                 'is_registered' => $this->is_registered ? 1 : 0,
                 'registration_date' => time(),
@@ -1115,47 +1118,42 @@ class installation_manager {
                 'timecreated' => time(),
                 'timemodified' => time()
             ];
-                
+
             // Check if table exists
             if (!$DB->get_manager()->table_exists('adeptus_install_settings')) {
-                // Table doesn't exist, create it
-                $sql = "CREATE TABLE IF NOT EXISTS {adeptus_install_settings} (
-                    id INT(10) NOT NULL AUTO_INCREMENT,
-                    api_key CHAR(64) NOT NULL,
-                    api_url CHAR(255) NOT NULL,
-                    installation_id INT(10) NULL,
-                    is_registered INT(1) NOT NULL DEFAULT 0,
-                    registration_date INT(10) NULL,
-                    last_sync INT(10) NULL,
-                    settings TEXT NULL,
-                    timecreated INT(10) NOT NULL,
-                    timemodified INT(10) NOT NULL,
-                    PRIMARY KEY (id),
-                    UNIQUE KEY uniqapikey (api_key)
-                )";
-                $DB->execute($sql);
+                debugging('adeptus_install_settings table does not exist, it should be created by install.xml');
+                return;
             }
-        
-            $existing = $DB->get_record('adeptus_install_settings', ['id' => 1]);
+
+            // Try to find ANY existing record (not just id=1)
+            $existing = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+
             if ($existing) {
-                $record['id'] = 1;
+                // Update existing record
+                $record->id = $existing->id;
                 $DB->update_record('adeptus_install_settings', $record);
+                debugging('Updated existing installation settings record with id: ' . $existing->id);
             } else {
-                $record['id'] = 1;
-                $DB->insert_record('adeptus_install_settings', $record);
+                // Insert new record - let Moodle auto-generate the ID
+                $newid = $DB->insert_record('adeptus_install_settings', $record);
+                debugging('Inserted new installation settings record with id: ' . $newid);
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the registration
             debugging('Failed to save installation settings: ' . $e->getMessage());
-            // Continue without saving to database for now
+            debugging('Exception trace: ' . $e->getTraceAsString());
         }
     }
     
     private function update_last_sync() {
         global $DB;
-        
+
         try {
-        $DB->set_field('adeptus_install_settings', 'last_sync', time(), ['id' => 1]);
+            // Find the existing record
+            $existing = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+            if ($existing) {
+                $DB->set_field('adeptus_install_settings', 'last_sync', time(), ['id' => $existing->id]);
+            }
         } catch (\Exception $e) {
             debugging('Failed to update last sync: ' . $e->getMessage());
         }
@@ -1192,60 +1190,44 @@ class installation_manager {
     
     private function update_subscription_status($subscription_data) {
         global $DB;
-        
+
         try {
             // Check if table exists
             if (!$DB->get_manager()->table_exists('adeptus_subscription_status')) {
-                // Table doesn't exist, create it
-                $sql = "CREATE TABLE IF NOT EXISTS {adeptus_subscription_status} (
-                    id INT(10) NOT NULL AUTO_INCREMENT,
-                    stripe_customer_id CHAR(100) NULL,
-                    stripe_subscription_id CHAR(100) NULL,
-                    plan_name CHAR(100) NOT NULL,
-                    plan_id CHAR(100) NULL,
-                    status CHAR(50) NOT NULL,
-                    current_period_start INT(10) NULL,
-                    current_period_end INT(10) NULL,
-                    ai_credits_remaining INT(10) NOT NULL DEFAULT 0,
-                    ai_credits_pro_remaining INT(10) NOT NULL DEFAULT 0,
-                    ai_credits_basic_remaining INT(10) NOT NULL DEFAULT 0,
-                    exports_remaining INT(10) NOT NULL DEFAULT 0,
-                    billing_email CHAR(255) NULL,
-                    last_updated INT(10) NOT NULL,
-                    PRIMARY KEY (id),
-                    UNIQUE KEY stripe_customer (stripe_customer_id)
-                )";
-                $DB->execute($sql);
+                debugging('adeptus_subscription_status table does not exist, it should be created by install.xml');
+                return;
             }
-        
-        $record = [
+
+            $record = (object)[
                 'stripe_customer_id' => $subscription_data['stripe_customer_id'] ?? null,
                 'stripe_subscription_id' => $subscription_data['stripe_subscription_id'] ?? null,
                 'plan_name' => $subscription_data['plan_name'] ?? 'Unknown',
                 'plan_id' => $subscription_data['plan_id'] ?? null,
-            'status' => $subscription_data['status'] ?? 'unknown',
+                'status' => $subscription_data['status'] ?? 'unknown',
                 'current_period_start' => $subscription_data['current_period_start'] ?? null,
                 'current_period_end' => $subscription_data['current_period_end'] ?? null,
-            'ai_credits_remaining' => $subscription_data['ai_credits_remaining'] ?? 0,
+                'ai_credits_remaining' => $subscription_data['ai_credits_remaining'] ?? 0,
                 'ai_credits_pro_remaining' => $subscription_data['ai_credits_pro_remaining'] ?? 0,
                 'ai_credits_basic_remaining' => $subscription_data['ai_credits_basic_remaining'] ?? 0,
-            'exports_remaining' => $subscription_data['exports_remaining'] ?? 0,
+                'exports_remaining' => $subscription_data['exports_remaining'] ?? 0,
                 'billing_email' => $subscription_data['billing_email'] ?? null,
-            'last_updated' => time()
-        ];
-        
-        $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
-        if ($existing) {
-            $record['id'] = 1;
-            $DB->update_record('adeptus_subscription_status', $record);
-        } else {
-            $record['id'] = 1;
-            $DB->insert_record('adeptus_subscription_status', $record);
+                'last_updated' => time()
+            ];
+
+            // Find ANY existing record (not just id=1)
+            $existing = $DB->get_record('adeptus_subscription_status', [], '*', IGNORE_MULTIPLE);
+            if ($existing) {
+                $record->id = $existing->id;
+                $DB->update_record('adeptus_subscription_status', $record);
+                debugging('Updated subscription status record with id: ' . $existing->id);
+            } else {
+                $newid = $DB->insert_record('adeptus_subscription_status', $record);
+                debugging('Inserted subscription status record with id: ' . $newid);
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the operation
             debugging('Failed to update subscription status: ' . $e->getMessage());
-            // Continue without saving to database for now
+            debugging('Exception trace: ' . $e->getTraceAsString());
         }
     }
     
