@@ -280,17 +280,19 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
             
             <div class="status-actions">
                 {{#is_active}}
-                    <button class="btn btn-primary btn-modify-subscription" id="modify-subscription">
-                        <i class="fa fa-cog"></i> Modify Subscription
+                    {{#is_free_plan}}
+                    <button class="btn btn-success btn-upgrade-plan" id="upgrade-plan">
+                        <i class="fa fa-arrow-up"></i> Upgrade Plan
                     </button>
+                    {{/is_free_plan}}
                     {{^is_free_plan}}
+                    <button class="btn btn-primary btn-modify-subscription" id="modify-subscription">
+                        <i class="fa fa-cog"></i> Manage Subscription
+                    </button>
                     <button class="btn btn-outline-danger btn-cancel-subscription" id="cancel-subscription">
                         <i class="fa fa-times"></i> Cancel Subscription
                     </button>
                     {{/is_free_plan}}
-                    <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
-                        <i class="fa fa-eye"></i> View Available Plans
-                    </button>
                 {{/is_active}}
                 {{^is_active}}
                     {{#is_cancelled}}
@@ -299,8 +301,8 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                             <i class="fa fa-refresh"></i> Renew Subscription
                         </button>
                         {{/status_details.can_renew}}
-                        <button class="btn btn-outline-primary" id="view-plans">
-                            <i class="fa fa-eye"></i> View Available Plans
+                        <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
+                            <i class="fa fa-eye"></i> View Plans
                         </button>
                     {{/is_cancelled}}
                     {{^is_cancelled}}
@@ -308,10 +310,13 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <button class="btn btn-warning" id="update-payment">
                             <i class="fa fa-credit-card"></i> Update Payment Method
                         </button>
+                        <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
+                            <i class="fa fa-eye"></i> View Plans
+                        </button>
                         {{/has_payment_issues}}
                         {{^has_payment_issues}}
-                        <button class="btn btn-outline-primary" id="view-plans">
-                            <i class="fa fa-eye"></i> View Available Plans
+                        <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
+                            <i class="fa fa-eye"></i> View Plans
                         </button>
                         {{/has_payment_issues}}
                     {{/is_cancelled}}

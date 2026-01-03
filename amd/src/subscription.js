@@ -64,11 +64,18 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 Subscription.openBillingPortal();
             });
             
-            // Handle view plans button (scroll to accordion)
+            // Handle view plans button (open billing portal)
             $(document).on('click', '.btn-view-plans, #view-plans', function(e) {
                 e.preventDefault();
                 console.log('[Subscription] View plans button clicked');
-                Subscription.scrollToPlans();
+                Subscription.openBillingPortal();
+            });
+
+            // Handle upgrade plan button (for free plan users)
+            $(document).on('click', '.btn-upgrade-plan, #upgrade-plan', function(e) {
+                e.preventDefault();
+                console.log('[Subscription] Upgrade plan button clicked');
+                Subscription.handleUpgradeFromFree();
             });
             
             // Handle select plan button (new subscriptions)
@@ -446,23 +453,28 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         },
         
         /**
-         * Scroll to plans section and open accordion
+         * Handle upgrade from free plan
          */
-        scrollToPlans: function() {
-            console.log('[Subscription] Scrolling to plans section');
-            var $accordion = $('#subscription-accordion');
-            if ($accordion.length) {
-                // Scroll to accordion
-                $('html, body').animate({
-                    scrollTop: $accordion.offset().top - 100
-                }, 500);
-                
-                // Open accordion if not already open
-                var $accordionHeader = $accordion.find('.accordion-header');
-                if ($accordionHeader.attr('aria-expanded') !== 'true') {
-                    $accordionHeader.trigger('click');
+        handleUpgradeFromFree: function() {
+            console.log('[Subscription] handleUpgradeFromFree called');
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Upgrade Your Plan',
+                html: '<p>You will be redirected to our billing portal where you can choose a premium plan with more features.</p>',
+                showCancelButton: true,
+                confirmButtonColor: '#27ae60',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> View Plans & Upgrade',
+                cancelButtonText: 'Not Now'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    console.log('[Subscription] User confirmed upgrade from free');
+                    Subscription.createBillingPortalSession(null, 'upgrade');
+                } else {
+                    console.log('[Subscription] User cancelled upgrade');
                 }
-            }
+            });
         },
         
         /**
