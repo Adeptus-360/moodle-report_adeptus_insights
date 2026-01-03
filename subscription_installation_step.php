@@ -102,6 +102,16 @@ if (!$current_subscription) {
     }
 }
 
+// If subscription exists, auto-complete installation and redirect
+if ($current_subscription) {
+    set_config('installation_completed', '1', 'report_adeptus_insights');
+    set_config('installation_step', '3', 'report_adeptus_insights');
+
+    redirect(new moodle_url('/report/adeptus_insights/index.php'),
+            get_string('installation_complete', 'report_adeptus_insights'),
+            null, \core\output\notification::NOTIFY_SUCCESS);
+}
+
 // Get available plans for upgrades
 $available_plans = $installation_manager->get_available_plans();
 
