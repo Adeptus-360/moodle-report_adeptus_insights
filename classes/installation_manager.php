@@ -257,20 +257,24 @@ class installation_manager {
                 return;
             }
             
-            // Find free plan
+            // Find free plan for Insights product
             $free_plan = null;
             foreach ($plans_response['data']['plans'] as $plan) {
-                if (isset($plan['is_free']) && $plan['is_free']) {
+                $is_free = (isset($plan['tier']) && $plan['tier'] === 'free') ||
+                           (isset($plan['is_free']) && $plan['is_free']);
+                $is_insights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
+
+                if ($is_free && $is_insights) {
                     $free_plan = $plan;
                     break;
                 }
             }
-            
+
             if (!$free_plan) {
-                debugging('No free plan found for starter subscription');
+                debugging('No free Insights plan found for starter subscription');
                 return;
             }
-            
+
             debugging('Found free plan: ' . $free_plan['name']);
             
             // Activate free plan via backend
@@ -1246,20 +1250,24 @@ class installation_manager {
                 return false;
             }
             
-            // Find free plan
+            // Find free plan for Insights product
             $free_plan = null;
             foreach ($plans_response['data']['plans'] as $plan) {
-                if (isset($plan['is_free']) && $plan['is_free']) {
+                $is_free = (isset($plan['tier']) && $plan['tier'] === 'free') ||
+                           (isset($plan['is_free']) && $plan['is_free']);
+                $is_insights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
+
+                if ($is_free && $is_insights) {
                     $free_plan = $plan;
                     break;
                 }
             }
-            
+
             if (!$free_plan) {
-                debugging('No free plan found for manual activation');
+                debugging('No free Insights plan found for manual activation');
                 return false;
             }
-            
+
             debugging('Found free plan for manual activation: ' . $free_plan['name']);
             
             // Activate free plan via backend
