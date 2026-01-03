@@ -3,6 +3,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
     var assistant = {
         currentChatId: 0,
+        currentMCQ: null,
+        isSending: false,
         mcqQueue: [],
         reportsDataTable: null,
         cachedReports: [],
@@ -271,8 +273,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         handleResponse: function (response) {
             // Route responses based on type
             if (response.error) {
-                // Handle credit limit errors specifically
-                if (response.error_type === 'credit_limit') {
+                // Handle token/credit limit errors specifically
+                if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                     this.handleCreditLimitError(response.message);
                     return;
                 }
@@ -827,12 +829,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Show upgrade prompt
             Swal.fire({
                 icon: 'warning',
-                title: 'Credit Limit Reached',
+                title: 'Token Limit Reached',
                 html: `
                     <div class="text-center">
                         <p>${message}</p>
-                        <p class="text-muted">Your monthly credit allowance has been used up.</p>
-                        <p class="text-muted">Credits reset on the 1st of each month.</p>
+                        <p class="text-muted">Your monthly token allowance has been used up.</p>
+                        <p class="text-muted">Tokens reset on the 1st of each month.</p>
                     </div>
                 `,
                 showCancelButton: true,
@@ -847,34 +849,28 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
-         * Update subscription data from credit limit error response
+         * Update subscription data from token limit error response
          */
         updateSubscriptionDataFromCreditResponse: function(creditData) {
             const authStatus = AuthUtils.getAuthStatus();
             if (!authStatus || !authStatus.subscription) return;
-            
+
             const subscription = authStatus.subscription;
-            const summary = creditData.summary;
-            
-            // Update credit usage with actual data from API
-            if (summary.basic) {
-                subscription.basic_credits_used_this_month = summary.basic.used;
-                subscription.plan_basic_credits_limit = summary.basic.available;
+
+            // Update token usage with actual data from API
+            if (creditData.tokens_used !== undefined) {
+                subscription.tokens_used = creditData.tokens_used;
             }
-            
-            if (summary.premium) {
-                subscription.premium_credits_used_this_month = summary.premium.used;
-                subscription.plan_premium_credits_limit = summary.premium.available;
+            if (creditData.tokens_limit !== undefined) {
+                subscription.tokens_limit = creditData.tokens_limit;
             }
-            
-            if (summary.total) {
-                subscription.ai_credits_used_this_month = summary.total.used;
-                subscription.plan_ai_credits_limit = summary.total.available;
+            if (creditData.tokens_remaining !== undefined) {
+                subscription.tokens_remaining = creditData.tokens_remaining;
             }
-            
+
             // Force refresh of auth status to persist the changes
             AuthUtils.setAuthStatus(authStatus);
-            
+
             // Update the display immediately
             this.updateSubscriptionInfo();
         },
@@ -907,23 +903,23 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         showPersistentCreditLimitMessage: function (message) {
-            // Remove any existing credit limit message
+            // Remove any existing limit message
             $('.credit-limit-alert').remove();
-            
-            // Create persistent credit limit message
+
+            // Create persistent token limit message
             const alertHtml = `
                 <div class="alert alert-danger credit-limit-alert" role="alert" style="margin: 10px 0; border-left: 4px solid #dc3545; background-color: #f8d7da; border-color: #f5c6cb;">
                     <div class="d-flex align-items-center">
-                        
+
                         <div class="flex-grow-1">
-                            <strong class="text-danger">Credit Limit Reached</strong><br>
+                            <strong class="text-danger">Token Limit Reached</strong><br>
                             <small class="text-muted">${message}</small>
                         </div>
                         <div class="ms-3">
                             <button type="button" class="btn btn-sm btn-outline-danger me-2" onclick="window.assistant.showCreditUsageModal()">
                                 <i class="fas fa-chart-bar me-1"></i> View Usage
                             </button>
-                           
+
                         </div>
                     </div>
                 </div>
@@ -980,72 +976,76 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         displayDetailedUsageModal: function (data) {
             const summary = data.summary;
-            // dailyUsage and userBreakdown are available in data but not currently displayed
-            const usage = data.usage;
-            const pagination = data.pagination;
-            const filters = data.filters;
+            const usage = data.usage || [];
+            const pagination = data.pagination || { total: 0 };
 
+            // Helper function to format tokens
+            const formatTokens = (tokens) => {
+                if (tokens >= 1000000) return (tokens / 1000000).toFixed(1) + 'M';
+                if (tokens >= 1000) return (tokens / 1000).toFixed(1) + 'K';
+                return tokens.toString();
+            };
+
+            // Calculate usage percentage
+            const usagePercent = summary.tokens_limit > 0 && summary.tokens_remaining !== -1
+                ? Math.min(100, Math.round((summary.total_tokens_used / summary.tokens_limit) * 100))
+                : 0;
+            const limitDisplay = summary.tokens_remaining === -1 ? 'Unlimited' : formatTokens(summary.tokens_limit);
 
             // Create the comprehensive modal HTML with optimized styling
             const modalHtml = `
                 <div class="detailed-usage-modal" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                    <!-- Compact Header with improved filters -->
-                    <div class="usage-header mb-3 assistant-header" style=" padding: 16px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <!-- Compact Header -->
+                    <div class="usage-header mb-3 assistant-header" style="padding: 16px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0" style="color: white; font-weight: 600;">
-                            <i class="fas fa-chart-line me-2"></i> Usage Analytics Dashboard
+                            <i class="fas fa-chart-line me-2"></i> Token Usage Dashboard
                             </h5>
                         </div>
-                        </div>
-                        
+                    </div>
+
                     <!-- Compact Summary Cards -->
                     <div class="row mb-3 g-2" style="height: 109px;">
                         <div class="col-md-3" style="height: 109px;">
                             <div class="card border-0" style="height: 109px;background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);">
                                 <div class="card-body text-center p-3">
-                                
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        
                                         <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Total Credits</h6>
-                                            <div class="row" style="display: inline-flexalign-content: space-between;align-items: center;justify-content: center;">
-                                                <i class="fas fa-coins fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.8rem;">${summary.total_credits_used}</h4>
+                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Monthly Usage</h6>
+                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-chart-pie fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${usagePercent}%</h4>
+                                            </div>
                                         </div>
-                                            
                                     </div>
-                                        
+                                    <small style="opacity: 0.8; font-size: 0.75rem;">${formatTokens(summary.total_tokens_used)} / ${limitDisplay}</small>
                                 </div>
-                                    <small style="opacity: 0.8; font-size: 0.75rem;">Used This Period</small>
                             </div>
-                                        </div>
-                                        </div>
+                        </div>
                         <div class="col-md-3" style="height: 109px;">
                             <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);">
                                 <div class="card-body text-center p-3">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        
                                         <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Total Tokens</h6>
-                                            <div class="row" style="display: inline-flexalign-content: space-between;align-items: center;justify-content: center;">
-                                                <i class="fas fa-code fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.8rem;">${summary.total_tokens_used.toLocaleString()}</h4>
+                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Tokens Used</h6>
+                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-code fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.total_tokens_used)}</h4>
+                                            </div>
                                         </div>
                                     </div>
+                                    <small style="opacity: 0.8; font-size: 0.75rem;">This Billing Period</small>
                                 </div>
-                                    <small style="opacity: 0.8; font-size: 0.75rem;">AI Tokens Processed</small>
                             </div>
-                        </div>
                         </div>
                         <div class="col-md-3" style="height: 109px;">
                             <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);">
                                 <div class="card-body text-center p-3">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        
                                         <div>
                                              <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Total Requests</h6>
-                                            <div class="row" style="display: inline-flexalign-content: space-between;align-items: center;justify-content: center;">
-                                                <i class="fas fa-paper-plane fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.8rem;">${summary.total_requests}</h4>
+                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-paper-plane fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${summary.total_requests}</h4>
+                                            </div>
                                         </div>
-                                    </div>
                                     </div>
                                     <small style="opacity: 0.8; font-size: 0.75rem;">Messages Processed</small>
                                 </div>
@@ -1055,15 +1055,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);">
                                 <div class="card-body text-center p-3">
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-
                                         <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Today's Credits</h6>
-                                            <div class="row" style="display: inline-flexalign-content: space-between;align-items: center;justify-content: center;">
-                                                <i class="fas fa-calendar-day fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.8rem;">${summary.today_credits_used || 0}</h4>
-                                        </div>
+                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Today's Tokens</h6>
+                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
+                                                <i class="fas fa-calendar-day fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.today_tokens_used || 0)}</h4>
+                                            </div>
                                         </div>
                                     </div>
-                                    <small style="opacity: 0.8; font-size: 0.75rem;">Credits Used Today</small>
+                                    <small style="opacity: 0.8; font-size: 0.75rem;">Tokens Used Today</small>
                                 </div>
                             </div>
                         </div>
@@ -1073,25 +1072,25 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     <div class="card border-0" style="border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
                         <div class="card-header" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 12px 12px 0 0; border: none; padding: 12px 16px;">
                             <div class="d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0" style="font-weight: 600; color: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+                                <h6 class="mb-0" style="font-weight: 600; color: #333;">
                                     Detailed Usage History
                                 </h6>
-                                <span class="badge bg-primary" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 12px;color: white; background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+                                <span class="badge bg-primary" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 12px; color: white; background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
                                     ${usage.length} of ${pagination.total} records
                                 </span>
+                            </div>
                         </div>
-                    </div>
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table id="usage-datatable" class="table table-hover mb-0" style="font-size: 0.9rem;">
-                                    <thead style="background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white;">
+                                    <thead style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white;">
                                         <tr>
                                             <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Date</th>
-                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">User</th>
-                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Type</th>
-                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Credits</th>
-                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Tokens</th>
-                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Message Preview</th>
+                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Action</th>
+                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Model</th>
+                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Input</th>
+                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Output</th>
+                                            <th style="border: none; padding: 15px 12px; font-weight: 600; text-align: center;">Total Tokens</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1109,24 +1108,19 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                                     })()}
                                                 </td>
                                                 <td style="padding: 12px; vertical-align: middle;">
-                                                    <span class="badge bg-light text-dark" style="border-radius: 20px; padding: 4px 8px;">
-                                                        ${item.username || 'N/A'}
+                                                    <span class="badge ${item.action_type === 'report_generation' ? 'bg-primary' : item.action_type === 'mcq_generation' ? 'bg-warning' : 'bg-success'}" style="border-radius: 20px; padding: 6px 12px; font-weight: 500;">
+                                                        <i class="fas ${item.action_type === 'report_generation' ? 'fa-file-alt' : item.action_type === 'mcq_generation' ? 'fa-question-circle' : 'fa-comment'} me-1"></i>
+                                                        ${item.action_type.replace('_', ' ')}
                                                     </span>
                                                 </td>
                                                 <td style="padding: 12px; vertical-align: middle;">
-                                                    <span class="badge ${item.credit_type === 'premium' ? 'bg-primary' : 'bg-success'}" style="border-radius: 20px; padding: 6px 12px; font-weight: 500;">
-                                                        <i class="fas ${item.credit_type === 'premium' ? 'fa-crown' : 'fa-layer-group'} me-1"></i>
-                                                        ${item.credit_type}
+                                                    <span class="badge bg-light text-dark" style="border-radius: 20px; padding: 4px 8px;">
+                                                        ${item.model || 'N/A'}
                                                     </span>
                                                 </td>
-                                                <td style="padding: 12px; vertical-align: middle; font-weight: 600; color: #667eea;">${item.credits_charged}</td>
-                                                <td style="padding: 12px; vertical-align: middle; font-weight: 500;">${item.tokens_used.toLocaleString()}</td>
-                                                
-                                                <td style="padding: 12px; vertical-align: middle; max-width: 200px;">
-                                                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.message_preview || 'No message'}">
-                                                        ${item.message_preview ? item.message_preview.substring(0, 80) + '...' : 'N/A'}
-                                                    </div>
-                                                </td>
+                                                <td style="padding: 12px; vertical-align: middle; font-weight: 500; color: #11998e;">${(item.prompt_tokens || 0).toLocaleString()}</td>
+                                                <td style="padding: 12px; vertical-align: middle; font-weight: 500; color: #f5576c;">${(item.completion_tokens || 0).toLocaleString()}</td>
+                                                <td style="padding: 12px; vertical-align: middle; font-weight: 600; color: #667eea;">${(item.tokens_used || 0).toLocaleString()}</td>
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -2045,19 +2039,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             $msg.after($linkMsg);
         },
 
-        sendMessage: function () {
+        sendMessage: function (providedMessage) {
             if (this.currentMCQ) {
-                // ignore text input while MCQ active
+                // Ignore text input while MCQ active
                 return;
             }
-            
+
             // Prevent double sending
             if (this.isSending) {
                 return;
             }
-            
+
             const input = $('#message-input');
-            const rawValue = (input.val() || '').trim();
+            // Use provided message if given, otherwise read from input field
+            const rawValue = providedMessage ? String(providedMessage).trim() : (input.val() || '').trim();
             if (!rawValue) {
                 Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please enter a message' });
                 return;
@@ -2074,7 +2069,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Add user message first
             const $userMsg = this.addMessage(message, 'user');
-            input.val('').trigger('input');
+            // Only clear input if we read from it (not for provided messages like inline MCQ answers)
+            if (!providedMessage) {
+                input.val('').trigger('input');
+            }
 
             // Show the AI thinking loader immediately after the user message
             this.showLoading();
@@ -2083,8 +2081,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
 
+            // If this is a provided message (MCQ selection), wrap with context for AI clarity
+            const messageToSend = providedMessage ? `I selected: ${message}` : message;
+
             const requestData = {
-                message: message,
+                message: messageToSend,
                 chat_id: this.currentChatId || 0,
                 user_id: userInfo.id || null,
                 user_name: userInfo.name || null
@@ -2100,7 +2101,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     this.isSending = false;
                     if (response.error) {
                         // Handle specific error types
-                        if (response.error_type === 'credit_limit') {
+                        if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message, response.credit_data);
                         } else if (response.error_type === 'timeout') {
                             this.handleTimeoutError(response.message);
@@ -2803,7 +2804,7 @@ if (tabContainer.length) {
                     this.isSending = false;
                     if (response.error) {
                         // Handle specific error types
-                        if (response.error_type === 'credit_limit') {
+                        if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message, response.credit_data);
                         } else {
                         // Display backend error as chat bubble
@@ -2882,18 +2883,23 @@ if (tabContainer.length) {
                     </label>
                 </div>`);
             });
-            c.append(`<button class="btn btn-link" id="mcq-cancel">Cancel</button>`);
+            c.append(`<button type="button" class="btn btn-link" id="mcq-cancel">Cancel</button>`);
             // bind selection
             c.find('input[name="mcq-option"]').on('change', () => {
                 $('#mcq-submit').remove();
-                c.append(`<button id="mcq-submit" class="btn btn-primary mt-2">Submit</button>`);
-                $('#mcq-submit').off('click').on('click', () => {
+                c.append(`<button type="button" id="mcq-submit" class="btn btn-primary mt-2">Submit</button>`);
+                $('#mcq-submit').off('click').on('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     const selected = c.find('input[name="mcq-option"]:checked').val();
-                    this.sendMCQ(selected);
+                    if (selected) {
+                        this.sendMCQ(selected);
+                    }
                 });
             });
             // cancel
-            c.find('#mcq-cancel').off('click').on('click', () => {
+            c.find('#mcq-cancel').off('click').on('click', (e) => {
+                e.preventDefault();
                 this.mcqQueue = [];
                 this.clearMCQ();
             });
@@ -2907,20 +2913,28 @@ if (tabContainer.length) {
                 return;
             }
 
+            // Validate answer is not empty
+            if (!answer || typeof answer !== 'string' || !answer.trim()) {
+                return;
+            }
+
             this.showLoading();
             this.isSending = true;
             this.clearMCQ();                       // clear current UI
-            const $userMsg = this.addMessage(answer, 'user');      // echo user choice
+            const $userMsg = this.addMessage(answer, 'user');      // echo user choice (clean display)
             // Get user information from auth status
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
-            
+
+            // Wrap answer with context so AI understands this is a selection, not a new question
+            const messageToSend = `I selected: ${answer.trim()}`;
+
             this.ajaxWithAuth({
                 url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    message: answer,
+                    message: messageToSend,
                     chat_id: this.currentChatId || 0,
                     user_id: userInfo.id || null,
                     user_name: userInfo.name || null
@@ -2930,7 +2944,7 @@ if (tabContainer.length) {
                     this.isSending = false;
                     if (response.error) {
                         // Handle specific error types
-                        if (response.error_type === 'credit_limit') {
+                        if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message);
                         } else {
                         this.addMessage(response.message, 'error');
