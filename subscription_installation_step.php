@@ -211,6 +211,7 @@ usort($monthly_plans, $sort_by_tier);
 usort($yearly_plans, $sort_by_tier);
 
 // Calculate annual savings if yearly plans exist
+$max_yearly_savings = 0;
 if ($has_yearly_plans) {
     foreach ($yearly_plans as &$yearly_plan) {
         $tier = $yearly_plan['tier'];
@@ -221,6 +222,10 @@ if ($has_yearly_plans) {
                 $savings_percent = round((($monthly_annual_cost - $yearly_cost) / $monthly_annual_cost) * 100);
                 $yearly_plan['savings_percent'] = $savings_percent;
                 $yearly_plan['has_savings'] = $savings_percent > 0;
+                // Track maximum savings for toggle badge
+                if ($savings_percent > $max_yearly_savings) {
+                    $max_yearly_savings = $savings_percent;
+                }
             }
         }
     }
@@ -237,6 +242,7 @@ $templatecontext = [
     'monthly_plans' => array_values($monthly_plans),
     'yearly_plans' => array_values($yearly_plans),
     'has_yearly_plans' => $has_yearly_plans,
+    'max_yearly_savings' => $max_yearly_savings,
     'plans_json' => json_encode([
         'monthly' => array_values($monthly_plans),
         'yearly' => array_values($yearly_plans),

@@ -471,7 +471,7 @@
             </button>
             <button type="button" class="billing-toggle-btn" data-interval="yearly">
                 Annual
-                {{#has_yearly_plans}}<span class="savings-badge">Save 20%</span>{{/has_yearly_plans}}
+                {{#max_yearly_savings}}<span class="savings-badge">Save {{max_yearly_savings}}%</span>{{/max_yearly_savings}}
             </button>
         </div>
     </div>
