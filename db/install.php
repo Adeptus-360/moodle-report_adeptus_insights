@@ -7,15 +7,20 @@ defined('MOODLE_INTERNAL') || die();
 function xmldb_report_adeptus_insights_install() {
     global $DB, $CFG;
     $dbman = $DB->get_manager();
-    
+
     // Define the menu entry: title|url
     $entry = get_string('pluginname', 'report_adeptus_insights') . '|/report/adeptus_insights/index.php';
     $custom = get_config('moodle', 'customusermenuitems');
     $lines = $custom === false ? [] : preg_split('/\r\n?|\n/', $custom);
-    if (!in_array($entry, $lines)) {
-        $lines[] = $entry;
-        set_config('customusermenuitems', implode("\n", $lines));
-    }
+
+    // Remove any existing Adeptus entries (old or new name) to avoid duplicates
+    $lines = array_filter($lines, function($line) {
+        return strpos($line, '/report/adeptus_insights/') === false;
+    });
+
+    // Add the new entry
+    $lines[] = $entry;
+    set_config('customusermenuitems', implode("\n", $lines));
     
     // Create all required tables
     create_adeptus_tables($dbman);
@@ -184,13 +189,14 @@ function create_adeptus_tables($dbman) {
 function xmldb_report_adeptus_insights_uninstall() {
     global $DB;
     $dbman = $DB->get_manager();
-    
-    // Remove custom user menu entry
-    $entry = get_string('pluginname', 'report_adeptus_insights') . '|/report/adeptus_insights/index.php';
+
+    // Remove ALL custom user menu entries pointing to this plugin (handles renamed plugin)
     $custom = get_config('moodle', 'customusermenuitems');
     if ($custom !== false) {
         $lines = preg_split('/\r\n?|\n/', $custom);
-        $lines = array_filter($lines, function($line) use ($entry) { return trim($line) !== $entry; });
+        $lines = array_filter($lines, function($line) {
+            return strpos($line, '/report/adeptus_insights/') === false;
+        });
         set_config('customusermenuitems', implode("\n", $lines));
     }
     

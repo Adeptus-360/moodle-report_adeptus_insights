@@ -42,6 +42,24 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025111930, 'report', 'adeptus_insights');
     }
 
+    // Version 2026010301: Plugin renamed from "Adeptus AI Insights" to "Adeptus Insights"
+    // Clean up duplicate user menu entries and ensure only one entry exists
+    if ($oldversion < 2026010301) {
+        $custom = get_config('moodle', 'customusermenuitems');
+        if ($custom !== false) {
+            $lines = preg_split('/\r\n?|\n/', $custom);
+            // Remove ALL existing Adeptus entries
+            $lines = array_filter($lines, function($line) {
+                return strpos($line, '/report/adeptus_insights/') === false;
+            });
+            // Add single correct entry with new name
+            $entry = get_string('pluginname', 'report_adeptus_insights') . '|/report/adeptus_insights/index.php';
+            $lines[] = $entry;
+            set_config('customusermenuitems', implode("\n", $lines));
+        }
+        upgrade_plugin_savepoint(true, 2026010301, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
 ?>
