@@ -23,6 +23,8 @@ config.php
 # Node modules (if any)
 node_modules/
 
-# Compiled files
-*.min.js
+# Compiled files (except AMD build which Moodle requires)
 *.min.css
+
+# Don't ignore AMD build files - Moodle needs these!
+# amd/build/*.min.js must be committed for the plugin to work
