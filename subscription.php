@@ -66,6 +66,34 @@ if ($action === 'update_plan' && confirm_sesskey() && $plan_id) {
 
 // Get current subscription details and available plans
 $subscription = $installation_manager->get_subscription_details();
+
+// If no subscription found, try to sync from backend or create one
+if (!$subscription) {
+    // Try to sync subscription from backend
+    $backend_sync_result = $installation_manager->check_subscription_status();
+
+    if ($backend_sync_result) {
+        // Refresh subscription data
+        $subscription = $installation_manager->get_subscription_details();
+    } else {
+        // Create a free subscription if none exists
+        try {
+            $result = $installation_manager->setup_starter_subscription($USER->email, fullname($USER));
+
+            if (!$result) {
+                $result = $installation_manager->activate_free_plan_manually();
+            }
+
+            if ($result) {
+                // Refresh subscription data
+                $subscription = $installation_manager->get_subscription_details();
+            }
+        } catch (\Exception $e) {
+            debugging('Exception during subscription creation: ' . $e->getMessage());
+        }
+    }
+}
+
 $available_plans = $installation_manager->get_available_plans();
 $payment_config = $installation_manager->get_payment_config();
 
