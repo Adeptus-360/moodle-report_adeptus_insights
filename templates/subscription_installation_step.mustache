@@ -368,50 +368,6 @@
     text-decoration: none;
 }
 
-/* Complete Installation Section */
-.complete-section {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 16px;
-    padding: 40px;
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.complete-section h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 12px;
-}
-
-.complete-section p {
-    color: #6b7280;
-    margin-bottom: 28px;
-    line-height: 1.6;
-}
-
-.btn-complete-installation {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-    padding: 16px 40px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-complete-installation:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .installation-progress {
@@ -553,18 +509,11 @@
         </div>
     </div>
 
-    <!-- Complete Installation -->
-    <div class="complete-section">
-        <h3><i class="fa fa-flag-checkered"></i> Ready to Get Started?</h3>
-        <p>You can upgrade your plan at any time from your subscription dashboard. Click below to complete the installation and start using Adeptus Insights.</p>
-        <form method="post">
-            <input type="hidden" name="sesskey" value="{{sesskey}}">
-            <input type="hidden" name="action" value="completeinstallation">
-            <button type="submit" class="btn-complete-installation">
-                <i class="fa fa-check"></i> Complete Installation
-            </button>
-        </form>
-    </div>
+    <!-- Hidden form for plan selection submission -->
+    <form id="complete-installation-form" method="post" style="display: none;">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="action" value="completeinstallation">
+    </form>
 </div>
 
 {{#js}}
@@ -599,7 +548,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 createBillingPortalSession(stripeProduct, planName);
             } else {
                 // Free plan - complete installation
-                $('form').submit();
+                $('#complete-installation-form').submit();
             }
         });
 
