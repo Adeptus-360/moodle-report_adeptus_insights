@@ -105,6 +105,36 @@ if (!$current_subscription) {
 // Get available plans for upgrades
 $available_plans = $installation_manager->get_available_plans();
 
+// Transform plans data to match template expectations
+$transformed_plans = [];
+if (!empty($available_plans['plans'])) {
+    foreach ($available_plans['plans'] as $plan) {
+        // Handle price - can be object or string
+        $price = $plan['price'] ?? 'Free';
+        if (is_array($price)) {
+            $price = $price['formatted'] ?? 'Free';
+        }
+
+        // Handle limits
+        $limits = $plan['limits'] ?? [];
+
+        $transformed_plans[] = [
+            'id' => $plan['id'] ?? 0,
+            'name' => $plan['name'] ?? 'Unknown',
+            'description' => $plan['description'] ?? '',
+            'price' => $price,
+            'billing_cycle' => $plan['billing_interval'] ?? 'monthly',
+            'is_free' => ($plan['tier'] ?? '') === 'free',
+            'is_current' => false, // Will be determined by comparison with current subscription
+            'ai_credits_basic' => $limits['ai_credits_basic'] ?? 0,
+            'ai_credits_pro' => $limits['ai_credits_premium'] ?? 0,
+            'exports' => $limits['exports'] ?? $limits['exports_per_month'] ?? 0,
+            'features' => $plan['features'] ?? [],
+            'stripe_product_id' => $plan['stripe_product_id'] ?? null,
+        ];
+    }
+}
+
 // Prepare template context
 $templatecontext = [
     'user_fullname' => fullname($USER),
@@ -112,7 +142,7 @@ $templatecontext = [
     'is_registered' => $installation_manager->is_registered(),
     'sesskey' => sesskey(),
     'current_subscription' => $current_subscription,
-    'available_plans' => $available_plans['plans'] ?? [],
+    'available_plans' => $transformed_plans,
     'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2')
 ];
 
