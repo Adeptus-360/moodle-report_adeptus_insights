@@ -105,9 +105,12 @@ if (!$current_subscription) {
 // Get available plans for upgrades
 $available_plans = $installation_manager->get_available_plans();
 
-// Transform plans data to match template expectations
+// Transform and organize plans by tier and billing interval
 // Only include plans for Adeptus Insights (product_key = 'insights')
-$transformed_plans = [];
+$monthly_plans = [];
+$yearly_plans = [];
+$has_yearly_plans = false;
+
 if (!empty($available_plans['plans'])) {
     foreach ($available_plans['plans'] as $plan) {
         // Filter to only show Insights plans
@@ -116,30 +119,112 @@ if (!empty($available_plans['plans'])) {
             continue;
         }
 
+        $billing_interval = $plan['billing_interval'] ?? 'monthly';
+        $tier = $plan['tier'] ?? 'free';
+
         // Handle price - can be object or string
-        $price = $plan['price'] ?? 'Free';
+        $price = $plan['price'] ?? ['cents' => 0, 'formatted' => 'Free'];
+        $price_formatted = 'Free';
+        $price_cents = 0;
         if (is_array($price)) {
-            $price = $price['formatted'] ?? 'Free';
+            $price_formatted = $price['formatted'] ?? 'Free';
+            $price_cents = $price['cents'] ?? 0;
+        } else {
+            $price_formatted = $price;
         }
 
         // Handle limits
         $limits = $plan['limits'] ?? [];
+        $limit_features = $limits['features'] ?? [];
 
-        $transformed_plans[] = [
+        // Format limit values (handle -1 as unlimited)
+        $format_limit = function($value, $suffix = '') {
+            if ($value === -1 || $value === null) {
+                return 'Unlimited';
+            }
+            return number_format($value) . $suffix;
+        };
+
+        // Determine current plan
+        $is_current = false;
+        if ($current_subscription && isset($current_subscription['plan_name'])) {
+            $is_current = (strtolower($plan['name']) === strtolower($current_subscription['plan_name']));
+        }
+
+        // Build transformed plan
+        $transformed_plan = [
             'id' => $plan['id'] ?? 0,
+            'tier' => $tier,
             'name' => $plan['name'] ?? 'Unknown',
+            'short_name' => ucfirst($tier), // Free, Pro, Enterprise
             'description' => $plan['description'] ?? '',
-            'price' => $price,
-            'billing_cycle' => $plan['billing_interval'] ?? 'monthly',
-            'is_free' => ($plan['tier'] ?? '') === 'free',
-            'is_current' => false, // Will be determined by comparison with current subscription
-            'ai_credits_basic' => $limits['ai_credits_basic'] ?? 0,
-            'ai_credits_pro' => $limits['ai_credits_premium'] ?? 0,
-            'exports' => $limits['exports'] ?? $limits['exports_per_month'] ?? 0,
+            'price_formatted' => $price_formatted,
+            'price_cents' => $price_cents,
+            'billing_interval' => $billing_interval,
+            'is_free' => $tier === 'free',
+            'is_pro' => $tier === 'pro',
+            'is_enterprise' => $tier === 'enterprise',
+            'is_current' => $is_current,
+            'is_popular' => $plan['is_popular'] ?? ($tier === 'pro'),
+
+            // Formatted limits for display
+            'tokens_limit' => $format_limit($limits['tokens_per_month'] ?? 50000),
+            'tokens_raw' => $limits['tokens_per_month'] ?? 50000,
+            'exports_limit' => $format_limit($limits['exports_per_month'] ?? $limits['exports'] ?? 3),
+            'exports_raw' => $limits['exports_per_month'] ?? $limits['exports'] ?? 3,
+            'reports_limit' => $format_limit($limits['reports_total_limit'] ?? 10),
+            'reports_raw' => $limits['reports_total_limit'] ?? 10,
+            'export_formats' => implode(', ', array_map('strtoupper', $limits['export_formats'] ?? ['pdf'])),
+
+            // Feature flags for conditional display
+            'has_ai_assistant' => $limit_features['ai_assistant'] ?? true,
+            'has_scheduled_reports' => $limit_features['scheduled_reports'] ?? false,
+            'has_bulk_export' => $limit_features['bulk_export'] ?? false,
+            'has_api_access' => $limit_features['api_access'] ?? false,
+            'has_custom_reports' => $limit_features['custom_reports'] ?? false,
+
+            // Human-readable features list from API
             'features' => $plan['features'] ?? [],
+
+            // Stripe integration
             'stripe_product_id' => $plan['stripe_product_id'] ?? null,
+            'stripe_configured' => $plan['stripe_configured'] ?? false,
         ];
+
+        // Organize by billing interval
+        if ($billing_interval === 'yearly' || $billing_interval === 'annual') {
+            $yearly_plans[$tier] = $transformed_plan;
+            $has_yearly_plans = true;
+        } else {
+            $monthly_plans[$tier] = $transformed_plan;
+        }
     }
+}
+
+// Sort plans by tier order: free, pro, enterprise
+$tier_order = ['free' => 0, 'pro' => 1, 'enterprise' => 2];
+$sort_by_tier = function($a, $b) use ($tier_order) {
+    return ($tier_order[$a['tier']] ?? 99) - ($tier_order[$b['tier']] ?? 99);
+};
+
+usort($monthly_plans, $sort_by_tier);
+usort($yearly_plans, $sort_by_tier);
+
+// Calculate annual savings if yearly plans exist
+if ($has_yearly_plans) {
+    foreach ($yearly_plans as &$yearly_plan) {
+        $tier = $yearly_plan['tier'];
+        if (isset($monthly_plans[$tier])) {
+            $monthly_annual_cost = $monthly_plans[$tier]['price_cents'] * 12;
+            $yearly_cost = $yearly_plan['price_cents'];
+            if ($monthly_annual_cost > 0 && $yearly_cost < $monthly_annual_cost) {
+                $savings_percent = round((($monthly_annual_cost - $yearly_cost) / $monthly_annual_cost) * 100);
+                $yearly_plan['savings_percent'] = $savings_percent;
+                $yearly_plan['has_savings'] = $savings_percent > 0;
+            }
+        }
+    }
+    unset($yearly_plan);
 }
 
 // Prepare template context
@@ -149,7 +234,13 @@ $templatecontext = [
     'is_registered' => $installation_manager->is_registered(),
     'sesskey' => sesskey(),
     'current_subscription' => $current_subscription,
-    'available_plans' => $transformed_plans,
+    'monthly_plans' => array_values($monthly_plans),
+    'yearly_plans' => array_values($yearly_plans),
+    'has_yearly_plans' => $has_yearly_plans,
+    'plans_json' => json_encode([
+        'monthly' => array_values($monthly_plans),
+        'yearly' => array_values($yearly_plans),
+    ]),
     'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2')
 ];
 
