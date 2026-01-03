@@ -2396,13 +2396,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             
                             </button>
                         <div class="row">
-                            <div class="col-md-6">
-                                <strong>Plan:</strong> ${subscription.plan_name || 'Unknown'}<br>
-                                <strong>Status:</strong> <span class="badge bg-${subscription.status === 'active' ? 'success' : 'warning'}">${subscription.status || 'Unknown'}</span>
-                            </div>
-                            <div class="col-md-6">
-                                <strong>Reports:</strong> ${subscription.reports_generated_this_month || 0}/${subscription.plan_exports_limit || '∞'}<br>
-                                <strong>AI Credits (${subscription.credit_type || 'basic'}):</strong> <span class="total-credits-counter ${this.isCreditExceeded(subscription.total_credits_used_this_month || 0, subscription.plan_total_credits_limit || 0) ? 'text-danger' : ''}">${subscription.total_credits_used_this_month || 0}</span>/${subscription.plan_total_credits_limit || '∞'}
+                            <div class="col-md-12">
+                                <strong>Plan:</strong> ${subscription.plan_name || 'Unknown'}
+                                <span class="ms-3"><strong>Status:</strong> <span class="badge bg-${subscription.status === 'active' ? 'success' : 'warning'}">${subscription.status || 'Unknown'}</span></span>
                             </div>
                         </div>
                         </div>
@@ -4404,9 +4400,34 @@ if (tabContainer.length) {
                 Swal.close();
                 self.showSuccess(`${format.toUpperCase()} file downloaded successfully!`);
 
+                // Track export in backend after successful download
+                await self.trackExport(format, reportSlug);
+
             } catch (error) {
                 Swal.close();
                 self.showError(error.message || 'Failed to export report.');
+            }
+        },
+
+        /**
+         * Track export usage in backend
+         */
+        trackExport: async function(format, reportName) {
+            try {
+                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/track_export.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(reportName)}&sesskey=${M.cfg.sesskey}`
+                });
+
+                const data = await response.json();
+                if (!data.success) {
+                    console.warn('Failed to track export:', data.message);
+                }
+            } catch (error) {
+                console.error('Error tracking export:', error);
             }
         },
 
