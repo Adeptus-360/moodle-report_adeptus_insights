@@ -598,10 +598,8 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 // Paid plan - redirect to billing portal
                 createBillingPortalSession(stripeProduct, planName);
             } else {
-                // Free plan - just complete installation
-                if (confirm('Start with the ' + planName + ' plan?')) {
-                    $('form').submit();
-                }
+                // Free plan - complete installation
+                $('form').submit();
             }
         });
 
