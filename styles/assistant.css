@@ -89,6 +89,66 @@
     100% { transform: translateY(-100px) rotate(360deg); }
 } */
 
+/* Subscription Status Bar - displayed below header */
+.subscription-status-bar {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px 20px;
+    border-radius: 0.5rem;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #dee2e6;
+}
+
+.subscription-status-bar .subscription-header-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.subscription-status-bar .subscription-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #333;
+}
+
+.subscription-status-bar .subscription-icon {
+    color: #0f6cbf;
+}
+
+.subscription-status-bar .assistant-header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.subscription-status-bar .btn-primary {
+    background: #0f6cbf;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.subscription-status-bar .btn-primary:hover {
+    background: #0a5299;
+}
+
+@media (max-width: 768px) {
+    .subscription-status-bar {
+        padding: 12px 15px;
+    }
+
+    .subscription-status-bar .subscription-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
 .assistant-title {
     font-size: 2.5rem;
     font-weight: 700;

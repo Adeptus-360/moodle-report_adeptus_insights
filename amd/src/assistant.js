@@ -2382,12 +2382,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Check if user has exceeded credit limits and show persistent message
                 this.checkAndShowCreditLimitWarning(subscription);
                 
-                // Remove existing assistant header to prevent duplicates
-                $('.assistant-header').remove();
-                
-                // Create or update subscription info display
+                // Don't remove the template header - it's correctly positioned
+                // Just remove any dynamically added subscription info to prevent duplicates
+                $('.subscription-status-bar').remove();
+
+                // Create subscription info display (separate from main header)
                 let subscriptionHtml = `
-                    <div class="assistant-header">
+                    <div class="subscription-status-bar">
                         <div class="subscription-header-content">
                             <h6 class="subscription-title">
                                 <i class="fa fa-chart-line me-1 subscription-icon"></i> Subscription Status <button class="btn btn-outline-secondary btn-sm" id="refresh-subscription-btn" title="Refresh subscription data">
@@ -2433,57 +2434,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     </div>
                 `;
                 
-                let assistantHtml = `
-                     <div class="assistant-header">
-                        <div class="assistant-header-content">
-                            <h1 class="assistant-title">
-                                <i class="fa fa-bolt wizard-icon"></i>
-                                Adeptus Insights: AI Assistant
-                            </h1>
-                            <p class="wizard-subtitle">Generate the reports you need by speaking to our AI assistant.</p>
-                        </div>
-                        <div class="wizard-header-section">
-                            <a style="margin-bottom: 17px;" href="/report/adeptus_insights/index.php" class="btn btn-primary">
-                                    <i class="fa fa-arrow-left"></i> Back to Dashboard
-                                </a>
-                        </div>
-                    </div>
-                `;
-                
+                // Template already has the header banner - no need to create assistantHtml
+                // Just insert subscription status bar after the header
 
-                // Insert header info above the tabs (before the nav-tabs)
-                const tabNav = $('.tab-nav');
-                if (tabNav.length && !$('.subscription-info').length) {
-                    tabNav.before(assistantHtml);
-                } else if ($('.subscription-info').length) {
-                    $('.subscription-info').replaceWith(assistantHtml);
+                // Insert subscription bar after the template header (before container-fluid)
+                const templateHeader = $('.assistant-header');
+                if (templateHeader.length) {
+                    templateHeader.after(subscriptionHtml);
                 } else {
-                    // Fallback: insert after the main title if nav-tabs not found
-                    const mainTitle = $('h1, h2, .page-title').first();
-                    if (mainTitle.length) {
-                        mainTitle.after(assistantHtml);
+                    // Fallback: insert at top of container-fluid
+                    const containerFluid = $('.container-fluid');
+                    if (containerFluid.length) {
+                        containerFluid.prepend(subscriptionHtml);
                     }
                 }
-
-
-                // Find the parent container that holds both tab panels
-const tabContainer = $('#assistant-panel, #reports-panel').closest('.tab-content, .tab-pane').parent();
-// Or if they share a specific parent container:
-// const tabContainer = $('#assistant-panel').parent();
-
-// Remove existing subscription info
-$('.subscription-info').remove();
-
-if (tabContainer.length) {
-    // Insert after the entire tab container
-    tabContainer.after(subscriptionHtml);
-} else {
-    // Fallback
-    const mainTitle = $('h1, h2, .page-title').first();
-    if (mainTitle.length) {
-        mainTitle.after(subscriptionHtml);
-    }
-}
                 
                 // Bind refresh button event
                 const self = this;
