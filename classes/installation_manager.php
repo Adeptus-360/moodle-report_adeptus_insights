@@ -1483,8 +1483,14 @@ class installation_manager {
      * Clear local subscription cache
      */
     public function clear_subscription_cache() {
-        $cache = \cache::make('report_adeptus_insights', 'subscription_data');
-        $cache->delete('subscription_details');
+        // Cache clearing is optional - don't fail if cache definition doesn't exist
+        try {
+            $cache = \cache::make('report_adeptus_insights', 'subscription_data');
+            $cache->delete('subscription_details');
+        } catch (\Exception $e) {
+            // Cache definition may not exist - this is OK, subscription data will refresh naturally
+            debugging('Could not clear subscription cache: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
     }
 
     /**
