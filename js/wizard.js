@@ -465,38 +465,66 @@ class AdeptusWizard {
      * Load Chart.js from CDN
      * Note: We load directly from CDN instead of Moodle's core/chartjs
      * to avoid conflicts with Moodle's reactive component framework
+     * Loading is non-blocking since charts are only needed in step 4
      */
-    async loadChartJS() {
-        await this.loadChartJSFromCDN();
+    loadChartJS() {
+        // Check if already loaded
+        if (typeof Chart !== 'undefined') {
+            this.chartJS = Chart;
+            return;
+        }
+
+        // Check if script is already being loaded
+        if (document.querySelector('script[src*="chart.js"]')) {
+            return;
+        }
+
+        // Load Chart.js from CDN (non-blocking)
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        script.async = true;
+        script.onload = () => {
+            // Small delay to ensure the global is registered
+            setTimeout(() => {
+                if (typeof Chart !== 'undefined') {
+                    this.chartJS = Chart;
+                }
+            }, 100);
+        };
+        document.head.appendChild(script);
     }
 
     /**
-     * Load Chart.js from CDN as fallback
+     * Get Chart.js instance, loading if necessary
+     * Call this before creating charts
      */
-    async loadChartJSFromCDN() {
-        return new Promise((resolve, reject) => {
-            // Check if Chart.js is already loaded globally
-            if (typeof Chart !== 'undefined') {
-                this.chartJS = Chart;
-                resolve();
-                return;
-            }
+    async getChartJS() {
+        // Already loaded
+        if (this.chartJS) {
+            return this.chartJS;
+        }
 
-            // Load Chart.js from CDN
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js';
-            script.onload = () => {
+        // Check global
+        if (typeof Chart !== 'undefined') {
+            this.chartJS = Chart;
+            return this.chartJS;
+        }
+
+        // Wait for it to load (max 5 seconds)
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 50;
+            const checkInterval = setInterval(() => {
+                attempts++;
                 if (typeof Chart !== 'undefined') {
                     this.chartJS = Chart;
-                    resolve();
-                } else {
-                    reject(new Error('Chart.js failed to load from CDN'));
+                    clearInterval(checkInterval);
+                    resolve(this.chartJS);
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    reject(new Error('Chart.js not available'));
                 }
-            };
-            script.onerror = () => {
-                reject(new Error('Failed to load Chart.js from CDN'));
-            };
-            document.head.appendChild(script);
+            }, 100);
         });
     }
 
@@ -1590,7 +1618,7 @@ class AdeptusWizard {
         }
     }
 
-    displayChart(chartData, chartType) {
+    async displayChart(chartData, chartType) {
         const chartContainer = document.getElementById('results-chart');
         if (!chartContainer || !chartData) {
             console.error('Chart container or data not available');
@@ -1687,25 +1715,12 @@ class AdeptusWizard {
 
         // Create and render the chart
         try {
-            if (this.chartJS) {
-                window.adeptusResultsChartInstance = new this.chartJS(ctx.getContext('2d'), chartConfig);
-            } else {
-                // Fallback: try to use global Chart if available
-                if (typeof Chart !== 'undefined') {
-            window.adeptusResultsChartInstance = new Chart(ctx.getContext('2d'), chartConfig);
-                } else {
-                    throw new Error('Chart.js not available');
-                }
-            }
+            // Wait for Chart.js to be available
+            const ChartJS = await this.getChartJS();
+            window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             console.error('Error creating chart:', error);
-            chartContainer.innerHTML = `
-                <div class="chart-placeholder">
-                    <i class="fa fa-exclamation-triangle"></i>
-                    <p>Error rendering chart: ${error.message}</p>
-                    <small>Chart Type: ${chartType}</small>
-                </div>
-            `;
+            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
         }
     }
 
@@ -2086,13 +2101,13 @@ class AdeptusWizard {
     /**
      * Render chart using selected axis values
      */
-    renderChartFromSelectors() {
-        const data = this.currentResults?.results;
+    async renderChartFromSelectors() {
+        const data = this.currentResults && this.currentResults.results;
         if (!data || data.length === 0) return;
 
-        const chartType = document.getElementById('wizard-chart-type')?.value || 'bar';
-        const labelKey = document.getElementById('wizard-chart-x-axis')?.value;
-        const valueKey = document.getElementById('wizard-chart-y-axis')?.value;
+        const chartType = document.getElementById('wizard-chart-type') ? document.getElementById('wizard-chart-type').value : 'bar';
+        const labelKey = document.getElementById('wizard-chart-x-axis') ? document.getElementById('wizard-chart-x-axis').value : null;
+        const valueKey = document.getElementById('wizard-chart-y-axis') ? document.getElementById('wizard-chart-y-axis').value : null;
 
         if (!labelKey || !valueKey) return;
 
@@ -2125,14 +2140,12 @@ class AdeptusWizard {
         const chartConfig = this.createConfigurableChartConfig(chartType, labels, values, valueKeyFormatted, colors, reportName);
 
         try {
-            if (this.chartJS) {
-                window.adeptusResultsChartInstance = new this.chartJS(ctx.getContext('2d'), chartConfig);
-            } else if (typeof Chart !== 'undefined') {
-                window.adeptusResultsChartInstance = new Chart(ctx.getContext('2d'), chartConfig);
-            }
+            // Wait for Chart.js to be available
+            const ChartJS = await this.getChartJS();
+            window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             console.error('Error creating chart:', error);
-            chartContainer.innerHTML = `<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Error rendering chart</p></div>`;
+            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
         }
     }
 
