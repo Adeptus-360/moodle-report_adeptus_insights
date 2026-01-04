@@ -404,24 +404,236 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
         /**
          * Handle upgrade from free plan
-         * Redirects to wizard Step 2 where users can select a plan
+         * Shows a modal with available plans
          */
         handleUpgradeFromFree: function() {
+            // Show loading state
             Swal.fire({
-                icon: 'info',
-                title: 'Upgrade Your Plan',
-                html: '<p>Choose from our available plans to unlock premium features and increase your usage limits.</p>',
+                title: 'Loading Plans...',
+                html: '<div style="padding: 20px;"><i class="fa fa-spinner fa-spin fa-2x"></i></div>',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+
+            // Fetch available plans
+            fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/get_available_plans.php?sesskey=' + M.cfg.sesskey)
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success && data.plans && data.plans.length > 0) {
+                        Subscription.showPlansModal(data.plans);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to load plans. Please try again.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.error('[Subscription] Error fetching plans:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        text: 'Failed to load plans. Please check your connection and try again.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+        },
+
+        /**
+         * Show plans selection modal
+         */
+        showPlansModal: function(plans) {
+            var plansHtml = '<div class="plans-modal-container" style="text-align: left;">';
+            plansHtml += '<div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto;">';
+
+            plans.forEach(function(plan) {
+                var cardClass = plan.is_current ? 'current' : (plan.is_popular ? 'popular' : '');
+                var borderColor = plan.is_current ? '#10b981' : (plan.is_popular ? '#2563eb' : '#e5e7eb');
+                var bgColor = plan.is_current ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' : 'white';
+
+                plansHtml += '<div class="plan-card ' + cardClass + '" style="' +
+                    'background: ' + bgColor + '; ' +
+                    'border: 2px solid ' + borderColor + '; ' +
+                    'border-radius: 16px; ' +
+                    'padding: 24px; ' +
+                    'position: relative; ' +
+                    'transition: all 0.3s ease; ' +
+                    'display: flex; ' +
+                    'flex-direction: column;">';
+
+                // Badge
+                if (plan.is_current) {
+                    plansHtml += '<div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); ' +
+                        'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; ' +
+                        'font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Current Plan</div>';
+                } else if (plan.is_popular) {
+                    plansHtml += '<div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); ' +
+                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
+                        'font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Most Popular</div>';
+                }
+
+                // Header
+                plansHtml += '<div style="text-align: center; margin-bottom: 16px; padding-top: 8px;">';
+                plansHtml += '<div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 6px;">' + plan.short_name + '</div>';
+                if (plan.description) {
+                    plansHtml += '<div style="color: #6b7280; font-size: 13px; line-height: 1.4;">' + plan.description + '</div>';
+                }
+                plansHtml += '</div>';
+
+                // Price
+                plansHtml += '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">';
+                if (plan.is_free) {
+                    plansHtml += '<div style="font-size: 36px; font-weight: 800; color: #10b981;">Free</div>';
+                    plansHtml += '<div style="color: #6b7280; font-size: 13px;">Forever</div>';
+                } else {
+                    plansHtml += '<div style="font-size: 36px; font-weight: 800; color: #1f2937;">' + plan.price_formatted + '</div>';
+                    plansHtml += '<div style="color: #6b7280; font-size: 13px;">per month</div>';
+                }
+                plansHtml += '</div>';
+
+                // Limits
+                plansHtml += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">';
+                plansHtml += '<div style="text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px;">';
+                plansHtml += '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.tokens_limit + '</div>';
+                plansHtml += '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">AI Tokens</div></div>';
+                plansHtml += '<div style="text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px;">';
+                plansHtml += '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.exports_limit + '</div>';
+                plansHtml += '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Exports/mo</div></div>';
+                plansHtml += '</div>';
+
+                // Action button
+                plansHtml += '<div style="margin-top: auto;">';
+                if (plan.is_current) {
+                    plansHtml += '<button class="plan-select-btn" disabled style="' +
+                        'width: 100%; padding: 12px; border: none; border-radius: 8px; ' +
+                        'background: #e5e7eb; color: #6b7280; font-weight: 600; cursor: default;">' +
+                        '<i class="fa fa-check-circle"></i> Current Plan</button>';
+                } else if (plan.is_free) {
+                    plansHtml += '<button class="plan-select-btn" disabled style="' +
+                        'width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; ' +
+                        'background: white; color: #6b7280; font-weight: 600; cursor: default;">' +
+                        'Free Plan</button>';
+                } else {
+                    plansHtml += '<button class="plan-select-btn" data-stripe-product="' + plan.stripe_product_id + '" ' +
+                        'data-plan-name="' + plan.short_name + '" style="' +
+                        'width: 100%; padding: 12px; border: none; border-radius: 8px; ' +
+                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
+                        'font-weight: 600; cursor: pointer; transition: all 0.3s ease;">' +
+                        '<i class="fa fa-arrow-up"></i> Upgrade to ' + plan.short_name + '</button>';
+                }
+                plansHtml += '</div>';
+
+                plansHtml += '</div>'; // end plan-card
+            });
+
+            plansHtml += '</div></div>'; // end plans-grid and container
+
+            Swal.fire({
+                title: '<i class="fa fa-rocket" style="color: #2563eb;"></i> Choose Your Plan',
+                html: plansHtml,
+                width: '90%',
+                maxWidth: '950px',
                 showCancelButton: true,
-                confirmButtonColor: '#27ae60',
+                showConfirmButton: false,
+                cancelButtonText: 'Cancel',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-arrow-up"></i> View Plans & Upgrade',
-                cancelButtonText: 'Not Now'
-            }).then(function(result) {
-                if (result.isConfirmed) {
-                    // Redirect to subscription page for plan selection
-                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
+                customClass: {
+                    popup: 'plans-modal-popup'
+                },
+                didOpen: function() {
+                    // Add click handlers for plan buttons
+                    document.querySelectorAll('.plan-select-btn:not([disabled])').forEach(function(btn) {
+                        btn.addEventListener('click', function() {
+                            var stripeProduct = this.getAttribute('data-stripe-product');
+                            var planName = this.getAttribute('data-plan-name');
+                            if (stripeProduct) {
+                                Subscription.upgradeToplan(stripeProduct, planName);
+                            }
+                        });
+
+                        // Hover effects
+                        btn.addEventListener('mouseenter', function() {
+                            this.style.transform = 'translateY(-2px)';
+                            this.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.3)';
+                        });
+                        btn.addEventListener('mouseleave', function() {
+                            this.style.transform = 'translateY(0)';
+                            this.style.boxShadow = 'none';
+                        });
+                    });
                 }
             });
+        },
+
+        /**
+         * Upgrade to selected plan
+         */
+        upgradeToplan: function(stripeProductId, planName) {
+            Swal.fire({
+                title: 'Processing...',
+                html: '<p>Preparing checkout for ' + planName + '...</p>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            var returnUrl = window.location.href;
+
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_create_product_portal_session',
+                args: {
+                    product_id: stripeProductId,
+                    return_url: returnUrl,
+                    sesskey: M.cfg.sesskey
+                },
+                done: function(response) {
+                    if (response && response.success && response.portal_url) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Redirecting...',
+                            html: '<p>Opening checkout in a new window...</p>',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+
+                        setTimeout(function() {
+                            var newWindow = window.open(response.portal_url, '_blank');
+                            if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Popup Blocked',
+                                    html: '<p>Please allow popups for this site.</p>' +
+                                          '<p><a href="' + response.portal_url + '" target="_blank" class="btn btn-primary">Open Checkout</a></p>',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        }, 1000);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Checkout Error',
+                            text: (response && response.message) || 'Failed to create checkout session. Please try again.',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    }
+                },
+                fail: function(error) {
+                    console.error('[Subscription] Checkout failed:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        text: 'Failed to create checkout session. Please try again.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            }]);
         },
 
         /**
