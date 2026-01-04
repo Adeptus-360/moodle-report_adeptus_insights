@@ -8,7 +8,7 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 $PAGE->set_url(new moodle_url('/report/adeptus_insights/assistant.php'));
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
-// $PAGE->set_heading(get_string('assistanttitle', 'report_adeptus_insights'));
+$PAGE->set_pagelayout('report');
 
 // Check authentication using the new token-based system
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
