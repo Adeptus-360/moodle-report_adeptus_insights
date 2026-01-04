@@ -19,7 +19,8 @@ Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading ano
 <link rel="stylesheet" href="{{config.wwwroot}}/report/adeptus_insights/styles/assistant.css">
 
 {{#js}}
-require(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'report_adeptus_insights/assistant'], function($, Ajax, Notification, Chart, Templates, Assistant) {
+require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_adeptus_insights/assistant'], function($, Ajax, Notification, Templates, Assistant) {
+// Note: Chart.js is loaded by assistant.js directly (not core/chartjs) to avoid Moodle reactive component conflicts
 // Clear any existing AMD cache for our module
 require.undef('report_adeptus_insights/assistant');
 // Initialize the assistant

@@ -1,9 +1,11 @@
-/* Header Section - Full Width Banner */
+/* Header Section - Rounded Card Banner (matches Wizard/Generated Reports style) */
 .assistant-header {
-    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
     color: white;
-    padding: 40px 30px;
-    margin: -1rem -1rem 30px -1rem; /* Negative margins to break out of container */
+    padding: 30px;
+    border-radius: 0.75rem;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -11,14 +13,20 @@
     overflow: hidden;
 }
 
-/* Full width override for different Moodle themes */
-#page-content .assistant-header,
-#region-main .assistant-header,
-.pagelayout-report .assistant-header {
-    margin-left: calc(-50vw + 50%);
-    margin-right: calc(-50vw + 50%);
-    padding-left: calc(50vw - 50% + 30px);
-    padding-right: calc(50vw - 50% + 30px);
+.assistant-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 100%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    animation: headerFloat 20s linear infinite;
+}
+
+@keyframes headerFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
 }
 
 .assistant-header-content {
@@ -27,21 +35,42 @@
 
 .assistant-header-actions {
     z-index: 1;
+    display: flex;
+    gap: 10px;
 }
 
 .assistant-header-actions .btn-light {
-    background: rgba(255, 255, 255, 0.9);
+    background: white;
+    color: #0f6cbf;
     border: none;
+    font-weight: 500;
     padding: 10px 20px;
     border-radius: 8px;
-    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .assistant-header-actions .btn-light:hover {
-    background: white;
+    background: #f8f9fa;
+    color: #0a5299;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .assistant-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .assistant-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .assistant-header-actions .btn {
+        width: 100%;
+    }
 }
 /* 
 .assistant-header::before {
