@@ -617,7 +617,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         'background: white; color: #374151; font-weight: 600; font-size: 14px; cursor: default;">' +
                         'Free Plan</button>';
                 } else {
-                    html += '<button class="plan-select-btn" data-stripe-product="' + (plan.stripe_product_id || '') + '" ' +
+                    html += '<button class="plan-select-btn" data-plan-id="' + (plan.id || '') + '" ' +
                         'data-plan-name="' + plan.short_name + '" style="' +
                         'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
                         'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
@@ -678,10 +678,11 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             document.querySelectorAll('.plan-select-btn:not([disabled])').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var planName = this.getAttribute('data-plan-name');
-                    console.log('[Subscription] Plan button clicked:', {planName: planName});
+                    var planId = this.getAttribute('data-plan-id');
+                    console.log('[Subscription] Plan button clicked:', {planName: planName, planId: planId});
 
-                    // Open billing portal for upgrade - it shows plan options there
-                    Subscription.openBillingPortalForUpgrade(planName);
+                    // Open billing portal for upgrade - pass plan_id for customer creation
+                    Subscription.openBillingPortalForUpgrade(planName, planId);
                 });
 
                 // Hover effects
@@ -700,7 +701,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Open billing portal for upgrade
          * Uses the same approach as Step 2 - opens billing portal where user can select plan
          */
-        openBillingPortalForUpgrade: function(planName) {
+        openBillingPortalForUpgrade: function(planName, planId) {
             Swal.fire({
                 title: 'Opening Billing Portal...',
                 html: '<p>Preparing upgrade to ' + planName + '...</p>',
@@ -712,13 +713,19 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             });
 
             var returnUrl = window.location.href;
+            var args = {
+                return_url: returnUrl,
+                sesskey: M.cfg.sesskey
+            };
+
+            // Pass plan_id if available (needed for customer creation)
+            if (planId) {
+                args.plan_id = planId;
+            }
 
             Ajax.call([{
                 methodname: 'report_adeptus_insights_create_billing_portal_session',
-                args: {
-                    return_url: returnUrl,
-                    sesskey: M.cfg.sesskey
-                },
+                args: args,
                 done: function(response) {
                     if (response && response.success && response.portal_url) {
                         Swal.fire({

@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010321; // YYYYMMDDXX - Use billing portal for upgrades (no stripe_product_id needed)
+$plugin->version   = 2026010322; // YYYYMMDDXX - Add create_customer flag for Free plan users
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.51';
+$plugin->release   = '1.1.52';

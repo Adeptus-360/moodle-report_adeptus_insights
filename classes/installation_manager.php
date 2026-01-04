@@ -1313,19 +1313,27 @@ class installation_manager {
     public function create_billing_portal_session($return_url = null, $plan_id = null, $action = null) {
         try {
             debugging('Creating billing portal session for upgrade');
-            
+
             $data = [
                 'return_url' => $return_url ?: $this->get_site_url()
             ];
-            
+
             if ($plan_id) {
                 $data['plan_id'] = $plan_id;
             }
-            
+
             if ($action) {
                 $data['action'] = $action;
             }
-            
+
+            // Check if user has a Stripe customer - if not, request customer creation
+            $subscription = $this->get_subscription_details();
+            $stripe_customer_id = $subscription['stripe_customer_id'] ?? null;
+            if (!$stripe_customer_id) {
+                debugging('No Stripe customer found, requesting customer creation');
+                $data['create_customer'] = true;
+            }
+
             $response = $this->make_api_request('subscription/billing-portal', $data);
             
             // Log to file for debugging
