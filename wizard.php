@@ -27,7 +27,7 @@ if (!$auth_status['user_authorized'] || !$auth_status['has_api_key']) {
 $PAGE->set_url('/report/adeptus_insights/wizard.php');
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title('Report Wizard');
-$PAGE->set_pagelayout('standard');
+$PAGE->set_pagelayout('report');
 
 // Load plugin version for cache busting
 $plugin = new stdClass();
