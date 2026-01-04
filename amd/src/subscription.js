@@ -17,8 +17,98 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Initialize event handlers
             this.initEventHandlers();
 
+            // Check for checkout success in URL
+            this.checkForCheckoutSuccess();
+
             // Initialize subscription display
             this.updateSubscriptionDisplay();
+        },
+
+        /**
+         * Check if returning from Stripe Checkout and verify the session
+         */
+        checkForCheckoutSuccess: function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var checkoutStatus = urlParams.get('checkout');
+            var sessionId = urlParams.get('session_id');
+
+            if (checkoutStatus === 'success' && sessionId) {
+                console.log('[Subscription] Checkout success detected, verifying session:', sessionId);
+
+                // Show loading
+                Swal.fire({
+                    title: 'Verifying Payment...',
+                    html: '<p>Please wait while we confirm your subscription upgrade.</p>',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: function() {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Call verification endpoint
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_verify_checkout_session',
+                    args: {
+                        session_id: sessionId,
+                        sesskey: M.cfg.sesskey
+                    },
+                    done: function(response) {
+                        console.log('[Subscription] Verification response:', response);
+
+                        if (response && response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Upgrade Successful!',
+                                html: '<p>Your subscription has been upgraded to <strong>' +
+                                      (response.plan_name || 'Pro') + '</strong>.</p>' +
+                                      '<p>Your new features are now available.</p>',
+                                confirmButtonColor: '#2563eb',
+                                confirmButtonText: 'Continue'
+                            }).then(function() {
+                                // Clean URL and refresh to show new plan
+                                var cleanUrl = window.location.href.split('?')[0];
+                                window.location.href = cleanUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Verification Issue',
+                                html: '<p>' + (response.message || 'Could not verify payment.') + '</p>' +
+                                      '<p>If you completed payment, your subscription will be updated shortly.</p>',
+                                confirmButtonColor: '#2563eb'
+                            });
+                        }
+                    },
+                    fail: function(error) {
+                        console.error('[Subscription] Verification failed:', error);
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Processing Payment',
+                            html: '<p>Your payment is being processed.</p>' +
+                                  '<p>Your subscription will be updated within a few minutes.</p>',
+                            confirmButtonColor: '#2563eb'
+                        });
+                    }
+                }]);
+
+                // Clean URL to remove checkout params (without refresh)
+                var cleanUrl = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, cleanUrl);
+
+            } else if (checkoutStatus === 'cancelled') {
+                console.log('[Subscription] Checkout was cancelled');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Checkout Cancelled',
+                    text: 'Your checkout was cancelled. No charges were made.',
+                    confirmButtonColor: '#2563eb'
+                });
+
+                // Clean URL
+                var cancelUrl = window.location.href.split('?')[0];
+                window.history.replaceState({}, document.title, cancelUrl);
+            }
         },
 
         /**

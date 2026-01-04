@@ -1431,6 +1431,63 @@ class installation_manager {
     }
 
     /**
+     * Verify a completed checkout session and update subscription
+     *
+     * @param string $session_id Stripe checkout session ID
+     * @return array Response with subscription details on success
+     */
+    public function verify_checkout_session($session_id) {
+        try {
+            debugging('Verifying checkout session: ' . $session_id);
+
+            $response = $this->make_api_request('subscription/verify-checkout', [
+                'session_id' => $session_id
+            ]);
+
+            error_log('[VERIFY_CHECKOUT] Response: ' . json_encode($response));
+
+            if ($response && isset($response['success']) && $response['success']) {
+                debugging('Checkout verified successfully, tier: ' . ($response['data']['tier'] ?? 'unknown'));
+
+                // Clear local subscription cache to fetch fresh data
+                $this->clear_subscription_cache();
+
+                return [
+                    'success' => true,
+                    'subscription_id' => $response['data']['subscription_id'] ?? null,
+                    'tier' => $response['data']['tier'] ?? 'pro',
+                    'status' => $response['data']['status'] ?? 'active',
+                    'plan_name' => $response['data']['plan_name'] ?? 'Pro'
+                ];
+            } else {
+                $error_code = $response['error']['code'] ?? '';
+                $error_message = $response['error']['message'] ?? ($response['message'] ?? 'Failed to verify checkout');
+
+                return [
+                    'success' => false,
+                    'error_code' => $error_code,
+                    'message' => $error_message
+                ];
+            }
+
+        } catch (\Exception $e) {
+            debugging('Failed to verify checkout session: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Failed to verify checkout session: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Clear local subscription cache
+     */
+    public function clear_subscription_cache() {
+        $cache = \cache::make('report_adeptus_insights', 'subscription_data');
+        $cache->delete('subscription_details');
+    }
+
+    /**
      * Create billing portal session for specific product upgrade/downgrade
      */
     public function create_product_portal_session($product_id, $return_url) {

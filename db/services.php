@@ -108,6 +108,15 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view'
     ],
+    'report_adeptus_insights_verify_checkout_session' => [
+        'classname'   => 'report_adeptus_insights\external',
+        'methodname'  => 'verify_checkout_session',
+        'classpath'   => '',
+        'description' => 'Verify completed Stripe checkout and update subscription',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view'
+    ],
 
 ];
 
@@ -126,7 +135,8 @@ $services = [
             'report_adeptus_insights_register_installation',
             'report_adeptus_insights_cancel_subscription',
             'report_adeptus_insights_activate_free_plan',
-            'report_adeptus_insights_create_checkout_session'
+            'report_adeptus_insights_create_checkout_session',
+            'report_adeptus_insights_verify_checkout_session'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

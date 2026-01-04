@@ -806,6 +806,65 @@ class external extends \external_api {
     }
 
     /**
+     * Verify Stripe Checkout session and update subscription
+     */
+    public static function verify_checkout_session_parameters() {
+        return new \external_function_parameters([
+            'session_id' => new \external_value(PARAM_TEXT, 'Stripe checkout session ID'),
+            'sesskey' => new \external_value(PARAM_TEXT, 'Session key for security'),
+        ]);
+    }
+
+    public static function verify_checkout_session_returns() {
+        return new \external_single_structure([
+            'success' => new \external_value(PARAM_BOOL, 'Whether the verification was successful'),
+            'tier' => new \external_value(PARAM_TEXT, 'Subscription tier after upgrade', VALUE_OPTIONAL),
+            'plan_name' => new \external_value(PARAM_TEXT, 'Plan name', VALUE_OPTIONAL),
+            'message' => new \external_value(PARAM_TEXT, 'Response message', VALUE_OPTIONAL),
+            'error_code' => new \external_value(PARAM_TEXT, 'Error code for specific handling', VALUE_OPTIONAL),
+        ]);
+    }
+
+    public static function verify_checkout_session($session_id, $sesskey) {
+        global $USER;
+
+        // Validate session key
+        if (!confirm_sesskey($sesskey)) {
+            return ['success' => false, 'message' => 'Invalid session key'];
+        }
+
+        // Check user capabilities
+        $context = \context_system::instance();
+        if (!has_capability('report/adeptus_insights:view', $context)) {
+            return ['success' => false, 'message' => 'Insufficient permissions'];
+        }
+
+        try {
+            $installation_manager = new \report_adeptus_insights\installation_manager();
+            $result = $installation_manager->verify_checkout_session($session_id);
+
+            if ($result['success']) {
+                return [
+                    'success' => true,
+                    'tier' => $result['tier'] ?? 'pro',
+                    'plan_name' => $result['plan_name'] ?? 'Pro'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => $result['message'],
+                    'error_code' => $result['error_code'] ?? null
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error verifying checkout: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Call the Laravel backend
      * @param string $message The message to send
      * @return array The response from the backend
