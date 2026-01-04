@@ -679,8 +679,19 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 btn.addEventListener('click', function() {
                     var stripeProduct = this.getAttribute('data-stripe-product');
                     var planName = this.getAttribute('data-plan-name');
-                    if (stripeProduct) {
+                    console.log('[Subscription] Plan button clicked:', {planName: planName, stripeProduct: stripeProduct});
+
+                    if (stripeProduct && stripeProduct.trim() !== '') {
                         Subscription.upgradeToplan(stripeProduct, planName);
+                    } else {
+                        console.error('[Subscription] No stripe_product_id for plan:', planName);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Configuration Error',
+                            html: '<p>This plan is not yet configured for checkout.</p>' +
+                                  '<p class="text-muted"><small>stripe_product_id is missing for ' + planName + '</small></p>',
+                            confirmButtonColor: '#3085d6'
+                        });
                     }
                 });
 

@@ -34,6 +34,9 @@ try {
     // Get available plans from backend
     $available_plans = $installation_manager->get_available_plans();
 
+    // Debug: Log raw API response
+    error_log('[get_available_plans] Raw API response: ' . json_encode($available_plans));
+
     if (!$available_plans || !isset($available_plans['success']) || !$available_plans['success']) {
         echo json_encode([
             'success' => false,
@@ -131,6 +134,11 @@ try {
                 'stripe_product_id' => $plan['stripe_product_id'] ?? null,
                 'stripe_configured' => $plan['stripe_configured'] ?? false,
             ];
+
+            // Debug: Log stripe_product_id for each plan
+            error_log('[get_available_plans] Plan: ' . ($plan['name'] ?? 'unknown') .
+                      ', tier: ' . $tier .
+                      ', stripe_product_id: ' . ($plan['stripe_product_id'] ?? 'NULL'));
 
             // Organize by billing interval
             if ($billing_interval === 'yearly' || $billing_interval === 'annual') {
