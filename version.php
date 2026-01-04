@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010311; // YYYYMMDDXX - Improve Usage modal styling, fix duplicate subscription bar
+$plugin->version   = 2026010312; // YYYYMMDDXX - Fix Usage modal card height and horizontal scroll
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.41';
+$plugin->release   = '1.1.42';

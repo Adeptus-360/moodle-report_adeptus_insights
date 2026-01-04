@@ -185,6 +185,7 @@
 /* Usage Modal Styling */
 .usage-modal-popup {
     padding: 20px !important;
+    max-width: 95vw !important;
 }
 
 .usage-modal-popup .swal2-title {
@@ -195,24 +196,58 @@
     display: none !important;
 }
 
+.usage-modal-popup .swal2-html-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
 .usage-modal-container {
     margin: 0 !important;
     padding: 0 !important;
 }
 
-/* Make table section responsive - no fixed heights */
-.detailed-usage-modal .table-responsive {
-    max-height: 400px;
-    overflow-y: auto;
+/* Fix horizontal scroll - constrain modal content */
+.detailed-usage-modal {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+/* Override page's .card-body height for modal */
+.detailed-usage-modal .card-body {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
 }
 
 .detailed-usage-modal .card-body.p-0 {
     padding: 0 !important;
+    height: auto !important;
+}
+
+/* Make table section responsive */
+.detailed-usage-modal .table-responsive {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Fix row overflow */
+.detailed-usage-modal .row {
+    margin-left: 0;
+    margin-right: 0;
+    overflow: hidden;
+}
+
+.detailed-usage-modal .row.g-2 {
+    --bs-gutter-x: 0.5rem;
 }
 
 /* Ensure cards have equal height */
 .detailed-usage-modal .row.g-2 .col-md-3 {
     display: flex;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
 }
 
 .detailed-usage-modal .row.g-2 .card {
