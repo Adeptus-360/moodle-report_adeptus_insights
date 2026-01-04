@@ -15,7 +15,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (this._initCalled) return;
             this._initCalled = true;
             this.currentChatId = 0;
-            $('.container-fluid').hide();
+
+            // Get the specific AI Assistant container (sibling of .assistant-header)
+            const getAssistantContainer = () => $('.assistant-header').siblings('.container-fluid').first();
+            getAssistantContainer().hide();
 
             // Initialize loader CSS styles on startup
             this.initializeLoaderStyles();
@@ -30,11 +33,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     this.loadChatHistory();
                     this.loadReportsHistory();
                     this.loadCategories(); // Load report categories for save dialog
-                    $('.container-fluid').fadeIn(200);
+                    getAssistantContainer().fadeIn(200);
                 } else {
                     // Try to refresh authentication
                     AuthUtils.refreshAuthStatus();
-                    
+
                     // Check authentication status after refresh
                     setTimeout(() => {
                         if (AuthUtils.isAuthenticated()) {
@@ -44,7 +47,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             this.loadChatHistory();
                             this.loadReportsHistory();
                             this.loadCategories(); // Load report categories for save dialog
-                            $('.container-fluid').fadeIn(200);
+                            getAssistantContainer().fadeIn(200);
                         } else {
                             // Show read-only mode or error message
                             this.showAuthenticationError();
@@ -55,7 +58,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 console.error('[AI Assistant] Failed to initialize authentication:', error);
                 // Fallback to basic initialization
                 this.setupEventListeners();
-                $('.container-fluid').fadeIn(200);
+                getAssistantContainer().fadeIn(200);
             }
         },
 
@@ -111,14 +114,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         showAuthenticationError: function() {
-            // Show authentication error message
-            $('.container-fluid').html(`
+            // Show authentication error message in the AI Assistant container
+            const assistantContainer = $('.assistant-header').siblings('.container-fluid').first();
+            assistantContainer.html(`
                 <div class="alert alert-danger">
                     <h4>Authentication Required</h4>
                     <p>You need to be authenticated to use the AI Assistant. Please contact your administrator for assistance.</p>
                     <button class="btn btn-primary" onclick="location.reload()">Refresh Page</button>
                 </div>
-            `);
+            `).show();
         },
 
         setupEventListeners: function () {
@@ -995,72 +999,63 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Create the comprehensive modal HTML with optimized styling
             const modalHtml = `
                 <div class="detailed-usage-modal" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-                    <!-- Compact Header -->
-                    <div class="usage-header mb-3 assistant-header" style="padding: 16px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <!-- Header with close button -->
+                    <div class="usage-modal-header mb-3" style="background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%); padding: 16px 20px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0" style="color: white; font-weight: 600;">
-                            <i class="fas fa-chart-line me-2"></i> Token Usage Dashboard
+                                <i class="fas fa-chart-line me-2"></i> Token Usage Dashboard
                             </h5>
+                            <button type="button" class="usage-modal-close-btn" onclick="Swal.close()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+                                <i class="fas fa-times" style="font-size: 14px;"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Compact Summary Cards -->
-                    <div class="row mb-3 g-2" style="height: 109px;">
-                        <div class="col-md-3" style="height: 109px;">
-                            <div class="card border-0" style="height: 109px;background:linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);">
-                                <div class="card-body text-center p-3">
+                    <!-- Summary Cards with proper spacing -->
+                    <div class="row mb-3 g-2">
+                        <div class="col-md-3">
+                            <div class="card border-0 h-100" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);">
+                                <div class="card-body text-center" style="padding: 16px 12px;">
+                                    <h6 class="card-title mb-2" style="font-weight: 600; opacity: 0.9; font-size: 0.85rem;">Monthly Usage</h6>
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Monthly Usage</h6>
-                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-chart-pie fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${usagePercent}%</h4>
-                                            </div>
-                                        </div>
+                                        <i class="fas fa-chart-pie me-2" style="opacity: 0.8; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 700; font-size: 1.5rem;">${usagePercent}%</span>
                                     </div>
                                     <small style="opacity: 0.8; font-size: 0.75rem;">${formatTokens(summary.total_tokens_used)} / ${limitDisplay}</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3" style="height: 109px;">
-                            <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);">
-                                <div class="card-body text-center p-3">
+                        <div class="col-md-3">
+                            <div class="card border-0 h-100" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(17, 153, 142, 0.2);">
+                                <div class="card-body text-center" style="padding: 16px 12px;">
+                                    <h6 class="card-title mb-2" style="font-weight: 600; opacity: 0.9; font-size: 0.85rem;">Tokens Used</h6>
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Tokens Used</h6>
-                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-code fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.total_tokens_used)}</h4>
-                                            </div>
-                                        </div>
+                                        <i class="fas fa-code me-2" style="opacity: 0.8; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.total_tokens_used)}</span>
                                     </div>
                                     <small style="opacity: 0.8; font-size: 0.75rem;">This Billing Period</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3" style="height: 109px;">
-                            <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);">
-                                <div class="card-body text-center p-3">
+                        <div class="col-md-3">
+                            <div class="card border-0 h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);">
+                                <div class="card-body text-center" style="padding: 16px 12px;">
+                                    <h6 class="card-title mb-2" style="font-weight: 600; opacity: 0.9; font-size: 0.85rem;">Total Requests</h6>
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        <div>
-                                             <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Total Requests</h6>
-                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-paper-plane fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${summary.total_requests}</h4>
-                                            </div>
-                                        </div>
+                                        <i class="fas fa-paper-plane me-2" style="opacity: 0.8; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 700; font-size: 1.5rem;">${summary.total_requests}</span>
                                     </div>
                                     <small style="opacity: 0.8; font-size: 0.75rem;">Messages Processed</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3" style="height: 109px;">
-                            <div class="card border-0" style="height: 109px;background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);">
-                                <div class="card-body text-center p-3">
+                        <div class="col-md-3">
+                            <div class="card border-0 h-100" style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%); color: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);">
+                                <div class="card-body text-center" style="padding: 16px 12px;">
+                                    <h6 class="card-title mb-2" style="font-weight: 600; opacity: 0.9; font-size: 0.85rem;">Today's Tokens</h6>
                                     <div class="d-flex align-items-center justify-content-center mb-2">
-                                        <div>
-                                            <h6 class="card-title mb-0 small" style="font-weight: 600; opacity: 0.9;">Today's Tokens</h6>
-                                            <div class="row" style="display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="fas fa-calendar-day fa-lg me-2" style="opacity: 0.8;"></i>&nbsp;<h4 class="mb-0" style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.today_tokens_used || 0)}</h4>
-                                            </div>
-                                        </div>
+                                        <i class="fas fa-calendar-day me-2" style="opacity: 0.8; font-size: 1.2rem;"></i>
+                                        <span style="font-weight: 700; font-size: 1.5rem;">${formatTokens(summary.today_tokens_used || 0)}</span>
                                     </div>
                                     <small style="opacity: 0.8; font-size: 0.75rem;">Tokens Used Today</small>
                                 </div>
@@ -1142,15 +1137,27 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             `;
 
             Swal.fire({
-                title: 'Detailed Usage Report',
                 html: modalHtml,
                 width: '80%',
-                height: '80%',
                 showConfirmButton: false,
-                showCancelButton: true,
-                cancelButtonText: 'Close',
+                showCancelButton: false,
+                showCloseButton: false,
                 allowOutsideClick: true,
+                customClass: {
+                    popup: 'usage-modal-popup',
+                    htmlContainer: 'usage-modal-container'
+                },
                 didOpen: () => {
+                    // Add hover effect to close button
+                    const closeBtn = document.querySelector('.usage-modal-close-btn');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('mouseenter', () => {
+                            closeBtn.style.background = 'rgba(255,255,255,0.3)';
+                        });
+                        closeBtn.addEventListener('mouseleave', () => {
+                            closeBtn.style.background = 'rgba(255,255,255,0.2)';
+                        });
+                    }
                     this.setupUsageModalEventListeners(data);
                 }
             });
@@ -2424,10 +2431,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Template already has the header banner - no need to create assistantHtml
                 // Insert subscription status bar at the bottom of the page
 
-                // Insert subscription bar at the bottom of container-fluid
-                const containerFluid = $('.container-fluid');
-                if (containerFluid.length) {
-                    containerFluid.append(subscriptionHtml);
+                // Insert subscription bar at the bottom of the AI Assistant container
+                // Use specific selector to avoid duplicates on multiple .container-fluid elements
+                const assistantContainer = $('.assistant-header').siblings('.container-fluid').first();
+                if (assistantContainer.length) {
+                    assistantContainer.append(subscriptionHtml);
                 } else {
                     // Fallback: insert after the template header
                     const templateHeader = $('.assistant-header');
