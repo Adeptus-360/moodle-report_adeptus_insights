@@ -418,8 +418,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 cancelButtonText: 'Not Now'
             }).then(function(result) {
                 if (result.isConfirmed) {
-                    // Redirect to wizard Step 2 (plan selection)
-                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/wizard.php?step=2';
+                    // Redirect to subscription page for plan selection
+                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
                 }
             });
         },
