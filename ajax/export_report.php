@@ -12,8 +12,8 @@ try {
     require_once(__DIR__ . '/../../../config.php');
     file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Config loaded\n", FILE_APPEND);
 
-    require_once($CFG->libdir . '/dataformatlib.php');
-    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Dataformatlib loaded\n", FILE_APPEND);
+    // Note: dataformatlib.php no longer exists in Moodle 4.x+, export functions are defined below
+    file_put_contents('/tmp/export_debug.log', date('Y-m-d H:i:s') . " - Proceeding with export\n", FILE_APPEND);
 
     // Require login and capability
     require_login();

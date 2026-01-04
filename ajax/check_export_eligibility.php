@@ -28,18 +28,21 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
-    
-    // Get subscription status
-    $usage_stats = $installation_manager->get_usage_stats();
-    
+
+    // Get subscription details (contains tier, exports_remaining, etc.)
+    $subscription = $installation_manager->get_subscription_details();
+
     $response = [
         'success' => true,
         'eligible' => true,
         'message' => 'Export allowed'
     ];
-    
+
+    // Determine if user is on free plan
+    $is_free_plan = !$subscription || ($subscription->tier ?? 'free') === 'free';
+
     // Check if user is on free plan
-    if ($usage_stats['is_free_plan']) {
+    if ($is_free_plan) {
         // Free plan users can only export PDF
         if ($format !== 'pdf') {
             $response = [
@@ -48,14 +51,12 @@ try {
                 'message' => 'This export format requires a premium subscription. PDF exports are available on the free plan.'
             ];
         }
-    }
-    
-    // Check export limits for paid users
-    if (!$usage_stats['is_free_plan']) {
-        $exports_used = $usage_stats['exports_used_this_month'] ?? 0;
-        $exports_limit = $usage_stats['plan_exports_limit'] ?? 100;
-        
-        if ($exports_used >= $exports_limit) {
+    } else {
+        // Check export limits for paid users
+        $exports_remaining = $subscription->exports_remaining ?? 50;
+
+        if ($exports_remaining <= 0) {
+            $exports_limit = $subscription->plan_exports ?? 50;
             $response = [
                 'success' => true,
                 'eligible' => false,
@@ -63,7 +64,7 @@ try {
             ];
         }
     }
-    
+
     header('Content-Type: application/json');
     echo json_encode($response);
     
