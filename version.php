@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010301; // YYYYMMDDXX - Renamed plugin, fix duplicate user menu entries
+$plugin->version   = 2026010303; // YYYYMMDDXX - Fix wizard.js config.php 404, Chart.js conflicts, add FontAwesome CDN
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.31';
+$plugin->release   = '1.1.33';

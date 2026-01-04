@@ -45,7 +45,7 @@ class AdeptusWizard {
     }
 
     async loadWizardData() {
-        
+
         // First, try to load data from the template (this is the main source)
         const wizardDataElement = document.getElementById('wizard-data');
         if (wizardDataElement) {
@@ -58,21 +58,13 @@ class AdeptusWizard {
         } else {
             console.warn('Wizard data element not found in template');
         }
-        
-        try {
-            // Load configuration from the plugin config
-            const configResponse = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/config.php`);
-            if (configResponse.ok) {
-                const configText = await configResponse.text();
-                // Parse PHP configuration (basic parsing for key values)
-                this.parseConfig(configText);
-            }
-        } catch (error) {
-            console.warn('Failed to load configuration, using defaults:', error);
-        }
-        
-        // Set default backend API URL if not configured
-        if (!this.backendApiUrl) {
+
+        // Use backend API URL from template data, or fall back to default
+        // Configuration is passed via template data, not fetched from config.php
+        // (config.php cannot be accessed directly due to MOODLE_INTERNAL check)
+        if (this.wizardData.backend_api_url) {
+            this.backendApiUrl = this.wizardData.backend_api_url;
+        } else {
             this.backendApiUrl = 'https://ai-backend.stagingwithswift.com/api';
         }
         
@@ -470,23 +462,12 @@ class AdeptusWizard {
     }
 
     /**
-     * Load Chart.js from Moodle's core AMD system or CDN fallback
+     * Load Chart.js from CDN
+     * Note: We load directly from CDN instead of Moodle's core/chartjs
+     * to avoid conflicts with Moodle's reactive component framework
      */
     async loadChartJS() {
-        try {
-            // Use Moodle's require system to load Chart.js
-            if (typeof require !== 'undefined') {
-                require(['core/chartjs'], (ChartJS) => {
-                    this.chartJS = ChartJS;
-                });
-            } else {
-                console.warn('RequireJS not available, trying CDN fallback');
-                await this.loadChartJSFromCDN();
-            }
-        } catch (error) {
-            console.error('Failed to load Chart.js from Moodle core, trying CDN fallback:', error);
-            await this.loadChartJSFromCDN();
-        }
+        await this.loadChartJSFromCDN();
     }
 
     /**
@@ -517,32 +498,6 @@ class AdeptusWizard {
             };
             document.head.appendChild(script);
         });
-    }
-
-    /**
-     * Parse PHP configuration file to extract key values
-     */
-    parseConfig(configText) {
-        // Simple regex parsing for PHP configuration values
-        const backendUrlMatch = configText.match(/\$CFG->adeptus_backend_api_url\s*=\s*['"]([^'"]+)['"]/);
-        if (backendUrlMatch) {
-            this.backendApiUrl = backendUrlMatch[1];
-        }
-        
-        const backendEnabledMatch = configText.match(/\$CFG->adeptus_wizard_enable_backend_api\s*=\s*(true|false)/);
-        if (backendEnabledMatch) {
-            this.backendEnabled = backendEnabledMatch[1] === 'true';
-        }
-        
-        const fallbackMatch = configText.match(/\$CFG->adeptus_wizard_fallback_to_local\s*=\s*(true|false)/);
-        if (fallbackMatch) {
-            this.fallbackEnabled = fallbackMatch[1] === 'true';
-        }
-        
-        const debugMatch = configText.match(/\$CFG->adeptus_debug_mode\s*=\s*(true|false)/);
-        if (debugMatch) {
-            this.debugMode = debugMatch[1] === 'true';
-        }
     }
 
     bindEvents() {
