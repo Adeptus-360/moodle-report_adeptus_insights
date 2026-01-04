@@ -25,13 +25,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Initialize event handlers
          */
         initEventHandlers: function() {
-            // Handle upgrade plan buttons
-            $(document).on('click', '.btn-upgrade-plan', function(e) {
+            // Handle upgrade plan button - redirects to wizard for plan selection
+            $(document).on('click', '.btn-upgrade-plan, #upgrade-plan', function(e) {
                 e.preventDefault();
-                Subscription.handleUpgradePlan($(this));
+                Subscription.handleUpgradeFromFree();
             });
 
-            // Handle downgrade plan buttons
+            // Handle downgrade plan buttons (for paid plan users via billing portal)
             $(document).on('click', '.btn-downgrade-plan', function(e) {
                 e.preventDefault();
                 Subscription.handleDowngradePlan($(this));
@@ -59,12 +59,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             $(document).on('click', '.btn-view-plans, #view-plans', function(e) {
                 e.preventDefault();
                 Subscription.openBillingPortal();
-            });
-
-            // Handle upgrade plan button (for free plan users)
-            $(document).on('click', '.btn-upgrade-plan, #upgrade-plan', function(e) {
-                e.preventDefault();
-                Subscription.handleUpgradeFromFree();
             });
 
             // Handle select plan button (new subscriptions)
@@ -410,12 +404,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
         /**
          * Handle upgrade from free plan
+         * Redirects to wizard Step 2 where users can select a plan
          */
         handleUpgradeFromFree: function() {
             Swal.fire({
                 icon: 'info',
                 title: 'Upgrade Your Plan',
-                html: '<p>You will be redirected to our billing portal where you can choose a premium plan with more features.</p>',
+                html: '<p>Choose from our available plans to unlock premium features and increase your usage limits.</p>',
                 showCancelButton: true,
                 confirmButtonColor: '#27ae60',
                 cancelButtonColor: '#95a5a6',
@@ -423,7 +418,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 cancelButtonText: 'Not Now'
             }).then(function(result) {
                 if (result.isConfirmed) {
-                    Subscription.createBillingPortalSession(null, 'upgrade');
+                    // Redirect to wizard Step 2 (plan selection)
+                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/wizard.php?step=2';
                 }
             });
         },
