@@ -8,11 +8,25 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../../../config.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
-header('Content-Type: application/json');
+// Set headers early
+@header('Content-Type: application/json; charset=utf-8');
+
+// Disable debugging output that could break JSON
+$CFG->debug = 0;
+$CFG->debugdisplay = 0;
+error_reporting(0);
 
 try {
     require_login();
-    require_sesskey();
+
+    // Validate sesskey
+    if (!confirm_sesskey(optional_param('sesskey', '', PARAM_ALPHANUM))) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Invalid session key'
+        ]);
+        exit;
+    }
 
     $installation_manager = new \report_adeptus_insights\installation_manager();
 
