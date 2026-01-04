@@ -743,12 +743,29 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                             window.location.href = response.portal_url;
                         }, 1000);
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Billing Portal Error',
-                            text: (response && response.message) || 'Failed to open billing portal. Please try again.',
-                            confirmButtonColor: '#3085d6'
-                        });
+                        var errorMessage = (response && response.message) || 'Failed to open billing portal.';
+
+                        // Check for specific error codes and provide helpful messages
+                        if (errorMessage.indexOf('NO_STRIPE_CUSTOMER') !== -1 ||
+                            errorMessage.indexOf('payment_enabled') !== -1 ||
+                            errorMessage.indexOf('Stripe') !== -1) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Upgrade Coming Soon',
+                                html: '<p>Online payments are not yet configured for this installation.</p>' +
+                                      '<p>To upgrade to <strong>' + planName + '</strong>, please contact your administrator or email:</p>' +
+                                      '<p><a href="mailto:support@adeptus360.com?subject=Upgrade%20to%20' + planName + '">support@adeptus360.com</a></p>',
+                                confirmButtonColor: '#2563eb',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Billing Portal Error',
+                                text: errorMessage,
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
                     }
                 },
                 fail: function(error) {
