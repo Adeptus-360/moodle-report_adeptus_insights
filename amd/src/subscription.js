@@ -617,8 +617,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         'background: white; color: #374151; font-weight: 600; font-size: 14px; cursor: default;">' +
                         'Free Plan</button>';
                 } else {
+                    // Include stripe_price_id if available for checkout
+                    var stripePriceId = plan.stripe_price_id || '';
+                    var stripeConfigured = plan.stripe_configured || false;
                     html += '<button class="plan-select-btn" data-plan-id="' + (plan.id || '') + '" ' +
-                        'data-plan-name="' + plan.short_name + '" style="' +
+                        'data-plan-name="' + plan.short_name + '" ' +
+                        'data-stripe-price-id="' + stripePriceId + '" ' +
+                        'data-stripe-configured="' + stripeConfigured + '" style="' +
                         'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
                         'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
                         'font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease;">' +
@@ -679,10 +684,23 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 btn.addEventListener('click', function() {
                     var planName = this.getAttribute('data-plan-name');
                     var planId = this.getAttribute('data-plan-id');
-                    console.log('[Subscription] Plan button clicked:', {planName: planName, planId: planId});
+                    var stripePriceId = this.getAttribute('data-stripe-price-id');
+                    var stripeConfigured = this.getAttribute('data-stripe-configured') === 'true';
 
-                    // Open billing portal for upgrade - pass plan_id for customer creation
-                    Subscription.openBillingPortalForUpgrade(planName, planId);
+                    console.log('[Subscription] Plan button clicked:', {
+                        planName: planName,
+                        planId: planId,
+                        stripePriceId: stripePriceId,
+                        stripeConfigured: stripeConfigured
+                    });
+
+                    // If Stripe is configured for this plan, use checkout session
+                    if (stripeConfigured && stripePriceId) {
+                        Subscription.createCheckoutSession(planId, stripePriceId, planName);
+                    } else {
+                        // Fallback to billing portal or show "coming soon" message
+                        Subscription.openBillingPortalForUpgrade(planName, planId);
+                    }
                 });
 
                 // Hover effects
@@ -774,6 +792,90 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         icon: 'error',
                         title: 'Connection Error',
                         text: 'Failed to open billing portal. Please try again.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                }
+            }]);
+        },
+
+        /**
+         * Create Stripe Checkout session for new subscriptions
+         * @param {string} planId - The plan ID
+         * @param {string} stripePriceId - The Stripe price ID
+         * @param {string} planName - The plan name for display
+         */
+        createCheckoutSession: function(planId, stripePriceId, planName) {
+            Swal.fire({
+                title: 'Preparing Checkout...',
+                html: '<p>Setting up payment for ' + planName + '...</p>',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            var returnUrl = window.location.href;
+            var args = {
+                plan_id: parseInt(planId),
+                stripe_price_id: stripePriceId,
+                return_url: returnUrl,
+                sesskey: M.cfg.sesskey
+            };
+
+            console.log('[Subscription] Creating checkout session with args:', args);
+
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_create_checkout_session',
+                args: args,
+                done: function(response) {
+                    console.log('[Subscription] Checkout session response:', response);
+
+                    if (response && response.success && response.checkout_url) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Redirecting to Checkout...',
+                            html: '<p>You will be redirected to complete your payment.</p>',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            allowOutsideClick: false
+                        });
+
+                        setTimeout(function() {
+                            window.location.href = response.checkout_url;
+                        }, 1000);
+                    } else {
+                        var errorMessage = (response && response.message) || 'Failed to create checkout session.';
+                        var errorCode = (response && response.error_code) || '';
+
+                        // Handle specific error codes
+                        if (errorCode === 'STRIPE_NOT_CONFIGURED') {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Payment Not Available',
+                                html: '<p>Stripe is not yet configured for the <strong>' + planName + '</strong> plan.</p>' +
+                                      '<p>Please contact your administrator or email:</p>' +
+                                      '<p><a href="mailto:support@adeptus360.com?subject=Upgrade%20to%20' + planName + '">support@adeptus360.com</a></p>',
+                                confirmButtonColor: '#2563eb',
+                                confirmButtonText: 'OK'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Checkout Error',
+                                text: errorMessage,
+                                confirmButtonColor: '#3085d6'
+                            });
+                        }
+                    }
+                },
+                fail: function(error) {
+                    console.error('[Subscription] Checkout session failed:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Connection Error',
+                        text: 'Failed to create checkout session. Please try again.',
                         confirmButtonColor: '#3085d6'
                     });
                 }

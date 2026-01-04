@@ -132,13 +132,15 @@ try {
 
                 // Stripe integration
                 'stripe_product_id' => $plan['stripe_product_id'] ?? null,
+                'stripe_price_id' => $plan['stripe_price_id'] ?? null,
                 'stripe_configured' => $plan['stripe_configured'] ?? false,
             ];
 
-            // Debug: Log stripe_product_id for each plan
+            // Debug: Log stripe IDs for each plan
             error_log('[get_available_plans] Plan: ' . ($plan['name'] ?? 'unknown') .
                       ', tier: ' . $tier .
-                      ', stripe_product_id: ' . ($plan['stripe_product_id'] ?? 'NULL'));
+                      ', stripe_configured: ' . ($plan['stripe_configured'] ? 'true' : 'false') .
+                      ', stripe_price_id: ' . ($plan['stripe_price_id'] ?? 'NULL'));
 
             // Organize by billing interval
             if ($billing_interval === 'yearly' || $billing_interval === 'annual') {

@@ -745,6 +745,67 @@ class external extends \external_api {
     }
 
     /**
+     * Create Stripe Checkout session for new subscriptions
+     */
+    public static function create_checkout_session_parameters() {
+        return new \external_function_parameters([
+            'plan_id' => new \external_value(PARAM_INT, 'Plan ID to subscribe to'),
+            'stripe_price_id' => new \external_value(PARAM_TEXT, 'Stripe price ID', VALUE_OPTIONAL),
+            'return_url' => new \external_value(PARAM_URL, 'Return URL after checkout'),
+            'sesskey' => new \external_value(PARAM_TEXT, 'Session key for security'),
+        ]);
+    }
+
+    public static function create_checkout_session_returns() {
+        return new \external_single_structure([
+            'success' => new \external_value(PARAM_BOOL, 'Whether the operation was successful'),
+            'checkout_url' => new \external_value(PARAM_URL, 'URL to redirect user to Stripe Checkout', VALUE_OPTIONAL),
+            'session_id' => new \external_value(PARAM_TEXT, 'Stripe checkout session ID', VALUE_OPTIONAL),
+            'message' => new \external_value(PARAM_TEXT, 'Response message', VALUE_OPTIONAL),
+            'error_code' => new \external_value(PARAM_TEXT, 'Error code for specific handling', VALUE_OPTIONAL),
+        ]);
+    }
+
+    public static function create_checkout_session($plan_id, $stripe_price_id, $return_url, $sesskey) {
+        global $USER;
+
+        // Validate session key
+        if (!confirm_sesskey($sesskey)) {
+            return ['success' => false, 'message' => 'Invalid session key'];
+        }
+
+        // Check user capabilities
+        $context = \context_system::instance();
+        if (!has_capability('report/adeptus_insights:view', $context)) {
+            return ['success' => false, 'message' => 'Insufficient permissions'];
+        }
+
+        try {
+            $installation_manager = new \report_adeptus_insights\installation_manager();
+            $result = $installation_manager->create_checkout_session($plan_id, $stripe_price_id, $return_url);
+
+            if ($result['success']) {
+                return [
+                    'success' => true,
+                    'checkout_url' => $result['checkout_url'],
+                    'session_id' => $result['session_id'] ?? null
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => $result['message'],
+                    'error_code' => $result['error_code'] ?? null
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Error creating checkout session: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Call the Laravel backend
      * @param string $message The message to send
      * @return array The response from the backend

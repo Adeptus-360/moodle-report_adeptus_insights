@@ -1374,7 +1374,62 @@ class installation_manager {
             ];
         }
     }
-    
+
+    /**
+     * Create Stripe Checkout session for new subscriptions
+     *
+     * @param int $plan_id The plan ID to subscribe to
+     * @param string $stripe_price_id Optional Stripe price ID
+     * @param string $return_url URL to return to after checkout
+     * @return array Response with checkout_url on success
+     */
+    public function create_checkout_session($plan_id, $stripe_price_id = null, $return_url = null) {
+        try {
+            debugging('Creating checkout session for plan: ' . $plan_id);
+
+            $data = [
+                'plan_id' => $plan_id,
+                'success_url' => $return_url ?: $this->get_site_url(),
+                'cancel_url' => $return_url ?: $this->get_site_url()
+            ];
+
+            if ($stripe_price_id) {
+                $data['stripe_price_id'] = $stripe_price_id;
+            }
+
+            $response = $this->make_api_request('subscription/checkout', $data);
+
+            error_log('[CHECKOUT] Response: ' . json_encode($response));
+
+            if ($response && isset($response['success']) && $response['success']) {
+                $checkout_url = $response['data']['checkout_url'] ?? null;
+                debugging('Checkout session created, URL: ' . ($checkout_url ?? 'NULL'));
+
+                return [
+                    'success' => true,
+                    'checkout_url' => $checkout_url,
+                    'session_id' => $response['data']['session_id'] ?? null
+                ];
+            } else {
+                $error_code = $response['error']['code'] ?? '';
+                $error_message = $response['error']['message'] ?? ($response['message'] ?? 'Failed to create checkout session');
+
+                return [
+                    'success' => false,
+                    'error_code' => $error_code,
+                    'message' => $error_message
+                ];
+            }
+
+        } catch (\Exception $e) {
+            debugging('Failed to create checkout session: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Failed to create checkout session: ' . $e->getMessage()
+            ];
+        }
+    }
+
     /**
      * Create billing portal session for specific product upgrade/downgrade
      */
