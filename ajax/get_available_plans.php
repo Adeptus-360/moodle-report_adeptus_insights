@@ -54,9 +54,9 @@ try {
 
     if (!empty($available_plans['plans'])) {
         foreach ($available_plans['plans'] as $plan) {
-            // Filter to only show Insights plans
+            // Filter to ONLY show Insights plans (strict match)
             $product_key = $plan['product_key'] ?? '';
-            if ($product_key !== 'insights' && $product_key !== '') {
+            if ($product_key !== 'insights') {
                 continue;
             }
 
