@@ -403,6 +403,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         },
 
         /**
+         * Stored plans data for toggle switching
+         */
+        plansData: null,
+        currentInterval: 'monthly',
+
+        /**
          * Handle upgrade from free plan
          * Shows a modal with available plans
          */
@@ -419,8 +425,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/get_available_plans.php?sesskey=' + M.cfg.sesskey)
                 .then(function(response) { return response.json(); })
                 .then(function(data) {
-                    if (data.success && data.plans && data.plans.length > 0) {
-                        Subscription.showPlansModal(data.plans);
+                    if (data.success && (data.monthly_plans.length > 0 || data.yearly_plans.length > 0)) {
+                        // Store plans data for toggle switching
+                        Subscription.plansData = {
+                            monthly: data.monthly_plans || [],
+                            yearly: data.yearly_plans || []
+                        };
+                        Subscription.currentInterval = 'monthly';
+                        Subscription.showPlansModal(data);
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -442,99 +454,47 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         },
 
         /**
-         * Show plans selection modal
+         * Show plans selection modal with monthly/yearly toggle
          */
-        showPlansModal: function(plans) {
-            var plansHtml = '<div class="plans-modal-container" style="text-align: left;">';
-            plansHtml += '<div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto;">';
+        showPlansModal: function(data) {
+            var hasYearlyPlans = data.has_yearly_plans || false;
+            var maxYearlySavings = data.max_yearly_savings || 0;
 
-            plans.forEach(function(plan) {
-                var cardClass = plan.is_current ? 'current' : (plan.is_popular ? 'popular' : '');
-                var borderColor = plan.is_current ? '#10b981' : (plan.is_popular ? '#2563eb' : '#e5e7eb');
-                var bgColor = plan.is_current ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' : 'white';
+            // Build modal HTML with toggle
+            var modalHtml = '<div class="plans-modal-container" style="text-align: left;">';
 
-                plansHtml += '<div class="plan-card ' + cardClass + '" style="' +
-                    'background: ' + bgColor + '; ' +
-                    'border: 2px solid ' + borderColor + '; ' +
-                    'border-radius: 16px; ' +
-                    'padding: 24px; ' +
-                    'position: relative; ' +
-                    'transition: all 0.3s ease; ' +
-                    'display: flex; ' +
-                    'flex-direction: column;">';
-
-                // Badge
-                if (plan.is_current) {
-                    plansHtml += '<div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); ' +
-                        'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; ' +
-                        'font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Current Plan</div>';
-                } else if (plan.is_popular) {
-                    plansHtml += '<div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); ' +
-                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
-                        'font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Most Popular</div>';
+            // Billing toggle (only if yearly plans exist)
+            if (hasYearlyPlans) {
+                modalHtml += '<div class="billing-toggle-container" style="display: flex; justify-content: center; margin-bottom: 24px;">';
+                modalHtml += '<div class="billing-toggle" style="display: inline-flex; align-items: center; background: #f3f4f6; border-radius: 50px; padding: 6px; gap: 4px;">';
+                modalHtml += '<button type="button" class="billing-toggle-btn active" data-interval="monthly" style="' +
+                    'padding: 10px 24px; border: none; background: white; border-radius: 50px; ' +
+                    'font-weight: 600; font-size: 14px; cursor: pointer; color: #1f2937; ' +
+                    'box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">Monthly</button>';
+                modalHtml += '<button type="button" class="billing-toggle-btn" data-interval="yearly" style="' +
+                    'padding: 10px 24px; border: none; background: transparent; border-radius: 50px; ' +
+                    'font-weight: 600; font-size: 14px; cursor: pointer; color: #6b7280; transition: all 0.3s ease;">' +
+                    'Annual';
+                if (maxYearlySavings > 0) {
+                    modalHtml += '<span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); ' +
+                        'color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; ' +
+                        'margin-left: 6px; text-transform: uppercase;">Save ' + maxYearlySavings + '%</span>';
                 }
+                modalHtml += '</button>';
+                modalHtml += '</div></div>';
+            }
 
-                // Header
-                plansHtml += '<div style="text-align: center; margin-bottom: 16px; padding-top: 8px;">';
-                plansHtml += '<div style="font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 6px;">' + plan.short_name + '</div>';
-                if (plan.description) {
-                    plansHtml += '<div style="color: #6b7280; font-size: 13px; line-height: 1.4;">' + plan.description + '</div>';
-                }
-                plansHtml += '</div>';
+            // Plans grid container
+            modalHtml += '<div id="plans-grid-container">';
+            modalHtml += Subscription.buildPlansGrid(data.monthly_plans || [], 'monthly');
+            modalHtml += '</div>';
 
-                // Price
-                plansHtml += '<div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">';
-                if (plan.is_free) {
-                    plansHtml += '<div style="font-size: 36px; font-weight: 800; color: #10b981;">Free</div>';
-                    plansHtml += '<div style="color: #6b7280; font-size: 13px;">Forever</div>';
-                } else {
-                    plansHtml += '<div style="font-size: 36px; font-weight: 800; color: #1f2937;">' + plan.price_formatted + '</div>';
-                    plansHtml += '<div style="color: #6b7280; font-size: 13px;">per month</div>';
-                }
-                plansHtml += '</div>';
-
-                // Limits
-                plansHtml += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">';
-                plansHtml += '<div style="text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px;">';
-                plansHtml += '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.tokens_limit + '</div>';
-                plansHtml += '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">AI Tokens</div></div>';
-                plansHtml += '<div style="text-align: center; padding: 10px; background: #f9fafb; border-radius: 8px;">';
-                plansHtml += '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.exports_limit + '</div>';
-                plansHtml += '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase;">Exports/mo</div></div>';
-                plansHtml += '</div>';
-
-                // Action button
-                plansHtml += '<div style="margin-top: auto;">';
-                if (plan.is_current) {
-                    plansHtml += '<button class="plan-select-btn" disabled style="' +
-                        'width: 100%; padding: 12px; border: none; border-radius: 8px; ' +
-                        'background: #e5e7eb; color: #6b7280; font-weight: 600; cursor: default;">' +
-                        '<i class="fa fa-check-circle"></i> Current Plan</button>';
-                } else if (plan.is_free) {
-                    plansHtml += '<button class="plan-select-btn" disabled style="' +
-                        'width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; ' +
-                        'background: white; color: #6b7280; font-weight: 600; cursor: default;">' +
-                        'Free Plan</button>';
-                } else {
-                    plansHtml += '<button class="plan-select-btn" data-stripe-product="' + plan.stripe_product_id + '" ' +
-                        'data-plan-name="' + plan.short_name + '" style="' +
-                        'width: 100%; padding: 12px; border: none; border-radius: 8px; ' +
-                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
-                        'font-weight: 600; cursor: pointer; transition: all 0.3s ease;">' +
-                        '<i class="fa fa-arrow-up"></i> Upgrade to ' + plan.short_name + '</button>';
-                }
-                plansHtml += '</div>';
-
-                plansHtml += '</div>'; // end plan-card
-            });
-
-            plansHtml += '</div></div>'; // end plans-grid and container
+            modalHtml += '</div>';
 
             Swal.fire({
                 title: '<i class="fa fa-rocket" style="color: #2563eb;"></i> Choose Your Plan',
-                html: plansHtml,
-                width: '90%',
-                maxWidth: '950px',
+                html: modalHtml,
+                width: '95%',
                 showCancelButton: true,
                 showConfirmButton: false,
                 cancelButtonText: 'Cancel',
@@ -543,27 +503,196 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     popup: 'plans-modal-popup'
                 },
                 didOpen: function() {
-                    // Add click handlers for plan buttons
-                    document.querySelectorAll('.plan-select-btn:not([disabled])').forEach(function(btn) {
-                        btn.addEventListener('click', function() {
-                            var stripeProduct = this.getAttribute('data-stripe-product');
-                            var planName = this.getAttribute('data-plan-name');
-                            if (stripeProduct) {
-                                Subscription.upgradeToplan(stripeProduct, planName);
-                            }
-                        });
-
-                        // Hover effects
-                        btn.addEventListener('mouseenter', function() {
-                            this.style.transform = 'translateY(-2px)';
-                            this.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.3)';
-                        });
-                        btn.addEventListener('mouseleave', function() {
-                            this.style.transform = 'translateY(0)';
-                            this.style.boxShadow = 'none';
-                        });
-                    });
+                    Subscription.initPlansModalHandlers();
                 }
+            });
+        },
+
+        /**
+         * Build plans grid HTML
+         */
+        buildPlansGrid: function(plans, interval) {
+            if (!plans || plans.length === 0) {
+                return '<div style="text-align: center; padding: 40px; color: #6b7280;">' +
+                    '<i class="fa fa-calendar-times-o fa-2x" style="margin-bottom: 10px;"></i>' +
+                    '<p>Annual plans coming soon!</p></div>';
+            }
+
+            var html = '<div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto;">';
+
+            plans.forEach(function(plan) {
+                var borderColor = plan.is_current ? '#10b981' : (plan.is_popular ? '#2563eb' : '#e5e7eb');
+                var bgColor = plan.is_current ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' : 'white';
+
+                html += '<div class="plan-card" style="' +
+                    'background: ' + bgColor + '; ' +
+                    'border: 2px solid ' + borderColor + '; ' +
+                    'border-radius: 16px; ' +
+                    'padding: 28px 24px; ' +
+                    'position: relative; ' +
+                    'transition: all 0.3s ease; ' +
+                    'display: flex; ' +
+                    'flex-direction: column;">';
+
+                // Badge
+                if (plan.is_current) {
+                    html += '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); ' +
+                        'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; ' +
+                        'font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px; ' +
+                        'text-transform: uppercase; letter-spacing: 0.5px;">Current Plan</div>';
+                } else if (plan.is_popular) {
+                    html += '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); ' +
+                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
+                        'font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px; ' +
+                        'text-transform: uppercase; letter-spacing: 0.5px;">Most Popular</div>';
+                }
+
+                // Header
+                html += '<div style="text-align: center; margin-bottom: 20px; padding-top: 8px;">';
+                html += '<div style="font-size: 22px; font-weight: 700; color: #1f2937; margin-bottom: 8px;">' +
+                    plan.short_name + '</div>';
+                if (plan.description) {
+                    html += '<div style="color: #6b7280; font-size: 13px; line-height: 1.5;">' +
+                        plan.description + '</div>';
+                }
+                html += '</div>';
+
+                // Price
+                html += '<div style="text-align: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e5e7eb;">';
+                if (plan.is_free) {
+                    html += '<div style="font-size: 42px; font-weight: 800; color: #10b981;">Free</div>';
+                    html += '<div style="color: #6b7280; font-size: 13px;">Forever</div>';
+                } else {
+                    html += '<div style="font-size: 42px; font-weight: 800; color: #1f2937;">' +
+                        plan.price_formatted + '</div>';
+                    var periodText = interval === 'yearly' ? 'per year' : 'per month';
+                    html += '<div style="color: #6b7280; font-size: 13px;">' + periodText + '</div>';
+                    if (plan.has_savings) {
+                        html += '<div style="margin-top: 6px;"><span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); ' +
+                            'color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;">' +
+                            'Save ' + plan.savings_percent + '%</span></div>';
+                    }
+                }
+                html += '</div>';
+
+                // Limits - 4 items in 2x2 grid
+                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">';
+                html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
+                    '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.tokens_limit + '</div>' +
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">AI Tokens</div></div>';
+                html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
+                    '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.exports_limit + '</div>' +
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Exports/mo</div></div>';
+                html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
+                    '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.reports_limit + '</div>' +
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Saved Reports</div></div>';
+                html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
+                    '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.export_formats + '</div>' +
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Formats</div></div>';
+                html += '</div>';
+
+                // Features list
+                if (plan.features && plan.features.length > 0) {
+                    html += '<div style="flex: 1; margin-bottom: 20px;">';
+                    html += '<ul style="list-style: none; padding: 0; margin: 0;">';
+                    plan.features.forEach(function(feature) {
+                        html += '<li style="display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; ' +
+                            'color: #374151; font-size: 13px; line-height: 1.4;">' +
+                            '<i class="fa fa-check" style="color: #10b981; font-size: 12px; margin-top: 3px; flex-shrink: 0;"></i> ' +
+                            feature + '</li>';
+                    });
+                    html += '</ul></div>';
+                }
+
+                // Action button
+                html += '<div style="margin-top: auto;">';
+                if (plan.is_current) {
+                    html += '<button class="plan-select-btn" disabled style="' +
+                        'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
+                        'background: #e5e7eb; color: #6b7280; font-weight: 600; font-size: 14px; cursor: default;">' +
+                        '<i class="fa fa-check-circle"></i> Current Plan</button>';
+                } else if (plan.is_free) {
+                    html += '<button class="plan-select-btn" disabled style="' +
+                        'display: block; width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; ' +
+                        'background: white; color: #374151; font-weight: 600; font-size: 14px; cursor: default;">' +
+                        'Free Plan</button>';
+                } else {
+                    html += '<button class="plan-select-btn" data-stripe-product="' + (plan.stripe_product_id || '') + '" ' +
+                        'data-plan-name="' + plan.short_name + '" style="' +
+                        'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
+                        'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
+                        'font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease;">' +
+                        '<i class="fa fa-arrow-up"></i> Upgrade to ' + plan.short_name + '</button>';
+                }
+                html += '</div>';
+
+                html += '</div>'; // end plan-card
+            });
+
+            html += '</div>'; // end plans-grid
+            return html;
+        },
+
+        /**
+         * Initialize plans modal event handlers
+         */
+        initPlansModalHandlers: function() {
+            // Billing toggle handler
+            document.querySelectorAll('.billing-toggle-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var interval = this.getAttribute('data-interval');
+                    if (interval === Subscription.currentInterval) return;
+
+                    // Update toggle UI
+                    document.querySelectorAll('.billing-toggle-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                        b.style.background = 'transparent';
+                        b.style.color = '#6b7280';
+                        b.style.boxShadow = 'none';
+                    });
+                    this.classList.add('active');
+                    this.style.background = 'white';
+                    this.style.color = '#1f2937';
+                    this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+
+                    Subscription.currentInterval = interval;
+
+                    // Update plans display
+                    var plans = Subscription.plansData[interval] || [];
+                    var container = document.getElementById('plans-grid-container');
+                    if (container) {
+                        container.innerHTML = Subscription.buildPlansGrid(plans, interval);
+                        Subscription.initPlanButtonHandlers();
+                    }
+                });
+            });
+
+            // Initialize plan button handlers
+            Subscription.initPlanButtonHandlers();
+        },
+
+        /**
+         * Initialize plan button click handlers
+         */
+        initPlanButtonHandlers: function() {
+            document.querySelectorAll('.plan-select-btn:not([disabled])').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var stripeProduct = this.getAttribute('data-stripe-product');
+                    var planName = this.getAttribute('data-plan-name');
+                    if (stripeProduct) {
+                        Subscription.upgradeToplan(stripeProduct, planName);
+                    }
+                });
+
+                // Hover effects
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.3)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
             });
         },
 
