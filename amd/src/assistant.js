@@ -1094,7 +1094,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${usage.map(item => `
+                                        ${usage.length > 0 ? usage.map(item => `
                                             <tr style="border-bottom: 1px solid #f8f9fa;">
                                                 <td style="padding: 12px; vertical-align: middle; font-weight: 500;">
                                                     ${(() => {
@@ -1122,7 +1122,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                                 <td style="padding: 12px; vertical-align: middle; font-weight: 500; color: #f5576c;">${(item.completion_tokens || 0).toLocaleString()}</td>
                                                 <td style="padding: 12px; vertical-align: middle; font-weight: 600; color: #667eea;">${(item.tokens_used || 0).toLocaleString()}</td>
                                             </tr>
-                                        `).join('')}
+                                        `).join('') : `
+                                            <tr>
+                                                <td colspan="6" style="padding: 40px; text-align: center;">
+                                                    <div style="color: #6c757d;">
+                                                        <i class="fas fa-inbox fa-3x mb-3" style="opacity: 0.5;"></i>
+                                                        <h5 style="font-weight: 600; margin-bottom: 10px;">No Usage Data Yet</h5>
+                                                        <p style="margin: 0; font-size: 0.9rem;">Start using the AI Assistant to generate reports and your usage history will appear here.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `}
                                     </tbody>
                                 </table>
                             </div>
@@ -2389,63 +2399,40 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Create subscription info display (separate from main header)
                 let subscriptionHtml = `
                     <div class="subscription-status-bar">
-                        <div class="subscription-header-content">
-                            <h6 class="subscription-title">
-                                <i class="fa fa-chart-line me-1 subscription-icon"></i> Subscription Status <button class="btn btn-outline-secondary btn-sm" id="refresh-subscription-btn" title="Refresh subscription data">
-                                <i class="fa fa-refresh"></i></button>
-                            </h6>
-                            
-                            </button>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <strong>Plan:</strong> ${subscription.plan_name || 'Unknown'}
-                                <span class="ms-3"><strong>Status:</strong> <span class="badge bg-${subscription.status === 'active' ? 'success' : 'warning'}">${subscription.status || 'Unknown'}</span></span>
-                            </div>
-                        </div>
-                        </div>
-                        
-                        <div class="row mt-2" style="display: none;">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted">Premium Credits</small>
-                                    <div class="progress mb-1" style="height: 6px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" 
-                                             style="width: ${this.calculateUsagePercentage(subscription.premium_credits_used_this_month || 0, subscription.plan_premium_credits_limit || 1)}%">
-                            </div>
-                                    </div>
+                        <div class="subscription-bar-row">
+                            <div class="subscription-info-left">
+                                <h6 class="subscription-title">
+                                    <i class="fa fa-chart-line subscription-icon"></i> Subscription Status
+                                    <button class="btn btn-outline-secondary btn-sm" id="refresh-subscription-btn" title="Refresh subscription data">
+                                        <i class="fa fa-refresh"></i>
+                                    </button>
+                                </h6>
+                                <div class="subscription-details">
+                                    <span><strong>Plan:</strong> ${subscription.plan_name || 'Unknown'}</span>
+                                    <span class="ms-3"><strong>Status:</strong> <span class="badge bg-${subscription.status === 'active' ? 'success' : 'warning'}">${subscription.status || 'Unknown'}</span></span>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted">Basic Credits</small>
-                                    <div class="progress mb-1" style="height: 6px;">
-                                        <div class="progress-bar bg-success" role="progressbar" 
-                                             style="width: ${this.calculateUsagePercentage(subscription.basic_credits_used_this_month || 0, subscription.plan_basic_credits_limit || 1)}%">
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="subscription-actions-right">
+                                <a href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn btn-view-usage">
+                                    <i class="fa fa-chart-bar"></i> View Usage
+                                </a>
                             </div>
-                        </div>
-                        <div class="assistant-header-actions">
-                            <a style="margin: 0 20px 17px 0" href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn btn-primary">
-                                <i class="fa fa-chart-bar"></i> View Usage
-                            </a>
                         </div>
                     </div>
                 `;
                 
                 // Template already has the header banner - no need to create assistantHtml
-                // Just insert subscription status bar after the header
+                // Insert subscription status bar at the bottom of the page
 
-                // Insert subscription bar after the template header (before container-fluid)
-                const templateHeader = $('.assistant-header');
-                if (templateHeader.length) {
-                    templateHeader.after(subscriptionHtml);
+                // Insert subscription bar at the bottom of container-fluid
+                const containerFluid = $('.container-fluid');
+                if (containerFluid.length) {
+                    containerFluid.append(subscriptionHtml);
                 } else {
-                    // Fallback: insert at top of container-fluid
-                    const containerFluid = $('.container-fluid');
-                    if (containerFluid.length) {
-                        containerFluid.prepend(subscriptionHtml);
+                    // Fallback: insert after the template header
+                    const templateHeader = $('.assistant-header');
+                    if (templateHeader.length) {
+                        templateHeader.after(subscriptionHtml);
                     }
                 }
                 
