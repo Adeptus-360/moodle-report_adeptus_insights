@@ -32,16 +32,12 @@ try {
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
     $subscription = $installation_manager->get_subscription_details();
-    
-    // Check if user is on free plan
-    $is_free_plan = false;
+
+    // Check if user is on free plan (using object notation - subscription is an object)
+    $is_free_plan = true;
     if ($subscription) {
-        $plan_name = strtolower($subscription['plan_name'] ?? '');
-        $is_free_plan = (strpos($plan_name, 'free') !== false || 
-                         strpos($plan_name, 'trial') !== false ||
-                         ($subscription['price'] ?? 0) == 0);
-    } else {
-        $is_free_plan = true;
+        $tier = $subscription->tier ?? 'free';
+        $is_free_plan = ($tier === 'free');
     }
     
     if ($is_free_plan) {
