@@ -2544,12 +2544,19 @@ class AdeptusWizard {
     }
 
     async exportReport(format) {
+        console.log('=== exportReport called ===', {
+            format: format,
+            selectedReport: this.selectedReport,
+            currentResults: this.currentResults ? 'present' : 'null'
+        });
+
         // Check if export button is disabled (limit reached)
         const exportBtn = document.getElementById('export-btn');
         if (exportBtn && exportBtn.disabled) {
+            console.log('Export button is disabled, returning');
             return;
         }
-        
+
         const reportName = this.getReportTitle();
         this.showLoading(`Exporting ${reportName} as ${format.toUpperCase()}...`);
         
@@ -2897,7 +2904,43 @@ class AdeptusWizard {
     }
 
     showSuccess(message) {
-        this.showPopup('Success', message, 'success');
+        // Use toast-style notification (matching AI Assistant style)
+        this.showToast(message, 'success');
+    }
+
+    showToast(message, type = 'success') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('adeptus-toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'adeptus-toast-container';
+            toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10050;';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+        toast.style.cssText = 'min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 10px;';
+        toast.innerHTML = `
+            <i class="fa fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.5rem;"></button>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Auto-remove after 4 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 150);
+        }, 4000);
+
+        // Also allow manual close
+        toast.querySelector('.btn-close').addEventListener('click', () => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 150);
+        });
     }
 
     showPopup(title, message, type = 'success') {
@@ -3091,19 +3134,38 @@ class AdeptusWizard {
     }
 
     async trackExport(format) {
-        
+        console.log('trackExport called:', {
+            format: format,
+            selectedReport: this.selectedReport,
+            wwwroot: this.wizardData?.wwwroot,
+            sesskey: this.wizardData?.sesskey ? 'present' : 'missing'
+        });
+
+        // Ensure we have a report name
+        if (!this.selectedReport) {
+            console.warn('trackExport: No selectedReport set, skipping tracking');
+            return;
+        }
+
         try {
             // Use Moodle endpoint which handles both free and paid plans
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_export.php`, {
+            const url = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_export.php`;
+            const body = `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`;
+
+            console.log('trackExport request:', { url, body });
+
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`
+                body: body
             });
 
-            
+            console.log('trackExport response status:', response.status);
+
             const data = await response.json();
+            console.log('trackExport response data:', data);
             
             if (data.success) {
                 // Update export counter in UI
