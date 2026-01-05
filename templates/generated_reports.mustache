@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="{{config.wwwroot}}/report/adeptus_insights/styles/assistant.css">
 
 <div class="generated-reports-container">
+    <!-- Toast Container for notifications -->
+    <div id="adeptus-toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000;"></div>
+
     <!-- Header Banner -->
     <div class="page-header-banner">
         <div class="page-header-content">
@@ -132,6 +135,74 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             this.loadCategories();
             this.bindViewToggle();
             this.bindCategoryManagement();
+        },
+
+        /**
+         * Show toast notification
+         */
+        showToast: function(message, type) {
+            type = type || 'success';
+            var toastContainer = document.getElementById('adeptus-toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'adeptus-toast-container';
+                toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000;';
+                document.body.appendChild(toastContainer);
+            }
+
+            var iconMap = {
+                'success': 'fa-check-circle',
+                'error': 'fa-times-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            var bgColorMap = {
+                'success': '#28a745',
+                'error': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#17a2b8'
+            };
+            var textColorMap = {
+                'success': 'white',
+                'error': 'white',
+                'warning': '#212529',
+                'info': 'white'
+            };
+
+            var toast = document.createElement('div');
+            toast.style.cssText = 'background: ' + bgColorMap[type] + '; color: ' + textColorMap[type] + '; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; min-width: 280px;';
+            toast.innerHTML = '<i class="fa ' + iconMap[type] + '"></i><span>' + message + '</span>';
+            toastContainer.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        },
+
+        /**
+         * Track export for usage monitoring
+         */
+        trackExport: function(format, reportName) {
+            var self = this;
+            fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_export.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'format=' + encodeURIComponent(format) + '&report_name=' + encodeURIComponent(reportName) + '&sesskey=' + M.cfg.sesskey
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                console.log('[GeneratedReports] Export tracked:', data);
+            })
+            .catch(function(error) {
+                console.error('[GeneratedReports] Error tracking export:', error);
+            });
         },
 
         bindViewToggle: function() {
@@ -1479,13 +1550,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 document.body.removeChild(link);
 
                 Swal.close();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: format.toUpperCase() + ' file downloaded successfully!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
+
+                // Track the export
+                var reportName = self.currentReport?.description || self.currentReport?.name || 'report';
+                self.trackExport(format, reportName);
+
+                // Show toast notification instead of SweetAlert
+                self.showToast(format.toUpperCase() + ' file downloaded successfully!', 'success');
 
             } catch (error) {
                 Swal.close();
@@ -1557,6 +1628,29 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 @keyframes float {
     0% { transform: translateY(0) rotate(0deg); }
     100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Toast notification animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
 }
 
 .page-header-content {
