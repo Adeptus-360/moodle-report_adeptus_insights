@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010530; // YYYYMMDDXX - Add export tracking to Generated Reports page
+$plugin->version   = 2026010531; // YYYYMMDDXX - Production cleanup - remove debug logging
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.60';
+$plugin->release   = '1.1.61';
