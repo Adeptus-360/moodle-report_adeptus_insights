@@ -3476,15 +3476,73 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 // Also show the error in the chat
                                 this.addMessage(errorMsg, 'error');
                             } else {
-                                // Normal success - show feedback sent message
-                                document.querySelectorAll('.report-action-container').forEach(container => {
-                                    container.innerHTML = `
-                                        <div style="text-align: center; color: #007bff;">
-                                            <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
-                                        </div>
-                                    `;
+                                // Check if response has proper report structure
+                                const hasReportStructure = chatResponse.type &&
+                                    (chatResponse.type === 'sql' || chatResponse.type === 'report') &&
+                                    chatResponse.report &&
+                                    chatResponse.awaiting_confirmation;
+
+                                // Check if message indicates a report was generated
+                                const looksLikeReportGeneration = chatResponse.message &&
+                                    (chatResponse.message.toLowerCase().includes('report generated') ||
+                                     chatResponse.message.toLowerCase().includes('generated a report') ||
+                                     chatResponse.message.toLowerCase().includes('i\'ve generated'));
+
+                                // Log response structure for debugging
+                                console.log('[AI Assistant] Feedback response:', {
+                                    hasReportStructure: hasReportStructure,
+                                    looksLikeReportGeneration: looksLikeReportGeneration,
+                                    type: chatResponse.type,
+                                    hasReport: !!chatResponse.report,
+                                    awaitingConfirmation: chatResponse.awaiting_confirmation,
+                                    message: chatResponse.message?.substring(0, 100)
                                 });
-                                this.handleResponse(response.chat_response);
+
+                                if (looksLikeReportGeneration && !hasReportStructure) {
+                                    // "Ghost report" - AI says report generated but no structure to display it
+                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                        const retryBtnId = 'retry-ghost-' + Date.now();
+                                        container.innerHTML = `
+                                            <div style="text-align: center; padding: 10px;">
+                                                <div style="color: #856404; background: #fff3cd; padding: 12px; border-radius: 6px; margin-bottom: 10px;">
+                                                    <i class="fa fa-exclamation-triangle"></i>
+                                                    The refined report was generated but could not be displayed properly.
+                                                </div>
+                                                <button id="${retryBtnId}" class="btn btn-primary btn-sm">
+                                                    <i class="fa fa-refresh"></i> Try Again
+                                                </button>
+                                            </div>
+                                        `;
+                                        const retryBtn = document.getElementById(retryBtnId);
+                                        if (retryBtn) {
+                                            retryBtn.addEventListener('click', function() {
+                                                self.confirmReport(action, report, feedback);
+                                            });
+                                        }
+                                    });
+                                    // Add informative message in chat
+                                    this.addMessage('The report refinement encountered an issue. Please try again using the button above, or start a new request.', 'system');
+                                } else if (hasReportStructure) {
+                                    // Normal success with proper report structure
+                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                        container.innerHTML = `
+                                            <div style="text-align: center; color: #007bff;">
+                                                <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
+                                            </div>
+                                        `;
+                                    });
+                                    this.handleResponse(response.chat_response);
+                                } else {
+                                    // Regular response (not a report) - just show the message
+                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                        container.innerHTML = `
+                                            <div style="text-align: center; color: #007bff;">
+                                                <i class="fa fa-info-circle"></i> Feedback sent.
+                                            </div>
+                                        `;
+                                    });
+                                    this.handleResponse(response.chat_response);
+                                }
                             }
                         } else {
                             // No chat_response - unexpected, show generic feedback sent

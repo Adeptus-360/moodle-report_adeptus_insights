@@ -528,3 +528,28 @@
     color: #c53030;
     margin-bottom: 12px;
 }
+
+/* Ghost report warning - when AI says report generated but structure is missing */
+.ghost-report-warning {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    color: #856404;
+}
+
+.ghost-report-warning i {
+    margin-right: 8px;
+}
+
+/* System message style */
+.system-message {
+    background: #e9ecef;
+    color: #495057;
+    border-left: 3px solid #6c757d;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 0.9em;
+}
