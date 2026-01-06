@@ -656,11 +656,6 @@ class external extends \external_api {
             $result = $installation_manager->create_billing_portal_session($return_url, $plan_id, $action);
             
             // Log to file for debugging
-            error_log('[EXTERNAL_FUNCTION] Result: ' . json_encode($result));
-            error_log('[EXTERNAL_FUNCTION] Success: ' . ($result['success'] ?? 'NOT_SET'));
-            error_log('[EXTERNAL_FUNCTION] Data: ' . json_encode($result['data'] ?? 'NOT_SET'));
-            error_log('[EXTERNAL_FUNCTION] URL in result[data][url]: ' . ($result['data']['url'] ?? 'NOT_FOUND'));
-            error_log('[EXTERNAL_FUNCTION] URL in result[portal_url]: ' . ($result['portal_url'] ?? 'NOT_FOUND'));
             
             debugging('External function received result: ' . json_encode($result));
             debugging('Result success: ' . ($result['success'] ?? 'NOT_SET'));

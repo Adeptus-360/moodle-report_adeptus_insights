@@ -25,7 +25,6 @@ try {
     $subscription = $installation_manager->get_subscription_details();
     
     // Debug: Log what we received from backend
-    error_log('check_subscription_status.php - Backend subscription data: ' . json_encode($subscription));
     
     // Determine if user is on free plan
     $is_free_plan = false;

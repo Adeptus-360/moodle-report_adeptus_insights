@@ -85,8 +85,6 @@ try {
     curl_close($ch);
     
     if ($debugMode) {
-        error_log("Backend API call for reports: HTTP $httpCode, Response: " . substr($response, 0, 200));
-        error_log("Final URL after redirects: " . $finalUrl);
     }
     
     if ($response === false) {
@@ -146,7 +144,6 @@ try {
                 $filter_reason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
 
                 if ($debugMode) {
-                    error_log("Report '{$report['name']}' filtered out: {$validation['reason']}");
                 }
             }
         }
@@ -156,13 +153,11 @@ try {
         } else {
             $filtered_count++;
             if ($debugMode && !empty($filter_reason)) {
-                error_log("Filtered report '{$report['name']}': {$filter_reason}");
             }
         }
     }
 
     if ($debugMode) {
-        error_log("Report filtering: " . count($all_reports) . " total, " . count($compatible_reports) . " compatible, {$filtered_count} filtered");
     }
     
     // Organize reports by category

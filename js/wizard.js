@@ -474,7 +474,6 @@ class AdeptusWizard {
         // Check global Chart
         if (typeof Chart !== 'undefined') {
             this.chartJS = Chart;
-            console.log('Chart.js already available globally');
             return;
         }
 
@@ -486,7 +485,6 @@ class AdeptusWizard {
                 if (typeof window !== 'undefined') {
                     window.Chart = ChartModule;
                 }
-                console.log('Chart.js loaded via Moodle AMD');
             });
         } else {
             console.error('Moodle require() not available');
@@ -518,7 +516,6 @@ class AdeptusWizard {
                     if (typeof window !== 'undefined') {
                         window.Chart = ChartModule;
                     }
-                    console.log('Chart.js loaded via Moodle AMD require');
                     resolve(this.chartJS);
                 }, (err) => {
                     console.error('Failed to load Chart.js via AMD:', err);
@@ -2546,7 +2543,6 @@ class AdeptusWizard {
     }
 
     async exportReport(format) {
-        console.log('=== exportReport called ===', {
             format: format,
             selectedReport: this.selectedReport,
             currentResults: this.currentResults ? 'present' : 'null'
@@ -2555,7 +2551,6 @@ class AdeptusWizard {
         // Check if export button is disabled (limit reached)
         const exportBtn = document.getElementById('export-btn');
         if (exportBtn && exportBtn.disabled) {
-            console.log('Export button is disabled, returning');
             return;
         }
 
@@ -3140,7 +3135,6 @@ class AdeptusWizard {
     }
 
     async trackExport(format) {
-        console.log('trackExport called:', {
             format: format,
             selectedReport: this.selectedReport,
             wwwroot: this.wizardData?.wwwroot,
@@ -3158,7 +3152,6 @@ class AdeptusWizard {
             const url = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_export.php`;
             const body = `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`;
 
-            console.log('trackExport request:', { url, body });
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -3168,10 +3161,8 @@ class AdeptusWizard {
                 body: body
             });
 
-            console.log('trackExport response status:', response.status);
 
             const data = await response.json();
-            console.log('trackExport response data:', data);
             
             if (data.success) {
                 // Update export counter in UI

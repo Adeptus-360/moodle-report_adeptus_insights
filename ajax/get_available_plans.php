@@ -35,7 +35,6 @@ try {
     $available_plans = $installation_manager->get_available_plans();
 
     // Debug: Log raw API response
-    error_log('[get_available_plans] Raw API response: ' . json_encode($available_plans));
 
     if (!$available_plans || !isset($available_plans['success']) || !$available_plans['success']) {
         echo json_encode([
@@ -137,7 +136,6 @@ try {
             ];
 
             // Debug: Log stripe IDs for each plan
-            error_log('[get_available_plans] Plan: ' . ($plan['name'] ?? 'unknown') .
                       ', tier: ' . $tier .
                       ', stripe_configured: ' . ($plan['stripe_configured'] ? 'true' : 'false') .
                       ', stripe_price_id: ' . ($plan['stripe_price_id'] ?? 'NULL'));

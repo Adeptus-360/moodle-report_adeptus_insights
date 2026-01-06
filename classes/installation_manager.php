@@ -1337,11 +1337,6 @@ class installation_manager {
             $response = $this->make_api_request('subscription/billing-portal', $data);
             
             // Log to file for debugging
-            error_log('[BILLING_PORTAL] Response: ' . json_encode($response));
-            error_log('[BILLING_PORTAL] Success: ' . ($response['success'] ?? 'NOT_SET'));
-            error_log('[BILLING_PORTAL] Data: ' . json_encode($response['data'] ?? 'NOT_SET'));
-            error_log('[BILLING_PORTAL] URL in data.url: ' . ($response['data']['url'] ?? 'NOT_FOUND'));
-            error_log('[BILLING_PORTAL] URL in data.billing_portal_url: ' . ($response['data']['billing_portal_url'] ?? 'NOT_FOUND'));
             
             debugging('Billing portal session response: ' . json_encode($response));
             debugging('Response success: ' . ($response['success'] ?? 'NOT_SET'));
@@ -1399,7 +1394,6 @@ class installation_manager {
 
             $response = $this->make_api_request('subscription/checkout', $data);
 
-            error_log('[CHECKOUT] Response: ' . json_encode($response));
 
             if ($response && isset($response['success']) && $response['success']) {
                 $checkout_url = $response['data']['checkout_url'] ?? null;
@@ -1444,7 +1438,6 @@ class installation_manager {
                 'session_id' => $session_id
             ]);
 
-            error_log('[VERIFY_CHECKOUT] Response: ' . json_encode($response));
 
             if ($response && isset($response['success']) && $response['success']) {
                 debugging('Checkout verified successfully, tier: ' . ($response['data']['tier'] ?? 'unknown'));

@@ -99,7 +99,6 @@ try {
     if (!$validation['valid']) {
         // Report cannot be executed - missing required tables
         $missing = implode(', ', $validation['missing_tables']);
-        error_log("Report '{$report['name']}' validation failed: {$validation['reason']}");
 
         echo json_encode([
             'success' => false,
@@ -147,7 +146,6 @@ try {
             $error_response['upgrade_url'] = $access_check['upgrade_url'];
         }
 
-        error_log("Report access denied: " . json_encode($access_check));
         echo json_encode($error_response);
         exit;
     }
@@ -175,7 +173,6 @@ try {
                 } else if (isset($param_def['default'])) {
                     // Apply default value if no value provided
                     $report_params[$param_name] = $param_def['default'];
-                    error_log("Applied default value for parameter '{$param_name}': {$param_def['default']}");
                 }
             }
         }
@@ -206,11 +203,6 @@ try {
     
     // Debug: Log all request data and collected parameters (only in debug mode)
     if (defined('CFG_DEBUG') && CFG_DEBUG) {
-        error_log("=== REPORT GENERATION DEBUG ===");
-        error_log("Report: {$report['name']}");
-        error_log("All POST data: " . json_encode($_POST));
-        error_log("Collected parameters: " . json_encode($report_params));
-        error_log("Backend report parameters definition: " . json_encode($report['parameters'] ?? []));
     }
 
     // Execute the SQL query with parameters
@@ -223,7 +215,6 @@ try {
 
     if (!$has_limit) {
         // Log warning that safety limit is being applied
-        error_log("WARNING: Report '{$report['name']}' has no LIMIT clause. Applying safety limit of $SAFETY_LIMIT records.");
 
         // Add LIMIT clause to the end of the query
         // Handle queries that may end with semicolon
@@ -231,7 +222,6 @@ try {
         $sql = rtrim($sql, ';');
         $sql .= " LIMIT $SAFETY_LIMIT";
 
-        error_log("Modified SQL with safety limit: " . substr($sql, 0, 200) . "...");
     }
 
     // Handle :limit parameter specially - MySQL LIMIT doesn't support bound parameters
@@ -270,8 +260,6 @@ try {
                 }
 
                 // Use get_records_sql with positional parameters
-                error_log("Executing SQL: " . substr($positional_sql, 0, 500));
-                error_log("SQL Parameters: " . json_encode($sql_params));
                 $results = $DB->get_records_sql($positional_sql, $sql_params);
             } else {
                 // Use positional parameters
@@ -285,13 +273,10 @@ try {
                     }
                 }
                 // Use get_records_sql with positional parameters
-                error_log("Executing SQL: " . substr($sql, 0, 500));
-                error_log("SQL Parameters: " . json_encode($sql_params));
                 $results = $DB->get_records_sql($sql, $sql_params);
             }
         } else {
             // No parameters, execute directly
-            error_log("Executing SQL (no params): " . substr($sql, 0, 500));
             $results = $DB->get_records_sql($sql);
         }
     } catch (\dml_read_exception $e) {
@@ -334,7 +319,6 @@ try {
     
     // Save to generated reports via backend API (for Generated Reports section) - only save if report has data
     if ($report_generated && $has_data) {
-        error_log("DEBUG: Saving wizard report to backend API - report_generated: {$report_generated}");
 
         $is_new_generation = false; // Track if this is a new generation or update
 
@@ -368,36 +352,28 @@ try {
         if ($save_http_code === 201 || $save_http_code === 200) {
             $save_data = json_decode($save_response, true);
             if (!empty($save_data['success'])) {
-                error_log("DEBUG: Wizard report saved to backend successfully: " . json_encode($save_data['report'] ?? []));
                 $is_new_generation = true;
             } else {
-                error_log("DEBUG: Backend returned success=false: " . ($save_data['message'] ?? 'Unknown error'));
             }
         } else {
-            error_log("DEBUG: Failed to save wizard report to backend. HTTP Code: {$save_http_code}, Error: {$save_curl_error}, Response: {$save_response}");
         }
     } else {
-        error_log("DEBUG: Not saving to generated reports - report_generated: {$report_generated}");
         $is_new_generation = false; // Ensure variable is defined
     }
     
     // Update subscription usage in backend if report was generated (only count new generations, not updates)
     if (!$is_duplicate && $report_generated && $is_new_generation) {
-        error_log("DEBUG: Attempting to track report generation - is_duplicate: {$is_duplicate}, report_generated: {$report_generated}, is_new_generation: {$is_new_generation}");
         try {
             // Track report generation using the installation manager method
             $tracking_result = $installation_manager->track_report_generation($report_key, $is_ai_generated);
 
             if ($tracking_result) {
-                error_log("Successfully tracked report generation for user {$USER->id}, report: {$report_key}");
             } else {
-                error_log("Failed to track report generation for report: {$report_key}");
             }
         } catch (Exception $e) {
             error_log("Error tracking report generation: " . $e->getMessage());
         }
     } else {
-        error_log("DEBUG: Skipping backend tracking - is_duplicate: {$is_duplicate}, report_generated: {$report_generated}");
     }
 
     // Prepare chart data if chart type is specified

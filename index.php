@@ -46,7 +46,6 @@ $installation_manager = new \report_adeptus_insights\installation_manager();
 $auth_status = $auth_manager->get_auth_status();
 
 // Debug: Log the auth status
-error_log('Adeptus Auth Status: ' . print_r($auth_status, true));
 
 // Load required AMD modules and CSS BEFORE header
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', array($auth_status));
@@ -64,7 +63,6 @@ echo $OUTPUT->header();
 $subscription = $installation_manager->get_subscription_details();
 
 // Debug: Log the subscription data
-error_log('Adeptus Subscription Data: ' . print_r($subscription, true));
 
 // Prepare template context
 $templatecontext = [
@@ -72,7 +70,6 @@ $templatecontext = [
 ];
 
 // Debug: Log the template context
-error_log('Adeptus Template Context: ' . print_r($templatecontext, true));
 
 // Render the template
 echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);

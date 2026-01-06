@@ -143,7 +143,6 @@ try {
                 curl_close($ch);
                 
                 if ($debugMode) {
-                    error_log("Backend API call for parameter {$param['name']}: HTTP $httpCode, Response: " . substr($response, 0, 200));
                 }
                 
                 if ($response && $httpCode === 200 && empty($curlError)) {
@@ -151,12 +150,10 @@ try {
                     if ($backendData && $backendData['success']) {
                         $enhancedParam = $backendData['data'];
                         if ($debugMode) {
-                            error_log("Successfully enhanced parameter {$param['name']} with backend data");
                         }
                     }
                 } else {
                     if ($debugMode) {
-                        error_log("Backend API call failed for parameter {$param['name']}: HTTP $httpCode, cURL Error: $curlError");
                     }
                 }
             } catch (Exception $e) {
