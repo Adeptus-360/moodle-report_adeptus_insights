@@ -320,8 +320,8 @@ try {
     $history_record->parameters = json_encode($report_params);
     $history_record->generatedat = time();
     $history_record->resultpath = ''; // Could save to file if needed
-    $history_record->counted_for_usage = (!$is_duplicate && $report_generated) ? 1 : 0; // Flag to track if this generation was counted
-    
+    // Note: Usage tracking is handled via backend API, not local database flag
+
     $DB->insert_record('adeptus_report_history', $history_record);
     
     // Save to generated reports via backend API (for Generated Reports section) - only save if report has data
