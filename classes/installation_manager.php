@@ -1765,7 +1765,7 @@ class installation_manager {
             }
 
             // Call backend API to check report access
-            $response = $this->make_api_request('v1/reports/check-access', [
+            $response = $this->make_api_request('reports/check-access', [
                 'report_key' => $report_key
             ]);
 
@@ -1821,7 +1821,7 @@ class installation_manager {
                 return false;
             }
 
-            $response = $this->make_api_request('v1/usage/track-report', [
+            $response = $this->make_api_request('usage/track-report', [
                 'report_key' => $report_key,
                 'is_ai_generated' => $is_ai_generated,
             ]);
@@ -1853,7 +1853,7 @@ class installation_manager {
                 return false;
             }
 
-            $response = $this->make_api_request('v1/usage/track-report-deletion', [
+            $response = $this->make_api_request('usage/track-report-deletion', [
                 'report_key' => $report_key,
                 'is_ai_generated' => $is_ai_generated,
             ]);
@@ -1929,7 +1929,7 @@ class installation_manager {
                 return false;
             }
 
-            $response = $this->make_api_request('v1/usage/track-export', [
+            $response = $this->make_api_request('usage/track-export', [
                 'format' => $format,
             ]);
 
@@ -1954,7 +1954,7 @@ class installation_manager {
                 return false;
             }
 
-            $response = $this->make_api_request('v1/usage/track-ai-credits', [
+            $response = $this->make_api_request('usage/track-ai-credits', [
                 'type' => $type,
                 'amount' => $amount,
             ]);

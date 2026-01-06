@@ -243,55 +243,63 @@ try {
     }
 
     // Handle both named (:param) and positional (?) parameters
-    if (!empty($report_params)) {
-        // Check if SQL uses named parameters (:param) or positional (?) parameters
-        if (strpos($sql, ':') !== false) {
-            // Convert named parameters to positional parameters for Moodle compatibility
-            $sql_params = [];
-            $param_order = [];
+    try {
+        if (!empty($report_params)) {
+            // Check if SQL uses named parameters (:param) or positional (?) parameters
+            if (strpos($sql, ':') !== false) {
+                // Convert named parameters to positional parameters for Moodle compatibility
+                $sql_params = [];
+                $param_order = [];
 
-            // Extract parameter names from SQL in order
-            preg_match_all('/:(\w+)/', $sql, $matches);
-            $param_order = $matches[1];
+                // Extract parameter names from SQL in order
+                preg_match_all('/:(\w+)/', $sql, $matches);
+                $param_order = $matches[1];
 
-            // Replace named parameters with positional ones
-            $positional_sql = $sql;
-            foreach ($param_order as $index => $param_name) {
-                $positional_sql = preg_replace('/:' . preg_quote($param_name, '/') . '\b/', '?', $positional_sql, 1);
+                // Replace named parameters with positional ones
+                $positional_sql = $sql;
+                foreach ($param_order as $index => $param_name) {
+                    $positional_sql = preg_replace('/:' . preg_quote($param_name, '/') . '\b/', '?', $positional_sql, 1);
 
-                // Get parameter value with special handling
-                if ($param_name === 'days' && is_numeric($report_params[$param_name] ?? '')) {
-                    // Convert days to Unix timestamp cutoff
-                    $sql_params[] = time() - (intval($report_params[$param_name]) * 24 * 60 * 60);
-                } else {
-                    $sql_params[] = $report_params[$param_name] ?? '';
+                    // Get parameter value with special handling
+                    if ($param_name === 'days' && is_numeric($report_params[$param_name] ?? '')) {
+                        // Convert days to Unix timestamp cutoff
+                        $sql_params[] = time() - (intval($report_params[$param_name]) * 24 * 60 * 60);
+                    } else {
+                        $sql_params[] = $report_params[$param_name] ?? '';
+                    }
                 }
-            }
 
-            // Use get_records_sql with positional parameters
-            if (defined('CFG_DEBUG') && CFG_DEBUG) {
-                error_log("Original SQL: " . $sql);
-                error_log("Positional SQL: " . $positional_sql);
+                // Use get_records_sql with positional parameters
+                error_log("Executing SQL: " . substr($positional_sql, 0, 500));
                 error_log("SQL Parameters: " . json_encode($sql_params));
-            }
-            $results = $DB->get_records_sql($positional_sql, $sql_params);
-        } else {
-            // Use positional parameters
-            $sql_params = [];
-            foreach ($report_params as $name => $value) {
-                // Special handling: convert 'days' to cutoff timestamp
-                if ($name === 'days' && is_numeric($value)) {
-                    $sql_params[] = time() - (intval($value) * 24 * 60 * 60);
-                } else {
-                    $sql_params[] = $value;
+                $results = $DB->get_records_sql($positional_sql, $sql_params);
+            } else {
+                // Use positional parameters
+                $sql_params = [];
+                foreach ($report_params as $name => $value) {
+                    // Special handling: convert 'days' to cutoff timestamp
+                    if ($name === 'days' && is_numeric($value)) {
+                        $sql_params[] = time() - (intval($value) * 24 * 60 * 60);
+                    } else {
+                        $sql_params[] = $value;
+                    }
                 }
+                // Use get_records_sql with positional parameters
+                error_log("Executing SQL: " . substr($sql, 0, 500));
+                error_log("SQL Parameters: " . json_encode($sql_params));
+                $results = $DB->get_records_sql($sql, $sql_params);
             }
-            // Use get_records_sql with positional parameters
-            $results = $DB->get_records_sql($sql, $sql_params);
+        } else {
+            // No parameters, execute directly
+            error_log("Executing SQL (no params): " . substr($sql, 0, 500));
+            $results = $DB->get_records_sql($sql);
         }
-    } else {
-        // No parameters, execute directly
-        $results = $DB->get_records_sql($sql);
+    } catch (\dml_read_exception $e) {
+        // Log the actual SQL error with full details
+        error_log("SQL EXECUTION ERROR: " . $e->getMessage());
+        error_log("SQL Query: " . $sql);
+        error_log("Debug Info: " . print_r($e->debuginfo, true));
+        throw new Exception("SQL Error: " . $e->debuginfo);
     }
     
     // Convert to array and get headers

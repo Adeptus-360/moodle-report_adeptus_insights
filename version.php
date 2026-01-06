@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010532; // YYYYMMDDXX - Fix database error in wizard report generation
+$plugin->version   = 2026010534; // YYYYMMDDXX - Fix double v1 in API URLs
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.62';
+$plugin->release   = '1.1.64';
