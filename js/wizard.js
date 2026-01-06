@@ -462,8 +462,8 @@ class AdeptusWizard {
     }
 
     /**
-     * Load Chart.js from CDN
-     * Note: We load directly from CDN instead of Moodle's core/chartjs
+     * Load Chart.js from local plugin lib folder
+     * Note: We load locally instead of Moodle's core/chartjs
      * to avoid conflicts with Moodle's reactive component framework
      * Loading is non-blocking since charts are only needed in step 4
      */
@@ -475,21 +475,25 @@ class AdeptusWizard {
         }
 
         // Check if script is already being loaded
-        if (document.querySelector('script[src*="chart.js"]')) {
+        if (document.querySelector('script[src*="chart.umd.min.js"]')) {
             return;
         }
 
-        // Load Chart.js from CDN (non-blocking)
+        // Load Chart.js from local plugin lib folder
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+        script.src = this.wizardData.wwwroot + '/report/adeptus_insights/lib/chart.umd.min.js';
         script.async = true;
         script.onload = () => {
             // Small delay to ensure the global is registered
             setTimeout(() => {
                 if (typeof Chart !== 'undefined') {
                     this.chartJS = Chart;
+                    console.log('Chart.js loaded successfully from local lib');
                 }
             }, 100);
+        };
+        script.onerror = (e) => {
+            console.error('Failed to load Chart.js from local lib:', e);
         };
         document.head.appendChild(script);
     }
@@ -510,19 +514,24 @@ class AdeptusWizard {
             return this.chartJS;
         }
 
-        // Wait for it to load (max 5 seconds)
+        // Try loading again if not yet loaded
+        this.loadChartJS();
+
+        // Wait for it to load (max 10 seconds with more attempts)
         return new Promise((resolve, reject) => {
             let attempts = 0;
-            const maxAttempts = 50;
+            const maxAttempts = 100; // 10 seconds
             const checkInterval = setInterval(() => {
                 attempts++;
                 if (typeof Chart !== 'undefined') {
                     this.chartJS = Chart;
                     clearInterval(checkInterval);
+                    console.log('Chart.js ready after', attempts * 100, 'ms');
                     resolve(this.chartJS);
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
-                    reject(new Error('Chart.js not available'));
+                    console.error('Chart.js failed to load after 10 seconds');
+                    reject(new Error('Chart.js not available - please refresh the page'));
                 }
             }, 100);
         });
