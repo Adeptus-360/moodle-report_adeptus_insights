@@ -3488,16 +3488,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                      chatResponse.message.toLowerCase().includes('generated a report') ||
                                      chatResponse.message.toLowerCase().includes('i\'ve generated'));
 
-                                // Log response structure for debugging
-                                console.log('[AI Assistant] Feedback response:', {
-                                    hasReportStructure: hasReportStructure,
-                                    looksLikeReportGeneration: looksLikeReportGeneration,
-                                    type: chatResponse.type,
-                                    hasReport: !!chatResponse.report,
-                                    awaitingConfirmation: chatResponse.awaiting_confirmation,
-                                    message: chatResponse.message?.substring(0, 100)
-                                });
-
                                 if (looksLikeReportGeneration && !hasReportStructure) {
                                     // "Ghost report" - AI says report generated but no structure to display it
                                     document.querySelectorAll('.report-action-container').forEach(container => {
@@ -3704,7 +3694,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         try {
                             const tableElement = document.getElementById('reports-history-table');
                             if (!tableElement) {
-                                console.warn('Table element not found');
                                 return;
                             }
                             
@@ -3749,11 +3738,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                         }, 100);
                                     } else {
                                     }
-                                } else {
-                                    console.warn(`Column mismatch - Headers: ${headerCells}, Data: ${dataCells}`);
                                 }
-                            } else {
-                                console.warn('Table structure not ready for DataTable initialization');
                             }
                         } catch (error) {
                             console.error('Error initializing DataTable:', error);
@@ -3927,7 +3912,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     
                     // Check if data exists before displaying
                     if (!response.data || (Array.isArray(response.data) && response.data.length === 0)) {
-                        console.warn('No data returned from backend for report:', reportSlug);
                         reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-warning py-4"><i class="fa fa-exclamation-triangle"></i> Report completed but no data is available. The report may need to be re-executed.</div>');
                         return;
                     }
@@ -4584,9 +4568,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 });
 
                 const data = await response.json();
-                if (!data.success) {
-                    console.warn('Failed to track export:', data.message);
-                }
+                // Silently handle tracking failures - not critical to user experience.
             } catch (error) {
                 console.error('Error tracking export:', error);
             }

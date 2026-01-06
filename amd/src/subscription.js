@@ -33,8 +33,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             var sessionId = urlParams.get('session_id');
 
             if (checkoutStatus === 'success' && sessionId) {
-                console.log('[Subscription] Checkout success detected, verifying session:', sessionId);
-
                 // Show loading
                 Swal.fire({
                     title: 'Verifying Payment...',
@@ -54,8 +52,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         sesskey: M.cfg.sesskey
                     },
                     done: function(response) {
-                        console.log('[Subscription] Verification response:', response);
-
                         if (response && response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -97,7 +93,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 window.history.replaceState({}, document.title, cleanUrl);
 
             } else if (checkoutStatus === 'cancelled') {
-                console.log('[Subscription] Checkout was cancelled');
                 Swal.fire({
                     icon: 'info',
                     title: 'Checkout Cancelled',
@@ -777,13 +772,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     var stripePriceId = this.getAttribute('data-stripe-price-id');
                     var stripeConfigured = this.getAttribute('data-stripe-configured') === 'true';
 
-                    console.log('[Subscription] Plan button clicked:', {
-                        planName: planName,
-                        planId: planId,
-                        stripePriceId: stripePriceId,
-                        stripeConfigured: stripeConfigured
-                    });
-
                     // If Stripe is configured for this plan, use checkout session
                     if (stripeConfigured && stripePriceId) {
                         Subscription.createCheckoutSession(planId, stripePriceId, planName);
@@ -913,14 +901,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 sesskey: M.cfg.sesskey
             };
 
-            console.log('[Subscription] Creating checkout session with args:', args);
-
             Ajax.call([{
                 methodname: 'report_adeptus_insights_create_checkout_session',
                 args: args,
                 done: function(response) {
-                    console.log('[Subscription] Checkout session response:', response);
-
                     if (response && response.success && response.checkout_url) {
                         Swal.fire({
                             icon: 'success',

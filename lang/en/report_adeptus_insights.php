@@ -19,7 +19,7 @@
  *
  * @package     report_adeptus_insights
  * @category    string
- * @copyright   2024 Adeptus AI
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -227,3 +227,66 @@ $string['api_timeout_desc'] = 'Timeout in seconds for API requests to the backen
 $string['stripe_configuration'] = 'Stripe Configuration';
 $string['stripe_configuration_desc'] = 'Configure Stripe payment processing for subscription management.';
 $string['configure_stripe'] = 'Configure Stripe';
+
+// Privacy API strings
+$string['privacy:metadata:ai_analytics_base'] = 'Analytics data aggregated for each user-course combination.';
+$string['privacy:metadata:ai_analytics_base:userid'] = 'The ID of the user.';
+$string['privacy:metadata:ai_analytics_base:courseid'] = 'The ID of the course.';
+$string['privacy:metadata:ai_analytics_base:logins'] = 'Number of logins recorded.';
+$string['privacy:metadata:ai_analytics_base:assignments_submitted'] = 'Number of assignments submitted.';
+$string['privacy:metadata:ai_analytics_base:forum_posts'] = 'Number of forum posts made.';
+$string['privacy:metadata:ai_analytics_base:resource_clicks'] = 'Number of resource clicks.';
+$string['privacy:metadata:ai_analytics_base:last_login'] = 'Timestamp of last login.';
+$string['privacy:metadata:ai_analytics_base:average_grade'] = 'Average grade in the course.';
+
+$string['privacy:metadata:ai_report_cache'] = 'Cached report results for faster loading.';
+$string['privacy:metadata:ai_report_cache:userid'] = 'The ID of the user who generated the report.';
+$string['privacy:metadata:ai_report_cache:reportid'] = 'The ID of the report.';
+$string['privacy:metadata:ai_report_cache:jsondata'] = 'The cached report data in JSON format.';
+$string['privacy:metadata:ai_report_cache:timecreated'] = 'When the cache was created.';
+
+$string['privacy:metadata:ai_report_config'] = 'User-created report configurations.';
+$string['privacy:metadata:ai_report_config:userid'] = 'The ID of the user who created the report.';
+$string['privacy:metadata:ai_report_config:name'] = 'The name of the report.';
+$string['privacy:metadata:ai_report_config:question'] = 'The question/prompt used to create the report.';
+$string['privacy:metadata:ai_report_config:fields'] = 'The fields included in the report.';
+$string['privacy:metadata:ai_report_config:filters'] = 'The filters applied to the report.';
+$string['privacy:metadata:ai_report_config:timecreated'] = 'When the report was created.';
+
+$string['privacy:metadata:adeptus_report_history'] = 'History of report generation.';
+$string['privacy:metadata:adeptus_report_history:userid'] = 'The ID of the user who generated the report.';
+$string['privacy:metadata:adeptus_report_history:reportid'] = 'The ID of the report generated.';
+$string['privacy:metadata:adeptus_report_history:parameters'] = 'Parameters used for the report.';
+$string['privacy:metadata:adeptus_report_history:generatedat'] = 'When the report was generated.';
+
+$string['privacy:metadata:adeptus_report_bookmarks'] = 'User bookmarks for reports.';
+$string['privacy:metadata:adeptus_report_bookmarks:userid'] = 'The ID of the user who bookmarked the report.';
+$string['privacy:metadata:adeptus_report_bookmarks:reportid'] = 'The ID of the bookmarked report.';
+$string['privacy:metadata:adeptus_report_bookmarks:createdat'] = 'When the bookmark was created.';
+
+$string['privacy:metadata:adeptus_usage_tracking'] = 'AI credit usage tracking.';
+$string['privacy:metadata:adeptus_usage_tracking:userid'] = 'The ID of the user.';
+$string['privacy:metadata:adeptus_usage_tracking:usage_type'] = 'Type of usage (AI query, export, etc.).';
+$string['privacy:metadata:adeptus_usage_tracking:credits_used'] = 'Number of credits used.';
+$string['privacy:metadata:adeptus_usage_tracking:timecreated'] = 'When the usage occurred.';
+
+$string['privacy:metadata:adeptus_export_tracking'] = 'Export history for reports.';
+$string['privacy:metadata:adeptus_export_tracking:userid'] = 'The ID of the user who exported.';
+$string['privacy:metadata:adeptus_export_tracking:reportname'] = 'Name of the exported report.';
+$string['privacy:metadata:adeptus_export_tracking:format'] = 'Export format (CSV, JSON, etc.).';
+$string['privacy:metadata:adeptus_export_tracking:exportedat'] = 'When the export occurred.';
+
+$string['privacy:metadata:adeptus360_api'] = 'Data sent to the Adeptus 360 API for AI-powered report generation.';
+$string['privacy:metadata:adeptus360_api:userid'] = 'The Moodle user ID (for session tracking).';
+$string['privacy:metadata:adeptus360_api:email'] = 'The user email for authentication.';
+$string['privacy:metadata:adeptus360_api:chat_messages'] = 'Chat messages sent to the AI assistant.';
+$string['privacy:metadata:adeptus360_api:generated_reports'] = 'Reports generated through the AI assistant.';
+
+$string['privacy:analytics'] = 'Analytics data';
+$string['privacy:reportcache'] = 'Report cache';
+$string['privacy:reportconfig'] = 'Report configurations';
+$string['privacy:reporthistory'] = 'Report history';
+$string['privacy:bookmarks'] = 'Bookmarks';
+$string['privacy:usagetracking'] = 'Usage tracking';
+$string['privacy:exporttracking'] = 'Export tracking';
+

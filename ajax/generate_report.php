@@ -1,7 +1,29 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-// Generate report with parameters from wizard
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Generate report with parameters from wizard.
+ *
+ * This AJAX endpoint handles report generation requests from the Report Wizard,
+ * executing SQL queries with user-provided parameters and returning results.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 define('AJAX_SCRIPT', true);
 define('READ_ONLY_SESSION', true); // Allow parallel requests
@@ -178,31 +200,23 @@ try {
         }
     }
     
-    // Also collect any additional parameters that might be sent from frontend
-    // Common parameters that might be sent: courseid, minimum_grade, days, etc.
-    $common_params = ['courseid', 'minimum_grade', 'days', 'hours', 'limit', 'count', 'startdate', 'enddate', 'userid', 'categoryid', 'groupid', 'roleid', 'threshold', 'grade_threshold', 'activity_type', 'forum_id', 'assignment_id', 'quiz_id'];
+    // Also collect any additional parameters that might be sent from frontend.
+    // Common parameters are sanitized via optional_param with PARAM_RAW for flexibility,
+    // then further validated when bound as SQL parameters.
+    $common_params = [
+        'courseid', 'minimum_grade', 'days', 'hours', 'limit', 'count',
+        'startdate', 'enddate', 'userid', 'categoryid', 'groupid', 'roleid',
+        'threshold', 'grade_threshold', 'activity_type', 'forum_id',
+        'assignment_id', 'quiz_id', 'module_id', 'section_id', 'status',
+        'completion_status', 'grade_min', 'grade_max', 'date_from', 'date_to',
+        'time_period', 'activity_count', 'login_count', 'submission_status'
+    ];
     foreach ($common_params as $param_name) {
         $param_value = optional_param($param_name, '', PARAM_RAW);
-        // Only add if not already collected and has a value
+        // Only add if not already collected and has a value.
         if (!isset($report_params[$param_name]) && $param_value !== '' && $param_value !== null) {
             $report_params[$param_name] = $param_value;
         }
-    }
-    
-    // Fallback: collect ALL parameters from POST data that aren't already collected
-    foreach ($_POST as $key => $value) {
-        // Skip system parameters
-        if (in_array($key, ['reportid', 'sesskey'])) {
-            continue;
-        }
-        // Add any parameter not already collected
-        if (!isset($report_params[$key]) && $value !== '' && $value !== null) {
-            $report_params[$key] = $value;
-        }
-    }
-    
-    // Debug: Log all request data and collected parameters (only in debug mode)
-    if (defined('CFG_DEBUG') && CFG_DEBUG) {
     }
 
     // Execute the SQL query with parameters

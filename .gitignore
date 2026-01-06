@@ -1,5 +1,8 @@
 # Moodle plugin .gitignore
 
+# Documentation (internal development docs, not for distribution)
+docs/
+
 # Sensitive configuration
 config.php
 

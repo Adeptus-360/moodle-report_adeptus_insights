@@ -1,13 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Stripe Configuration Page
- * Backend configuration for Stripe settings stored in database
+ *
+ * Backend configuration for Stripe settings stored in database.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// Require admin access
+// Require admin access.
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
@@ -16,21 +36,25 @@ $PAGE->set_url(new moodle_url('/report/adeptus_insights/admin/stripe_config.php'
 $PAGE->set_title(get_string('stripe_configuration', 'report_adeptus_insights'));
 $PAGE->set_heading(get_string('stripe_configuration', 'report_adeptus_insights'));
 
-// Load the Stripe service
+// Load the Stripe service.
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/stripe_service.php');
 
 $message = '';
 $message_type = 'info';
 
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
+// Get form action parameters.
+$saveconfig = optional_param('save_config', 0, PARAM_INT);
+$syncstripe = optional_param('sync_stripe', 0, PARAM_INT);
+
+// Handle form submission.
+if ($saveconfig && confirm_sesskey()) {
     try {
-        // Validate and sanitize input
-        $test_mode = isset($_POST['test_mode']) ? 1 : 0;
-        $publishable_key = trim($_POST['publishable_key']);
-        $secret_key = trim($_POST['secret_key']);
-        $webhook_secret = trim($_POST['webhook_secret']);
-        $currency = trim($_POST['currency']);
+        // Validate and sanitize input using Moodle param functions.
+        $test_mode = optional_param('test_mode', 0, PARAM_INT);
+        $publishable_key = trim(required_param('publishable_key', PARAM_TEXT));
+        $secret_key = trim(required_param('secret_key', PARAM_TEXT));
+        $webhook_secret = trim(optional_param('webhook_secret', '', PARAM_TEXT));
+        $currency = trim(optional_param('currency', 'USD', PARAM_ALPHA));
         
         // Validate required fields
         if (empty($publishable_key)) {
@@ -88,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
     }
 }
 
-// Handle Stripe sync
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['sync_stripe'])) {
+// Handle Stripe sync.
+if ($syncstripe && confirm_sesskey()) {
     try {
         $stripe_service = new \report_adeptus_insights\stripe_service();
         $sync_result = sync_stripe_products($stripe_service);
