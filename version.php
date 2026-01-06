@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010600; // YYYYMMDDXX - Production release preparation
+$plugin->version   = 2026010601; // YYYYMMDDXX - Add subscription fallback
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.2.0';
+$plugin->release   = '1.2.1';

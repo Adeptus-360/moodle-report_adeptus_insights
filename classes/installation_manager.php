@@ -672,25 +672,110 @@ class installation_manager {
     }
     
     public function get_subscription_details() {
+        // Get the API key from the local database
+        $api_key = $this->get_api_key();
+        if (!$api_key) {
+            debugging('No API key found for subscription details');
+            return null;
+        }
+
+        // Try primary subscription endpoint first
         try {
-            // Get the API key from the local database
-            $api_key = $this->get_api_key();
-            if (!$api_key) {
-                debugging('No API key found for subscription details');
-                return null;
-            }
-            
-            // Get subscription details from backend
             $subscription_data = $this->get_backend_subscription_details($api_key);
-            if (!$subscription_data) {
-                debugging('Failed to get subscription details from backend');
+            if ($subscription_data) {
+                return $subscription_data;
+            }
+        } catch (\Exception $e) {
+            debugging('Primary subscription endpoint failed: ' . $e->getMessage());
+        }
+
+        // Fallback: Try to get subscription data from installation/status endpoint
+        debugging('Trying fallback via installation/status endpoint');
+        try {
+            $subscription_data = $this->get_subscription_from_installation_status();
+            if ($subscription_data) {
+                return $subscription_data;
+            }
+        } catch (\Exception $e) {
+            debugging('Fallback installation/status endpoint failed: ' . $e->getMessage());
+        }
+
+        debugging('Failed to get subscription details from backend (all endpoints failed)');
+        return null;
+    }
+
+    /**
+     * Get subscription details from installation/status endpoint as fallback.
+     *
+     * This is used when the primary subscriptions/status endpoint fails,
+     * typically when the customer record is missing on the backend.
+     *
+     * @return array|null Subscription data array or null on failure.
+     */
+    private function get_subscription_from_installation_status() {
+        try {
+            $response = $this->make_api_request('installation/status', [], 'POST');
+
+            if (!$response || !isset($response['success']) || !$response['success']) {
+                debugging('Installation status fallback failed: ' . json_encode($response));
                 return null;
             }
-            
-            return $subscription_data;
-            
+
+            $data = $response['data'];
+            $subscription = $data['subscription'] ?? [];
+            $tier = $data['tier'] ?? 'free';
+
+            // Map tier to plan details
+            $plan_map = [
+                'free' => ['name' => 'Free Plan', 'price' => '£0', 'ai_credits' => 1000, 'exports' => 10],
+                'starter' => ['name' => 'Starter Plan', 'price' => '£9/month', 'ai_credits' => 5000, 'exports' => 50],
+                'pro' => ['name' => 'Pro Plan', 'price' => '£29/month', 'ai_credits' => 25000, 'exports' => 200],
+                'enterprise' => ['name' => 'Enterprise Plan', 'price' => 'Custom', 'ai_credits' => -1, 'exports' => -1],
+            ];
+
+            $plan = $plan_map[$tier] ?? $plan_map['free'];
+
+            // Build subscription data structure matching expected format
+            return [
+                'plan_id' => array_search($tier, array_keys($plan_map)) + 1,
+                'plan_name' => $plan['name'],
+                'price' => $plan['price'],
+                'billing_cycle' => 'monthly',
+                'status' => $subscription['status'] ?? $data['license_status'] ?? 'active',
+                'ai_credits_remaining' => $plan['ai_credits'],
+                'exports_remaining' => $plan['exports'],
+                'current_period_start' => null,
+                'current_period_end' => $subscription['current_period_end'] ?? null,
+                'next_billing' => $subscription['current_period_end'] ?? null,
+                'is_trial' => false,
+                'trial_ends_at' => null,
+                'cancel_at_period_end' => false,
+                'cancelled_at' => null,
+                'failed_payment_attempts' => 0,
+                'last_payment_failed_at' => null,
+                'last_payment_succeeded_at' => null,
+                'is_active' => ($subscription['status'] ?? 'active') === 'active',
+                'is_cancelled' => false,
+                'has_payment_issues' => false,
+                'should_disable_api_access' => false,
+                'status_message' => 'Active subscription (from installation status)',
+                'is_registered' => true,
+                'subscription_id' => null,
+                'stripe_subscription_id' => null,
+                'stripe_customer_id' => null,
+                'status_details' => json_encode([]),
+                'cancellation_info' => json_encode([]),
+                'payment_info' => json_encode([]),
+                'ai_credits_used_this_month' => 0,
+                'reports_generated_this_month' => 0,
+                'plan_ai_credits_limit' => $plan['ai_credits'],
+                'plan_exports_limit' => $plan['exports'],
+                'tier' => $tier,
+                'is_fallback_data' => true,
+            ];
+
         } catch (\Exception $e) {
-            debugging('Failed to get subscription details: ' . $e->getMessage());
+            debugging('Installation status fallback exception: ' . $e->getMessage());
             return null;
         }
     }
