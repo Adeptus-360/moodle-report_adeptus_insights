@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010537; // YYYYMMDDXX - Use Moodle AMD loader for Chart.js
+$plugin->version   = 2026010538; // YYYYMMDDXX - Fix export eligibility subscription check
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.67';
+$plugin->release   = '1.1.68';

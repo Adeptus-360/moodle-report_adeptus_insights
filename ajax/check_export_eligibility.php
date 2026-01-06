@@ -38,8 +38,14 @@ try {
         'message' => 'Export allowed'
     ];
 
-    // Determine if user is on free plan
-    $is_free_plan = !$subscription || ($subscription->tier ?? 'free') === 'free';
+    // Determine if user is on free plan (same logic as check_subscription_status.php)
+    $is_free_plan = true; // Default to free
+    if ($subscription) {
+        $plan_name = strtolower($subscription['plan_name'] ?? '');
+        $is_free_plan = (strpos($plan_name, 'free') !== false ||
+                         strpos($plan_name, 'trial') !== false ||
+                         ($subscription['price'] ?? 0) == 0);
+    }
 
     // Check if user is on free plan
     if ($is_free_plan) {
@@ -53,10 +59,10 @@ try {
         }
     } else {
         // Check export limits for paid users
-        $exports_remaining = $subscription->exports_remaining ?? 50;
+        $exports_remaining = $subscription['exports_remaining'] ?? 50;
 
         if ($exports_remaining <= 0) {
-            $exports_limit = $subscription->plan_exports ?? 50;
+            $exports_limit = $subscription['plan_exports_limit'] ?? 50;
             $response = [
                 'success' => true,
                 'eligible' => false,
