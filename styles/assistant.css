@@ -466,3 +466,65 @@
     border: none;
     cursor: pointer;
 }
+
+/* URL links in report tables */
+.report-url-link {
+    color: #0d6efd;
+    text-decoration: none;
+    word-break: break-all;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.report-url-link:hover {
+    color: #0a58ca;
+    background-color: #e7f1ff;
+    text-decoration: underline;
+}
+
+.report-url-link:focus {
+    outline: 2px solid #0d6efd;
+    outline-offset: 2px;
+}
+
+/* External link indicator icon (optional - shows link opens in new tab) */
+.report-url-link::after {
+    content: '\f08e'; /* Font Awesome external link icon */
+    font-family: 'Font Awesome 6 Free', 'FontAwesome', sans-serif;
+    font-weight: 900;
+    font-size: 0.7em;
+    margin-left: 4px;
+    opacity: 0.6;
+    vertical-align: super;
+}
+
+/* Retry button styles */
+.btn-retry {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-retry:hover {
+    background-color: #0b5ed7;
+}
+
+/* Error state with retry */
+.error-with-retry {
+    background-color: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+
+.error-with-retry .error-message {
+    color: #c53030;
+    margin-bottom: 12px;
+}

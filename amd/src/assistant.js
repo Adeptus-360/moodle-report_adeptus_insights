@@ -2674,6 +2674,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const authHeaders = AuthUtils.getAuthHeaders();
             options.headers = { ...options.headers, ...authHeaders };
 
+            // Set default timeout to 60 seconds for AI operations (can be slow)
+            if (!options.timeout) {
+                options.timeout = 60000;
+            }
+
             // Make the authenticated request
             return $.ajax(options);
         },
@@ -3375,6 +3380,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         confirmReport: function(action, report, feedback) {
+            const self = this;
             this.showLoading();
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
@@ -3395,6 +3401,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 url: 'https://a360backend.stagingwithswift.com/api/v1/chat/report-confirmation',
                 method: 'POST',
                 contentType: 'application/json',
+                timeout: 90000, // 90 seconds for feedback processing (AI can be slow)
                 data: JSON.stringify({
                     chat_id: chatId,
                     action: action,
@@ -3434,54 +3441,128 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     } else {
                         // Feedback sent - handle refined response
                         if (response.chat_response) {
-                            // Update any active report action containers
+                            // Check if the response indicates an AI service error
+                            const chatResponse = response.chat_response;
+                            const isServiceError = chatResponse.error ||
+                                (chatResponse.message && (
+                                    chatResponse.message.toLowerCase().includes('trouble connecting') ||
+                                    chatResponse.message.toLowerCase().includes('service') ||
+                                    chatResponse.message.toLowerCase().includes('try again')
+                                ));
+
+                            if (isServiceError) {
+                                // AI service had an issue - show error with retry option
+                                const errorMsg = chatResponse.message || 'The AI service is temporarily unavailable.';
+                                document.querySelectorAll('.report-action-container').forEach(container => {
+                                    const retryBtnId = 'retry-feedback-' + Date.now();
+                                    container.innerHTML = `
+                                        <div style="text-align: center; padding: 10px;">
+                                            <div style="color: #dc3545; margin-bottom: 10px;">
+                                                <i class="fa fa-exclamation-circle"></i> ${errorMsg}
+                                            </div>
+                                            <button id="${retryBtnId}" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-refresh"></i> Retry
+                                            </button>
+                                        </div>
+                                    `;
+                                    // Attach retry handler
+                                    const retryBtn = document.getElementById(retryBtnId);
+                                    if (retryBtn) {
+                                        retryBtn.addEventListener('click', function() {
+                                            self.confirmReport(action, report, feedback);
+                                        });
+                                    }
+                                });
+                                // Also show the error in the chat
+                                this.addMessage(errorMsg, 'error');
+                            } else {
+                                // Normal success - show feedback sent message
+                                document.querySelectorAll('.report-action-container').forEach(container => {
+                                    container.innerHTML = `
+                                        <div style="text-align: center; color: #007bff;">
+                                            <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
+                                        </div>
+                                    `;
+                                });
+                                this.handleResponse(response.chat_response);
+                            }
+                        } else {
+                            // No chat_response - unexpected, show generic feedback sent
                             document.querySelectorAll('.report-action-container').forEach(container => {
                                 container.innerHTML = `
                                     <div style="text-align: center; color: #007bff;">
-                                        <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
+                                        <i class="fa fa-info-circle"></i> Feedback sent.
                                     </div>
                                 `;
                             });
-
-                            this.handleResponse(response.chat_response);
                         }
                     }
                 },
-                error: (xhr) => {
+                error: (xhr, status, error) => {
                     this.hideLoading();
 
                     // Log the error for debugging
                     console.error('[AI Assistant] Report confirmation failed:', {
                         status: xhr.status,
+                        statusText: status,
+                        error: error,
                         responseText: xhr.responseText,
                         responseJSON: xhr.responseJSON
                     });
 
-                    // Update any active report action containers to show error
-                    document.querySelectorAll('.report-action-container').forEach(container => {
-                        container.innerHTML = `
-                            <div style="text-align: center; color: #dc3545;">
-                                <i class="fa fa-exclamation-triangle"></i> Failed to save report. Please try again.
-                            </div>
-                        `;
-                    });
+                    // Determine error type and message
+                    let errorMessage = 'Failed to process request. Please try again.';
+                    let showRetry = true;
 
-                    let errorMessage = 'Failed to save report. Please try again.';
-                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    if (status === 'timeout') {
+                        errorMessage = 'Request timed out. The AI service may be busy. Please try again.';
+                    } else if (xhr.status === 0) {
+                        errorMessage = 'Network error. Please check your connection and try again.';
+                    } else if (xhr.status === 401) {
+                        errorMessage = 'Session expired. Please refresh the page and log in again.';
+                        showRetry = false;
+                    } else if (xhr.status === 429) {
+                        errorMessage = 'Too many requests. Please wait a moment and try again.';
+                    } else if (xhr.status >= 500) {
+                        errorMessage = 'Server error. Please try again in a moment.';
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
                         console.error('[AI Assistant] Validation errors:', xhr.responseJSON.errors);
-                        // Show specific validation errors
                         const errors = xhr.responseJSON.errors;
                         const errorDetails = Object.keys(errors).map(field => `${field}: ${errors[field].join(', ')}`).join('; ');
                         errorMessage = `Validation failed: ${errorDetails}`;
+                        showRetry = false;
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
                     }
 
-                    // Update any active report action containers to show error
+                    // Update containers with error and optional retry button
                     document.querySelectorAll('.report-action-container').forEach(container => {
+                        const retryBtnId = 'retry-error-' + Date.now();
+                        let retryHtml = '';
+                        if (showRetry) {
+                            retryHtml = `
+                                <button id="${retryBtnId}" class="btn btn-outline-primary btn-sm" style="margin-top: 10px;">
+                                    <i class="fa fa-refresh"></i> Try Again
+                                </button>
+                            `;
+                        }
                         container.innerHTML = `
-                            <div style="text-align: center; color: #dc3545;">
-                                <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
+                            <div style="text-align: center; padding: 10px;">
+                                <div style="color: #dc3545;">
+                                    <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
+                                </div>
+                                ${retryHtml}
                             </div>
                         `;
+                        // Attach retry handler if button exists
+                        if (showRetry) {
+                            const retryBtn = document.getElementById(retryBtnId);
+                            if (retryBtn) {
+                                retryBtn.addEventListener('click', function() {
+                                    self.confirmReport(action, report, feedback);
+                                });
+                            }
+                        }
                     });
                 }
             });
@@ -4148,17 +4229,79 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
+         * Linkify URLs in text - converts URLs to clickable links
+         * @param {string} text - The text that may contain URLs
+         * @returns {string} Text with URLs converted to anchor tags
+         */
+        linkifyUrls: function(text) {
+            if (!text || typeof text !== 'string') {
+                return text || '';
+            }
+
+            // URL regex pattern - matches http(s) URLs
+            const urlPattern = /(\bhttps?:\/\/[^\s<>"']+)/gi;
+
+            // Escape HTML first to prevent XSS, then linkify
+            const escaped = String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+
+            // Replace URLs with anchor tags
+            return escaped.replace(urlPattern, function(url) {
+                // Truncate display text if URL is too long
+                const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="report-url-link" title="${url}">${displayUrl}</a>`;
+            });
+        },
+
+        /**
+         * Format cell value for display - handles URLs, nulls, and special formatting
+         * @param {*} value - The cell value
+         * @param {string} header - The column header (used for context-aware formatting)
+         * @returns {string} Formatted HTML for the cell
+         */
+        formatCellValue: function(value, header) {
+            if (value === null || value === undefined || value === '') {
+                return '';
+            }
+
+            const strValue = String(value);
+
+            // Check if this looks like a URL column or contains a URL
+            const headerLower = (header || '').toLowerCase();
+            const isUrlColumn = headerLower.includes('url') ||
+                                headerLower.includes('link') ||
+                                headerLower.includes('profile') ||
+                                headerLower.includes('href');
+
+            // If it's a URL column or contains http, linkify it
+            if (isUrlColumn || strValue.match(/^https?:\/\//i)) {
+                return this.linkifyUrls(strValue);
+            }
+
+            // For other values, just escape HTML
+            return String(strValue)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        },
+
+        /**
          * Render report data as a table
          */
         renderReportData: function(data) {
             if (!data || data.length === 0) {
                 return '<p class="text-muted">No data available.</p>';
             }
-            
+
+            const self = this;
             const headers = Object.keys(data[0]);
             const tableId = 'enhanced-report-table-' + Date.now();
             let tableHtml = `<div class="table-responsive"><table id="${tableId}" class="table table-striped table-hover">`;
-            
+
             // Add headers with data type hints for proper sorting
             tableHtml += '<thead><tr>';
             headers.forEach(header => {
@@ -4167,32 +4310,33 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     const val = row[header];
                     return val === null || val === undefined || val === '' || !isNaN(parseFloat(val));
                 });
-                
+
                 // Detect if column contains date data
                 const isDate = !isNumeric && data.some(row => {
                     const val = row[header];
                     return val && !isNaN(Date.parse(val));
                 });
-                
+
                 const dataType = isNumeric ? ' data-vte="number"' : (isDate ? ' data-vte="date"' : '');
                 tableHtml += `<th${dataType}>${header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</th>`;
             });
             tableHtml += '</tr></thead>';
-            
-            // Add data rows
+
+            // Add data rows with formatted cell values (including URL linkification)
             tableHtml += '<tbody>';
             data.forEach(row => {
                 tableHtml += '<tr>';
                 headers.forEach(header => {
-                    tableHtml += `<td>${row[header] || ''}</td>`;
+                    const formattedValue = self.formatCellValue(row[header], header);
+                    tableHtml += `<td>${formattedValue}</td>`;
                 });
                 tableHtml += '</tr>';
             });
             tableHtml += '</tbody></table></div>';
-            
+
             // Store table ID for enhancement after DOM insertion
             this._pendingTableId = tableId;
-            
+
             return tableHtml;
         },
 
