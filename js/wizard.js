@@ -2543,11 +2543,6 @@ class AdeptusWizard {
     }
 
     async exportReport(format) {
-            format: format,
-            selectedReport: this.selectedReport,
-            currentResults: this.currentResults ? 'present' : 'null'
-        });
-
         // Check if export button is disabled (limit reached)
         const exportBtn = document.getElementById('export-btn');
         if (exportBtn && exportBtn.disabled) {
@@ -3135,12 +3130,6 @@ class AdeptusWizard {
     }
 
     async trackExport(format) {
-            format: format,
-            selectedReport: this.selectedReport,
-            wwwroot: this.wizardData?.wwwroot,
-            sesskey: this.wizardData?.sesskey ? 'present' : 'missing'
-        });
-
         // Ensure we have a report name
         if (!this.selectedReport) {
             console.warn('trackExport: No selectedReport set, skipping tracking');
