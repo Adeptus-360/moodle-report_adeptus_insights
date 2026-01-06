@@ -462,40 +462,35 @@ class AdeptusWizard {
     }
 
     /**
-     * Load Chart.js from local plugin lib folder
-     * Note: We load locally instead of Moodle's core/chartjs
-     * to avoid conflicts with Moodle's reactive component framework
-     * Loading is non-blocking since charts are only needed in step 4
+     * Load Chart.js using Moodle's AMD require system
+     * This ensures proper module loading in Moodle's environment
      */
     loadChartJS() {
         // Check if already loaded
+        if (this.chartJS) {
+            return;
+        }
+
+        // Check global Chart
         if (typeof Chart !== 'undefined') {
             this.chartJS = Chart;
+            console.log('Chart.js already available globally');
             return;
         }
 
-        // Check if script is already being loaded
-        if (document.querySelector('script[src*="chart.umd.min.js"]')) {
-            return;
-        }
-
-        // Load Chart.js from local plugin lib folder
-        const script = document.createElement('script');
-        script.src = this.wizardData.wwwroot + '/report/adeptus_insights/lib/chart.umd.min.js';
-        script.async = true;
-        script.onload = () => {
-            // Small delay to ensure the global is registered
-            setTimeout(() => {
-                if (typeof Chart !== 'undefined') {
-                    this.chartJS = Chart;
-                    console.log('Chart.js loaded successfully from local lib');
+        // Use Moodle's require to load Chart.js
+        if (typeof require !== 'undefined') {
+            require(['core/chartjs'], (ChartModule) => {
+                this.chartJS = ChartModule;
+                // Also set global for compatibility
+                if (typeof window !== 'undefined') {
+                    window.Chart = ChartModule;
                 }
-            }, 100);
-        };
-        script.onerror = (e) => {
-            console.error('Failed to load Chart.js from local lib:', e);
-        };
-        document.head.appendChild(script);
+                console.log('Chart.js loaded via Moodle AMD');
+            });
+        } else {
+            console.error('Moodle require() not available');
+        }
     }
 
     /**
@@ -503,37 +498,35 @@ class AdeptusWizard {
      * Call this before creating charts
      */
     async getChartJS() {
-        // Already loaded
+        // Already loaded in this instance
         if (this.chartJS) {
             return this.chartJS;
         }
 
-        // Check global
+        // Check global Chart
         if (typeof Chart !== 'undefined') {
             this.chartJS = Chart;
             return this.chartJS;
         }
 
-        // Try loading again if not yet loaded
-        this.loadChartJS();
-
-        // Wait for it to load (max 10 seconds with more attempts)
+        // Load via Moodle's AMD require system
         return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const maxAttempts = 100; // 10 seconds
-            const checkInterval = setInterval(() => {
-                attempts++;
-                if (typeof Chart !== 'undefined') {
-                    this.chartJS = Chart;
-                    clearInterval(checkInterval);
-                    console.log('Chart.js ready after', attempts * 100, 'ms');
+            if (typeof require !== 'undefined') {
+                require(['core/chartjs'], (ChartModule) => {
+                    this.chartJS = ChartModule;
+                    // Also set global for compatibility
+                    if (typeof window !== 'undefined') {
+                        window.Chart = ChartModule;
+                    }
+                    console.log('Chart.js loaded via Moodle AMD require');
                     resolve(this.chartJS);
-                } else if (attempts >= maxAttempts) {
-                    clearInterval(checkInterval);
-                    console.error('Chart.js failed to load after 10 seconds');
+                }, (err) => {
+                    console.error('Failed to load Chart.js via AMD:', err);
                     reject(new Error('Chart.js not available - please refresh the page'));
-                }
-            }, 100);
+                });
+            } else {
+                reject(new Error('Moodle require() not available'));
+            }
         });
     }
 
