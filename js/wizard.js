@@ -2625,11 +2625,15 @@ class AdeptusWizard {
                 body: body
             });
 
-            
-            // Check if response is an error (JSON)
+
+            // Check if response is an error (JSON without attachment disposition)
+            // JSON export legitimately returns application/json, so we need to check Content-Disposition
             const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                // This is an error response, not a file
+            const contentDisposition = response.headers.get('content-disposition');
+            const isFileDownload = contentDisposition && contentDisposition.includes('attachment');
+
+            if (contentType && contentType.includes('application/json') && !isFileDownload) {
+                // This is an error response, not a file download
                 const errorData = await response.json();
                 // Only log actual errors, not restrictions
                 if (errorData.error !== 'dataset_too_large') {

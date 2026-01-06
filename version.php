@@ -4,7 +4,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026010538; // YYYYMMDDXX - Fix export eligibility subscription check
+$plugin->version   = 2026010539; // YYYYMMDDXX - Fix JSON export being treated as error
 $plugin->requires  = 2022112800; // Moodle 4.1
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.68';
+$plugin->release   = '1.1.69';
