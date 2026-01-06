@@ -60,6 +60,19 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026010301, 'report', 'adeptus_insights');
     }
 
+    // Version 2026010535: Change reportid column from INT to CHAR to store report names
+    if ($oldversion < 2026010535) {
+        $table = new xmldb_table('adeptus_report_history');
+        $field = new xmldb_field('reportid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'userid');
+
+        // Change the field type from int to char
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2026010535, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
 ?>
