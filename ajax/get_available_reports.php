@@ -102,7 +102,6 @@ try {
         'filtered' => count($backendData['data']) - count($filtered_reports),
     ]);
 } catch (Exception $e) {
-    error_log('Error in get_available_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Error fetching available reports: ' . $e->getMessage(),

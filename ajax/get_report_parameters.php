@@ -176,9 +176,7 @@ try {
                     }
                 }
             } catch (Exception $e) {
-                if ($debugMode) {
-                    error_log('Backend API call failed for parameter ' . $param['name'] . ': ' . $e->getMessage());
-                }
+                // Silently continue - backend enhancement is optional.
             }
         }
 
@@ -208,7 +206,6 @@ try {
         'backend_enhanced' => $backendEnabled && !empty($enhancedParam),
     ]);
 } catch (Exception $e) {
-    error_log('Error in get_report_parameters.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 

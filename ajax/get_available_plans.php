@@ -153,12 +153,7 @@ try {
                 'stripe_configured' => $plan['stripe_configured'] ?? false,
             ];
 
-            // Debug: Log stripe IDs for each plan
-                      ', tier: ' . $tier .
-                      ', stripe_configured: ' . ($plan['stripe_configured'] ? 'true' : 'false') .
-                      ', stripe_price_id: ' . ($plan['stripe_price_id'] ?? 'NULL'));
-
-            // Organize by billing interval
+            // Organize by billing interval.
             if ($billing_interval === 'yearly' || $billing_interval === 'annual') {
                 $yearly_plans[$tier] = $transformed_plan;
                 $has_yearly_plans = true;

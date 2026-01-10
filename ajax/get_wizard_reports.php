@@ -74,7 +74,6 @@ try {
     curl_close($ch);
 
     if ($httpCode !== 200) {
-        error_log("Error fetching wizard reports from backend. HTTP Code: {$httpCode}, Error: {$curlError}, Response: {$response}");
         echo json_encode([
             'success' => false,
             'message' => 'Failed to fetch wizard reports from server',
@@ -103,7 +102,6 @@ try {
         'count' => count($reports),
     ]);
 } catch (Exception $e) {
-    error_log('Error in get_wizard_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Error fetching wizard reports: ' . $e->getMessage(),

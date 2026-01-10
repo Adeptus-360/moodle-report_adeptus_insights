@@ -1623,7 +1623,6 @@ class installation_manager {
                 'portal_url' => $portal_result['portal_url'],
             ];
         } catch (\Exception $e) {
-            error_log('Error creating product portal session: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Error creating portal session: ' . $e->getMessage()];
         }
     }

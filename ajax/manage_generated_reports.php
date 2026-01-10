@@ -121,7 +121,6 @@ try {
             break;
     }
 } catch (Exception $e) {
-    error_log('Error in manage_generated_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Error managing generated reports: ' . $e->getMessage(),

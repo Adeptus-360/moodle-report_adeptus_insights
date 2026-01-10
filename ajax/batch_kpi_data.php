@@ -192,7 +192,6 @@ try {
         'report_count' => count($reportids),
     ]);
 } catch (Exception $e) {
-    error_log('Error in batch_kpi_data.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Error: ' . $e->getMessage(),

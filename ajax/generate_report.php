@@ -293,10 +293,6 @@ try {
             $results = $DB->get_records_sql($sql);
         }
     } catch (\dml_read_exception $e) {
-        // Log the actual SQL error with full details
-        error_log("SQL EXECUTION ERROR: " . $e->getMessage());
-        error_log("SQL Query: " . $sql);
-        error_log("Debug Info: " . print_r($e->debuginfo, true));
         throw new Exception("SQL Error: " . $e->debuginfo);
     }
 
@@ -383,7 +379,7 @@ try {
             } else {
             }
         } catch (Exception $e) {
-            error_log("Error tracking report generation: " . $e->getMessage());
+            // Silently continue - tracking failure shouldn't break report generation.
         }
     } else {
     }
@@ -503,8 +499,6 @@ try {
         ],
     ]);
 } catch (Exception $e) {
-    error_log('Error in generate_report.php: ' . $e->getMessage());
-    error_log('Stack trace: ' . $e->getTraceAsString());
     echo json_encode([
         'success' => false,
         'message' => 'Error executing report: ' . $e->getMessage(),

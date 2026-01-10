@@ -72,7 +72,6 @@ try {
         try {
             $reports_generated_this_month = $DB->count_records('adeptus_generated_reports', ['userid' => $USER->id]);
         } catch (Exception $e) {
-            error_log('Error counting generated reports for free plan: ' . $e->getMessage());
             $reports_generated_this_month = 0;
         }
     }
@@ -86,7 +85,6 @@ try {
         try {
             $exports_used = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
         } catch (Exception $e) {
-            error_log('Error counting exports for free plan: ' . $e->getMessage());
             $exports_used = 0;
         }
         $exports_limit = 10; // Free plan limit

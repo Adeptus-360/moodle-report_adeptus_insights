@@ -93,8 +93,6 @@ try {
     header('Content-Type: application/json');
     echo json_encode($response);
 } catch (Exception $e) {
-    error_log('Error in check_export_eligibility.php: ' . $e->getMessage());
-
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,

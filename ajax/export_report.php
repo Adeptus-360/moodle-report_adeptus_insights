@@ -446,7 +446,6 @@ try {
                 $pdf_content = generatePDF($reportid, $table_data, $chart_export_data, $report_params, $chart_image);
 
                 if ($pdf_content === false || empty($pdf_content)) {
-                    error_log('PDF Export - PDF content is empty or false');
                     throw new Exception('Failed to generate PDF content');
                 }
 
@@ -458,10 +457,7 @@ try {
 
                 echo $pdf_content;
             } catch (Exception $pdf_error) {
-                error_log('PDF Generation Error: ' . $pdf_error->getMessage());
-                error_log('PDF Generation Stack Trace: ' . $pdf_error->getTraceAsString());
-
-                // Return JSON error instead of corrupted PDF
+                // Return JSON error instead of corrupted PDF.
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,
@@ -476,10 +472,7 @@ try {
             break;
     }
 } catch (Exception $e) {
-    error_log('Error in export_report.php: ' . $e->getMessage());
-    error_log('Stack trace: ' . $e->getTraceAsString());
-
-    // Always return JSON error for AJAX requests
+    // Always return JSON error for AJAX requests.
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
@@ -595,7 +588,6 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         // Create new PDF document
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     } catch (Exception $e) {
-        error_log('TCPDF initialization error: ' . $e->getMessage());
         throw new Exception('Failed to initialize PDF library: ' . $e->getMessage());
     }
 
@@ -729,7 +721,6 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
 
         return $pdf_output;
     } catch (Exception $e) {
-        error_log('PDF Output error: ' . $e->getMessage());
         throw new Exception('Failed to output PDF: ' . $e->getMessage());
     }
 }

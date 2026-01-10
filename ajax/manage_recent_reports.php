@@ -88,7 +88,6 @@ try {
         ]);
     }
 } catch (Exception $e) {
-    error_log('Error in manage_recent_reports.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 

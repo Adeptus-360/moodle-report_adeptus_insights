@@ -39,9 +39,8 @@ header('Content-Type: application/json');
 // Get parameters
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
-// Validate session key
+// Validate session key.
 if (!confirm_sesskey($sesskey)) {
-    error_log("Invalid session key provided: " . $sesskey);
     echo json_encode(['success' => false, 'message' => 'Invalid session key', 'debug' => 'Session validation failed']);
     exit;
 }
@@ -70,9 +69,7 @@ try {
         $installation_manager = new \report_adeptus_insights\installation_manager();
         $api_key = $installation_manager->get_api_key();
     } catch (Exception $e) {
-        if ($debugMode) {
-            error_log("Could not get API key: " . $e->getMessage());
-        }
+        // Silently continue - API key is optional.
     }
 
     // Prepare headers
@@ -278,9 +275,7 @@ try {
         'moodle_version' => $moodle_version_string,
     ]);
 } catch (Exception $e) {
-    error_log('Error in get_reports_from_backend.php: ' . $e->getMessage());
-
-    // Provide user-friendly error messages
+    // Provide user-friendly error messages.
     $message = $e->getMessage();
     if (strpos($message, 'HTTP 301') !== false || strpos($message, 'HTTP 302') !== false) {
         $message = 'Authentication required. Please log in to access reports.';

@@ -143,7 +143,6 @@ try {
         }
     }
 } catch (Exception $e) {
-    error_log('Error in bookmark_report.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 

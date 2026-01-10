@@ -141,8 +141,6 @@ try {
         }
     }
 } catch (Exception $e) {
-    error_log('Error in track_export.php: ' . $e->getMessage());
-
     echo json_encode([
         'success' => false,
         'message' => 'Error tracking export: ' . $e->getMessage(),
