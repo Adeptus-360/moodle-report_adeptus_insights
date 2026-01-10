@@ -276,11 +276,11 @@ $string['privacy:metadata:adeptus_export_tracking:reportname'] = 'Name of the ex
 $string['privacy:metadata:adeptus_export_tracking:format'] = 'Export format (CSV, JSON, etc.).';
 $string['privacy:metadata:adeptus_export_tracking:exportedat'] = 'When the export occurred.';
 
-$string['privacy:metadata:adeptus360_api'] = 'Data sent to the Adeptus 360 API for AI-powered report generation.';
-$string['privacy:metadata:adeptus360_api:userid'] = 'The Moodle user ID (for session tracking).';
-$string['privacy:metadata:adeptus360_api:email'] = 'The user email for authentication.';
-$string['privacy:metadata:adeptus360_api:chat_messages'] = 'Chat messages sent to the AI assistant.';
-$string['privacy:metadata:adeptus360_api:generated_reports'] = 'Reports generated through the AI assistant.';
+$string['privacy:metadata:adeptus360_api'] = 'Registration and subscription data sent to Adeptus 360 for service operation. Note: Student data, report results, and analytics data never leave your Moodle server.';
+$string['privacy:metadata:adeptus360_api:admin_email'] = 'Administrator email address for registration and subscription management.';
+$string['privacy:metadata:adeptus360_api:admin_name'] = 'Administrator name for registration purposes.';
+$string['privacy:metadata:adeptus360_api:site_url'] = 'Your Moodle site URL for license validation.';
+$string['privacy:metadata:adeptus360_api:ai_queries'] = 'Natural language queries sent to the AI assistant. Note: Only the questions are sent - report results are generated locally and never transmitted.';
 
 $string['privacy:analytics'] = 'Analytics data';
 $string['privacy:reportcache'] = 'Report cache';

@@ -91,15 +91,46 @@ The plugin defines the following capabilities:
 - `report/adeptus_insights:view` - View the Adeptus Insights reports
 - `report/adeptus_insights:manage` - Manage report settings and configurations
 
-## Privacy
+## Privacy and Data Security
 
-This plugin stores the following user data:
+### Your Data Stays On Your Server
 
-- Report generation history
-- User preferences for reports
-- Chat history with the AI Assistant
+Adeptus Insights is designed with data sovereignty as a core principle. **Your student data, grades, activity logs, and report results never leave your Moodle server.**
 
-All data is handled in compliance with GDPR requirements. See the Privacy API implementation in `classes/privacy/provider.php`.
+Here's how it works:
+
+1. You ask a question in natural language (e.g., "Show students at risk of failing")
+2. Our AI interprets your request and generates secure SQL instructions
+3. The SQL runs **locally on your Moodle database**
+4. Results are displayed directly to you - they are never transmitted externally
+
+### What We Store
+
+**On your Moodle server (stays with you):**
+- All student and course data
+- Generated report results and analytics
+- Report configurations and bookmarks
+- Export files
+
+**On Adeptus 360 servers (for service operation only):**
+- Administrator contact details (email, name) for registration
+- Site URL for license validation
+- Subscription and billing information
+
+**We do NOT have access to:**
+- Student personal information
+- Grades or academic records
+- Course content or activities
+- Any data queried through reports
+
+### GDPR Compliance
+
+This plugin fully implements Moodle's Privacy API:
+- Users can request export of their data
+- Users can request deletion of their data
+- All data handling complies with GDPR requirements
+
+See the Privacy API implementation in `classes/privacy/provider.php` for technical details.
 
 ## Troubleshooting
 
@@ -141,6 +172,6 @@ See [http://www.gnu.org/copyleft/gpl.html](http://www.gnu.org/copyleft/gpl.html)
 
 ## Version
 
-- **Current Version**: 1.1.70
+- **Current Version**: 1.2.1
 - **Moodle Compatibility**: 4.1+
 - **Maturity**: Stable

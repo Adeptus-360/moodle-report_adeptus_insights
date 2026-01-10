@@ -142,13 +142,15 @@ class provider implements
         );
 
         // External system - Adeptus 360 API.
+        // Note: Only administrator registration data and AI queries are sent externally.
+        // Student data, report results, and analytics data NEVER leave the Moodle server.
         $collection->add_external_location_link(
             'adeptus360_api',
             [
-                'userid' => 'privacy:metadata:adeptus360_api:userid',
-                'email' => 'privacy:metadata:adeptus360_api:email',
-                'chat_messages' => 'privacy:metadata:adeptus360_api:chat_messages',
-                'generated_reports' => 'privacy:metadata:adeptus360_api:generated_reports',
+                'admin_email' => 'privacy:metadata:adeptus360_api:admin_email',
+                'admin_name' => 'privacy:metadata:adeptus360_api:admin_name',
+                'site_url' => 'privacy:metadata:adeptus360_api:site_url',
+                'ai_queries' => 'privacy:metadata:adeptus360_api:ai_queries',
             ],
             'privacy:metadata:adeptus360_api'
         );

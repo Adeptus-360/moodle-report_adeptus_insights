@@ -1,7 +1,26 @@
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
-// Export report data in various formats
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Export report data AJAX endpoint.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 define('AJAX_SCRIPT', true);
 
@@ -463,14 +482,13 @@ try {
 
 } catch (Exception $e) {
     error_log('Error in export_report.php: ' . $e->getMessage());
-    error_log('Error stack trace: ' . $e->getTraceAsString());
-    
+    error_log('Stack trace: ' . $e->getTraceAsString());
+
     // Always return JSON error for AJAX requests
     header('Content-Type: application/json');
     echo json_encode([
-        'success' => false, 
-        'message' => 'Error exporting report: ' . $e->getMessage(),
-        'error_details' => $e->getTraceAsString()
+        'success' => false,
+        'message' => 'Error exporting report: ' . $e->getMessage()
     ]);
 }
 

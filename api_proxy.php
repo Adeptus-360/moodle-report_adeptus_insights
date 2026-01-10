@@ -25,35 +25,76 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Load centralized API configuration
+// Load Moodle configuration.
+require_once(__DIR__ . '/../../config.php');
+
+// Load centralized API configuration.
 require_once(__DIR__ . '/classes/api_config.php');
 
-// Get CORS origin from centralized config
+// Get CORS origin from centralized config.
 $cors_origin = \report_adeptus_insights\api_config::get_cors_origin();
 
-// Set CORS headers
+// Set CORS headers.
 header('Access-Control-Allow-Origin: ' . $cors_origin);
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origin');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origin, X-Sesskey');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
-// Handle preflight requests
+// Handle preflight requests.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
 
-// Backend API URL - using legacy URL for backward compatibility
-$BACKEND_URL = \report_adeptus_insights\api_config::get_legacy_api_url();
+// Define endpoints that don't require authentication (used during initial setup).
+$public_endpoints = ['register'];
 
-// Get the request path
+// Get the request path to determine the endpoint early.
 $request_uri = $_SERVER['REQUEST_URI'];
 $path = parse_url($request_uri, PHP_URL_PATH);
-
-// Extract the endpoint from the path
 $path_parts = explode('/', trim($path, '/'));
 $endpoint = end($path_parts);
+
+// Require authentication for non-public endpoints.
+if (!in_array($endpoint, $public_endpoints)) {
+    require_login();
+    $context = context_system::instance();
+    require_capability('report/adeptus_insights:view', $context);
+
+    // Validate session key for POST/PUT/PATCH/DELETE requests.
+    if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        // Try to get sesskey from header, query string, or request body.
+        $sesskey = null;
+        if (isset($_SERVER['HTTP_X_SESSKEY'])) {
+            $sesskey = $_SERVER['HTTP_X_SESSKEY'];
+        } elseif (isset($_GET['sesskey'])) {
+            $sesskey = $_GET['sesskey'];
+        } elseif (isset($_POST['sesskey'])) {
+            $sesskey = $_POST['sesskey'];
+        } else {
+            // Try to get from JSON body.
+            $json_input = json_decode(file_get_contents('php://input'), true);
+            if (isset($json_input['sesskey'])) {
+                $sesskey = $json_input['sesskey'];
+            }
+        }
+
+        if (!$sesskey || !confirm_sesskey($sesskey)) {
+            http_response_code(403);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Invalid session key'
+            ]);
+            exit;
+        }
+    }
+}
+
+// Backend API URL - using legacy URL for backward compatibility.
+$BACKEND_URL = \report_adeptus_insights\api_config::get_legacy_api_url();
+
+// Note: $endpoint and $path_parts are already defined above during authentication check.
 
 // Handle different endpoints
 switch ($endpoint) {

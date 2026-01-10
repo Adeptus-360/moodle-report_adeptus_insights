@@ -507,10 +507,10 @@ try {
 
 } catch (Exception $e) {
     error_log('Error in generate_report.php: ' . $e->getMessage());
+    error_log('Stack trace: ' . $e->getTraceAsString());
     echo json_encode([
-        'success' => false, 
-        'message' => 'Error executing report: ' . $e->getMessage(),
-        'stacktrace' => $e->getTraceAsString()
+        'success' => false,
+        'message' => 'Error executing report: ' . $e->getMessage()
     ]);
 }
 
