@@ -60,7 +60,7 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key
+        'X-API-Key: ' . $api_key,
     ]);
 
     $response = curl_exec($ch);
@@ -86,7 +86,7 @@ try {
 
     if (!$show_unavailable) {
         // Remove incompatible reports
-        $filtered_reports = array_filter($filtered_reports, function($report) {
+        $filtered_reports = array_filter($filtered_reports, function ($report) {
             return $report['is_available'];
         });
 
@@ -99,13 +99,12 @@ try {
         'data' => $filtered_reports,
         'total' => count($backendData['data']),
         'available' => count($filtered_reports),
-        'filtered' => count($backendData['data']) - count($filtered_reports)
+        'filtered' => count($backendData['data']) - count($filtered_reports),
     ]);
-
 } catch (Exception $e) {
     error_log('Error in get_available_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Error fetching available reports: ' . $e->getMessage()
+        'message' => 'Error fetching available reports: ' . $e->getMessage(),
     ]);
 }

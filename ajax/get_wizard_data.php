@@ -38,10 +38,10 @@ header('Content-Type: application/json');
 try {
     // Get user information
     global $USER, $CFG;
-    
+
     // Generate session key
     $sesskey = sesskey();
-    
+
     // Return wizard data
     echo json_encode([
         'success' => true,
@@ -54,10 +54,9 @@ try {
             'timezone' => $USER->timezone,
             'lang' => $USER->lang,
             'moodle_version' => $CFG->version,
-            'plugin_version' => '1.0.0' // You can make this dynamic
-        ]
+            'plugin_version' => '1.0.0', // You can make this dynamic
+        ],
     ]);
-
 } catch (Exception $e) {
     error_log('Error in get_wizard_data.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Failed to load wizard data']);

@@ -49,16 +49,16 @@ try {
     $secret_key = get_config('report_adeptus_insights', 'secret_key');
     $webhook_secret = get_config('report_adeptus_insights', 'webhook_secret');
     $currency = get_config('report_adeptus_insights', 'currency') ?: 'GBP';
-    
+
     // Validate required fields
     if (empty($publishable_key)) {
         throw new Exception('Publishable key is required');
     }
-    
+
     if (empty($secret_key)) {
         throw new Exception('Secret key is required');
     }
-    
+
     // Validate key formats
     if ($test_mode) {
         if (!str_starts_with($publishable_key, 'pk_test_')) {
@@ -75,21 +75,21 @@ try {
             throw new Exception('Invalid live secret key format');
         }
     }
-    
+
     // Create Stripe service instance
     $stripe_service = new \report_adeptus_insights\stripe_service();
-    
+
     // Update configuration
     $config_data = [
         'publishable_key' => $publishable_key,
         'secret_key' => $secret_key,
         'webhook_secret' => $webhook_secret,
         'is_test_mode' => $test_mode ? 1 : 0,
-        'currency' => $currency
+        'currency' => $currency,
     ];
-    
+
     $stripe_service->update_config($config_data);
-    
+
     // Test the configuration
     try {
         $test_result = $stripe_service->get_products();
@@ -99,7 +99,6 @@ try {
         $message = 'Configuration saved but test failed: ' . $e->getMessage();
         $message_type = 'warning';
     }
-    
 } catch (Exception $e) {
     $message = 'Error saving configuration: ' . $e->getMessage();
     $message_type = 'error';
@@ -118,4 +117,4 @@ echo get_string('back_to_settings', 'report_adeptus_insights');
 echo '</a>';
 echo '</div>';
 
-echo $OUTPUT->footer(); 
+echo $OUTPUT->footer();

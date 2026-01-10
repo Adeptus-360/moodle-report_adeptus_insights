@@ -61,7 +61,7 @@ try {
     // Check if already bookmarked
     $existing = $DB->get_record('adeptus_report_bookmarks', [
         'userid' => $USER->id,
-        'reportid' => $reportid
+        'reportid' => $reportid,
     ]);
 
     if ($action === 'toggle') {
@@ -69,14 +69,14 @@ try {
             // Remove bookmark
             $DB->delete_records('adeptus_report_bookmarks', [
                 'userid' => $USER->id,
-                'reportid' => $reportid
+                'reportid' => $reportid,
             ]);
-            
+
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Bookmark removed successfully',
                 'action' => 'removed',
-                'bookmarked' => false
+                'bookmarked' => false,
             ]);
         } else {
             // Add bookmark
@@ -84,68 +84,67 @@ try {
             $bookmark->userid = $USER->id;
             $bookmark->reportid = $reportid;
             $bookmark->createdat = time();
-            
+
             $bookmark_id = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
 
             if ($bookmark_id) {
                 echo json_encode([
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Report bookmarked successfully',
                     'bookmark_id' => $bookmark_id,
                     'action' => 'added',
-                    'bookmarked' => true
+                    'bookmarked' => true,
                 ]);
             } else {
                 echo json_encode(['success' => false, 'message' => 'Failed to create bookmark']);
             }
         }
-    } elseif ($action === 'remove') {
+    } else if ($action === 'remove') {
         if ($existing) {
             $DB->delete_records('adeptus_report_bookmarks', [
                 'userid' => $USER->id,
-                'reportid' => $reportid
+                'reportid' => $reportid,
             ]);
-            
+
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Bookmark removed successfully',
                 'action' => 'removed',
-                'bookmarked' => false
+                'bookmarked' => false,
             ]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Bookmark not found']);
         }
     } else {
         // Legacy 'add' action
-    if ($existing) {
-        echo json_encode(['success' => false, 'message' => 'Report already bookmarked']);
-        exit;
-    }
+        if ($existing) {
+            echo json_encode(['success' => false, 'message' => 'Report already bookmarked']);
+            exit;
+        }
 
-    // Create bookmark
-    $bookmark = new stdClass();
-    $bookmark->userid = $USER->id;
-    $bookmark->reportid = $reportid;
-    $bookmark->createdat = time();
-    
-    $bookmark_id = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+        // Create bookmark
+        $bookmark = new stdClass();
+        $bookmark->userid = $USER->id;
+        $bookmark->reportid = $reportid;
+        $bookmark->createdat = time();
 
-    if ($bookmark_id) {
-        echo json_encode([
-            'success' => true, 
+        $bookmark_id = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+
+        if ($bookmark_id) {
+            echo json_encode([
+            'success' => true,
             'message' => 'Report bookmarked successfully',
                 'bookmark_id' => $bookmark_id,
                 'action' => 'added',
-                'bookmarked' => true
-        ]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Failed to create bookmark']);
+                'bookmarked' => true,
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Failed to create bookmark']);
         }
     }
-
 } catch (Exception $e) {
     error_log('Error in bookmark_report.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 
-exit; 
+exit;

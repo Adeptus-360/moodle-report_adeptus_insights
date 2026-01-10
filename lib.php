@@ -24,8 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function report_adeptus_insights_before_http_headers()
-{
+function report_adeptus_insights_before_http_headers() {
     global $PAGE;
 
     // Configure RequireJS for SweetAlert2
@@ -45,14 +44,8 @@ function report_adeptus_insights_before_http_headers()
         "    } else {\n" .
         "        console.error('Adeptus Insights: requirejs is not defined for sweetalert2 config.');\n" .
         "    }\n" .
-        "}"
-    );
+        "}");
 
     // Call the setup function.
     $PAGE->requires->js_init_call('setupAdeptusInsightsRequireJSConfig');
 }
-
-
-
-
-

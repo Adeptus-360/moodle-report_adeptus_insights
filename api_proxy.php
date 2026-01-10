@@ -68,9 +68,9 @@ if (!in_array($endpoint, $public_endpoints)) {
         $sesskey = null;
         if (isset($_SERVER['HTTP_X_SESSKEY'])) {
             $sesskey = $_SERVER['HTTP_X_SESSKEY'];
-        } elseif (isset($_GET['sesskey'])) {
+        } else if (isset($_GET['sesskey'])) {
             $sesskey = $_GET['sesskey'];
-        } elseif (isset($_POST['sesskey'])) {
+        } else if (isset($_POST['sesskey'])) {
             $sesskey = $_POST['sesskey'];
         } else {
             // Try to get from JSON body.
@@ -84,7 +84,7 @@ if (!in_array($endpoint, $public_endpoints)) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'message' => 'Invalid session key'
+                'message' => 'Invalid session key',
             ]);
             exit;
         }
@@ -130,7 +130,7 @@ switch ($endpoint) {
             http_response_code(404);
             echo json_encode([
                 'success' => false,
-                'message' => 'Endpoint not found'
+                'message' => 'Endpoint not found',
             ]);
         }
         break;
@@ -141,48 +141,48 @@ switch ($endpoint) {
  */
 function forwardToBackend($endpoint, $data = [], $method = 'POST') {
     global $BACKEND_URL;
-    
+
     $url = $BACKEND_URL . '/' . $endpoint;
-    
+
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    
+
     // Forward headers from the original request
     $headers = [
         'Content-Type: application/json',
-        'Accept: application/json'
+        'Accept: application/json',
     ];
-    
+
     // Forward API key header if present
     if (isset($_SERVER['HTTP_X_API_KEY'])) {
         $headers[] = 'X-API-Key: ' . $_SERVER['HTTP_X_API_KEY'];
     }
-    
+
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    
+
     $response = curl_exec($ch);
     $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
     curl_close($ch);
-    
+
     if ($response === false) {
         throw new Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
     }
-    
+
     if ($http_code !== 200) {
         throw new Exception('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
     }
-    
+
     $decoded = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception('Invalid JSON response: ' . json_last_error_msg() . ' - Response: ' . $response);
     }
-    
+
     return $decoded;
 }
 
@@ -191,14 +191,14 @@ function handleRegistration() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     // Get input data (handle both JSON and form data)
     $input = [];
-    
+
     // Try to get JSON input first
     $json_input = json_decode(file_get_contents('php://input'), true);
     if ($json_input) {
@@ -207,7 +207,7 @@ function handleRegistration() {
         // Fall back to form data
         $input = $_POST;
     }
-    
+
     // Validate required fields for form data
     $required_fields = ['admin_email', 'admin_name'];
     foreach ($required_fields as $field) {
@@ -215,7 +215,7 @@ function handleRegistration() {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => "Missing required field: $field"
+                'message' => "Missing required field: $field",
             ]);
             return;
         }
@@ -237,7 +237,7 @@ function handleRegistration() {
     if (empty($input['plugin_version'])) {
         $input['plugin_version'] = '1.0.0';
     }
-    
+
     try {
         // Forward to Laravel backend
         $response = forwardToBackend('installation/register', $input);
@@ -246,7 +246,7 @@ function handleRegistration() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Registration failed: ' . $e->getMessage()
+            'message' => 'Registration failed: ' . $e->getMessage(),
         ]);
     }
 }
@@ -256,11 +256,11 @@ function handlePlans() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     try {
         // Forward to Laravel backend
         $response = forwardToBackend('subscription/plans', [], 'GET');
@@ -269,7 +269,7 @@ function handlePlans() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to load plans: ' . $e->getMessage()
+            'message' => 'Failed to load plans: ' . $e->getMessage(),
         ]);
     }
 }
@@ -279,7 +279,7 @@ function handlePlans() {
  */
 function getPlanFeatures($plan) {
     $features = [];
-    
+
     if ($plan->is_free) {
         $features[] = 'Basic AI requests (DeepSeek)';
         $features[] = $plan->exports . ' report exports per month';
@@ -292,18 +292,18 @@ function getPlanFeatures($plan) {
             $features[] = $plan->ai_credits_basic . ' basic AI requests (DeepSeek)';
         }
         $features[] = $plan->exports . ' report exports per month';
-        
+
         if ($plan->price >= 29.99) {
             $features[] = 'Priority support';
             $features[] = 'Top-up credits available';
         }
-        
+
         if ($plan->price >= 99.99) {
             $features[] = '24/7 priority support';
             $features[] = 'Custom integrations';
         }
     }
-    
+
     return $features;
 }
 
@@ -312,11 +312,11 @@ function handleStripeConfig() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     try {
         // Forward to Laravel backend
         $response = forwardToBackend('subscription/config', [], 'GET');
@@ -325,7 +325,7 @@ function handleStripeConfig() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to get Stripe config: ' . $e->getMessage()
+            'message' => 'Failed to get Stripe config: ' . $e->getMessage(),
         ]);
     }
 }
@@ -335,18 +335,18 @@ function handleCreateSubscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     try {
         // Get input data
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
             $input = $_POST;
         }
-        
+
         // Forward to Laravel backend
         $response = forwardToBackend('subscription/create', $input);
         echo json_encode($response);
@@ -354,7 +354,7 @@ function handleCreateSubscription() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to create subscription: ' . $e->getMessage()
+            'message' => 'Failed to create subscription: ' . $e->getMessage(),
         ]);
     }
 }
@@ -364,32 +364,32 @@ function handleShowSubscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     // Mock subscription details
     $subscription = [
         'subscription_id' => 'sub_' . bin2hex(random_bytes(8)),
         'plan' => [
             'name' => 'Basic Plan',
             'price' => '$9.99',
-            'billing_cycle' => 'monthly'
+            'billing_cycle' => 'monthly',
         ],
         'status' => 'active',
         'current_period_end' => date('Y-m-d H:i:s', strtotime('+1 month')),
         'ai_credits_remaining' => 100,
         'exports_remaining' => 10,
         'is_on_trial' => false,
-        'is_cancelled' => false
+        'is_cancelled' => false,
     ];
-    
+
     echo json_encode([
         'success' => true,
         'data' => [
-            'subscription' => $subscription
-        ]
+            'subscription' => $subscription,
+        ],
     ]);
 }
 
@@ -398,14 +398,14 @@ function handleCancelSubscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     echo json_encode([
         'success' => true,
-        'message' => 'Subscription cancelled successfully'
+        'message' => 'Subscription cancelled successfully',
     ]);
 }
 
@@ -414,13 +414,13 @@ function handleUpdateSubscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed'
+            'message' => 'Method not allowed',
         ]);
         return;
     }
-    
+
     echo json_encode([
         'success' => true,
-        'message' => 'Subscription updated successfully'
+        'message' => 'Subscription updated successfully',
     ]);
-} 
+}

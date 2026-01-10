@@ -57,12 +57,12 @@ try {
     $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
     $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
-    
-    
+
+
     if (!$backendEnabled) {
         throw new Exception('Backend API is disabled');
     }
-    
+
     // Get API key for authentication (optional since API works without it)
     $api_key = '';
     try {
@@ -74,18 +74,18 @@ try {
             error_log("Could not get API key: " . $e->getMessage());
         }
     }
-    
+
     // Prepare headers
     $headers = [
         'Content-Type: application/json',
-        'Accept: application/json'
+        'Accept: application/json',
     ];
-    
+
     // Add API key header only if we have one
     if (!empty($api_key)) {
         $headers[] = 'X-API-Key: ' . $api_key;
     }
-    
+
     // Fetch reports from backend API
     // Use the reports/definitions endpoint
     $ch = curl_init();
@@ -96,20 +96,20 @@ try {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5); // Limit redirects
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     curl_close($ch);
-    
+
     if ($debugMode) {
     }
-    
+
     if ($response === false) {
         throw new Exception('Failed to fetch reports from backend: cURL Error - ' . $curlError);
     }
-    
+
     if ($httpCode !== 200) {
         $errorDetails = "HTTP $httpCode";
         if (!empty($curlError)) {
@@ -120,12 +120,12 @@ try {
         }
         throw new Exception('Failed to fetch reports from backend: ' . $errorDetails);
     }
-    
+
     $backendData = json_decode($response, true);
     if (!$backendData || !$backendData['success']) {
         throw new Exception('Invalid response from backend API');
     }
-    
+
     $all_reports = $backendData['data'];
 
     // Load report validator for table/module compatibility checking
@@ -178,26 +178,26 @@ try {
 
     if ($debugMode) {
     }
-    
+
     // Organize reports by category
     $categories = [];
     foreach ($compatible_reports as $report) {
         $category_name = $report['category'];
-        
+
         if (!isset($categories[$category_name])) {
             // Remove "Reports" from category name for display
             $display_name = str_replace(' Reports', '', $category_name);
-            
+
             $categories[$category_name] = [
                 'name' => $display_name,
                 'original_name' => $category_name,
                 'icon' => 'fa-folder-o', // Default fallback icon
                 'reports' => [],
                 'report_count' => 0,
-                'free_reports_count' => 0
+                'free_reports_count' => 0,
             ];
         }
-        
+
         // Add report to category
         $categories[$category_name]['reports'][] = [
             'id' => $report['name'], // Use name as ID since no local ID
@@ -206,88 +206,87 @@ try {
             'charttype' => $report['charttype'],
             'sqlquery' => $report['sqlquery'],
             'parameters' => $report['parameters'],
-            'is_free_tier' => false // Will be set below
+            'is_free_tier' => false, // Will be set below
         ];
         $categories[$category_name]['report_count']++;
     }
-    
+
     // Apply free tier restrictions (same logic as before)
     $priority_keywords = [
         'high' => ['overview', 'summary', 'total', 'count', 'basic', 'simple', 'main', 'general', 'all', 'complete'],
         'medium' => ['detailed', 'advanced', 'specific', 'custom', 'filtered', 'selected'],
-        'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis']
+        'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis'],
     ];
-    
+
     function calculate_report_priority($report, $priority_keywords) {
         $text = strtolower($report['name'] . ' ' . ($report['description'] ?? ''));
-        
+
         foreach ($priority_keywords['high'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 1; // High priority
             }
         }
-        
+
         foreach ($priority_keywords['medium'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 2; // Medium priority
             }
         }
-        
+
         foreach ($priority_keywords['low'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 3; // Low priority
             }
         }
-        
+
         return 2; // Default to medium priority
     }
-    
+
     foreach ($categories as $cat_key => $category) {
         $total_reports = count($category['reports']);
-        
+
         // Determine how many reports to allow for free tier
         // 1-4 reports = 1 free, 5-10 reports = 2 free, 10+ reports = 3 free (cap)
         if ($total_reports >= 1 && $total_reports <= 4) {
             $free_count = 1;
-        } elseif ($total_reports >= 5 && $total_reports <= 10) {
+        } else if ($total_reports >= 5 && $total_reports <= 10) {
             $free_count = 2;
         } else {
             $free_count = 3; // Cap at 3 for categories with 10+ reports
         }
-        
+
         // Sort reports by priority (1 = highest priority)
-        usort($categories[$cat_key]['reports'], function($a, $b) use ($priority_keywords) {
+        usort($categories[$cat_key]['reports'], function ($a, $b) use ($priority_keywords) {
             $priority_a = calculate_report_priority($a, $priority_keywords);
             $priority_b = calculate_report_priority($b, $priority_keywords);
             return $priority_a <=> $priority_b;
         });
-        
+
         // Mark free tier reports
         for ($i = 0; $i < count($categories[$cat_key]['reports']); $i++) {
             $categories[$cat_key]['reports'][$i]['is_free_tier'] = ($i < $free_count);
         }
-        
+
         $categories[$cat_key]['free_reports_count'] = $free_count;
     }
-    
+
     // Return success response
     echo json_encode([
         'success' => true,
         'categories' => array_values($categories),
         'total_reports' => count($compatible_reports),
-        'moodle_version' => $moodle_version_string
+        'moodle_version' => $moodle_version_string,
     ]);
-
 } catch (Exception $e) {
     error_log('Error in get_reports_from_backend.php: ' . $e->getMessage());
-    
+
     // Provide user-friendly error messages
     $message = $e->getMessage();
     if (strpos($message, 'HTTP 301') !== false || strpos($message, 'HTTP 302') !== false) {
         $message = 'Authentication required. Please log in to access reports.';
-    } elseif (strpos($message, 'Invalid session key') !== false) {
+    } else if (strpos($message, 'Invalid session key') !== false) {
         $message = 'Session expired. Please refresh the page and log in again.';
     }
-    
+
     echo json_encode(['success' => false, 'message' => $message]);
 }

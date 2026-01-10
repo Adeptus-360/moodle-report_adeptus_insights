@@ -1,4 +1,19 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
 /**
  * Notification Manager for Adeptus Insights
  * Handles display of professional error messages and user notifications
@@ -11,15 +26,15 @@ defined('MOODLE_INTERNAL') || die();
 class notification_manager {
     private $error_handler;
     private $notifications;
-    
+
     public function __construct() {
         $this->error_handler = new \report_adeptus_insights\error_handler();
         $this->notifications = [];
     }
-    
+
     /**
      * Display a professional error message
-     * 
+     *
      * @param string $error_code The error code
      * @param array $additional_data Additional error data
      * @param bool $log_error Whether to log the error
@@ -29,19 +44,19 @@ class notification_manager {
         if ($log_error) {
             $this->error_handler->logError($error_code, $additional_data);
         }
-        
+
         $error_message = $this->error_handler->createErrorMessage($error_code, $additional_data);
         $html = $this->renderErrorMessage($error_message);
-        
+
         // Store notification for potential reuse
         $this->notifications[] = $error_message;
-        
+
         return $html;
     }
-    
+
     /**
      * Display a success notification
-     * 
+     *
      * @param string $title The notification title
      * @param string $message The notification message
      * @param array $actions Optional actions to display
@@ -53,17 +68,17 @@ class notification_manager {
             'title' => $title,
             'message' => $message,
             'actions' => $actions,
-            'timestamp' => time()
+            'timestamp' => time(),
         ];
-        
+
         $this->notifications[] = $notification;
-        
+
         return $this->renderNotification($notification);
     }
-    
+
     /**
      * Display a warning notification
-     * 
+     *
      * @param string $title The notification title
      * @param string $message The notification message
      * @param array $actions Optional actions to display
@@ -75,17 +90,17 @@ class notification_manager {
             'title' => $title,
             'message' => $message,
             'actions' => $actions,
-            'timestamp' => time()
+            'timestamp' => time(),
         ];
-        
+
         $this->notifications[] = $notification;
-        
+
         return $this->renderNotification($notification);
     }
-    
+
     /**
      * Display an info notification
-     * 
+     *
      * @param string $title The notification title
      * @param string $message The notification message
      * @param array $actions Optional actions to display
@@ -97,33 +112,33 @@ class notification_manager {
             'title' => $title,
             'message' => $message,
             'actions' => $actions,
-            'timestamp' => time()
+            'timestamp' => time(),
         ];
-        
+
         $this->notifications[] = $notification;
-        
+
         return $this->renderNotification($notification);
     }
-    
+
     /**
      * Render an error message with professional styling
-     * 
+     *
      * @param array $error_message The error message data
      * @return string HTML for the error message
      */
     private function renderErrorMessage($error_message) {
         $severity_class = $this->getSeverityClass($error_message['severity']);
         $icon_class = $this->getSeverityIcon($error_message['severity']);
-        
+
         $html = '<div class="adeptus-error-message ' . $severity_class . '" role="alert">';
         $html .= '<div class="adeptus-error-header">';
         $html .= '<i class="fa ' . $icon_class . '" aria-hidden="true"></i>';
         $html .= '<strong>' . htmlspecialchars($error_message['title']) . '</strong>';
         $html .= '</div>';
-        
+
         $html .= '<div class="adeptus-error-content">';
         $html .= '<p>' . htmlspecialchars($error_message['user_message']) . '</p>';
-        
+
         // Display suggestions if available
         if (!empty($error_message['suggestions'])) {
             $html .= '<div class="adeptus-error-suggestions">';
@@ -135,51 +150,51 @@ class notification_manager {
             $html .= '</ul>';
             $html .= '</div>';
         }
-        
+
         // Display recovery actions
         if ($error_message['recovery_action']) {
             $html .= $this->renderRecoveryActions($error_message['recovery_action'], $error_message['admin_contact']);
         }
-        
+
         $html .= '</div>';
         $html .= '</div>';
-        
+
         return $html;
     }
-    
+
     /**
      * Render a general notification
-     * 
+     *
      * @param array $notification The notification data
      * @return string HTML for the notification
      */
     private function renderNotification($notification) {
         $type_class = 'adeptus-notification-' . $notification['type'];
         $icon_class = $this->getNotificationIcon($notification['type']);
-        
+
         $html = '<div class="adeptus-notification ' . $type_class . '" role="alert">';
         $html .= '<div class="adeptus-notification-header">';
         $html .= '<i class="fa ' . $icon_class . '" aria-hidden="true"></i>';
         $html .= '<strong>' . htmlspecialchars($notification['title']) . '</strong>';
         $html .= '</div>';
-        
+
         $html .= '<div class="adeptus-notification-content">';
         $html .= '<p>' . htmlspecialchars($notification['message']) . '</p>';
-        
+
         // Display actions if available
         if (!empty($notification['actions'])) {
             $html .= $this->renderNotificationActions($notification['actions']);
         }
-        
+
         $html .= '</div>';
         $html .= '</div>';
-        
+
         return $html;
     }
-    
+
     /**
      * Render recovery actions
-     * 
+     *
      * @param array $recovery_action The recovery action data
      * @param array $admin_contact Admin contact information
      * @return string HTML for recovery actions
@@ -187,7 +202,7 @@ class notification_manager {
     private function renderRecoveryActions($recovery_action, $admin_contact) {
         $html = '<div class="adeptus-recovery-actions">';
         $html .= '<h4>What you can do:</h4>';
-        
+
         // Primary recovery action
         $html .= '<div class="adeptus-primary-action">';
         $html .= '<button type="button" class="btn ' . $recovery_action['button_class'] . ' btn-sm" ';
@@ -197,24 +212,24 @@ class notification_manager {
         $html .= '</button>';
         $html .= '<small>' . htmlspecialchars($recovery_action['description']) . '</small>';
         $html .= '</div>';
-        
+
         // Additional actions
         $html .= '<div class="adeptus-additional-actions">';
-        
+
         // Contact admin action
         $html .= '<button type="button" class="btn btn-outline-info btn-sm" ';
         $html .= 'onclick="this.contactAdministrator()">';
         $html .= '<i class="fa fa-envelope" aria-hidden="true"></i> Contact Administrator';
         $html .= '</button>';
-        
+
         // Documentation action
         $html .= '<button type="button" class="btn btn-outline-secondary btn-sm" ';
         $html .= 'onclick="this.viewDocumentation()">';
         $html .= '<i class="fa fa-book" aria-hidden="true"></i> View Documentation';
         $html .= '</button>';
-        
+
         $html .= '</div>';
-        
+
         // Admin contact information
         if ($admin_contact['email']) {
             $html .= '<div class="adeptus-admin-contact">';
@@ -223,15 +238,15 @@ class notification_manager {
             $html .= htmlspecialchars($admin_contact['email']) . '</a></small>';
             $html .= '</div>';
         }
-        
+
         $html .= '</div>';
-        
+
         return $html;
     }
-    
+
     /**
      * Render notification actions
-     * 
+     *
      * @param array $actions The actions to display
      * @return string HTML for notification actions
      */
@@ -239,7 +254,7 @@ class notification_manager {
         if (empty($actions)) {
             return '';
         }
-        
+
         $html = '<div class="adeptus-notification-actions">';
         foreach ($actions as $action) {
             $html .= '<button type="button" class="btn btn-sm ' . ($action['class'] ?? 'btn-outline-primary') . '" ';
@@ -254,13 +269,13 @@ class notification_manager {
             $html .= '</button>';
         }
         $html .= '</div>';
-        
+
         return $html;
     }
-    
+
     /**
      * Get CSS class for severity level
-     * 
+     *
      * @param string $severity The severity level
      * @return string CSS class
      */
@@ -276,10 +291,10 @@ class notification_manager {
                 return 'adeptus-error-severity-error';
         }
     }
-    
+
     /**
      * Get icon class for severity level
-     * 
+     *
      * @param string $severity The severity level
      * @return string Icon class
      */
@@ -295,10 +310,10 @@ class notification_manager {
                 return 'fa-exclamation-circle';
         }
     }
-    
+
     /**
      * Get icon class for notification type
-     * 
+     *
      * @param string $type The notification type
      * @return string Icon class
      */
@@ -316,17 +331,17 @@ class notification_manager {
                 return 'fa-info-circle';
         }
     }
-    
+
     /**
      * Display all stored notifications
-     * 
+     *
      * @return string HTML for all notifications
      */
     public function displayAllNotifications() {
         if (empty($this->notifications)) {
             return '';
         }
-        
+
         $html = '<div class="adeptus-notifications-container">';
         foreach ($this->notifications as $notification) {
             if (isset($notification['error_code'])) {
@@ -336,53 +351,55 @@ class notification_manager {
             }
         }
         $html .= '</div>';
-        
+
         return $html;
     }
-    
+
     /**
      * Clear all stored notifications
      */
     public function clearNotifications() {
         $this->notifications = [];
     }
-    
+
     /**
      * Get notification count
-     * 
+     *
      * @return int Number of notifications
      */
     public function getNotificationCount() {
         return count($this->notifications);
     }
-    
+
     /**
      * Check if there are any error notifications
-     * 
+     *
      * @return bool True if there are error notifications
      */
     public function hasErrors() {
         foreach ($this->notifications as $notification) {
-            if (isset($notification['error_code']) || 
-                (isset($notification['type']) && $notification['type'] === 'error')) {
+            if (
+                isset($notification['error_code']) ||
+                (isset($notification['type']) && $notification['type'] === 'error')
+            ) {
                 return true;
             }
         }
         return false;
     }
-    
+
     /**
      * Get notifications as JSON for JavaScript
-     * 
+     *
      * @return string JSON string of notifications
      */
     public function getNotificationsAsJson() {
         return json_encode($this->notifications);
     }
-    
+
     /**
      * Display a toast notification (for JavaScript integration)
-     * 
+     *
      * @param string $type The notification type
      * @param string $title The notification title
      * @param string $message The notification message
@@ -394,11 +411,11 @@ class notification_manager {
             'type' => $type,
             'title' => $title,
             'message' => $message,
-            'duration' => $duration
+            'duration' => $duration,
         ];
-        
+
         $this->notifications[] = $notification;
-        
+
         $js = '<script type="text/javascript">';
         $js .= 'document.addEventListener("DOMContentLoaded", function() {';
         $js .= 'if (typeof AdeptusNotifications !== "undefined") {';
@@ -406,7 +423,7 @@ class notification_manager {
         $js .= '}';
         $js .= '});';
         $js .= '</script>';
-        
+
         return $js;
     }
 }

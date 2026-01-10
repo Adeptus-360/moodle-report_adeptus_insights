@@ -90,7 +90,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json',
-            'X-API-Key: ' . $api_key
+            'X-API-Key: ' . $api_key,
         ]);
 
         $response = curl_exec($ch);
@@ -132,7 +132,7 @@ try {
         if (!$report) {
             $results[$reportid] = [
                 'success' => false,
-                'error' => 'Report not found'
+                'error' => 'Report not found',
             ];
             continue;
         }
@@ -143,7 +143,7 @@ try {
             $results[$reportid] = [
                 'success' => false,
                 'error' => 'Report incompatible',
-                'details' => $validation['reason']
+                'details' => $validation['reason'],
             ];
             continue;
         }
@@ -173,13 +173,12 @@ try {
                 'success' => true,
                 'results' => $results_array,
                 'count' => count($results_array),
-                'time_ms' => $report_time
+                'time_ms' => $report_time,
             ];
-
         } catch (Exception $e) {
             $results[$reportid] = [
                 'success' => false,
-                'error' => 'Query error: ' . $e->getMessage()
+                'error' => 'Query error: ' . $e->getMessage(),
             ];
         }
     }
@@ -190,14 +189,13 @@ try {
         'success' => true,
         'reports' => $results,
         'total_time_ms' => $total_time,
-        'report_count' => count($reportids)
+        'report_count' => count($reportids),
     ]);
-
 } catch (Exception $e) {
     error_log('Error in batch_kpi_data.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
+        'message' => 'Error: ' . $e->getMessage(),
     ]);
 }
 

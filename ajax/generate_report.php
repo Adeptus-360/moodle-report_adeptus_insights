@@ -56,17 +56,17 @@ try {
     $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
     $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
-    
+
     if (!$backendEnabled) {
         echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
         exit;
     }
-    
+
     // Get API key for authentication
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installation_manager = new \report_adeptus_insights\installation_manager();
     $api_key = $installation_manager->get_api_key();
-    
+
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
@@ -76,38 +76,38 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key
+        'X-API-Key: ' . $api_key,
     ]);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     curl_close($ch);
-    
+
     if (!$response || $httpCode !== 200 || !empty($curlError)) {
         echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
         exit;
     }
-    
+
     $backendData = json_decode($response, true);
     if (!$backendData || !$backendData['success']) {
         echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
         exit;
     }
-    
+
     // Find the report by ID (which is now the report name)
     $report = null;
     foreach ($backendData['data'] as $backendReport) {
         // Trim whitespace and normalize for comparison
         $backendName = trim($backendReport['name']);
         $requestedName = trim($reportid);
-        
+
         if ($backendName === $requestedName) {
             $report = $backendReport;
             break;
         }
     }
-    
+
     if (!$report) {
         echo json_encode(['success' => false, 'message' => 'Report not found']);
         exit;
@@ -127,7 +127,7 @@ try {
             'error' => 'report_incompatible',
             'message' => "This report requires Moodle modules or features that are not installed on your system.",
             'details' => $validation['reason'],
-            'missing_tables' => $validation['missing_tables']
+            'missing_tables' => $validation['missing_tables'],
         ]);
         exit;
     }
@@ -199,7 +199,7 @@ try {
             }
         }
     }
-    
+
     // Also collect any additional parameters that might be sent from frontend.
     // Common parameters are sanitized via optional_param with PARAM_RAW for flexibility,
     // then further validated when bound as SQL parameters.
@@ -209,7 +209,7 @@ try {
         'threshold', 'grade_threshold', 'activity_type', 'forum_id',
         'assignment_id', 'quiz_id', 'module_id', 'section_id', 'status',
         'completion_status', 'grade_min', 'grade_max', 'date_from', 'date_to',
-        'time_period', 'activity_count', 'login_count', 'submission_status'
+        'time_period', 'activity_count', 'login_count', 'submission_status',
     ];
     foreach ($common_params as $param_name) {
         $param_value = optional_param($param_name, '', PARAM_RAW);
@@ -235,7 +235,6 @@ try {
         $sql = rtrim($sql);
         $sql = rtrim($sql, ';');
         $sql .= " LIMIT $SAFETY_LIMIT";
-
     }
 
     // Handle :limit parameter specially - MySQL LIMIT doesn't support bound parameters
@@ -300,15 +299,15 @@ try {
         error_log("Debug Info: " . print_r($e->debuginfo, true));
         throw new Exception("SQL Error: " . $e->debuginfo);
     }
-    
+
     // Convert to array and get headers
     $results_array = [];
     $headers = [];
-    
+
     if (!empty($results)) {
         $first_row = reset($results);
         $headers = array_keys((array)$first_row);
-        
+
         foreach ($results as $row) {
             $results_array[] = (array)$row;
         }
@@ -319,7 +318,7 @@ try {
     $has_data = !empty($results_array);
     $report_generated = $has_data; // Only count reports with data
     $is_duplicate = false; // No duplicate checking - always count new generations
-    
+
     // Save to history (for Recent Reports section) - always save for history
     $history_record = new stdClass();
     $history_record->userid = $USER->id;
@@ -330,10 +329,9 @@ try {
     // Note: Usage tracking is handled via backend API, not local database flag
 
     $DB->insert_record('adeptus_report_history', $history_record);
-    
+
     // Save to generated reports via backend API (for Generated Reports section) - only save if report has data
     if ($report_generated && $has_data) {
-
         $is_new_generation = false; // Track if this is a new generation or update
 
         // Prepare the report data for the backend
@@ -355,7 +353,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json',
-            'Authorization: Bearer ' . $api_key
+            'Authorization: Bearer ' . $api_key,
         ]);
 
         $save_response = curl_exec($ch);
@@ -374,7 +372,7 @@ try {
     } else {
         $is_new_generation = false; // Ensure variable is defined
     }
-    
+
     // Update subscription usage in backend if report was generated (only count new generations, not updates)
     if (!$is_duplicate && $report_generated && $is_new_generation) {
         try {
@@ -396,29 +394,29 @@ try {
         // Find the best columns for labels and values
         $label_column = $headers[0] ?? 'id';
         $value_column = null;
-        
+
         // Analyze all columns to find numeric ones and their value ranges
         $numeric_columns = [];
         $column_stats = [];
         $mb_column = null;
-        
+
         foreach ($headers as $header) {
             $column_values = array_column($results_array, $header);
             $numeric_values = [];
             $is_numeric_column = true;
-            
+
             // Check if all values in this column are numeric
             foreach ($column_values as $value) {
                 if (is_numeric($value)) {
                     $numeric_values[] = (float)$value;
-                } elseif (is_string($value) && is_numeric(trim($value))) {
+                } else if (is_string($value) && is_numeric(trim($value))) {
                     $numeric_values[] = (float)trim($value);
                 } else {
                     $is_numeric_column = false;
                     break;
                 }
             }
-            
+
             // If column is numeric, calculate its statistics
             if ($is_numeric_column && !empty($numeric_values)) {
                 $numeric_columns[] = $header;
@@ -427,20 +425,20 @@ try {
                     'min' => min($numeric_values),
                     'sum' => array_sum($numeric_values),
                     'count' => count($numeric_values),
-                    'avg' => array_sum($numeric_values) / count($numeric_values)
+                    'avg' => array_sum($numeric_values) / count($numeric_values),
                 ];
-                
+
                 // Special case: Check if column name contains "(mb)"
                 if (strpos($header, '(mb)') !== false) {
                     $mb_column = $header;
                 }
             }
         }
-        
+
         // Select the column with priority: (mb) column first, then highest maximum value
         if (!empty($mb_column)) {
             $value_column = $mb_column;
-        } elseif (!empty($numeric_columns)) {
+        } else if (!empty($numeric_columns)) {
             $max_value = 0;
             foreach ($numeric_columns as $column) {
                 if ($column_stats[$column]['max'] > $max_value) {
@@ -452,16 +450,16 @@ try {
             // Fallback to second column if no numeric columns found
             $value_column = $headers[1] ?? 'value';
         }
-        
+
         // Convert values to numbers if they're strings
         $chart_values = array_column($results_array, $value_column);
-        $chart_values = array_map(function($value) {
+        $chart_values = array_map(function ($value) {
             return is_numeric($value) ? (float)$value : (is_string($value) && is_numeric(trim($value)) ? (float)trim($value) : 0);
         }, $chart_values);
-        
+
         // Generate colors based on chart type
         $colors = generateChartColors(count($chart_values), $report->charttype);
-        
+
         $chart_data = [
             'labels' => array_column($results_array, $label_column),
             'datasets' => [
@@ -470,20 +468,20 @@ try {
                     'data' => $chart_values,
                     'backgroundColor' => $colors,
                     'borderColor' => adjustColors($colors, -20),
-                    'borderWidth' => 2
-                ]
+                    'borderWidth' => 2,
+                ],
             ],
             'axis_labels' => [
                 'x_axis' => $label_column,
-                'y_axis' => $value_column
-            ]
+                'y_axis' => $value_column,
+            ],
         ];
     }
 
     // Get installation manager for debug info
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $debug_installation_manager = new \report_adeptus_insights\installation_manager();
-    
+
     // Return success response with debug info
     echo json_encode([
         'success' => true,
@@ -501,16 +499,15 @@ try {
             'is_duplicate' => $is_duplicate,
             'results_count' => count($results_array),
             'backend_api_url' => $debug_installation_manager->get_api_url(),
-            'api_key_present' => !empty($debug_installation_manager->get_api_key()) ? 'yes' : 'no'
-        ]
+            'api_key_present' => !empty($debug_installation_manager->get_api_key()) ? 'yes' : 'no',
+        ],
     ]);
-
 } catch (Exception $e) {
     error_log('Error in generate_report.php: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
     echo json_encode([
         'success' => false,
-        'message' => 'Error executing report: ' . $e->getMessage()
+        'message' => 'Error executing report: ' . $e->getMessage(),
     ]);
 }
 
@@ -521,11 +518,11 @@ function generateChartColors($count, $chartType) {
     $baseColors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
-        '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d',
     ];
-    
+
     $chartType = strtolower($chartType);
-    
+
     if ($chartType === 'pie' || $chartType === 'donut' || $chartType === 'polar') {
         // Generate distinct colors for each data point
         $colors = [];
@@ -544,7 +541,7 @@ function generateChartColors($count, $chartType) {
  */
 function adjustColors($colors, $amount) {
     if (is_array($colors)) {
-        return array_map(function($color) use ($amount) {
+        return array_map(function ($color) use ($amount) {
             return adjustColor($color, $amount);
         }, $colors);
     } else {
@@ -558,19 +555,19 @@ function adjustColors($colors, $amount) {
 function adjustColor($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
-    
+
     // Convert to RGB
     $r = hexdec(substr($color, 0, 2));
     $g = hexdec(substr($color, 2, 2));
     $b = hexdec(substr($color, 4, 2));
-    
+
     // Adjust each component
     $r = max(0, min(255, $r + $amount));
     $g = max(0, min(255, $g + $amount));
     $b = max(0, min(255, $b + $amount));
-    
+
     // Convert back to hex
     return sprintf("#%02x%02x%02x", $r, $g, $b);
 }
 
-exit; 
+exit;

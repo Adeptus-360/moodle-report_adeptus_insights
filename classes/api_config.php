@@ -29,7 +29,6 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class api_config {
-
     /**
      * Get the main Adeptus 360 backend API URL
      *

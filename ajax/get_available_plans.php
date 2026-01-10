@@ -42,7 +42,7 @@ try {
     if (!confirm_sesskey(optional_param('sesskey', '', PARAM_ALPHANUM))) {
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid session key'
+            'message' => 'Invalid session key',
         ]);
         exit;
     }
@@ -57,7 +57,7 @@ try {
     if (!$available_plans || !isset($available_plans['success']) || !$available_plans['success']) {
         echo json_encode([
             'success' => false,
-            'message' => $available_plans['message'] ?? 'Failed to fetch plans'
+            'message' => $available_plans['message'] ?? 'Failed to fetch plans',
         ]);
         exit;
     }
@@ -99,7 +99,7 @@ try {
             $limit_features = $limits['features'] ?? [];
 
             // Format limit values (handle -1 as unlimited)
-            $format_limit = function($value, $suffix = '') {
+            $format_limit = function ($value, $suffix = '') {
                 if ($value === -1 || $value === null) {
                     return 'Unlimited';
                 }
@@ -170,7 +170,7 @@ try {
 
     // Sort plans by tier order: free, pro, enterprise
     $tier_order = ['free' => 0, 'pro' => 1, 'enterprise' => 2];
-    $sort_by_tier = function($a, $b) use ($tier_order) {
+    $sort_by_tier = function ($a, $b) use ($tier_order) {
         return ($tier_order[$a['tier']] ?? 99) - ($tier_order[$b['tier']] ?? 99);
     };
 
@@ -211,12 +211,11 @@ try {
         'yearly_plans' => array_values($yearly_plans),
         'has_yearly_plans' => $has_yearly_plans,
         'max_yearly_savings' => $max_yearly_savings,
-        'current_plan' => $current_plan_name
+        'current_plan' => $current_plan_name,
     ]);
-
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage()
+        'message' => 'Error: ' . $e->getMessage(),
     ]);
 }

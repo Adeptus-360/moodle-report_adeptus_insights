@@ -78,20 +78,20 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
 // Debug logging for troubleshooting
 if (empty($site_name) || $site_name === 'Moodle Site') {
     debugging('Site name is empty or default. CFG->fullname: ' . ($CFG->fullname ?? 'NULL') . ', CFG->shortname: ' . ($CFG->shortname ?? 'NULL'));
-    
+
     // In debug mode, try to get the actual value from the database
     if (debugging()) {
         global $DB;
         try {
             $fullname_record = $DB->get_record('config', ['name' => 'fullname']);
             $shortname_record = $DB->get_record('config', ['name' => 'shortname']);
-            
+
             debugging('Database values - fullname: ' . ($fullname_record->value ?? 'NULL') . ', shortname: ' . ($shortname_record->value ?? 'NULL'));
-            
+
             // Use the database value if available
             if ($fullname_record && !empty($fullname_record->value)) {
                 $site_name = $fullname_record->value;
-            } elseif ($shortname_record && !empty($shortname_record->value)) {
+            } else if ($shortname_record && !empty($shortname_record->value)) {
                 $site_name = $shortname_record->value;
             }
         } catch (Exception $e) {
@@ -102,13 +102,27 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
 
 // Validate required fields
 $missing_fields = [];
-if (empty($site_name)) $missing_fields[] = 'Site Name';
-if (empty($site_url)) $missing_fields[] = 'Site URL';
-if (empty($admin_name)) $missing_fields[] = 'Administrator Name';
-if (empty($admin_email)) $missing_fields[] = 'Administrator Email';
-if (empty($moodle_version)) $missing_fields[] = 'Moodle Version';
-if (empty($php_version)) $missing_fields[] = 'PHP Version';
-if (empty($plugin_version)) $missing_fields[] = 'Plugin Version';
+if (empty($site_name)) {
+    $missing_fields[] = 'Site Name';
+}
+if (empty($site_url)) {
+    $missing_fields[] = 'Site URL';
+}
+if (empty($admin_name)) {
+    $missing_fields[] = 'Administrator Name';
+}
+if (empty($admin_email)) {
+    $missing_fields[] = 'Administrator Email';
+}
+if (empty($moodle_version)) {
+    $missing_fields[] = 'Moodle Version';
+}
+if (empty($php_version)) {
+    $missing_fields[] = 'PHP Version';
+}
+if (empty($plugin_version)) {
+    $missing_fields[] = 'Plugin Version';
+}
 
 if (!empty($missing_fields)) {
     $error_message = 'Missing required Moodle configuration: ' . implode(', ', $missing_fields) . '. Please ensure these values are properly set in your Moodle configuration.';
@@ -122,18 +136,25 @@ if (optional_param('action', '', PARAM_ALPHA) === 'register' && confirm_sesskey(
     } else {
         try {
             $result = $installation_manager->register_installation($admin_email, $admin_name, $site_url, $site_name);
-            
+
             if ($result['success']) {
-                redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'), 
-                        $result['message'], null, \core\output\notification::NOTIFY_SUCCESS);
+                redirect(
+                    new moodle_url('/report/adeptus_insights/subscription_installation_step.php'),
+                    $result['message'],
+                    null,
+                    \core\output\notification::NOTIFY_SUCCESS
+                );
             } else {
                 // Check if we need to redirect to index due to site already existing
                 if (isset($result['code']) && $result['code'] === 'SITE_EXISTS') {
-                    redirect(new moodle_url('/report/adeptus_insights/index.php'), 
-                            'Site already exists on backend. You have been redirected to the main page.', 
-                            null, \core\output\notification::NOTIFY_INFO);
+                    redirect(
+                        new moodle_url('/report/adeptus_insights/index.php'),
+                        'Site already exists on backend. You have been redirected to the main page.',
+                        null,
+                        \core\output\notification::NOTIFY_INFO
+                    );
                 }
-                
+
                 $error_message = $result['message'];
             }
         } catch (Exception $e) {
@@ -157,7 +178,7 @@ $templatecontext = [
     'sesskey' => sesskey(),
     'error_message' => $error_message ?? null,
     'site_already_exists' => isset($error_message) && strpos($error_message, 'Site already exists') !== false,
-    'debug' => debugging() // Show debug info if debugging is enabled
+    'debug' => debugging(), // Show debug info if debugging is enabled
 ];
 
 // Output the page
@@ -166,4 +187,4 @@ echo $OUTPUT->header();
 // Render the registration template
 echo $OUTPUT->render_from_template('report_adeptus_insights/register_plugin', $templatecontext);
 
-echo $OUTPUT->footer(); 
+echo $OUTPUT->footer();

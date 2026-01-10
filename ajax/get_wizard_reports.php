@@ -51,7 +51,7 @@ try {
         echo json_encode([
             'success' => false,
             'message' => 'API key not configured',
-            'reports' => []
+            'reports' => [],
         ]);
         exit;
     }
@@ -65,7 +65,7 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'Authorization: Bearer ' . $api_key
+        'Authorization: Bearer ' . $api_key,
     ]);
 
     $response = curl_exec($ch);
@@ -78,7 +78,7 @@ try {
         echo json_encode([
             'success' => false,
             'message' => 'Failed to fetch wizard reports from server',
-            'reports' => []
+            'reports' => [],
         ]);
         exit;
     }
@@ -89,7 +89,7 @@ try {
         echo json_encode([
             'success' => false,
             'message' => $data['message'] ?? 'Failed to fetch wizard reports',
-            'reports' => []
+            'reports' => [],
         ]);
         exit;
     }
@@ -100,14 +100,13 @@ try {
     echo json_encode([
         'success' => true,
         'reports' => $reports,
-        'count' => count($reports)
+        'count' => count($reports),
     ]);
-
 } catch (Exception $e) {
     error_log('Error in get_wizard_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
         'message' => 'Error fetching wizard reports: ' . $e->getMessage(),
-        'reports' => []
+        'reports' => [],
     ]);
 }

@@ -52,7 +52,7 @@ try {
     if (empty($api_key)) {
         echo json_encode([
             'success' => false,
-            'message' => 'API key not configured'
+            'message' => 'API key not configured',
         ]);
         exit;
     }
@@ -71,7 +71,7 @@ try {
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer ' . $api_key
+                'Authorization: Bearer ' . $api_key,
             ]);
 
             $response = curl_exec($ch);
@@ -99,7 +99,7 @@ try {
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer ' . $api_key
+                'Authorization: Bearer ' . $api_key,
             ]);
 
             $response = curl_exec($ch);
@@ -120,11 +120,10 @@ try {
             echo json_encode(['success' => false, 'message' => 'Invalid action: ' . $action . '. Expected: clear_all or remove_single']);
             break;
     }
-
 } catch (Exception $e) {
     error_log('Error in manage_generated_reports.php: ' . $e->getMessage());
     echo json_encode([
         'success' => false,
-        'message' => 'Error managing generated reports: ' . $e->getMessage()
+        'message' => 'Error managing generated reports: ' . $e->getMessage(),
     ]);
 }

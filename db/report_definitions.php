@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-return array (
-  0 => 
-  array (
+return  [
+  0 =>
+   [
     'name' => 'Count number of distinct learners and teachers enrolled per category (including all its sub categories)',
     'category' => '',
     'description' => '',
@@ -45,14 +45,14 @@ AND lra.roleid=5
 AND tra.roleid=3
 Student (user) Count in each Course
 Including (optional) filter by: year (if included in course fullname).',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  1 => 
-  array (
+  ],
+  1 =>
+   [
     'name' => '-- Seleciona as colunas que serão exibidas no resultado do relatório',
     'category' => '',
     'description' => '',
@@ -69,14 +69,14 @@ GROUP BY course.id
 ORDER BY Students DESC
 
 ===List of all site users by course enrollment (Moodle 2.x)===',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  2 => 
-  array (
+  ],
+  2 =>
+   [
     'name' => '<syntaxhighlight lang="sql">',
     'category' => '',
     'description' => '',
@@ -125,14 +125,14 @@ JOIN prefix_user as user2 ON user2 .id = ue.userid
 LEFT JOIN prefix_user_lastaccess as ul on ul.userid = user2.id
 WHERE c.id=16 AND ul.timeaccess IS NULL
 %%FILTER_SEARCHTEXT:user2.firstname%%',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  3 => 
-  array (
+  ],
+  3 =>
+   [
     'name' => 'Enrolled users who have never accessed a given course (simpler version)',
     'category' => '',
     'description' => '',
@@ -147,14 +147,14 @@ AND NOT EXISTS (
     AND la.courseid = en.courseid
 )
 (Replace 123456 near the middle with your courseid)',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  4 => 
-  array (
+  ],
+  4 =>
+   [
     'name' => 'Lists "loggedin users" from the last 120 days',
     'category' => '',
     'description' => '',
@@ -165,14 +165,14 @@ and user count for that same population:
 
 SELECT COUNT(id) as Users  FROM `prefix_user`
 WHERE DATEDIFF( NOW(),FROM_UNIXTIME(`lastlogin`) ) < 120',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  5 => 
-  array (
+  ],
+  5 =>
+   [
     'name' => 'Users loggedin within the last 7 days',
     'category' => '',
     'description' => '',
@@ -184,14 +184,14 @@ WHERE
 
 SELECT l.eventname FROM mdl_logstore_standard_log l
 GROUP BY l.eventname',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  6 => 
-  array (
+  ],
+  6 =>
+   [
     'name' => 'Lists the users who have only logged into the site once',
     'category' => '',
     'description' => '',
@@ -352,14 +352,14 @@ FROM prefix_user u
 WHERE u.deleted = 0
 ORDER BY u.timezone DESC
 ROLES and PERMISSIONS REPORTS',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  7 => 
-  array (
+  ],
+  7 =>
+   [
     'name' => 'Count all Active Users by Role in a course category (including all of its sub-categories)',
     'category' => '',
     'description' => '',
@@ -375,14 +375,14 @@ WHERE c.category=cc.id AND (
 )
 AND ra.roleid=3  AND ctx.contextlevel=50  #ra.roleid= TEACHER 3, NON-EDITING TEACHER 4, STUDENT 5
 AND  l.timeaccess > (unix_timestamp() - ((60*60*24)*NO_OF_DAYS)) #NO_OF_DAYS change to number',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  8 => 
-  array (
+  ],
+  8 =>
+   [
     'name' => 'Role assignments on categories',
     'category' => '',
     'description' => '',
@@ -411,14 +411,14 @@ SELECT DISTINCT mrc.capability
 ,(SELECT \'X\' FROM prefix_role_capabilities AS rc WHERE rc.capability = mrc.capability AND rc.roleid = \'7\' AND rc.contextid = \'1\') AS Authenticated
 ,(SELECT \'X\' FROM prefix_role_capabilities AS rc WHERE rc.capability = mrc.capability AND rc.roleid = \'8\' AND rc.contextid = \'1\') AS Auth_front
 FROM prefix_role_capabilities AS mrc',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  9 => 
-  array (
+  ],
+  9 =>
+   [
     'name' => 'Special Roles',
     'category' => '',
     'description' => '',
@@ -478,14 +478,14 @@ concat(\'<a target="_new" href="%%WWWROOT%%/enrol/instances.php?id=\',c.id,\'">M
 e.sortorder
 FROM prefix_enrol AS e, prefix_course AS c
 WHERE e.enrol=\'guest\' AND e.status=0 AND e.password=\'\' AND c.id=e.courseid AND c.visible=1',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  10 => 
-  array (
+  ],
+  10 =>
+   [
     'name' => 'Most Active courses',
     'category' => '',
     'description' => '',
@@ -549,14 +549,14 @@ JOIN prefix_course_categories AS cc  ON cc.id        = c.category
 WHERE  ra.roleid = 3
 GROUP BY u.id
 HAVING Modules > 5) AS ActiveTeachers',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  11 => 
-  array (
+  ],
+  11 =>
+   [
     'name' => 'Resource count for each Course',
     'category' => '',
     'description' => '',
@@ -685,14 +685,14 @@ echo \'</ol>\';
 ?>
 All teachers and courses
 Contributed by François Parlant',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  12 => 
-  array (
+  ],
+  12 =>
+   [
     'name' => 'not taking into account the END DATE',
     'category' => '',
     'description' => '',
@@ -757,14 +757,14 @@ courses without ressource with name starting by "syllabus" (using upper case or 
 display the name as a direct link
 shows the name of teacher
 category with sub category filter',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  13 => 
-  array (
+  ],
+  13 =>
+   [
     'name' => 'start date and end date filters',
     'category' => '',
     'description' => '',
@@ -841,14 +841,14 @@ INNER JOIN prefix_files AS f ON f.contextid = ti.contextid AND f.mimetype IS NOT
 WHERE t.rawname = \'Syllabus\'
 List of courses WITHOUT a resource with a name starting by "syllabus"
 Contributed by François Parlant',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  14 => 
-  array (
+  ],
+  14 =>
+   [
     'name' => 'without teachers',
     'category' => '',
     'description' => '',
@@ -889,14 +889,14 @@ FROM prefix_course AS course
 JOIN prefix_enrol AS en ON en.courseid = course.id
 JOIN prefix_user_enrolments AS ue ON ue.enrolid = en.id
 JOIN prefix_user as user ON user.id = ue.userid',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  15 => 
-  array (
+  ],
+  15 =>
+   [
     'name' => 'WHERE user.id NOT IN (',
     'category' => '',
     'description' => '',
@@ -962,14 +962,14 @@ concat(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\',c.id,\'">\', c
 
 FROM mdl_course AS c
 The following SQL REPLACE query is used for "fixing" (updating) the "numsections" of a specific course format "onetopics" (you can always change it, or discard it to use this SQL REPLACE on all course formats)',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  16 => 
-  array (
+  ],
+  16 =>
+   [
     'name' => 'REPLACE INTO `mdl_course_format_options` (`id`, `courseid`, `format`, `sectionid`, `name`, `value`)',
     'category' => '',
     'description' => '',
@@ -1004,28 +1004,28 @@ now() AS Report_Timestamp
 FROM prefix_course AS c
 WHERE c.visible = 0 AND (SELECT COUNT( ra.userid ) FROM prefix_role_assignments AS ra JOIN prefix_context AS ctx ON ra.contextid = ctx.id WHERE ra.roleid = 5 AND ctx.instanceid = c.id) > 0
 ORDER BY StartDate, Instructor_Email, Course_ID',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  17 => 
-  array (
+  ],
+  17 =>
+   [
     'name' => 'Course formats used on my system',
     'category' => '',
     'description' => '',
     'sqlquery' => 'SELECT COUNT(*) \'Count\', c.format \'Format\'
 FROM prefix_course AS c
 GROUP BY c.format',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-  18 => 
-  array (
+  ],
+  18 =>
+   [
     'name' => 'Course catalogue with future courses',
     'category' => '',
     'description' => '',
@@ -1061,10 +1061,10 @@ c.fullname as coursename, c.shortname as shortname
 FROM prefix_course_sections AS cs, prefix_course AS c
 WHERE c.id = cs.course
 AND cs.name LIKE "Introduction to programming"',
-    'parameters' => 
-    array (
-    ),
-    'charttype' => NULL,
+    'parameters' =>
+     [
+    ],
+    'charttype' => null,
     'isactive' => 1,
-  ),
-);
+  ],
+];

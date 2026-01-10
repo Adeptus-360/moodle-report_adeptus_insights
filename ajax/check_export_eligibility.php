@@ -54,7 +54,7 @@ try {
     $response = [
         'success' => true,
         'eligible' => true,
-        'message' => 'Export allowed'
+        'message' => 'Export allowed',
     ];
 
     // Determine if user is on free plan (same logic as check_subscription_status.php)
@@ -73,7 +73,7 @@ try {
             $response = [
                 'success' => true,
                 'eligible' => false,
-                'message' => 'This export format requires a premium subscription. PDF exports are available on the free plan.'
+                'message' => 'This export format requires a premium subscription. PDF exports are available on the free plan.',
             ];
         }
     } else {
@@ -85,24 +85,22 @@ try {
             $response = [
                 'success' => true,
                 'eligible' => false,
-                'message' => 'You have reached your monthly export limit of ' . $exports_limit . ' exports.'
+                'message' => 'You have reached your monthly export limit of ' . $exports_limit . ' exports.',
             ];
         }
     }
 
     header('Content-Type: application/json');
     echo json_encode($response);
-    
 } catch (Exception $e) {
     error_log('Error in check_export_eligibility.php: ' . $e->getMessage());
-    
+
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
         'eligible' => false,
-        'message' => 'Error checking export eligibility: ' . $e->getMessage()
+        'message' => 'Error checking export eligibility: ' . $e->getMessage(),
     ]);
 }
 
 exit;
-?>

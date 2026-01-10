@@ -36,9 +36,9 @@ class external extends \external_api {
      */
     public static function send_message_parameters() {
         return new \external_function_parameters(
-            array(
-                'message' => new \external_value(PARAM_TEXT, 'The message to send')
-            )
+            [
+                'message' => new \external_value(PARAM_TEXT, 'The message to send'),
+            ]
         );
     }
 
@@ -48,10 +48,10 @@ class external extends \external_api {
      */
     public static function send_message_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'message' => new \external_value(PARAM_TEXT, 'The AI response message'),
                 'data' => new \external_single_structure(
-                    array(
+                    [
                         'columns' => new \external_multiple_structure(
                             new \external_value(PARAM_TEXT, 'Column name')
                         ),
@@ -59,35 +59,35 @@ class external extends \external_api {
                             new \external_multiple_structure(
                                 new \external_value(PARAM_TEXT, 'Cell value')
                             )
-                        )
-                    ),
+                        ),
+                    ],
                     'Report data',
                     VALUE_OPTIONAL
                 ),
                 'visualizations' => new \external_single_structure(
-                    array(
+                    [
                         'type' => new \external_value(PARAM_TEXT, 'Chart type'),
                         'labels' => new \external_multiple_structure(
                             new \external_value(PARAM_TEXT, 'Label')
                         ),
                         'datasets' => new \external_multiple_structure(
                             new \external_single_structure(
-                                array(
+                                [
                                     'label' => new \external_value(PARAM_TEXT, 'Dataset label'),
                                     'data' => new \external_multiple_structure(
                                         new \external_value(PARAM_FLOAT, 'Data point')
                                     ),
                                     'backgroundColor' => new \external_value(PARAM_TEXT, 'Background color'),
-                                    'borderColor' => new \external_value(PARAM_TEXT, 'Border color')
-                                )
+                                    'borderColor' => new \external_value(PARAM_TEXT, 'Border color'),
+                                ]
                             )
                         ),
-                        'title' => new \external_value(PARAM_TEXT, 'Chart title')
-                    ),
+                        'title' => new \external_value(PARAM_TEXT, 'Chart title'),
+                    ],
                     'Visualization data',
                     VALUE_OPTIONAL
-                )
-            )
+                ),
+            ]
         );
     }
 
@@ -100,7 +100,7 @@ class external extends \external_api {
         global $USER;
 
         // Parameter validation
-        $params = self::validate_parameters(self::send_message_parameters(), array('message' => $message));
+        $params = self::validate_parameters(self::send_message_parameters(), ['message' => $message]);
 
         // Context validation
         $context = \context_system::instance();
@@ -120,7 +120,7 @@ class external extends \external_api {
      * @return external_function_parameters
      */
     public static function get_history_parameters() {
-        return new \external_function_parameters(array());
+        return new \external_function_parameters([]);
     }
 
     /**
@@ -129,17 +129,17 @@ class external extends \external_api {
      */
     public static function get_history_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'messages' => new \external_multiple_structure(
                     new \external_single_structure(
-                        array(
+                        [
                             'text' => new \external_value(PARAM_TEXT, 'Message text'),
                             'type' => new \external_value(PARAM_TEXT, 'Message type (user/ai)'),
-                            'timestamp' => new \external_value(PARAM_INT, 'Message timestamp')
-                        )
+                            'timestamp' => new \external_value(PARAM_INT, 'Message timestamp'),
+                        ]
                     )
-                )
-            )
+                ),
+            ]
         );
     }
 
@@ -160,7 +160,7 @@ class external extends \external_api {
         // Call the Laravel backend to get history
         $response = self::call_laravel_backend('get_history');
 
-        return array('messages' => $response['messages']);
+        return ['messages' => $response['messages']];
     }
 
     /**
@@ -169,13 +169,13 @@ class external extends \external_api {
      */
     public static function register_installation_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'action' => new \external_value(PARAM_TEXT, 'Action type'),
                 'admin_name' => new \external_value(PARAM_TEXT, 'Administrator name'),
                 'admin_email' => new \external_value(PARAM_EMAIL, 'Administrator email'),
                 'ajax' => new \external_value(PARAM_BOOL, 'Is AJAX request', VALUE_DEFAULT, true),
-                'sesskey' => new \external_value(PARAM_TEXT, 'Session key')
-            )
+                'sesskey' => new \external_value(PARAM_TEXT, 'Session key'),
+            ]
         );
     }
 
@@ -185,33 +185,33 @@ class external extends \external_api {
      */
     public static function register_installation_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'success' => new \external_value(PARAM_BOOL, 'Success status'),
                 'message' => new \external_value(PARAM_TEXT, 'Response message'),
                 'data' => new \external_single_structure(
-                    array(
+                    [
                         'installation_id' => new \external_value(PARAM_INT, 'Installation ID', VALUE_OPTIONAL),
                         'api_key' => new \external_value(PARAM_TEXT, 'API key', VALUE_OPTIONAL),
                         'subscription_plans' => new \external_multiple_structure(
                             new \external_single_structure(
-                                array(
+                                [
                                     'id' => new \external_value(PARAM_INT, 'Plan ID'),
                                     'name' => new \external_value(PARAM_TEXT, 'Plan name'),
                                     'price' => new \external_value(PARAM_TEXT, 'Plan price'),
                                     'billing_cycle' => new \external_value(PARAM_TEXT, 'Billing cycle'),
                                     'ai_credits' => new \external_value(PARAM_INT, 'AI credits'),
                                     'exports' => new \external_value(PARAM_INT, 'Exports'),
-                                    'description' => new \external_value(PARAM_TEXT, 'Plan description')
-                                )
+                                    'description' => new \external_value(PARAM_TEXT, 'Plan description'),
+                                ]
                             ),
                             'Subscription plans',
                             VALUE_OPTIONAL
-                        )
-                    ),
+                        ),
+                    ],
                     'Response data',
                     VALUE_OPTIONAL
-                )
-            )
+                ),
+            ]
         );
     }
 
@@ -228,8 +228,10 @@ class external extends \external_api {
         global $USER;
 
         // Parameter validation
-        $params = self::validate_parameters(self::register_installation_parameters(), 
-            array('action' => $action, 'admin_name' => $admin_name, 'admin_email' => $admin_email, 'ajax' => $ajax, 'sesskey' => $sesskey));
+        $params = self::validate_parameters(
+            self::register_installation_parameters(),
+            ['action' => $action, 'admin_name' => $admin_name, 'admin_email' => $admin_email, 'ajax' => $ajax, 'sesskey' => $sesskey]
+        );
 
         // Context validation
         $context = \context_system::instance();
@@ -256,10 +258,10 @@ class external extends \external_api {
      */
     public static function cancel_subscription_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'action' => new \external_value(PARAM_TEXT, 'Action type'),
-                'sesskey' => new \external_value(PARAM_TEXT, 'Session key')
-            )
+                'sesskey' => new \external_value(PARAM_TEXT, 'Session key'),
+            ]
         );
     }
 
@@ -269,10 +271,10 @@ class external extends \external_api {
      */
     public static function cancel_subscription_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'success' => new \external_value(PARAM_BOOL, 'Success status'),
-                'message' => new \external_value(PARAM_TEXT, 'Response message')
-            )
+                'message' => new \external_value(PARAM_TEXT, 'Response message'),
+            ]
         );
     }
 
@@ -286,8 +288,10 @@ class external extends \external_api {
         global $USER;
 
         // Parameter validation
-        $params = self::validate_parameters(self::cancel_subscription_parameters(), 
-            array('action' => $action, 'sesskey' => $sesskey));
+        $params = self::validate_parameters(
+            self::cancel_subscription_parameters(),
+            ['action' => $action, 'sesskey' => $sesskey]
+        );
 
         // Context validation
         $context = \context_system::instance();
@@ -314,11 +318,11 @@ class external extends \external_api {
      */
     public static function activate_free_plan_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'action' => new \external_value(PARAM_TEXT, 'Action type'),
                 'plan_id' => new \external_value(PARAM_INT, 'Plan ID'),
-                'sesskey' => new \external_value(PARAM_TEXT, 'Session key')
-            )
+                'sesskey' => new \external_value(PARAM_TEXT, 'Session key'),
+            ]
         );
     }
 
@@ -328,10 +332,10 @@ class external extends \external_api {
      */
     public static function activate_free_plan_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'success' => new \external_value(PARAM_BOOL, 'Success status'),
-                'message' => new \external_value(PARAM_TEXT, 'Response message')
-            )
+                'message' => new \external_value(PARAM_TEXT, 'Response message'),
+            ]
         );
     }
 
@@ -346,8 +350,10 @@ class external extends \external_api {
         global $USER;
 
         // Parameter validation
-        $params = self::validate_parameters(self::activate_free_plan_parameters(), 
-            array('action' => $action, 'plan_id' => $plan_id, 'sesskey' => $sesskey));
+        $params = self::validate_parameters(
+            self::activate_free_plan_parameters(),
+            ['action' => $action, 'plan_id' => $plan_id, 'sesskey' => $sesskey]
+        );
 
         // Context validation
         $context = \context_system::instance();
@@ -373,7 +379,7 @@ class external extends \external_api {
      * @return external_function_parameters
      */
     public static function get_auth_status_parameters() {
-        return new \external_function_parameters(array());
+        return new \external_function_parameters([]);
     }
 
     /**
@@ -382,38 +388,38 @@ class external extends \external_api {
      */
     public static function get_auth_status_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'success' => new \external_value(PARAM_BOOL, 'Success status'),
                 'data' => new \external_single_structure(
-                    array(
+                    [
                         'is_registered' => new \external_value(PARAM_BOOL, 'Plugin registration status'),
                         'has_api_key' => new \external_value(PARAM_BOOL, 'API key availability'),
                         'api_key' => new \external_value(PARAM_TEXT, 'API key'),
                         'installation_id' => new \external_value(PARAM_INT, 'Installation ID'),
                         'subscription' => new \external_single_structure(
-                            array(
+                            [
                                 'plan_id' => new \external_value(PARAM_INT, 'Plan ID'),
                                 'plan_name' => new \external_value(PARAM_TEXT, 'Plan name'),
                                 'status' => new \external_value(PARAM_TEXT, 'Subscription status'),
                                 'ai_credits_remaining' => new \external_value(PARAM_INT, 'AI credits remaining'),
-                                'exports_remaining' => new \external_value(PARAM_INT, 'Exports remaining')
-                            ),
+                                'exports_remaining' => new \external_value(PARAM_INT, 'Exports remaining'),
+                            ],
                             'Subscription information',
                             VALUE_OPTIONAL
                         ),
                         'usage' => new \external_single_structure(
-                            array(
+                            [
                                 'reports_generated_this_month' => new \external_value(PARAM_INT, 'Reports generated this month'),
                                 'ai_credits_used_this_month' => new \external_value(PARAM_INT, 'AI credits used this month'),
                                 'current_period_start' => new \external_value(PARAM_INT, 'Current period start timestamp'),
-                                'current_period_end' => new \external_value(PARAM_INT, 'Current period end timestamp')
-                            ),
+                                'current_period_end' => new \external_value(PARAM_INT, 'Current period end timestamp'),
+                            ],
                             'Usage information',
                             VALUE_OPTIONAL
-                        )
-                    )
-                )
-            )
+                        ),
+                    ]
+                ),
+            ]
         );
     }
 
@@ -435,10 +441,10 @@ class external extends \external_api {
         $auth_manager = new \report_adeptus_insights\auth_manager();
         $auth_status = $auth_manager->get_auth_status();
 
-        return array(
+        return [
             'success' => true,
-            'data' => $auth_status
-        );
+            'data' => $auth_status,
+        ];
     }
 
     /**
@@ -447,10 +453,10 @@ class external extends \external_api {
      */
     public static function create_billing_portal_parameters() {
         return new \external_function_parameters(
-            array(
+            [
                 'return_url' => new \external_value(PARAM_URL, 'Return URL after billing portal session', VALUE_DEFAULT, ''),
-                'sesskey' => new \external_value(PARAM_TEXT, 'Session key for security')
-            )
+                'sesskey' => new \external_value(PARAM_TEXT, 'Session key for security'),
+            ]
         );
     }
 
@@ -460,17 +466,17 @@ class external extends \external_api {
      */
     public static function create_billing_portal_returns() {
         return new \external_single_structure(
-            array(
+            [
                 'success' => new \external_value(PARAM_BOOL, 'Success status'),
                 'message' => new \external_value(PARAM_TEXT, 'Response message'),
                 'data' => new \external_single_structure(
-                    array(
-                        'url' => new \external_value(PARAM_URL, 'Billing portal URL')
-                    ),
+                    [
+                        'url' => new \external_value(PARAM_URL, 'Billing portal URL'),
+                    ],
                     'Billing portal data',
                     VALUE_OPTIONAL
-                )
-            )
+                ),
+            ]
         );
     }
 
@@ -484,10 +490,10 @@ class external extends \external_api {
         global $USER;
 
         // Parameter validation
-        $params = self::validate_parameters(self::create_billing_portal_parameters(), array(
+        $params = self::validate_parameters(self::create_billing_portal_parameters(), [
             'return_url' => $return_url,
-            'sesskey' => $sesskey
-        ));
+            'sesskey' => $sesskey,
+        ]);
 
         // Context validation
         $context = \context_system::instance();
@@ -504,38 +510,37 @@ class external extends \external_api {
         try {
             // Get installation manager
             $installation_manager = new \report_adeptus_insights\installation_manager();
-            
+
             // Check if plugin is registered
             if (!$installation_manager->is_registered()) {
-                return array(
+                return [
                     'success' => false,
-                    'message' => 'Plugin not registered. Please register first.'
-                );
+                    'message' => 'Plugin not registered. Please register first.',
+                ];
             }
 
             // Create billing portal session
             $result = $installation_manager->create_billing_portal_session();
-            
+
             if ($result['success']) {
-                return array(
+                return [
                     'success' => true,
                     'message' => 'Billing portal session created successfully',
-                    'data' => array(
-                        'url' => $result['data']['url']
-                    )
-                );
+                    'data' => [
+                        'url' => $result['data']['url'],
+                    ],
+                ];
             } else {
-                return array(
+                return [
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to create billing portal session'
-                );
+                    'message' => $result['message'] ?? 'Failed to create billing portal session',
+                ];
             }
-
         } catch (\Exception $e) {
-            return array(
+            return [
                 'success' => false,
-                'message' => 'Error creating billing portal session: ' . $e->getMessage()
-            );
+                'message' => 'Error creating billing portal session: ' . $e->getMessage(),
+            ];
         }
     }
 
@@ -560,37 +565,37 @@ class external extends \external_api {
 
     public static function create_product_portal_session($product_id, $return_url, $sesskey) {
         global $USER, $DB;
-        
+
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
             return ['success' => false, 'message' => 'Invalid session key'];
         }
-        
+
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
             return ['success' => false, 'message' => 'Insufficient permissions'];
         }
-        
+
         try {
             $installation_manager = new \report_adeptus_insights\installation_manager();
             $result = $installation_manager->create_product_portal_session($product_id, $return_url);
-            
+
             if ($result['success']) {
                 return [
                     'success' => true,
-                    'portal_url' => $result['portal_url']
+                    'portal_url' => $result['portal_url'],
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $result['message']
+                    'message' => $result['message'],
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating portal session: ' . $e->getMessage()
+                'message' => 'Error creating portal session: ' . $e->getMessage(),
             ];
         }
     }
@@ -664,32 +669,32 @@ class external extends \external_api {
 
     public static function get_subscription_details() {
         global $USER;
-        
+
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
             return ['success' => false, 'message' => 'Insufficient permissions'];
         }
-        
+
         try {
             $installation_manager = new \report_adeptus_insights\installation_manager();
             $subscription = $installation_manager->get_subscription_details();
-            
+
             if ($subscription) {
                 return [
                     'success' => true,
-                    'data' => $subscription
+                    'data' => $subscription,
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => 'No subscription found'
+                    'message' => 'No subscription found',
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error getting subscription details: ' . $e->getMessage()
+                'message' => 'Error getting subscription details: ' . $e->getMessage(),
             ];
         }
     }
@@ -717,37 +722,37 @@ class external extends \external_api {
 
     public static function create_billing_portal_session($return_url, $sesskey, $plan_id = null, $action = null) {
         global $USER;
-        
+
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
             return ['success' => false, 'message' => 'Invalid session key'];
         }
-        
+
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
             return ['success' => false, 'message' => 'Insufficient permissions'];
         }
-        
+
         try {
             $installation_manager = new \report_adeptus_insights\installation_manager();
             $result = $installation_manager->create_billing_portal_session($return_url, $plan_id, $action);
-            
+
             if ($result['success']) {
                 return [
                     'success' => true,
-                    'portal_url' => $result['data']['url'] ?? null
+                    'portal_url' => $result['data']['url'] ?? null,
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $result['message']
+                    'message' => $result['message'],
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating billing portal session: ' . $e->getMessage()
+                'message' => 'Error creating billing portal session: ' . $e->getMessage(),
             ];
         }
     }
@@ -796,19 +801,19 @@ class external extends \external_api {
                 return [
                     'success' => true,
                     'checkout_url' => $result['checkout_url'],
-                    'session_id' => $result['session_id'] ?? null
+                    'session_id' => $result['session_id'] ?? null,
                 ];
             } else {
                 return [
                     'success' => false,
                     'message' => $result['message'],
-                    'error_code' => $result['error_code'] ?? null
+                    'error_code' => $result['error_code'] ?? null,
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating checkout session: ' . $e->getMessage()
+                'message' => 'Error creating checkout session: ' . $e->getMessage(),
             ];
         }
     }
@@ -855,19 +860,19 @@ class external extends \external_api {
                 return [
                     'success' => true,
                     'tier' => $result['tier'] ?? 'pro',
-                    'plan_name' => $result['plan_name'] ?? 'Pro'
+                    'plan_name' => $result['plan_name'] ?? 'Pro',
                 ];
             } else {
                 return [
                     'success' => false,
                     'message' => $result['message'],
-                    'error_code' => $result['error_code'] ?? null
+                    'error_code' => $result['error_code'] ?? null,
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error verifying checkout: ' . $e->getMessage()
+                'message' => 'Error verifying checkout: ' . $e->getMessage(),
             ];
         }
     }
@@ -888,15 +893,15 @@ class external extends \external_api {
         $ch = curl_init($backend_url . '/chat');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(array(
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
             'message' => $message,
             'user_id' => get_config('report_adeptus_insights', 'user_id'),
-        'token' => get_config('report_adeptus_insights', 'api_token')
-        )));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'token' => get_config('report_adeptus_insights', 'api_token'),
+        ]));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Accept: application/json'
-        ));
+            'Accept: application/json',
+        ]);
 
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -908,4 +913,4 @@ class external extends \external_api {
 
         return json_decode($response, true);
     }
-} 
+}

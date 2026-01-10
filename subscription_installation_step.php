@@ -1,7 +1,22 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+
 /**
  * Adeptus Insights - Subscription Installation Step
- * 
+ *
  * This page handles the subscription setup during plugin installation
  * It automatically creates a free subscription and shows upgrade options
  */
@@ -44,21 +59,28 @@ if ($action === 'completeinstallation' && confirm_sesskey()) {
     // Mark installation as completed
     set_config('installation_completed', '1', 'report_adeptus_insights');
     set_config('installation_step', '3', 'report_adeptus_insights');
-    
-    redirect(new moodle_url('/report/adeptus_insights/index.php'), 
-            get_string('installation_complete', 'report_adeptus_insights'), 
-            null, \core\output\notification::NOTIFY_SUCCESS);
+
+    redirect(
+        new moodle_url('/report/adeptus_insights/index.php'),
+        get_string('installation_complete', 'report_adeptus_insights'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
 if ($action === 'upgrade_plan' && confirm_sesskey() && $plan_id) {
     // Redirect to Stripe billing portal for upgrade
     $result = $installation_manager->create_billing_portal_session();
-    
+
     if ($result['success']) {
         redirect($result['data']['url']);
     } else {
-        redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'), 
-                $result['message'], null, \core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/report/adeptus_insights/subscription_installation_step.php'),
+            $result['message'],
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
 }
 
@@ -68,27 +90,27 @@ $current_subscription = $installation_manager->get_subscription_details();
 // If no local subscription record, try to get it from backend first
 if (!$current_subscription) {
     debugging('No local subscription found, checking backend...');
-    
+
     // Use the existing check_subscription_status method to sync from backend
     $backend_sync_result = $installation_manager->check_subscription_status();
-    
+
     if ($backend_sync_result) {
         debugging('Successfully synced subscription from backend');
         // Refresh subscription data
         $current_subscription = $installation_manager->get_subscription_details();
     } else {
         debugging('Backend sync failed, creating new subscription...');
-        
+
         // Only create if backend sync failed
         try {
             $user = $USER;
             $result = $installation_manager->setup_starter_subscription($user->email, fullname($user));
-            
+
             if (!$result) {
                 debugging('Automatic subscription creation failed, trying manual...');
                 $result = $installation_manager->activate_free_plan_manually();
             }
-            
+
             if ($result) {
                 debugging('Subscription created successfully');
                 // Refresh subscription data
@@ -107,9 +129,12 @@ if ($current_subscription) {
     set_config('installation_completed', '1', 'report_adeptus_insights');
     set_config('installation_step', '3', 'report_adeptus_insights');
 
-    redirect(new moodle_url('/report/adeptus_insights/index.php'),
-            get_string('installation_complete', 'report_adeptus_insights'),
-            null, \core\output\notification::NOTIFY_SUCCESS);
+    redirect(
+        new moodle_url('/report/adeptus_insights/index.php'),
+        get_string('installation_complete', 'report_adeptus_insights'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS
+    );
 }
 
 // Get available plans for upgrades
@@ -148,7 +173,7 @@ if (!empty($available_plans['plans'])) {
         $limit_features = $limits['features'] ?? [];
 
         // Format limit values (handle -1 as unlimited)
-        $format_limit = function($value, $suffix = '') {
+        $format_limit = function ($value, $suffix = '') {
             if ($value === -1 || $value === null) {
                 return 'Unlimited';
             }
@@ -213,7 +238,7 @@ if (!empty($available_plans['plans'])) {
 
 // Sort plans by tier order: free, pro, enterprise
 $tier_order = ['free' => 0, 'pro' => 1, 'enterprise' => 2];
-$sort_by_tier = function($a, $b) use ($tier_order) {
+$sort_by_tier = function ($a, $b) use ($tier_order) {
     return ($tier_order[$a['tier']] ?? 99) - ($tier_order[$b['tier']] ?? 99);
 };
 
@@ -257,7 +282,7 @@ $templatecontext = [
         'monthly' => array_values($monthly_plans),
         'yearly' => array_values($yearly_plans),
     ]),
-    'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2')
+    'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2'),
 ];
 
 // Output the page

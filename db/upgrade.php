@@ -70,7 +70,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         if ($custom !== false) {
             $lines = preg_split('/\r\n?|\n/', $custom);
             // Remove ALL existing Adeptus entries
-            $lines = array_filter($lines, function($line) {
+            $lines = array_filter($lines, function ($line) {
                 return strpos($line, '/report/adeptus_insights/') === false;
             });
             // Add single correct entry with new name
@@ -96,4 +96,3 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
 
     return true;
 }
-?>

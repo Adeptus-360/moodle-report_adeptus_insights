@@ -60,25 +60,41 @@ $plan_id = optional_param('plan_id', 0, PARAM_INT);
 
 if ($action === 'cancel_subscription' && confirm_sesskey()) {
     $result = $installation_manager->cancel_subscription();
-    
+
     if ($result['success']) {
-        redirect(new moodle_url('/report/adeptus_insights/subscription.php'), 
-                $result['message'], null, \core\output\notification::NOTIFY_SUCCESS);
+        redirect(
+            new moodle_url('/report/adeptus_insights/subscription.php'),
+            $result['message'],
+            null,
+            \core\output\notification::NOTIFY_SUCCESS
+        );
     } else {
-        redirect(new moodle_url('/report/adeptus_insights/subscription.php'), 
-                $result['message'], null, \core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/report/adeptus_insights/subscription.php'),
+            $result['message'],
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
 }
 
 if ($action === 'update_plan' && confirm_sesskey() && $plan_id) {
     $result = $installation_manager->update_subscription_plan($plan_id);
-    
+
     if ($result['success']) {
-        redirect(new moodle_url('/report/adeptus_insights/subscription.php'), 
-                $result['message'], null, \core\output\notification::NOTIFY_SUCCESS);
+        redirect(
+            new moodle_url('/report/adeptus_insights/subscription.php'),
+            $result['message'],
+            null,
+            \core\output\notification::NOTIFY_SUCCESS
+        );
     } else {
-        redirect(new moodle_url('/report/adeptus_insights/subscription.php'), 
-                $result['message'], null, \core\output\notification::NOTIFY_ERROR);
+        redirect(
+            new moodle_url('/report/adeptus_insights/subscription.php'),
+            $result['message'],
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
 }
 
@@ -137,7 +153,7 @@ $templatecontext = [
     'user_email' => $USER->email,
     'is_registered' => $installation_manager->is_registered(),
     'sesskey' => sesskey(),
-    'current_plan_price' => $current_plan_price
+    'current_plan_price' => $current_plan_price,
 ];
 
 // Add payment config safely
@@ -150,16 +166,16 @@ if ($payment_config && isset($payment_config['success']) && $payment_config['suc
 // Add current subscription if exists
 if ($subscription) {
     // Helper function to convert date strings to formatted dates
-    $formatDate = function($dateValue) {
+    $formatDate = function ($dateValue) {
         if (empty($dateValue)) {
             return 'N/A';
         }
-        
+
         // If it's already a timestamp (integer)
         if (is_numeric($dateValue)) {
             return date('F j, Y', $dateValue);
         }
-        
+
         // If it's a date string, try to parse it
         if (is_string($dateValue)) {
             $timestamp = strtotime($dateValue);
@@ -167,17 +183,17 @@ if ($subscription) {
                 return date('F j, Y', $timestamp);
             }
         }
-        
+
         return 'N/A';
     };
-    
+
     // Check if current plan is free
     $isFreePlan = false;
     if (isset($subscription['price'])) {
         $price = floatval(str_replace(['£', ','], '', $subscription['price']));
         $isFreePlan = ($price == 0);
     }
-    
+
     $templatecontext['current_subscription'] = [
         'plan_name' => $subscription['plan_name'] ?? 'Unknown Plan',
         'price' => $subscription['price'] ?? '£0.00',
@@ -268,7 +284,7 @@ if (!empty($available_plans['plans'])) {
             'is_upgrade' => $is_upgrade,
             'is_downgrade' => $is_downgrade,
             'features' => $plan['features'] ?? [],
-            'stripe_product_id' => $plan['stripe_product_id'] ?? null
+            'stripe_product_id' => $plan['stripe_product_id'] ?? null,
         ];
     }
     $templatecontext['plans'] = $plans;
@@ -285,7 +301,7 @@ if ($usage_stats) {
         'ai_credits_used_this_month' => 0,
         'reports_generated_this_month' => 0,
         'current_period_start' => null,
-        'current_period_end' => null
+        'current_period_end' => null,
     ];
 }
 
@@ -305,4 +321,4 @@ if ($usage_stats) {
 // Render the template
 echo $OUTPUT->render_from_template('report_adeptus_insights/subscription', $templatecontext);
 
-echo $OUTPUT->footer(); 
+echo $OUTPUT->footer();

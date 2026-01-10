@@ -72,12 +72,12 @@ if (!filter_var($input['billing_email'], FILTER_VALIDATE_EMAIL)) {
 
 try {
     debugging('Creating installation manager');
-    
+
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
-    
+
     debugging('Checking if installation is registered');
-    
+
     // Check if installation is registered
     if (!$installation_manager->is_registered()) {
         debugging('Installation is not registered');
@@ -85,39 +85,38 @@ try {
         echo json_encode(['success' => false, 'message' => get_string('not_registered', 'report_adeptus_insights')]);
         exit;
     }
-    
+
     debugging('Installation is registered, creating subscription');
-    
+
     // Create subscription
     $result = $installation_manager->create_subscription(
         $input['plan_id'],
         $input['payment_method_id'],
         $input['billing_email']
     );
-    
+
     debugging('Subscription creation result: ' . json_encode($result));
-    
+
     if ($result['success']) {
         echo json_encode([
             'success' => true,
             'message' => $result['message'],
-            'data' => $result['data']
+            'data' => $result['data'],
         ]);
     } else {
         debugging('Subscription creation failed: ' . $result['message']);
         http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => $result['message']
+            'message' => $result['message'],
         ]);
     }
-    
 } catch (\Exception $e) {
     debugging('Subscription creation exception: ' . $e->getMessage());
     debugging('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'An error occurred: ' . $e->getMessage()
+        'message' => 'An error occurred: ' . $e->getMessage(),
     ]);
-} 
+}

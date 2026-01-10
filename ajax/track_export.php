@@ -85,13 +85,13 @@ try {
         $DB->insert_record('adeptus_export_tracking', $export_record);
 
         // Count total exports for this user
-        $total_exports = $DB->count_records('adeptus_export_tracking', array('userid' => $USER->id));
+        $total_exports = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
 
         echo json_encode([
             'success' => true,
             'message' => 'Export tracked successfully',
             'exports_used' => $total_exports,
-            'is_free_plan' => true
+            'is_free_plan' => true,
         ]);
     } else {
         // For paid plan users, track via backend API
@@ -106,7 +106,7 @@ try {
         $full_url = $backend_api_url . '/subscription/track-export';
         $post_data = json_encode([
             'report_name' => $report_name,
-            'format' => $format
+            'format' => $format,
         ]);
 
         $ch = curl_init();
@@ -116,7 +116,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'X-API-Key: ' . $api_key,
-            'Accept: application/json'
+            'Accept: application/json',
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
@@ -134,19 +134,18 @@ try {
                 'message' => 'Export tracked successfully',
                 'exports_used' => $backend_data['exports_used'] ?? 0,
                 'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
-                'is_free_plan' => false
+                'is_free_plan' => false,
             ]);
         } else {
             throw new Exception('Backend API call failed');
         }
     }
-
 } catch (Exception $e) {
     error_log('Error in track_export.php: ' . $e->getMessage());
 
     echo json_encode([
         'success' => false,
-        'message' => 'Error tracking export: ' . $e->getMessage()
+        'message' => 'Error tracking export: ' . $e->getMessage(),
     ]);
 }
 

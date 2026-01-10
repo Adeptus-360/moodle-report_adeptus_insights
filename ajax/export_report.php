@@ -80,7 +80,6 @@ if (!confirm_sesskey($sesskey)) {
 
 
 try {
-
     // Check if we have report data from frontend
 
     $report_data_json = optional_param('report_data', '', PARAM_RAW);
@@ -124,7 +123,6 @@ try {
 
     // If no frontend data or frontend data invalid, regenerate from backend
     if (!$has_frontend_data || empty($results_array)) {
-
         // Fetch report definition from Laravel backend (same as generate_report.php)
         require_once(__DIR__ . '/../classes/api_config.php');
         require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
@@ -150,7 +148,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json',
-            'X-API-Key: ' . $api_key
+            'X-API-Key: ' . $api_key,
         ]);
 
         $response = curl_exec($ch);
@@ -247,7 +245,6 @@ try {
         if (!empty($results_array)) {
             $headers = array_keys($results_array[0]);
         }
-
     }
 
     // PDF-specific row limit check
@@ -262,7 +259,7 @@ try {
             'success' => false,
             'error' => 'dataset_too_large',
             'title' => 'Export Restriction',
-            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of $PDF_MAX_ROWS rows. Please use CSV, Excel, or JSON export for large datasets, or add filters to reduce the result set."
+            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of $PDF_MAX_ROWS rows. Please use CSV, Excel, or JSON export for large datasets, or add filters to reduce the result set.",
         ]);
         exit;
     }
@@ -279,7 +276,7 @@ try {
         // Add headers as first row with title case
         $formatted_headers = array_map('format_header', $headers);
         $table_data[] = $formatted_headers;
-        
+
         // Add data rows
         foreach ($results_array as $row) {
             $table_data[] = array_values($row);
@@ -294,29 +291,29 @@ try {
         // Find the best columns for labels and values
         $label_column = $headers[0] ?? 'id';
         $value_column = null;
-        
+
         // Analyze all columns to find numeric ones and their value ranges
         $numeric_columns = [];
         $column_stats = [];
         $mb_column = null; // For (mb) column priority
-        
+
         foreach ($headers as $header) {
             $column_values = array_column($results_array, $header);
             $numeric_values = [];
             $is_numeric_column = true;
-            
+
             // Check if all values in this column are numeric
             foreach ($column_values as $value) {
                 if (is_numeric($value)) {
                     $numeric_values[] = (float)$value;
-                } elseif (is_string($value) && is_numeric(trim($value))) {
+                } else if (is_string($value) && is_numeric(trim($value))) {
                     $numeric_values[] = (float)trim($value);
                 } else {
                     $is_numeric_column = false;
                     break;
                 }
             }
-            
+
             // If column is numeric, calculate its statistics
             if ($is_numeric_column && !empty($numeric_values)) {
                 $numeric_columns[] = $header;
@@ -325,20 +322,20 @@ try {
                     'min' => min($numeric_values),
                     'sum' => array_sum($numeric_values),
                     'count' => count($numeric_values),
-                    'avg' => array_sum($numeric_values) / count($numeric_values)
+                    'avg' => array_sum($numeric_values) / count($numeric_values),
                 ];
-                
+
                 // Special case: Check if column name contains "(mb)"
                 if (strpos($header, '(mb)') !== false) {
                     $mb_column = $header;
                 }
             }
         }
-        
+
         // Select the column with priority: (mb) column first, then highest maximum value
         if (!empty($mb_column)) {
             $value_column = $mb_column;
-        } elseif (!empty($numeric_columns)) {
+        } else if (!empty($numeric_columns)) {
             $max_value = 0;
             foreach ($numeric_columns as $column) {
                 if ($column_stats[$column]['max'] > $max_value) {
@@ -350,16 +347,16 @@ try {
             // Fallback to second column if no numeric columns found
             $value_column = $headers[1] ?? 'value';
         }
-        
+
         // Convert values to numbers if they're strings
         $chart_values = array_column($results_array, $value_column);
-        $chart_values = array_map(function($value) {
+        $chart_values = array_map(function ($value) {
             return is_numeric($value) ? (float)$value : (is_string($value) && is_numeric(trim($value)) ? (float)trim($value) : 0);
         }, $chart_values);
-        
+
         // Generate colors based on chart type
         $colors = generateChartColors(count($chart_values), $report->charttype);
-        
+
         // Create chart data structure
         $chart_data_structure = [
             'labels' => array_column($results_array, $label_column),
@@ -369,27 +366,27 @@ try {
                     'data' => $chart_values,
                     'backgroundColor' => $colors,
                     'borderColor' => adjustColors($colors, -20),
-                    'borderWidth' => 2
-                ]
+                    'borderWidth' => 2,
+                ],
             ],
             'axis_labels' => [
                 'x_axis' => $label_column,
-                'y_axis' => $value_column
-            ]
+                'y_axis' => $value_column,
+            ],
         ];
-        
+
         // Convert chart data to exportable format
         $chart_export_data = [];
         $chart_export_headers = ['Label', 'Value'];
         $chart_export_data[] = $chart_export_headers;
-        
+
         $labels = $chart_data_structure['labels'];
         $values = $chart_data_structure['datasets'][0]['data'] ?? [];
-        
+
         for ($i = 0; $i < count($labels); $i++) {
             $chart_export_data[] = [
                 $labels[$i] ?? '',
-                $values[$i] ?? ''
+                $values[$i] ?? '',
             ];
         }
     }
@@ -406,29 +403,29 @@ try {
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
-            
+
             $output = fopen('php://output', 'w');
             foreach ($table_data as $row) {
                 fputcsv($output, $row);
             }
             fclose($output);
             break;
-            
+
         case 'excel':
             // Excel: Table Data on sheet 1, Chart Visualization on sheet 2
             // Use CSV format that Excel can open reliably
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
-            
+
             echo generateExcelCSV($reportid, $table_data, $chart_export_data, $report_params);
             break;
-            
+
         case 'json':
             // JSON: as is (current working format)
             header('Content-Type: application/json');
             header('Content-Disposition: attachment; filename="' . $filename . '.json"');
-            
+
             $json_data = [
                 'report_name' => $report->name,
                 'report_category' => $report->category,
@@ -436,50 +433,48 @@ try {
                 'parameters' => $report_params,
                 'headers' => $headers,
                 'table_data' => array_slice($table_data, 1), // Remove header row for JSON
-                'chart_data' => $chart_export_data ? array_slice($chart_export_data, 1) : null
+                'chart_data' => $chart_export_data ? array_slice($chart_export_data, 1) : null,
             ];
-            
+
             echo json_encode($json_data, JSON_PRETTY_PRINT);
             break;
-            
+
         case 'pdf':
             // PDF: table on page 1, chart on page 2
             // Generate actual PDF using TCPDF
             try {
-                
                 $pdf_content = generatePDF($reportid, $table_data, $chart_export_data, $report_params, $chart_image);
-                
+
                 if ($pdf_content === false || empty($pdf_content)) {
                     error_log('PDF Export - PDF content is empty or false');
                     throw new Exception('Failed to generate PDF content');
                 }
-                
-                
+
+
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . $filename . '.pdf"');
                 header('Cache-Control: max-age=0');
                 header('Content-Length: ' . strlen($pdf_content));
-                
+
                 echo $pdf_content;
             } catch (Exception $pdf_error) {
                 error_log('PDF Generation Error: ' . $pdf_error->getMessage());
                 error_log('PDF Generation Stack Trace: ' . $pdf_error->getTraceAsString());
-                
+
                 // Return JSON error instead of corrupted PDF
                 header('Content-Type: application/json');
                 echo json_encode([
-                    'success' => false, 
-                    'message' => 'PDF generation failed: ' . $pdf_error->getMessage()
+                    'success' => false,
+                    'message' => 'PDF generation failed: ' . $pdf_error->getMessage(),
                 ]);
             }
             break;
-            
+
         default:
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'message' => 'Unsupported export format']);
             break;
     }
-
 } catch (Exception $e) {
     error_log('Error in export_report.php: ' . $e->getMessage());
     error_log('Stack trace: ' . $e->getTraceAsString());
@@ -488,7 +483,7 @@ try {
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => 'Error exporting report: ' . $e->getMessage()
+        'message' => 'Error exporting report: ' . $e->getMessage(),
     ]);
 }
 
@@ -505,10 +500,10 @@ function generateExcelHTML($sheets_data, $report_name) {
     $html .= 'h2 { color: #333; margin-top: 20px; }';
     $html .= '</style>';
     $html .= '</head><body>';
-    
+
     $html .= '<h1>' . htmlspecialchars($report_name) . '</h1>';
     $html .= '<p>Generated on: ' . date('Y-m-d H:i:s') . '</p>';
-    
+
     foreach ($sheets_data as $sheet_name => $data) {
         $html .= '<h2>' . htmlspecialchars($sheet_name) . '</h2>';
         $html .= '<table>';
@@ -521,9 +516,9 @@ function generateExcelHTML($sheets_data, $report_name) {
         }
         $html .= '</table><br><br>';
     }
-    
+
     $html .= '</body></html>';
-    
+
     return $html;
 }
 
@@ -533,7 +528,7 @@ function generateExcelHTML($sheets_data, $report_name) {
 function generatePDF($report_name, $table_data, $chart_data, $report_params, $chart_image = '') {
     // Use Moodle's built-in TCPDF library
     global $CFG;
-    
+
     try {
         // Check if TCPDF is available
         if (!class_exists('TCPDF')) {
@@ -542,14 +537,14 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
             if (file_exists($tcpdf_config_path)) {
                 require_once($tcpdf_config_path);
             }
-            
+
             $tcpdf_path = $CFG->libdir . '/tcpdf/tcpdf.php';
             if (!file_exists($tcpdf_path)) {
                 throw new Exception('TCPDF library not found at: ' . $tcpdf_path);
             }
             require_once($tcpdf_path);
         }
-        
+
         // Define PDF constants if not already defined
         if (!defined('PDF_PAGE_ORIENTATION')) {
             define('PDF_PAGE_ORIENTATION', 'P');
@@ -596,54 +591,54 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         if (!defined('PDF_FONT_MONOSPACED')) {
             define('PDF_FONT_MONOSPACED', 'courier');
         }
-        
+
         // Create new PDF document
         $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
     } catch (Exception $e) {
         error_log('TCPDF initialization error: ' . $e->getMessage());
         throw new Exception('Failed to initialize PDF library: ' . $e->getMessage());
     }
-    
+
     // Set document information
     $pdf->SetCreator('Moodle Adeptus Insights');
     $pdf->SetAuthor('Adeptus Insights Report');
     $pdf->SetTitle($report_name);
     $pdf->SetSubject('Report Export');
-    
+
     // Set default header data
     $pdf->SetHeaderData('', 0, $report_name, 'Generated on: ' . date('Y-m-d H:i:s'));
-    
+
     // Set header and footer fonts
-    $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-    $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-    
+    $pdf->setHeaderFont([PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN]);
+    $pdf->setFooterFont([PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA]);
+
     // Set default monospaced font
     $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-    
+
     // Set margins
     $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
     $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
     $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-    
+
     // Set auto page breaks
-    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-    
+    $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
+
     // Set image scale factor
     $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-    
+
     // Add a page
     $pdf->AddPage();
-    
+
     // Page 1: Report Information and Table Data
     $pdf->SetFont('helvetica', 'B', 16);
     $pdf->Cell(0, 10, $report_name, 0, 1, 'L');
     $pdf->Ln(5);
-    
+
     // Date
     $pdf->SetFont('helvetica', '', 10);
     $pdf->Cell(0, 8, 'Generated on: ' . date('Y-m-d H:i:s'), 0, 1, 'L');
     $pdf->Ln(5);
-    
+
     // Parameters
     if (!empty($report_params)) {
         $pdf->SetFont('helvetica', 'B', 12);
@@ -654,24 +649,24 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         }
         $pdf->Ln(5);
     }
-    
+
     // Table Data
     $pdf->SetFont('helvetica', 'B', 14);
     $pdf->Cell(0, 10, 'Table Data', 0, 1, 'L');
     $pdf->Ln(5);
-    
+
     if (!empty($table_data)) {
         $pdf->SetFont('helvetica', '', 8);
-        
+
         // Calculate column widths
         $max_cols = 0;
         foreach ($table_data as $row) {
             $max_cols = max($max_cols, count($row));
         }
-        
+
         $page_width = $pdf->getPageWidth() - PDF_MARGIN_LEFT - PDF_MARGIN_RIGHT;
         $col_width = $page_width / $max_cols;
-        
+
         // Add table headers
         if (!empty($table_data)) {
             $first_row = $table_data[0];
@@ -681,7 +676,7 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
                 $pdf->Cell($col_width, 6, $cell, 1, 0, 'L', true);
             }
             $pdf->Ln();
-            
+
             // Add table data
             $pdf->SetFont('helvetica', '', 7);
             for ($i = 1; $i < count($table_data); $i++) {
@@ -696,42 +691,42 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         $pdf->SetFont('helvetica', '', 10);
         $pdf->Cell(0, 10, 'No table data available for this report.', 0, 1, 'L');
     }
-    
+
     // Add a new page for chart visualization
     $pdf->AddPage();
-    
+
     // Page 2: Chart Visualization
     $pdf->SetFont('helvetica', 'B', 14);
     $pdf->Cell(0, 10, 'Chart Visualization', 0, 1, 'L');
     $pdf->Ln(5);
-    
+
     // Display chart image if available
     if (!empty($chart_image)) {
         // Extract base64 data
         $image_data = base64_decode(preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $chart_image));
-        
+
         // Save temporary image file
         $temp_file = tempnam(sys_get_temp_dir(), 'chart_');
         file_put_contents($temp_file, $image_data);
-        
+
         // Add image to PDF
         $pdf->Image($temp_file, PDF_MARGIN_LEFT, $pdf->GetY(), $page_width, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
-        
+
         // Clean up temporary file
         unlink($temp_file);
     } else {
         $pdf->SetFont('helvetica', '', 10);
         $pdf->Cell(0, 10, 'No chart visualization available for this report.', 0, 1, 'L');
     }
-    
+
     // Output PDF
     try {
         $pdf_output = $pdf->Output('', 'S'); // Return as string
-        
+
         if (empty($pdf_output)) {
             throw new Exception('PDF Output returned empty content');
         }
-        
+
         return $pdf_output;
     } catch (Exception $e) {
         error_log('PDF Output error: ' . $e->getMessage());
@@ -744,11 +739,11 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
  */
 function generateExcelCSV($report_name, $table_data, $chart_data, $report_params) {
     $output = '';
-    
+
     // Add report header
     $output .= '"' . str_replace('"', '""', $report_name) . '"' . "\n";
     $output .= '"Generated on: ' . date('Y-m-d H:i:s') . '"' . "\n";
-    
+
     // Add parameters
     if (!empty($report_params)) {
         $output .= '"Parameters:"' . "\n";
@@ -757,7 +752,7 @@ function generateExcelCSV($report_name, $table_data, $chart_data, $report_params
         }
         $output .= "\n"; // Empty line for spacing
     }
-    
+
     // Add table data
     $output .= '"Table Data:"' . "\n";
     if (!empty($table_data)) {
@@ -771,11 +766,11 @@ function generateExcelCSV($report_name, $table_data, $chart_data, $report_params
     } else {
         $output .= '"No table data available"' . "\n";
     }
-    
+
     // Add separator for chart data
     $output .= "\n";
     $output .= '"Chart Data:"' . "\n";
-    
+
     // Add chart data
     if (!empty($chart_data)) {
         foreach ($chart_data as $row) {
@@ -788,7 +783,7 @@ function generateExcelCSV($report_name, $table_data, $chart_data, $report_params
     } else {
         $output .= '"No chart data available"' . "\n";
     }
-    
+
     return $output;
 }
 
@@ -801,11 +796,11 @@ function generateChartColors($count, $chartType) {
     $baseColors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
-        '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d'
+        '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d',
     ];
-    
+
     $chartType = strtolower($chartType);
-    
+
     if ($chartType === 'pie' || $chartType === 'donut' || $chartType === 'polar') {
         // Generate distinct colors for each data point
         $colors = [];
@@ -824,7 +819,7 @@ function generateChartColors($count, $chartType) {
  */
 function adjustColors($colors, $amount) {
     if (is_array($colors)) {
-        return array_map(function($color) use ($amount) {
+        return array_map(function ($color) use ($amount) {
             return adjustColor($color, $amount);
         }, $colors);
     } else {
@@ -838,20 +833,19 @@ function adjustColors($colors, $amount) {
 function adjustColor($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
-    
+
     // Convert to RGB
     $r = hexdec(substr($color, 0, 2));
     $g = hexdec(substr($color, 2, 2));
     $b = hexdec(substr($color, 4, 2));
-    
+
     // Adjust each component
     $r = max(0, min(255, $r + $amount));
     $g = max(0, min(255, $g + $amount));
     $b = max(0, min(255, $b + $amount));
-    
+
     // Convert back to hex
     return sprintf("#%02x%02x%02x", $r, $g, $b);
 }
 
 exit;
-?> 

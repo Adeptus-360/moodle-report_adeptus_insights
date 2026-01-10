@@ -289,4 +289,3 @@ $string['privacy:reporthistory'] = 'Report history';
 $string['privacy:bookmarks'] = 'Bookmarks';
 $string['privacy:usagetracking'] = 'Usage tracking';
 $string['privacy:exporttracking'] = 'Export tracking';
-

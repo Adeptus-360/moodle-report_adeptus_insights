@@ -34,13 +34,13 @@ class stripe_service {
     private $stripe;
     private $config;
     private $is_test_mode;
-    
+
     public function __construct() {
         global $DB;
-        
+
         // Load Stripe configuration
         $this->load_config();
-        
+
         // Initialize Stripe SDK
         if (!class_exists('\Stripe\Stripe')) {
             // Try to autoload Stripe
@@ -55,7 +55,7 @@ class stripe_service {
                 }
             }
         }
-        
+
         if (class_exists('\Stripe\Stripe')) {
             \Stripe\Stripe::setApiKey($this->config->secret_key);
             $this->stripe = new \Stripe\StripeClient($this->config->secret_key);
@@ -63,13 +63,13 @@ class stripe_service {
             throw new \Exception('Stripe SDK not found. Please install via Composer.');
         }
     }
-    
+
     /**
      * Load Stripe configuration from database
      */
     private function load_config() {
         global $DB;
-        
+
         try {
             $this->config = $DB->get_record('adeptus_stripe_config', ['id' => 1]);
             if (!$this->config) {
@@ -82,13 +82,13 @@ class stripe_service {
             $this->create_default_config();
         }
     }
-    
+
     /**
      * Create default Stripe configuration
      */
     private function create_default_config() {
         global $DB;
-        
+
         $record = [
             'publishable_key' => 'pk_test_...', // Placeholder
             'secret_key' => 'sk_test_...', // Placeholder
@@ -96,9 +96,9 @@ class stripe_service {
             'is_test_mode' => 1,
             'currency' => 'GBP',
             'timecreated' => time(),
-            'timemodified' => time()
+            'timemodified' => time(),
         ];
-        
+
         try {
             if (!$DB->get_manager()->table_exists('adeptus_stripe_config')) {
                 $sql = "CREATE TABLE IF NOT EXISTS {adeptus_stripe_config} (
@@ -114,27 +114,27 @@ class stripe_service {
                 )";
                 $DB->execute($sql);
             }
-            
+
             $DB->insert_record('adeptus_stripe_config', $record);
             $this->config = (object)$record;
         } catch (\Exception $e) {
             debugging('Failed to create default Stripe config: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Get Stripe configuration
      */
     public function get_config() {
         return $this->config;
     }
-    
+
     /**
      * Update Stripe configuration
      */
     public function update_config($data) {
         global $DB;
-        
+
         $record = [
             'id' => 1,
             'publishable_key' => $data['publishable_key'],
@@ -142,18 +142,18 @@ class stripe_service {
             'webhook_secret' => $data['webhook_secret'] ?? '',
             'is_test_mode' => $data['is_test_mode'] ?? 1,
             'currency' => $data['currency'] ?? 'GBP',
-            'timemodified' => time()
+            'timemodified' => time(),
         ];
-        
+
         $DB->update_record('adeptus_stripe_config', $record);
         $this->config = (object)$record;
         $this->is_test_mode = (bool)$record['is_test_mode'];
-        
+
         // Reinitialize Stripe with new key
         \Stripe\Stripe::setApiKey($this->config->secret_key);
         $this->stripe = new \Stripe\StripeClient($this->config->secret_key);
     }
-    
+
     /**
      * Create or get Stripe customer
      */
@@ -162,30 +162,30 @@ class stripe_service {
             // Check if customer already exists
             $customers = $this->stripe->customers->all([
                 'email' => $email,
-                'limit' => 1
+                'limit' => 1,
             ]);
-            
+
             if (!empty($customers->data)) {
                 return $customers->data[0];
             }
-            
+
             // Create new customer
             $customer_data = [
                 'email' => $email,
-                'metadata' => $metadata
+                'metadata' => $metadata,
             ];
-            
+
             if ($name) {
                 $customer_data['name'] = $name;
             }
-            
+
             return $this->stripe->customers->create($customer_data);
         } catch (\Exception $e) {
             debugging('Failed to create Stripe customer: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Create subscription
      */
@@ -194,20 +194,20 @@ class stripe_service {
             $subscription_data = [
                 'customer' => $customer_id,
                 'items' => [
-                    ['price' => $price_id]
+                    ['price' => $price_id],
                 ],
                 'metadata' => $metadata,
                 'payment_behavior' => 'default_incomplete',
-                'expand' => ['latest_invoice.payment_intent']
+                'expand' => ['latest_invoice.payment_intent'],
             ];
-            
+
             return $this->stripe->subscriptions->create($subscription_data);
         } catch (\Exception $e) {
             debugging('Failed to create Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Get subscription details
      */
@@ -219,7 +219,7 @@ class stripe_service {
             throw $e;
         }
     }
-    
+
     /**
      * Cancel subscription
      */
@@ -231,36 +231,36 @@ class stripe_service {
             } else {
                 $params['cancel_at_period_end'] = false;
             }
-            
+
             return $this->stripe->subscriptions->update($subscription_id, $params);
         } catch (\Exception $e) {
             debugging('Failed to cancel Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Update subscription
      */
     public function update_subscription($subscription_id, $price_id) {
         try {
             $subscription = $this->stripe->subscriptions->retrieve($subscription_id);
-            
+
             return $this->stripe->subscriptions->update($subscription_id, [
                 'items' => [
                     [
                         'id' => $subscription->items->data[0]->id,
-                        'price' => $price_id
-                    ]
+                        'price' => $price_id,
+                    ],
                 ],
-                'proration_behavior' => 'create_prorations'
+                'proration_behavior' => 'create_prorations',
             ]);
         } catch (\Exception $e) {
             debugging('Failed to update Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Create payment intent for one-time payments
      */
@@ -272,15 +272,15 @@ class stripe_service {
                 'customer' => $customer_id,
                 'metadata' => $metadata,
                 'automatic_payment_methods' => [
-                    'enabled' => true
-                ]
+                    'enabled' => true,
+                ],
             ]);
         } catch (\Exception $e) {
             debugging('Failed to create payment intent: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Get all products/prices
      */
@@ -288,14 +288,14 @@ class stripe_service {
         try {
             return $this->stripe->products->all([
                 'active' => true,
-                'expand' => ['data.default_price']
+                'expand' => ['data.default_price'],
             ]);
         } catch (\Exception $e) {
             debugging('Failed to get Stripe products: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Create product and price
      */
@@ -304,34 +304,34 @@ class stripe_service {
             // Create product
             $product = $this->stripe->products->create([
                 'name' => $name,
-                'description' => $description
+                'description' => $description,
             ]);
-            
+
             // Create price
             $price_data = [
                 'product' => $product->id,
                 'unit_amount' => $price * 100, // Convert to cents
-                'currency' => $currency
+                'currency' => $currency,
             ];
-            
+
             if ($price > 0) {
                 $price_data['recurring'] = [
-                    'interval' => $interval
+                    'interval' => $interval,
                 ];
             }
-            
+
             $price_obj = $this->stripe->prices->create($price_data);
-            
+
             return [
                 'product' => $product,
-                'price' => $price_obj
+                'price' => $price_obj,
             ];
         } catch (\Exception $e) {
             debugging('Failed to create Stripe product: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Verify webhook signature
      */
@@ -347,7 +347,7 @@ class stripe_service {
             throw $e;
         }
     }
-    
+
     /**
      * Get customer portal URL
      */
@@ -355,28 +355,28 @@ class stripe_service {
         try {
             return $this->stripe->billingPortal->sessions->create([
                 'customer' => $customer_id,
-                'return_url' => $return_url
+                'return_url' => $return_url,
             ]);
         } catch (\Exception $e) {
             debugging('Failed to create portal session: ' . $e->getMessage());
             throw $e;
         }
     }
-    
+
     /**
      * Check if in test mode
      */
     public function is_test_mode() {
         return $this->is_test_mode;
     }
-    
+
     /**
      * Get publishable key
      */
     public function get_publishable_key() {
         return $this->config->publishable_key;
     }
-    
+
     /**
      * Format amount for display
      */
@@ -384,10 +384,10 @@ class stripe_service {
         $symbols = [
             'GBP' => '£',
             'USD' => '$',
-            'EUR' => '€'
+            'EUR' => '€',
         ];
-        
+
         $symbol = $symbols[$currency] ?? $currency;
         return $symbol . number_format($amount / 100, 2);
     }
-} 
+}

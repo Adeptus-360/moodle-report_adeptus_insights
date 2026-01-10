@@ -55,16 +55,16 @@ if ($saveconfig && confirm_sesskey()) {
         $secret_key = trim(required_param('secret_key', PARAM_TEXT));
         $webhook_secret = trim(optional_param('webhook_secret', '', PARAM_TEXT));
         $currency = trim(optional_param('currency', 'USD', PARAM_ALPHA));
-        
+
         // Validate required fields
         if (empty($publishable_key)) {
             throw new Exception('Publishable key is required');
         }
-        
+
         if (empty($secret_key)) {
             throw new Exception('Secret key is required');
         }
-        
+
         // Validate key formats
         if ($test_mode) {
             if (!str_starts_with($publishable_key, 'pk_test_')) {
@@ -81,21 +81,21 @@ if ($saveconfig && confirm_sesskey()) {
                 throw new Exception('Invalid live secret key format');
             }
         }
-        
+
         // Create Stripe service instance
         $stripe_service = new \report_adeptus_insights\stripe_service();
-        
+
         // Update configuration
         $config_data = [
             'publishable_key' => $publishable_key,
             'secret_key' => $secret_key,
             'webhook_secret' => $webhook_secret,
             'is_test_mode' => $test_mode,
-            'currency' => $currency
+            'currency' => $currency,
         ];
-        
+
         $stripe_service->update_config($config_data);
-        
+
         // Test the configuration
         try {
             $test_result = $stripe_service->get_products();
@@ -105,7 +105,6 @@ if ($saveconfig && confirm_sesskey()) {
             $message = 'Configuration saved but test failed: ' . $e->getMessage();
             $message_type = 'warning';
         }
-        
     } catch (Exception $e) {
         $message = 'Error saving configuration: ' . $e->getMessage();
         $message_type = 'error';
@@ -160,7 +159,7 @@ echo '<div class="form-group row">';
 echo '<label class="col-sm-3 col-form-label">' . get_string('test_mode', 'report_adeptus_insights') . '</label>';
 echo '<div class="col-sm-9">';
 echo '<div class="form-check">';
-echo '<input type="checkbox" class="form-check-input" id="test_mode" name="test_mode" ' . 
+echo '<input type="checkbox" class="form-check-input" id="test_mode" name="test_mode" ' .
      ($config && $config->is_test_mode ? 'checked' : '') . '>';
 echo '<label class="form-check-label" for="test_mode">' . get_string('test_mode_desc', 'report_adeptus_insights') . '</label>';
 echo '</div>';
@@ -171,7 +170,7 @@ echo '</div>';
 echo '<div class="form-group row">';
 echo '<label class="col-sm-3 col-form-label">' . get_string('publishable_key', 'report_adeptus_insights') . '</label>';
 echo '<div class="col-sm-9">';
-echo '<input type="text" class="form-control" name="publishable_key" value="' . 
+echo '<input type="text" class="form-control" name="publishable_key" value="' .
      htmlspecialchars($config ? $config->publishable_key : '') . '" placeholder="pk_test_... or pk_live_...">';
 echo '<small class="form-text text-muted">' . get_string('publishable_key_desc', 'report_adeptus_insights') . '</small>';
 echo '</div>';
@@ -181,7 +180,7 @@ echo '</div>';
 echo '<div class="form-group row">';
 echo '<label class="col-sm-3 col-form-label">' . get_string('secret_key', 'report_adeptus_insights') . '</label>';
 echo '<div class="col-sm-9">';
-echo '<input type="password" class="form-control" name="secret_key" value="' . 
+echo '<input type="password" class="form-control" name="secret_key" value="' .
      htmlspecialchars($config ? $config->secret_key : '') . '" placeholder="sk_test_... or sk_live_...">';
 echo '<small class="form-text text-muted">' . get_string('secret_key_desc', 'report_adeptus_insights') . '</small>';
 echo '</div>';
@@ -191,7 +190,7 @@ echo '</div>';
 echo '<div class="form-group row">';
 echo '<label class="col-sm-3 col-form-label">' . get_string('webhook_secret', 'report_adeptus_insights') . '</label>';
 echo '<div class="col-sm-9">';
-echo '<input type="password" class="form-control" name="webhook_secret" value="' . 
+echo '<input type="password" class="form-control" name="webhook_secret" value="' .
      htmlspecialchars($config ? $config->webhook_secret : '') . '" placeholder="whsec_...">';
 echo '<small class="form-text text-muted">' . get_string('webhook_secret_desc', 'report_adeptus_insights') . '</small>';
 echo '</div>';
@@ -275,24 +274,24 @@ echo $OUTPUT->footer();
  */
 function sync_stripe_products($stripe_service) {
     global $DB;
-    
+
     try {
         // Get products from Stripe
         $stripe_products = $stripe_service->get_products();
-        
+
         $synced_count = 0;
         $updated_count = 0;
-        
+
         foreach ($stripe_products->data as $stripe_product) {
             // Get the default price for this product
             $price = $stripe_product->default_price;
             if (!$price) {
                 continue;
             }
-            
+
             // Check if product exists in database
             $existing = $DB->get_record('adeptus_stripe_plans', ['stripe_product_id' => $stripe_product->id]);
-            
+
             $product_data = [
                 'stripe_product_id' => $stripe_product->id,
                 'stripe_price_id' => $price->id,
@@ -307,9 +306,9 @@ function sync_stripe_products($stripe_service) {
                 'is_active' => 1,
                 'is_free' => ($price->unit_amount == 0) ? 1 : 0,
                 'sort_order' => 0,
-                'timemodified' => time()
+                'timemodified' => time(),
             ];
-            
+
             if ($existing) {
                 // Update existing product
                 $product_data['id'] = $existing->id;
@@ -322,13 +321,12 @@ function sync_stripe_products($stripe_service) {
                 $synced_count++;
             }
         }
-        
+
         return [
             'success' => true,
-            'message' => "Synced {$synced_count} new products, updated {$updated_count} existing products."
+            'message' => "Synced {$synced_count} new products, updated {$updated_count} existing products.",
         ];
-        
     } catch (Exception $e) {
         throw new Exception('Failed to sync Stripe products: ' . $e->getMessage());
     }
-} 
+}

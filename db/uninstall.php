@@ -68,7 +68,7 @@ function xmldb_report_adeptus_insights_uninstall() {
     $custom = get_config('moodle', 'customusermenuitems');
     if ($custom !== false) {
         $lines = preg_split('/\r\n?|\n/', $custom);
-        $lines = array_filter($lines, function($line) {
+        $lines = array_filter($lines, function ($line) {
             return strpos($line, '/report/adeptus_insights/') === false;
         });
         set_config('customusermenuitems', implode("\n", $lines));

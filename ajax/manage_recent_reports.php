@@ -49,50 +49,47 @@ if (!confirm_sesskey($sesskey)) {
 
 try {
     $userid = $USER->id;
-    
+
     if ($action === 'clear_all') {
         // Clear all recent reports for this user
         $DB->delete_records('adeptus_report_history', ['userid' => $userid]);
-        
+
         echo json_encode([
-            'success' => true, 
+            'success' => true,
             'message' => 'All recent reports cleared successfully',
-            'action' => 'clear_all'
+            'action' => 'clear_all',
         ]);
-        
-    } elseif ($action === 'remove_single') {
+    } else if ($action === 'remove_single') {
         if (empty($reportid)) {
             echo json_encode(['success' => false, 'message' => 'Report ID is required']);
             exit;
         }
-        
+
         // Remove all history entries for this specific report for this user
         $deleted = $DB->delete_records('adeptus_report_history', [
             'userid' => $userid,
-            'reportid' => $reportid
+            'reportid' => $reportid,
         ]);
-        
+
         if ($deleted) {
             echo json_encode([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Recent report removed successfully',
                 'action' => 'remove_single',
-                'reportid' => $reportid
+                'reportid' => $reportid,
             ]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Recent report not found']);
         }
-        
     } else {
         echo json_encode([
-            'success' => false, 
-            'message' => 'Invalid action: ' . $action . '. Expected: clear_all or remove_single'
+            'success' => false,
+            'message' => 'Invalid action: ' . $action . '. Expected: clear_all or remove_single',
         ]);
     }
-
 } catch (Exception $e) {
     error_log('Error in manage_recent_reports.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
 }
 
-exit; 
+exit;

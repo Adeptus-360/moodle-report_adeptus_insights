@@ -27,7 +27,6 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class report_validator {
-
     /** @var array Cache of table existence checks */
     private static $table_cache = [];
 
@@ -77,7 +76,7 @@ class report_validator {
             'valid' => $valid,
             'reason' => $reason,
             'missing_tables' => $missing_tables,
-            'mysql_functions' => $mysql_functions
+            'mysql_functions' => $mysql_functions,
         ];
     }
 
@@ -156,7 +155,7 @@ class report_validator {
             'IF\(' => 'Conditional function',
             'YEAR\(' => 'Date extraction',
             'MONTH\(' => 'Date extraction',
-            'DATE\(' => 'Date extraction'
+            'DATE\(' => 'Date extraction',
         ];
 
         foreach ($mysql_specific as $func => $description) {

@@ -47,7 +47,7 @@ if (!$auth_manager->check_auth(false)) {
     $PAGE->set_context(context_system::instance());
     $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
     $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
-    
+
     echo $OUTPUT->header();
     echo '<div class="alert alert-warning">';
     echo '<h2>Authentication Required</h2>';
@@ -68,7 +68,7 @@ $auth_status = $auth_manager->get_auth_status();
 // Debug: Log the auth status
 
 // Load required AMD modules and CSS BEFORE header
-$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', array($auth_status));
+$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$auth_status]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly-mode', 'init');
 $PAGE->requires->js_call_amd('report_adeptus_insights/lottie_loader', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
@@ -86,7 +86,7 @@ $subscription = $installation_manager->get_subscription_details();
 
 // Prepare template context
 $templatecontext = [
-    'subscription' => $subscription
+    'subscription' => $subscription,
 ];
 
 // Debug: Log the template context

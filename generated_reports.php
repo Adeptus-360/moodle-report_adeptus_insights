@@ -58,7 +58,7 @@ echo $OUTPUT->header();
 // Prepare template context
 $templatecontext = [
     'authenticated' => $authenticated,
-    'wwwroot' => $CFG->wwwroot
+    'wwwroot' => $CFG->wwwroot,
 ];
 
 echo $OUTPUT->render_from_template('report_adeptus_insights/generated_reports', $templatecontext);

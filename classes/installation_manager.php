@@ -36,7 +36,7 @@ class installation_manager {
     private $installation_id;
     private $is_registered;
     private $last_error;
-    
+
     public function __construct() {
         global $DB;
 
@@ -67,14 +67,14 @@ class installation_manager {
             $this->is_registered = false;
         }
     }
-    
+
     public function is_registered() {
         global $DB;
 
         if ($this->is_registered) {
             return true;
         }
-        
+
         // If not registered locally, check with backend API
         try {
             $status = $this->check_site_registration_status();
@@ -83,86 +83,86 @@ class installation_manager {
                 $this->is_registered = true;
                 $this->installation_id = $status['data']['installation_id'] ?? null;
                 $this->api_key = $status['data']['api_key'] ?? '';
-                
+
                 // Save to local database
                 $this->save_installation_settings();
-                
+
                 debugging('Site is registered in backend. Updated local status.');
                 return true;
             }
         } catch (\Exception $e) {
             debugging('Failed to check registration status with backend: ' . $e->getMessage());
         }
-        
+
         return false;
     }
-    
+
     public function get_api_key() {
         return $this->api_key;
     }
-    
+
     public function get_installation_id() {
         return $this->installation_id;
     }
-    
+
     public function get_api_url() {
         return $this->api_url;
     }
-    
+
     public function get_last_error() {
         return $this->last_error;
     }
-    
+
     public function clear_last_error() {
         $this->last_error = null;
     }
-    
+
     public function get_plugin_version() {
         $plugin = \core_plugin_manager::instance()->get_plugin_info('report_adeptus_insights');
         return $plugin ? $plugin->versiondb : '1.0.0';
     }
-    
+
     /**
      * Register installation with backend API
      */
     public function register_installation($admin_email, $admin_name, $site_url = null, $site_name = null) {
         global $CFG, $DB;
-        
+
         try {
             // Log registration attempt
             debugging('Registration attempt for: ' . $admin_email);
-            
+
             // Use provided site info or fall back to Moodle config
             $site_url = $site_url ?: $CFG->wwwroot;
             $site_name = $site_name ?: $CFG->fullname;
-            
+
             // First check if the site is already registered
             debugging('Checking if site is already registered...');
             $existing_status = $this->check_site_registration_status();
-            
+
             if ($existing_status && isset($existing_status['success']) && $existing_status['success']) {
                 debugging('Site is already registered. Using existing installation.');
-                
+
                 // Use the existing installation data
                 $this->api_key = $existing_status['data']['api_key'] ?? '';
                 $this->installation_id = $existing_status['data']['installation_id'] ?? null;
                 $this->is_registered = true;
-                
+
                 // Save settings to database
                 $this->save_installation_settings();
-                
+
                 debugging('Successfully synchronized with existing installation. Installation ID: ' . $this->installation_id);
-                
+
                 return [
                     'success' => true,
                     'message' => get_string('registration_success', 'report_adeptus_insights') . ' (Site was already registered)',
-                    'data' => $existing_status['data']
+                    'data' => $existing_status['data'],
                 ];
             }
-            
+
             // If not already registered, proceed with new registration
             debugging('Site not found in backend. Proceeding with new registration.');
-            
+
             $data = [
                 'site_url' => $site_url,
                 'site_name' => $site_name,
@@ -170,113 +170,112 @@ class installation_manager {
                 'admin_name' => $admin_name,
                 'moodle_version' => $CFG->version,
                 'php_version' => PHP_VERSION,
-                'plugin_version' => $this->get_plugin_version()
+                'plugin_version' => $this->get_plugin_version(),
             ];
-            
+
             debugging('Registration data: ' . json_encode($data));
-            
+
             $response = $this->make_api_request('installation/register', $data);
-            
+
             debugging('Registration response: ' . json_encode($response));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 $this->api_key = $response['data']['api_key'] ?? '';
                 $this->installation_id = $response['data']['installation_id'] ?? null;
                 $this->is_registered = true;
-                
+
                 // Save settings to database
                 $this->save_installation_settings();
-                
+
                 // Create starter subscription
                 $this->setup_starter_subscription($admin_email, $admin_name);
-                
+
                 // Set post-install notification
                 $this->set_post_install_notification();
-                
+
                 debugging('Registration successful. Installation ID: ' . $this->installation_id);
-                
+
                 return [
                     'success' => true,
                     'message' => get_string('registration_success', 'report_adeptus_insights'),
-                    'data' => $response['data']
+                    'data' => $response['data'],
                 ];
             } else {
                 // Check if the error is due to site already existing
                 if (isset($response['code']) && $response['code'] === 'SITE_EXISTS') {
                     debugging('Site already exists on backend. Setting up existing installation.');
-                    
+
                     // Set the existing installation data
                     $this->api_key = $response['data']['api_key'] ?? '';
                     $this->installation_id = $response['data']['existing_installation_id'] ?? null;
                     $this->is_registered = true;
-                    
+
                     // Save settings to database
                     $this->save_installation_settings();
-                    
+
                     // IMPORTANT: Complete all setup steps as if this was a fresh installation
                     // This ensures the plugin works correctly even when skipping installation
-                    
+
                     // 1. Setup starter subscription (this creates local subscription records)
                     $this->setup_starter_subscription($admin_email, $admin_name);
-                    
+
                     // 2. Set post-install notification (marks installation as complete)
                     $this->set_post_install_notification();
-                    
+
                     // 3. Ensure all required database tables exist
                     $this->ensure_database_tables_exist();
-                    
+
                     debugging('Existing installation setup completed. Installation ID: ' . $this->installation_id);
-                    
+
                     return [
                         'success' => false,
                         'message' => 'Site already exists on backend',
                         'code' => 'SITE_EXISTS',
                         'redirect_to' => 'index',
-                        'data' => $response['data']
+                        'data' => $response['data'],
                     ];
                 }
-                
+
                 $error_message = $response['message'] ?? get_string('registration_error', 'report_adeptus_insights');
                 $this->last_error = [
                     'message' => $error_message,
-                    'details' => $response['details'] ?? null
+                    'details' => $response['details'] ?? null,
                 ];
                 debugging('Registration failed: ' . $error_message);
                 return [
                     'success' => false,
-                    'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $error_message
+                    'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $error_message,
                 ];
             }
-            
         } catch (\Exception $e) {
             $this->last_error = [
                 'message' => $e->getMessage(),
-                'details' => $e->getTraceAsString()
+                'details' => $e->getTraceAsString(),
             ];
             debugging('Registration exception: ' . $e->getMessage());
             debugging('Stack trace: ' . $e->getTraceAsString());
             return [
                 'success' => false,
-                'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $e->getMessage()
+                'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $e->getMessage(),
             ];
         }
     }
-    
+
     /**
      * Setup starter subscription for new users
      */
     public function setup_starter_subscription($email, $name) {
         try {
             debugging('Setting up starter subscription for: ' . $email);
-            
+
             // Get available plans from backend
             $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
-            
+
             if (!$plans_response || !isset($plans_response['success']) || !$plans_response['success']) {
                 debugging('Failed to get plans for starter subscription');
                 return;
             }
-            
+
             // Find free plan for Insights product
             $free_plan = null;
             foreach ($plans_response['data']['plans'] as $plan) {
@@ -296,16 +295,16 @@ class installation_manager {
             }
 
             debugging('Found free plan: ' . $free_plan['name']);
-            
+
             // Activate free plan via backend
             $subscription_response = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $free_plan['id'],
-                'billing_email' => $email
+                'billing_email' => $email,
             ]);
-            
+
             if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
                 debugging('Starter subscription created successfully');
-                
+
                 // Update local subscription status
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
@@ -314,25 +313,24 @@ class installation_manager {
                     'plan_id' => $free_plan['id'],
                     'status' => $subscription_response['data']['status'] ?? 'active',
                     'current_period_start' => $subscription_response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30*24*60*60),
+                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $subscription_response['data']['ai_credits_remaining'] ?? $free_plan['ai_credits'],
                     'ai_credits_pro_remaining' => $subscription_response['data']['ai_credits_pro_remaining'] ?? ($free_plan['ai_credits_pro'] ?? 0),
                     'ai_credits_basic_remaining' => $subscription_response['data']['ai_credits_basic_remaining'] ?? ($free_plan['ai_credits_basic'] ?? 0),
                     'exports_remaining' => $subscription_response['data']['exports_remaining'] ?? $free_plan['exports'],
-                    'billing_email' => $email
+                    'billing_email' => $email,
                 ]);
             } else {
                 debugging('Failed to create starter subscription: ' . ($subscription_response['message'] ?? 'Unknown error'));
             }
-            
         } catch (\Exception $e) {
             debugging('Failed to setup starter subscription: ' . $e->getMessage());
         }
     }
-    
+
     private function set_post_install_notification() {
         global $DB;
-        
+
         // Set a notification for the admin to complete setup
         $notification = [
             'type' => 'success',
@@ -340,29 +338,29 @@ class installation_manager {
             'actions' => [
                 [
                     'url' => new \moodle_url('/report/adeptus_insights/subscription.php'),
-                    'text' => get_string('view_subscription', 'report_adeptus_insights')
-                ]
-            ]
+                    'text' => get_string('view_subscription', 'report_adeptus_insights'),
+                ],
+            ],
         ];
-        
+
         // Store notification in session or database
         set_config('adeptus_insights_notification', json_encode($notification), 'report_adeptus_insights');
     }
-    
+
     public function check_registration_status() {
         if (!$this->is_registered || !$this->api_key) {
             $this->set_registration_required_notification();
             return false;
         }
-        
+
         try {
             $response = $this->make_api_request('installation/verify', []);
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 return true;
             } else {
-            $this->is_registered = false;
-            $this->set_registration_required_notification();
+                $this->is_registered = false;
+                $this->set_registration_required_notification();
                 return false;
             }
         } catch (\Exception $e) {
@@ -370,17 +368,17 @@ class installation_manager {
             return false;
         }
     }
-    
+
     /**
      * Check if current site is already registered in backend
      */
     public function check_site_registration_status() {
         global $CFG, $DB;
-        
+
         try {
             $site_url = $CFG->wwwroot;
             $site_name = $CFG->fullname ?? $CFG->shortname ?? 'Moodle Site';
-            
+
             // Try to get site name from database if config is not available
             if (empty($site_name) || $site_name === 'Moodle Site') {
                 try {
@@ -419,45 +417,44 @@ class installation_manager {
             return false;
         }
     }
-    
+
     /**
      * Ensure all required database tables exist
      * This method creates any missing tables that are required for the plugin to function
      */
     private function ensure_database_tables_exist() {
         global $DB;
-        
+
         try {
             debugging('Ensuring all required database tables exist...');
-            
+
             // Check if adeptus_subscription_status table exists
             if (!$DB->table_exists('adeptus_subscription_status')) {
                 debugging('Creating adeptus_subscription_status table...');
                 $this->create_subscription_status_table();
             }
-            
+
             // Check if adeptus_install_settings table exists
             if (!$DB->table_exists('adeptus_install_settings')) {
                 debugging('Creating adeptus_install_settings table...');
                 $this->create_install_settings_table();
             }
-            
+
             debugging('All required database tables verified.');
-            
         } catch (\Exception $e) {
             debugging('Error ensuring database tables exist: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Create adeptus_subscription_status table if it doesn't exist
      */
     private function create_subscription_status_table() {
         global $DB;
-        
+
         try {
             $table = new \xmldb_table('adeptus_subscription_status');
-            
+
             if (!$DB->table_exists($table)) {
                 $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
                 $table->add_field('installation_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -470,10 +467,10 @@ class installation_manager {
                 $table->add_field('exports_remaining', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
                 $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
                 $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-                
-                $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-                $table->add_key('installation', XMLDB_KEY_FOREIGN, array('installation_id'), 'adeptus_install_settings', array('id'));
-                
+
+                $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+                $table->add_key('installation', XMLDB_KEY_FOREIGN, ['installation_id'], 'adeptus_install_settings', ['id']);
+
                 $DB->create_table($table);
                 debugging('adeptus_subscription_status table created successfully.');
             }
@@ -481,16 +478,16 @@ class installation_manager {
             debugging('Error creating adeptus_subscription_status table: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Create adeptus_install_settings table if it doesn't exist
      */
     private function create_install_settings_table() {
         global $DB;
-        
+
         try {
             $table = new \xmldb_table('adeptus_install_settings');
-            
+
             if (!$DB->table_exists($table)) {
                 $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
                 $table->add_field('api_key', XMLDB_TYPE_CHAR, '255', null, null, null, null);
@@ -505,12 +502,12 @@ class installation_manager {
                 $table->add_field('settings', XMLDB_TYPE_TEXT, null, null, null, null, null);
                 $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
                 $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-                
+
                 $table->add_field('site_url', XMLDB_TYPE_CHAR, '255', null, null, null, null);
                 $table->add_field('site_name', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-                
-                $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-                
+
+                $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
                 $DB->create_table($table);
                 debugging('adeptus_install_settings table created successfully.');
             }
@@ -519,12 +516,12 @@ class installation_manager {
         }
     }
 
-    
+
     private function verify_api_key() {
         if (!$this->api_key) {
             return false;
         }
-        
+
         try {
             $response = $this->make_api_request('installation/verify', []);
             return $response && isset($response['success']) && $response['success'];
@@ -532,7 +529,7 @@ class installation_manager {
             return false;
         }
     }
-    
+
     private function set_registration_required_notification() {
         $notification = [
             'type' => 'warning',
@@ -540,58 +537,58 @@ class installation_manager {
             'actions' => [
                 [
                     'url' => new \moodle_url('/report/adeptus_insights/subscription.php'),
-                    'text' => get_string('register_now', 'report_adeptus_insights')
-                ]
-            ]
+                    'text' => get_string('register_now', 'report_adeptus_insights'),
+                ],
+            ],
         ];
-        
+
         set_config('adeptus_insights_notification', json_encode($notification), 'report_adeptus_insights');
     }
-    
+
     public function sync_reports_from_backend() {
         if (!$this->is_registered) {
             return [
                 'success' => false,
-                'message' => get_string('not_registered', 'report_adeptus_insights')
+                'message' => get_string('not_registered', 'report_adeptus_insights'),
             ];
         }
-        
+
         try {
             $response = $this->make_api_request('reports/sync', []);
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 $this->update_last_sync();
                 return [
                     'success' => true,
                     'message' => get_string('sync_success', 'report_adeptus_insights'),
-                    'data' => $response['data']
+                    'data' => $response['data'],
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => get_string('sync_error', 'report_adeptus_insights') . ': ' . ($response['message'] ?? 'Unknown error')
+                    'message' => get_string('sync_error', 'report_adeptus_insights') . ': ' . ($response['message'] ?? 'Unknown error'),
                 ];
             }
         } catch (\Exception $e) {
             debugging('Sync failed: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => get_string('sync_error', 'report_adeptus_insights') . ': ' . $e->getMessage()
+                'message' => get_string('sync_error', 'report_adeptus_insights') . ': ' . $e->getMessage(),
             ];
         }
     }
-    
+
     public function check_subscription_status() {
         if (!$this->is_registered) {
             return [
                 'success' => false,
-                'message' => get_string('not_registered', 'report_adeptus_insights')
+                'message' => get_string('not_registered', 'report_adeptus_insights'),
             ];
         }
-        
+
         try {
             $response = $this->make_api_request('subscription/status', []);
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 $this->update_subscription_status($response['data']);
                 return true;
@@ -603,31 +600,31 @@ class installation_manager {
             return false;
         }
     }
-    
+
     public function create_subscription($plan_id, $payment_method_id, $billing_email) {
         if (!$this->is_registered) {
             debugging('Subscription creation failed: Installation not registered');
             return [
                 'success' => false,
-                'message' => get_string('not_registered', 'report_adeptus_insights')
+                'message' => get_string('not_registered', 'report_adeptus_insights'),
             ];
         }
-        
+
         try {
             debugging('Creating subscription with plan_id: ' . $plan_id . ', email: ' . $billing_email);
-            
+
             $request_data = [
                 'payment_method_id' => $payment_method_id,
                 'billing_email' => $billing_email,
-                'plan_id' => $plan_id
+                'plan_id' => $plan_id,
             ];
-            
+
             debugging('API request data: ' . json_encode($request_data));
-            
+
             $response = $this->make_api_request('subscription/create', $request_data);
-            
+
             debugging('API response: ' . json_encode($response));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
                 $subscription_data = [
@@ -637,28 +634,28 @@ class installation_manager {
                     'plan_id' => $response['data']['plan_id'] ?? $plan_id,
                     'status' => $response['data']['status'] ?? 'active',
                     'current_period_start' => $response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30*24*60*60),
+                    'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $response['data']['ai_credits_remaining'] ?? 0,
                     'ai_credits_pro_remaining' => $response['data']['ai_credits_pro_remaining'] ?? 0,
                     'ai_credits_basic_remaining' => $response['data']['ai_credits_basic_remaining'] ?? 0,
                     'exports_remaining' => $response['data']['exports_remaining'] ?? 0,
-                    'billing_email' => $billing_email
+                    'billing_email' => $billing_email,
                 ];
-                
+
                 debugging('Updating subscription status with data: ' . json_encode($subscription_data));
                 $this->update_subscription_status($subscription_data);
-                
+
                 return [
                     'success' => true,
                     'message' => get_string('subscription_created', 'report_adeptus_insights'),
-                    'data' => $response['data']
+                    'data' => $response['data'],
                 ];
             } else {
                 $error_message = isset($response['message']) ? $response['message'] : 'Unknown error';
                 debugging('Subscription creation failed: ' . $error_message);
                 return [
                     'success' => false,
-                    'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $error_message
+                    'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $error_message,
                 ];
             }
         } catch (\Exception $e) {
@@ -666,11 +663,11 @@ class installation_manager {
             debugging('Stack trace: ' . $e->getTraceAsString());
             return [
                 'success' => false,
-                'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $e->getMessage()
+                'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $e->getMessage(),
             ];
         }
     }
-    
+
     public function get_subscription_details() {
         // Get the API key from the local database
         $api_key = $this->get_api_key();
@@ -773,13 +770,12 @@ class installation_manager {
                 'tier' => $tier,
                 'is_fallback_data' => true,
             ];
-
         } catch (\Exception $e) {
             debugging('Installation status fallback exception: ' . $e->getMessage());
             return null;
         }
     }
-    
+
     /**
      * Get backend URL for API requests
      */
@@ -794,27 +790,27 @@ class installation_manager {
         $endpoint = 'subscriptions/status';
 
         $response = $this->make_api_request($endpoint, [], 'GET');
-        
+
         if (!$response || !isset($response['success']) || !$response['success']) {
             debugging('Backend subscription API failed: ' . json_encode($response));
             return null;
         }
-        
+
         $data = $response['data'];
-        
+
         debugging('Backend subscription response data: ' . json_encode($data));
-        
+
         // Transform backend data to match expected format
         $subscription = $data['subscription'];
         $plan = $data['plan'];
         $usage = $data['usage'] ?? [];
-        
+
         debugging('Plan data from backend: ' . json_encode($plan));
         debugging('Plan ID extracted: ' . ($plan['id'] ?? 'NULL'));
-        
+
         // Ensure plan_id is always included, with fallback
         $plan_id = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
-        
+
         // Token usage data from API (flattened fields first, then nested as fallback)
         $tokens_used = $data['tokens_used'] ?? 0;
         $tokens_remaining = $data['tokens_remaining'] ?? -1;
@@ -885,111 +881,110 @@ class installation_manager {
         }
         return (string) $tokens;
     }
-    
 
-    
+
+
     public function get_payment_config() {
         try {
             debugging('Getting payment configuration from backend API');
-            
+
             $response = $this->make_api_request('subscription/config', [], 'GET');
-            
+
             debugging('Payment config response: ' . json_encode($response));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 return [
                     'success' => true,
-                    'data' => $response['data']
+                    'data' => $response['data'],
                 ];
             } else {
                 debugging('Failed to get payment config: ' . ($response['message'] ?? 'Unknown error'));
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to get payment configuration'
+                    'message' => $response['message'] ?? 'Failed to get payment configuration',
                 ];
             }
         } catch (\Exception $e) {
             debugging('Failed to get payment config: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Payment processing is not configured. Please contact support.'
+                'message' => 'Payment processing is not configured. Please contact support.',
             ];
         }
     }
-    
+
     public function cancel_subscription() {
         try {
             $response = $this->make_api_request('subscription/cancel', []);
-            
+
             if ($response['success']) {
                 return [
                     'success' => true,
-                    'message' => get_string('subscription_cancelled', 'report_adeptus_insights')
+                    'message' => get_string('subscription_cancelled', 'report_adeptus_insights'),
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to cancel subscription'
+                    'message' => $response['message'] ?? 'Failed to cancel subscription',
                 ];
             }
         } catch (\Exception $e) {
             debugging('Failed to cancel subscription: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $e->getMessage()
+                'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $e->getMessage(),
             ];
         }
     }
-    
+
     public function update_subscription_plan($plan_id) {
         try {
             $response = $this->make_api_request('subscription/update', [
-                'plan_id' => $plan_id
+                'plan_id' => $plan_id,
             ]);
-            
+
             if ($response['success']) {
                 return [
                     'success' => true,
-                    'message' => 'Subscription plan updated successfully'
+                    'message' => 'Subscription plan updated successfully',
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to update subscription plan'
+                    'message' => $response['message'] ?? 'Failed to update subscription plan',
                 ];
             }
         } catch (\Exception $e) {
             debugging('Failed to update subscription plan: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to update subscription plan: ' . $e->getMessage()
+                'message' => 'Failed to update subscription plan: ' . $e->getMessage(),
             ];
         }
-
     }
-    
+
     public function get_available_plans() {
         try {
             debugging('Getting available plans from backend API');
-            
+
             // Check if plugin is registered first
             if (!$this->is_registered()) {
                 return [
                     'success' => false,
                     'message' => get_string('plugin_not_registered', 'report_adeptus_insights'),
                     'user_friendly_message' => get_string('please_register_plugin', 'report_adeptus_insights'),
-                    'plans' => []
+                    'plans' => [],
                 ];
             }
-            
+
             $response = $this->make_api_request('subscription/plans', [], 'GET');
-            
+
             debugging('Plans API response: ' . json_encode($response));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 return [
                     'success' => true,
-                    'plans' => $response['data']['plans'] ?? []
+                    'plans' => $response['data']['plans'] ?? [],
                 ];
             } else {
                 debugging('Failed to get plans from API: ' . ($response['message'] ?? 'Unknown error'));
@@ -997,7 +992,7 @@ class installation_manager {
                     'success' => false,
                     'message' => $response['message'] ?? get_string('failed_to_get_plans', 'report_adeptus_insights'),
                     'user_friendly_message' => $this->get_user_friendly_error_message($response['message'] ?? ''),
-                    'plans' => []
+                    'plans' => [],
                 ];
             }
         } catch (\Exception $e) {
@@ -1006,11 +1001,11 @@ class installation_manager {
                 'success' => false,
                 'message' => get_string('failed_to_get_plans', 'report_adeptus_insights') . ': ' . $e->getMessage(),
                 'user_friendly_message' => $this->get_user_friendly_error_message($e->getMessage()),
-                'plans' => []
+                'plans' => [],
             ];
         }
     }
-    
+
     /**
      * Get usage statistics from backend
      */
@@ -1021,66 +1016,65 @@ class installation_manager {
                 debugging('No API key found for usage stats');
                 return null;
             }
-            
+
             $response = $this->make_api_request('installation/status', [], 'POST');
-            
+
             if (!$response || !isset($response['success']) || !$response['success']) {
                 debugging('Backend usage API failed: ' . json_encode($response));
                 return null;
             }
-            
+
             $data = $response['data'];
             $subscription = $data['subscription'];
-            
+
             if (!$subscription) {
                 return [
                     'ai_credits_used_this_month' => 0,
                     'reports_generated_this_month' => 0,
                     'current_period_start' => null,
-                    'current_period_end' => null
+                    'current_period_end' => null,
                 ];
             }
-            
+
             // Extract usage from the backend response structure
             $usage = $data['usage'] ?? [];
-            
+
             return [
                 'ai_credits_used_this_month' => $usage['ai_credits_used_this_month'] ?? 0,
                 'reports_generated_this_month' => $usage['reports_generated_this_month'] ?? 0,
                 'current_period_start' => $usage['current_period_start'] ?? null,
-                'current_period_end' => $usage['current_period_end'] ?? null
+                'current_period_end' => $usage['current_period_end'] ?? null,
             ];
-            
         } catch (\Exception $e) {
             debugging('Failed to get usage stats: ' . $e->getMessage());
             return null;
         }
     }
-    
+
     public function can_use_ai_credits($amount = 1, $type = 'pro') {
         $subscription = $this->get_subscription_details();
         if (!$subscription) {
             return false;
         }
-        
+
         if ($type === 'pro') {
             return $subscription->ai_credits_pro_remaining >= $amount;
         } else {
             return $subscription->ai_credits_basic_remaining >= $amount;
         }
     }
-    
+
     public function can_export() {
         $subscription = $this->get_subscription_details();
         if (!$subscription) {
             return false;
         }
-        
+
         return $subscription->exports_remaining > 0;
     }
-    
 
-    
+
+
     /**
      * Activate free plan
      * @param int $plan_id Plan ID
@@ -1090,19 +1084,19 @@ class installation_manager {
         if (!$this->is_registered) {
             return [
                 'success' => false,
-                'message' => get_string('not_registered', 'report_adeptus_insights')
+                'message' => get_string('not_registered', 'report_adeptus_insights'),
             ];
         }
-        
+
         try {
             debugging('Activating free plan with ID: ' . $plan_id);
-            
+
             $response = $this->make_api_request('subscription/activate-free', [
-                'plan_id' => $plan_id
+                'plan_id' => $plan_id,
             ]);
-            
+
             debugging('Free plan activation response: ' . json_encode($response));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
                 $subscription_data = [
@@ -1112,45 +1106,45 @@ class installation_manager {
                     'plan_id' => $response['data']['plan_id'] ?? $plan_id,
                     'status' => $response['data']['status'] ?? 'active',
                     'current_period_start' => $response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30*24*60*60),
+                    'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $response['data']['ai_credits_remaining'] ?? 0,
                     'ai_credits_pro_remaining' => $response['data']['ai_credits_pro_remaining'] ?? 0,
                     'ai_credits_basic_remaining' => $response['data']['ai_credits_basic_remaining'] ?? 0,
                     'exports_remaining' => $response['data']['exports_remaining'] ?? 0,
-                    'billing_email' => $response['data']['billing_email'] ?? ''
+                    'billing_email' => $response['data']['billing_email'] ?? '',
                 ];
-                
+
                 debugging('Updating subscription status with data: ' . json_encode($subscription_data));
                 $this->update_subscription_status($subscription_data);
-                
+
                 return [
                     'success' => true,
-                    'message' => 'Free plan activated successfully'
+                    'message' => 'Free plan activated successfully',
                 ];
             } else {
                 $error_message = isset($response['message']) ? $response['message'] : 'Unknown error';
                 debugging('Free plan activation failed: ' . $error_message);
                 return [
                     'success' => false,
-                    'message' => 'Failed to activate free plan: ' . $error_message
+                    'message' => 'Failed to activate free plan: ' . $error_message,
                 ];
             }
         } catch (\Exception $e) {
             debugging('Free plan activation exception: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to activate free plan: ' . $e->getMessage()
+                'message' => 'Failed to activate free plan: ' . $e->getMessage(),
             ];
         }
     }
-    
+
     public function make_api_request($endpoint, $data = [], $method = 'POST') {
         $url = $this->api_url . '/' . $endpoint;
-        
+
         debugging('Making API request to: ' . $url);
         debugging('Request method: ' . $method);
         debugging('Request data: ' . json_encode($data));
-        
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -1161,7 +1155,7 @@ class installation_manager {
         }
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        
+
         // Add API key to headers for authenticated endpoints
         $headers = ['Content-Type: application/json'];
         if ($this->api_key && !in_array($endpoint, ['subscription/config'])) {
@@ -1172,47 +1166,47 @@ class installation_manager {
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_VERBOSE, true);
-        
+
         // Capture verbose output for debugging
         $verbose = fopen('php://temp', 'w+');
         curl_setopt($ch, CURLOPT_STDERR, $verbose);
-        
+
         $response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        
+
         // Get verbose output
         rewind($verbose);
         $verbose_log = stream_get_contents($verbose);
         fclose($verbose);
-        
+
         debugging('CURL verbose log: ' . $verbose_log);
         debugging('HTTP response code: ' . $http_code);
         debugging('CURL error: ' . $error);
         debugging('Response: ' . $response);
-        
+
         curl_close($ch);
-        
+
         if ($response === false) {
             debugging('API request failed: ' . $error . ' (URL: ' . $url . ')');
             throw new \Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
         }
-        
+
         if ($http_code !== 200) {
             debugging('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
             throw new \Exception('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
         }
-        
+
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             debugging('Invalid JSON response: ' . json_last_error_msg() . ' - Response: ' . $response);
             throw new \Exception('Invalid JSON response: ' . json_last_error_msg() . ' - Response: ' . $response);
         }
-        
+
         debugging('Decoded response: ' . json_encode($decoded));
         return $decoded;
     }
-    
+
     private function save_installation_settings() {
         global $DB;
 
@@ -1225,7 +1219,7 @@ class installation_manager {
                 'registration_date' => time(),
                 'last_sync' => time(),
                 'timecreated' => time(),
-                'timemodified' => time()
+                'timemodified' => time(),
             ];
 
             // Check if table exists
@@ -1253,7 +1247,7 @@ class installation_manager {
             debugging('Exception trace: ' . $e->getTraceAsString());
         }
     }
-    
+
     private function update_last_sync() {
         global $DB;
 
@@ -1267,36 +1261,36 @@ class installation_manager {
             debugging('Failed to update last sync: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Convert technical error messages to user-friendly messages
      */
     private function get_user_friendly_error_message($technical_message) {
         $message = strtolower($technical_message);
-        
+
         if (strpos($message, 'api key is required') !== false || strpos($message, '401') !== false) {
             return get_string('http_401_error', 'report_adeptus_insights') . '. ' . get_string('please_register_plugin', 'report_adeptus_insights');
         }
-        
+
         if (strpos($message, '404') !== false) {
             return get_string('http_404_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
         }
-        
+
         if (strpos($message, '500') !== false) {
             return get_string('http_500_error', 'report_adeptus_insights') . '. ' . get_string('try_again_later', 'report_adeptus_insights');
         }
-        
+
         if (strpos($message, 'timeout') !== false) {
             return get_string('connection_timeout', 'report_adeptus_insights') . '. ' . get_string('try_again_later', 'report_adeptus_insights');
         }
-        
+
         if (strpos($message, 'connection refused') !== false || strpos($message, 'could not resolve') !== false) {
             return get_string('network_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
         }
-        
+
         return get_string('unknown_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
     }
-    
+
     private function update_subscription_status($subscription_data) {
         global $DB;
 
@@ -1320,7 +1314,7 @@ class installation_manager {
                 'ai_credits_basic_remaining' => $subscription_data['ai_credits_basic_remaining'] ?? 0,
                 'exports_remaining' => $subscription_data['exports_remaining'] ?? 0,
                 'billing_email' => $subscription_data['billing_email'] ?? null,
-                'last_updated' => time()
+                'last_updated' => time(),
             ];
 
             // Find ANY existing record (not just id=1)
@@ -1339,22 +1333,22 @@ class installation_manager {
             debugging('Exception trace: ' . $e->getTraceAsString());
         }
     }
-    
+
     /**
      * Activate free plan manually (fallback method)
      */
     public function activate_free_plan_manually() {
         try {
             debugging('Attempting manual free plan activation');
-            
+
             // Get available plans from backend
             $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
-            
+
             if (!$plans_response || !isset($plans_response['success']) || !$plans_response['success']) {
                 debugging('Failed to get plans for manual free plan activation');
                 return false;
             }
-            
+
             // Find free plan for Insights product
             $free_plan = null;
             foreach ($plans_response['data']['plans'] as $plan) {
@@ -1374,16 +1368,16 @@ class installation_manager {
             }
 
             debugging('Found free plan for manual activation: ' . $free_plan['name']);
-            
+
             // Activate free plan via backend
             $subscription_response = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $free_plan['id'],
-                'billing_email' => $this->get_admin_email()
+                'billing_email' => $this->get_admin_email(),
             ]);
-            
+
             if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
                 debugging('Manual free plan activation successful');
-                
+
                 // Update local subscription status
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
@@ -1392,26 +1386,25 @@ class installation_manager {
                     'plan_id' => $free_plan['id'],
                     'status' => $subscription_response['data']['status'] ?? 'active',
                     'current_period_start' => $subscription_response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30*24*60*60),
+                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $subscription_response['data']['ai_credits_remaining'] ?? $free_plan['ai_credits'],
                     'ai_credits_pro_remaining' => $subscription_response['data']['ai_credits_pro_remaining'] ?? ($free_plan['ai_credits_pro'] ?? 0),
                     'ai_credits_basic_remaining' => $subscription_response['data']['ai_credits_basic_remaining'] ?? ($free_plan['ai_credits_basic'] ?? 0),
                     'exports_remaining' => $subscription_response['data']['exports_remaining'] ?? $free_plan['exports'],
-                    'billing_email' => $this->get_admin_email()
+                    'billing_email' => $this->get_admin_email(),
                 ]);
-                
+
                 return true;
             } else {
                 debugging('Failed to manually activate free plan: ' . ($subscription_response['message'] ?? 'Unknown error'));
                 return false;
             }
-            
         } catch (\Exception $e) {
             debugging('Failed to manually activate free plan: ' . $e->getMessage());
             return false;
         }
     }
-    
+
     /**
      * Create billing portal session for upgrades
      */
@@ -1420,7 +1413,7 @@ class installation_manager {
             debugging('Creating billing portal session for upgrade');
 
             $data = [
-                'return_url' => $return_url ?: $this->get_site_url()
+                'return_url' => $return_url ?: $this->get_site_url(),
             ];
 
             if ($plan_id) {
@@ -1440,37 +1433,36 @@ class installation_manager {
             }
 
             $response = $this->make_api_request('subscription/billing-portal', $data);
-            
+
             // Log to file for debugging
-            
+
             debugging('Billing portal session response: ' . json_encode($response));
             debugging('Response success: ' . ($response['success'] ?? 'NOT_SET'));
             debugging('Response data: ' . json_encode($response['data'] ?? 'NOT_SET'));
             debugging('URL in data.url: ' . ($response['data']['url'] ?? 'NOT_FOUND'));
             debugging('URL in data.billing_portal_url: ' . ($response['data']['billing_portal_url'] ?? 'NOT_FOUND'));
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 $url = $response['data']['url'] ?? $response['data']['billing_portal_url'] ?? null;
                 debugging('Final extracted URL: ' . ($url ?? 'NULL'));
-                
+
                 return [
                     'success' => true,
                     'data' => [
-                        'url' => $url
-                    ]
+                        'url' => $url,
+                    ],
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create billing portal session'
+                    'message' => $response['message'] ?? 'Failed to create billing portal session',
                 ];
             }
-            
         } catch (\Exception $e) {
             debugging('Failed to create billing portal session: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to create billing portal session: ' . $e->getMessage()
+                'message' => 'Failed to create billing portal session: ' . $e->getMessage(),
             ];
         }
     }
@@ -1490,7 +1482,7 @@ class installation_manager {
             $data = [
                 'plan_id' => $plan_id,
                 'success_url' => $return_url ?: $this->get_site_url(),
-                'cancel_url' => $return_url ?: $this->get_site_url()
+                'cancel_url' => $return_url ?: $this->get_site_url(),
             ];
 
             if ($stripe_price_id) {
@@ -1499,7 +1491,6 @@ class installation_manager {
 
             $response = $this->make_api_request('subscription/checkout', $data);
 
-
             if ($response && isset($response['success']) && $response['success']) {
                 $checkout_url = $response['data']['checkout_url'] ?? null;
                 debugging('Checkout session created, URL: ' . ($checkout_url ?? 'NULL'));
@@ -1507,7 +1498,7 @@ class installation_manager {
                 return [
                     'success' => true,
                     'checkout_url' => $checkout_url,
-                    'session_id' => $response['data']['session_id'] ?? null
+                    'session_id' => $response['data']['session_id'] ?? null,
                 ];
             } else {
                 $error_code = $response['error']['code'] ?? '';
@@ -1516,15 +1507,14 @@ class installation_manager {
                 return [
                     'success' => false,
                     'error_code' => $error_code,
-                    'message' => $error_message
+                    'message' => $error_message,
                 ];
             }
-
         } catch (\Exception $e) {
             debugging('Failed to create checkout session: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to create checkout session: ' . $e->getMessage()
+                'message' => 'Failed to create checkout session: ' . $e->getMessage(),
             ];
         }
     }
@@ -1540,9 +1530,8 @@ class installation_manager {
             debugging('Verifying checkout session: ' . $session_id);
 
             $response = $this->make_api_request('subscription/verify-checkout', [
-                'session_id' => $session_id
+                'session_id' => $session_id,
             ]);
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 debugging('Checkout verified successfully, tier: ' . ($response['data']['tier'] ?? 'unknown'));
@@ -1555,7 +1544,7 @@ class installation_manager {
                     'subscription_id' => $response['data']['subscription_id'] ?? null,
                     'tier' => $response['data']['tier'] ?? 'pro',
                     'status' => $response['data']['status'] ?? 'active',
-                    'plan_name' => $response['data']['plan_name'] ?? 'Pro'
+                    'plan_name' => $response['data']['plan_name'] ?? 'Pro',
                 ];
             } else {
                 $error_code = $response['error']['code'] ?? '';
@@ -1564,15 +1553,14 @@ class installation_manager {
                 return [
                     'success' => false,
                     'error_code' => $error_code,
-                    'message' => $error_message
+                    'message' => $error_message,
                 ];
             }
-
         } catch (\Exception $e) {
             debugging('Failed to verify checkout session: ' . $e->getMessage());
             return [
                 'success' => false,
-                'message' => 'Failed to verify checkout session: ' . $e->getMessage()
+                'message' => 'Failed to verify checkout session: ' . $e->getMessage(),
             ];
         }
     }
@@ -1600,19 +1588,19 @@ class installation_manager {
             if (!$this->is_registered()) {
                 return ['success' => false, 'message' => 'Installation not registered'];
             }
-            
+
             // Get the subscription details
             $subscription = $this->get_subscription_details();
             if (!$subscription) {
                 return ['success' => false, 'message' => 'Subscription not found'];
             }
-            
+
             // Get the target plan from the product ID
             $plan = $this->get_plan_by_stripe_product_id($product_id);
             if (!$plan) {
                 return ['success' => false, 'message' => 'Target plan not found'];
             }
-            
+
             // Create or get Stripe customer
             $stripe_customer_id = $subscription['stripe_customer_id'] ?? null;
             if (!$stripe_customer_id) {
@@ -1623,42 +1611,41 @@ class installation_manager {
                 }
                 $stripe_customer_id = $customer_result['stripe_customer_id'];
             }
-            
+
             // Create billing portal session with return URL
             $portal_result = $this->create_stripe_portal_session($stripe_customer_id, $return_url);
             if (!$portal_result['success']) {
                 return $portal_result;
             }
-            
+
             return [
                 'success' => true,
-                'portal_url' => $portal_result['portal_url']
+                'portal_url' => $portal_result['portal_url'],
             ];
-            
         } catch (\Exception $e) {
             error_log('Error creating product portal session: ' . $e->getMessage());
             return ['success' => false, 'message' => 'Error creating portal session: ' . $e->getMessage()];
         }
     }
-    
+
     /**
      * Get plan by Stripe product ID
      */
     private function get_plan_by_stripe_product_id($stripe_product_id) {
         // Get available plans from backend API
         $response = $this->get_available_plans();
-        
+
         // Check if the API call was successful
         if (!$response || !isset($response['success']) || !$response['success']) {
             debugging('Failed to get available plans: ' . ($response['message'] ?? 'Unknown error'));
             return null;
         }
-        
+
         // Get the plans array from the response
         $plans = $response['plans'] ?? [];
-        
+
         debugging('Looking for product ID: ' . $stripe_product_id . ' in ' . count($plans) . ' plans');
-        
+
         foreach ($plans as $plan) {
             debugging('Checking plan: ' . json_encode($plan));
             if (isset($plan['stripe_product_id']) && $plan['stripe_product_id'] === $stripe_product_id) {
@@ -1666,11 +1653,11 @@ class installation_manager {
                 return $plan;
             }
         }
-        
+
         debugging('No plan found with product ID: ' . $stripe_product_id);
         return null;
     }
-    
+
     /**
      * Get admin email for subscription creation
      */
@@ -1678,7 +1665,7 @@ class installation_manager {
         global $USER;
         return $USER->email ?? '';
     }
-    
+
     /**
      * Get site URL for return redirects
      */
@@ -1686,7 +1673,7 @@ class installation_manager {
         global $CFG;
         return $CFG->wwwroot ?? '';
     }
-    
+
     /**
      * Create Stripe customer and subscription
      */
@@ -1696,28 +1683,28 @@ class installation_manager {
             $response = $this->make_api_request('subscription/billing-portal', [
                 'return_url' => $this->get_site_url(),
                 'create_customer' => true,
-                'plan_id' => $plan['id'] ?? null
+                'plan_id' => $plan['id'] ?? null,
             ]);
-            
+
             if ($response && isset($response['success']) && $response['success']) {
                 return [
                     'success' => true,
-                    'stripe_customer_id' => $response['data']['stripe_customer_id'] ?? null
+                    'stripe_customer_id' => $response['data']['stripe_customer_id'] ?? null,
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create Stripe customer'
+                    'message' => $response['message'] ?? 'Failed to create Stripe customer',
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating Stripe customer: ' . $e->getMessage()
+                'message' => 'Error creating Stripe customer: ' . $e->getMessage(),
             ];
         }
     }
-    
+
     /**
      * Create Stripe portal session
      */
@@ -1726,24 +1713,24 @@ class installation_manager {
             // Call backend API to create portal session
             $response = $this->make_api_request('subscription/billing-portal', [
                 'return_url' => $return_url,
-                'stripe_customer_id' => $stripe_customer_id
+                'stripe_customer_id' => $stripe_customer_id,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
                     'success' => true,
-                    'portal_url' => $response['data']['url'] ?? $response['data']['billing_portal_url'] ?? null
+                    'portal_url' => $response['data']['url'] ?? $response['data']['billing_portal_url'] ?? null,
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create portal session'
+                    'message' => $response['message'] ?? 'Failed to create portal session',
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating portal session: ' . $e->getMessage()
+                'message' => 'Error creating portal session: ' . $e->getMessage(),
             ];
         }
     }
@@ -1800,7 +1787,6 @@ class installation_manager {
                 // Export formats
                 'export_formats' => $data['limits']['export_formats'] ?? ['pdf'],
             ];
-
         } catch (\Exception $e) {
             debugging('Exception getting subscription with usage: ' . $e->getMessage());
             return $this->get_free_tier_defaults();
@@ -1858,13 +1844,13 @@ class installation_manager {
                     'allowed' => true, // Allow generation but track locally
                     'reason' => 'unregistered',
                     'message' => 'Installation not registered - using free tier defaults',
-                    'tier' => 'free'
+                    'tier' => 'free',
                 ];
             }
 
             // Call backend API to check report access
             $response = $this->make_api_request('reports/check-access', [
-                'report_key' => $report_key
+                'report_key' => $report_key,
             ]);
 
             if (!$response || !isset($response['success'])) {
@@ -1894,7 +1880,6 @@ class installation_manager {
                 'reason' => $response['data']['reason'] ?? 'unknown',
                 'message' => $response['data']['message'] ?? 'Access denied',
             ];
-
         } catch (\Exception $e) {
             debugging('Exception checking report access: ' . $e->getMessage());
             return [
@@ -1931,7 +1916,6 @@ class installation_manager {
 
             debugging('Failed to track report generation: ' . json_encode($response));
             return false;
-
         } catch (\Exception $e) {
             debugging('Exception tracking report generation: ' . $e->getMessage());
             return false;
@@ -1957,7 +1941,6 @@ class installation_manager {
             ]);
 
             return $response && isset($response['success']) && $response['success'];
-
         } catch (\Exception $e) {
             debugging('Exception tracking report deletion: ' . $e->getMessage());
             return false;
@@ -2004,7 +1987,6 @@ class installation_manager {
                 'remaining' => $exports_remaining,
                 'format' => $format,
             ];
-
         } catch (\Exception $e) {
             debugging('Exception checking export access: ' . $e->getMessage());
             return [
@@ -2032,7 +2014,6 @@ class installation_manager {
             ]);
 
             return $response && isset($response['success']) && $response['success'];
-
         } catch (\Exception $e) {
             debugging('Exception tracking export: ' . $e->getMessage());
             return false;
@@ -2058,7 +2039,6 @@ class installation_manager {
             ]);
 
             return $response && isset($response['success']) && $response['success'];
-
         } catch (\Exception $e) {
             debugging('Exception tracking AI credits: ' . $e->getMessage());
             return false;
@@ -2121,4 +2101,4 @@ class installation_manager {
                 return -1;
         }
     }
-} 
+}

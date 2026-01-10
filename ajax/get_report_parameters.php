@@ -52,17 +52,17 @@ try {
     $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
     $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
     $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
-    
+
     if (!$backendEnabled) {
         echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
         exit;
     }
-    
+
     // Get API key for authentication
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installation_manager = new \report_adeptus_insights\installation_manager();
     $api_key = $installation_manager->get_api_key();
-    
+
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
@@ -72,38 +72,38 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key
+        'X-API-Key: ' . $api_key,
     ]);
-    
+
     $response = curl_exec($ch);
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
     curl_close($ch);
-    
+
     if (!$response || $httpCode !== 200 || !empty($curlError)) {
         echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
         exit;
     }
-    
+
     $backendData = json_decode($response, true);
     if (!$backendData || !$backendData['success']) {
         echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
         exit;
     }
-    
+
     // Find the report by ID (which is now the report name)
     $report = null;
     foreach ($backendData['data'] as $backendReport) {
         // Trim whitespace and normalize for comparison
         $backendName = trim($backendReport['name']);
         $requestedName = trim($reportid);
-        
+
         if ($backendName === $requestedName) {
             $report = $backendReport;
             break;
         }
     }
-    
+
     if (!$report) {
         echo json_encode(['success' => false, 'message' => 'Report not found']);
         exit;
@@ -145,25 +145,25 @@ try {
                         'type' => $param['type'] ?? 'text',
                         'label' => $param['label'] ?? null,
                         'description' => $param['description'] ?? null,
-                        'required' => $param['required'] ?? true
-                    ]
+                        'required' => $param['required'] ?? true,
+                    ],
                 ]));
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     'Content-Type: application/json',
-                    'Accept: application/json'
+                    'Accept: application/json',
                 ]);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-                
+
                 $response = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $curlError = curl_error($ch);
                 curl_close($ch);
-                
+
                 if ($debugMode) {
                 }
-                
+
                 if ($response && $httpCode === 200 && empty($curlError)) {
                     $backendData = json_decode($response, true);
                     if ($backendData && $backendData['success']) {
@@ -181,12 +181,12 @@ try {
                 }
             }
         }
-        
+
         // If backend enhancement succeeded, use it; otherwise fall back to local processing
         if ($enhancedParam) {
             $param = array_merge($param, $enhancedParam);
         }
-        
+
         // Local fallback parameter processing (always available as backup)
         processParameterLocally($param);
     }
@@ -202,12 +202,11 @@ try {
             'name' => $report['name'],
             'category' => $report['category'],
             'description' => $report['description'],
-            'charttype' => $report['charttype']
+            'charttype' => $report['charttype'],
         ],
         'parameters' => $param_array,
-        'backend_enhanced' => $backendEnabled && !empty($enhancedParam)
+        'backend_enhanced' => $backendEnabled && !empty($enhancedParam),
     ]);
-
 } catch (Exception $e) {
     error_log('Error in get_report_parameters.php: ' . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
@@ -218,7 +217,7 @@ try {
  */
 function processParameterLocally(&$param) {
     global $DB;
-    
+
     switch ($param['type']) {
         case 'course_select':
             $param['type'] = 'select';
@@ -230,7 +229,7 @@ function processParameterLocally(&$param) {
                 }
             }
             break;
-            
+
         case 'user_select':
             $param['type'] = 'select';
             $users = $DB->get_records_sql("
@@ -244,13 +243,13 @@ function processParameterLocally(&$param) {
             foreach ($users as $user) {
                 if ($user->id > 2) { // Skip guest and admin
                     $param['options'][] = [
-                        'value' => $user->id, 
-                        'label' => s($user->firstname . ' ' . $user->lastname) . ' (' . s($user->username) . ')'
+                        'value' => $user->id,
+                        'label' => s($user->firstname . ' ' . $user->lastname) . ' (' . s($user->username) . ')',
                     ];
                 }
             }
             break;
-            
+
         case 'category_select':
             $param['type'] = 'select';
             $categories = $DB->get_records('course_categories', null, 'name ASC', 'id, name, path, depth');
@@ -258,12 +257,12 @@ function processParameterLocally(&$param) {
             foreach ($categories as $category) {
                 $indent = str_repeat('— ', $category->depth);
                 $param['options'][] = [
-                    'value' => $category->id, 
-                    'label' => $indent . s($category->name)
+                    'value' => $category->id,
+                    'label' => $indent . s($category->name),
                 ];
             }
             break;
-            
+
         case 'group_select':
             $param['type'] = 'select';
             $groups = $DB->get_records_sql("
@@ -276,11 +275,11 @@ function processParameterLocally(&$param) {
             foreach ($groups as $group) {
                 $param['options'][] = [
                     'value' => $group->id,
-                    'label' => s($group->coursename) . ' - ' . s($group->name)
+                    'label' => s($group->coursename) . ' - ' . s($group->name),
                 ];
             }
             break;
-            
+
         case 'role_select':
             $param['type'] = 'select';
             $roles = $DB->get_records('role', null, 'sortorder ASC', 'id, name, shortname');
@@ -288,11 +287,11 @@ function processParameterLocally(&$param) {
             foreach ($roles as $role) {
                 $param['options'][] = [
                     'value' => $role->id,
-                    'label' => s($role->name) . ' (' . s($role->shortname) . ')'
+                    'label' => s($role->name) . ' (' . s($role->shortname) . ')',
                 ];
             }
             break;
-            
+
         case 'module_select':
             $param['type'] = 'select';
             $modules = $DB->get_records('modules', ['visible' => 1], 'name ASC', 'id, name');
@@ -300,11 +299,11 @@ function processParameterLocally(&$param) {
             foreach ($modules as $module) {
                 $param['options'][] = [
                     'value' => $module->id,
-                    'label' => ucfirst(s($module->name))
+                    'label' => ucfirst(s($module->name)),
                 ];
             }
             break;
-            
+
         case 'activity_select':
             $param['type'] = 'select';
             // Get recent activities across all courses
@@ -328,13 +327,13 @@ function processParameterLocally(&$param) {
             foreach ($activities as $activity) {
                 $param['options'][] = [
                     'value' => $activity->id,
-                    'label' => s($activity->coursename) . ' - ' . 
-                               ucfirst($activity->modulename) . ': ' . 
-                               s($activity->activityname)
+                    'label' => s($activity->coursename) . ' - ' .
+                               ucfirst($activity->modulename) . ': ' .
+                               s($activity->activityname),
                 ];
             }
             break;
-            
+
         case 'coursemodule_select':
             $param['type'] = 'select';
             $coursemodules = $DB->get_records_sql("
@@ -350,11 +349,11 @@ function processParameterLocally(&$param) {
             foreach ($coursemodules as $cm) {
                 $param['options'][] = [
                     'value' => $cm->id,
-                    'label' => s($cm->coursename) . ' - ' . ucfirst($cm->modulename)
+                    'label' => s($cm->coursename) . ' - ' . ucfirst($cm->modulename),
                 ];
             }
             break;
-            
+
         case 'grade_select':
             $param['type'] = 'select';
             $gradeitems = $DB->get_records_sql("
@@ -369,11 +368,11 @@ function processParameterLocally(&$param) {
             foreach ($gradeitems as $item) {
                 $param['options'][] = [
                     'value' => $item->id,
-                    'label' => s($item->coursename) . ' - ' . s($item->itemname)
+                    'label' => s($item->coursename) . ' - ' . s($item->itemname),
                 ];
             }
             break;
-            
+
         case 'gradeitem_select':
             $param['type'] = 'select';
             $gradeitems = $DB->get_records_sql("
@@ -389,11 +388,11 @@ function processParameterLocally(&$param) {
                 $typeLabel = ucfirst($item->itemtype);
                 $param['options'][] = [
                     'value' => $item->id,
-                    'label' => s($item->coursename) . ' - ' . $typeLabel . ': ' . s($item->itemname)
+                    'label' => s($item->coursename) . ' - ' . $typeLabel . ': ' . s($item->itemname),
                 ];
             }
             break;
-            
+
         case 'quiz_select':
             $param['type'] = 'select';
             $quizzes = $DB->get_records_sql("
@@ -410,7 +409,7 @@ function processParameterLocally(&$param) {
                     $now = time();
                     if ($now < $quiz->timeopen) {
                         $status = ' [Not yet open]';
-                    } elseif ($now > $quiz->timeclose) {
+                    } else if ($now > $quiz->timeclose) {
                         $status = ' [Closed]';
                     } else {
                         $status = ' [Open]';
@@ -418,11 +417,11 @@ function processParameterLocally(&$param) {
                 }
                 $param['options'][] = [
                     'value' => $quiz->id,
-                    'label' => s($quiz->coursename) . ' - ' . s($quiz->name) . $status
+                    'label' => s($quiz->coursename) . ' - ' . s($quiz->name) . $status,
                 ];
             }
             break;
-            
+
         case 'date':
             $param['type'] = 'date';
             // Set default to today if not specified
@@ -430,7 +429,7 @@ function processParameterLocally(&$param) {
                 $param['default'] = date('Y-m-d');
             }
             break;
-            
+
         case 'number':
             $param['type'] = 'number';
             // Set reasonable defaults if not specified
@@ -441,25 +440,25 @@ function processParameterLocally(&$param) {
                 $param['default'] = 10;
             }
             break;
-            
+
         case 'text':
         default:
             $param['type'] = 'text';
             break;
     }
-    
+
     // Ensure required fields are set
     if (!isset($param['label'])) {
         $param['label'] = ucwords(str_replace(['_', 'id'], [' ', ' ID'], $param['name']));
     }
-    
+
     if (!isset($param['description'])) {
         $param['description'] = "Enter the " . strtolower($param['label']);
     }
-    
+
     if (!isset($param['required'])) {
         $param['required'] = true;
     }
 }
 
-exit; 
+exit;

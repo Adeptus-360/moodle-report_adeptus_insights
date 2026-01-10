@@ -32,7 +32,7 @@ require_once(__DIR__ . '/../classes/api_config.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
 // CLI options
-list($options, $unrecognized) = cli_get_params([
+[$options, $unrecognized] = cli_get_params([
     'help' => false,
     'dry-run' => false,
     'delete-after' => false,
@@ -131,7 +131,7 @@ foreach ($local_reports as $report) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'Authorization: Bearer ' . $api_key
+        'Authorization: Bearer ' . $api_key,
     ]);
 
     $response = curl_exec($ch);

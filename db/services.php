@@ -32,7 +32,7 @@ $functions = [
         'description' => 'Send a message to the AI assistant',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_get_history' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -41,7 +41,7 @@ $functions = [
         'description' => 'Get chat history from the AI assistant',
         'type'        => 'read',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_get_subscription_details' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -50,7 +50,7 @@ $functions = [
         'description' => 'Get subscription details for the current installation',
         'type'        => 'read',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_create_billing_portal_session' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -59,7 +59,7 @@ $functions = [
         'description' => 'Create billing portal session for subscription management',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_fetch_preview' => [
         'classname'   => 'report_adeptus_insights\external\fetch_preview',
@@ -68,7 +68,7 @@ $functions = [
         'description' => 'Fetch preview data from ai_analytics_base',
         'type'        => 'read',
         'ajax'        => true,
-        'capabilities' => 'moodle/site:viewreports'
+        'capabilities' => 'moodle/site:viewreports',
     ],
     'report_adeptus_insights_get_students' => [
         'classname'   => 'report_adeptus_insights\\external\\fetch_students',
@@ -85,7 +85,7 @@ $functions = [
         'description' => 'Create billing portal session for subscription management',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_create_product_portal_session' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -94,7 +94,7 @@ $functions = [
         'description' => 'Create billing portal session for specific product upgrade/downgrade',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_register_installation' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -103,7 +103,7 @@ $functions = [
         'description' => 'Register a new installation of Adeptus Insights',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_cancel_subscription' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -112,7 +112,7 @@ $functions = [
         'description' => 'Cancel the current subscription',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_activate_free_plan' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -121,7 +121,7 @@ $functions = [
         'description' => 'Activate the free plan for the installation',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_create_checkout_session' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -130,7 +130,7 @@ $functions = [
         'description' => 'Create Stripe Checkout session for new subscriptions',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
     'report_adeptus_insights_verify_checkout_session' => [
         'classname'   => 'report_adeptus_insights\external',
@@ -139,7 +139,7 @@ $functions = [
         'description' => 'Verify completed Stripe checkout and update subscription',
         'type'        => 'write',
         'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view'
+        'capabilities' => 'report/adeptus_insights:view',
     ],
 
 ];
@@ -160,7 +160,7 @@ $services = [
             'report_adeptus_insights_cancel_subscription',
             'report_adeptus_insights_activate_free_plan',
             'report_adeptus_insights_create_checkout_session',
-            'report_adeptus_insights_verify_checkout_session'
+            'report_adeptus_insights_verify_checkout_session',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

@@ -80,14 +80,14 @@ $category_icons = [
     'ANALYTICS Reports' => 'fa-line-chart',
     'COMPLIANCE Reports' => 'fa-clipboard',
     'TEACHER Reports' => 'fa-user',
-    'STUDENT Reports' => 'fa-user'
+    'STUDENT Reports' => 'fa-user',
 ];
 
 // Define report priority keywords for free tier selection
 $priority_keywords = [
     'high' => ['overview', 'summary', 'total', 'count', 'basic', 'simple', 'main', 'general', 'all', 'complete'],
     'medium' => ['detailed', 'advanced', 'specific', 'custom', 'filtered', 'selected'],
-    'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis']
+    'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis'],
 ];
 
 /**
@@ -95,25 +95,25 @@ $priority_keywords = [
  */
 function calculate_report_priority($report, $priority_keywords) {
     $text = strtolower($report->name . ' ' . ($report->description ?? ''));
-    
+
     foreach ($priority_keywords['high'] as $keyword) {
         if (strpos($text, $keyword) !== false) {
             return 1; // High priority
         }
     }
-    
+
     foreach ($priority_keywords['medium'] as $keyword) {
         if (strpos($text, $keyword) !== false) {
             return 2; // Medium priority
         }
     }
-    
+
     foreach ($priority_keywords['low'] as $keyword) {
         if (strpos($text, $keyword) !== false) {
             return 3; // Low priority
         }
     }
-    
+
     return 2; // Default to medium priority
 }
 
@@ -124,7 +124,7 @@ $is_free_plan = false;
 
 if ($subscription) {
     $plan_name = strtolower($subscription['plan_name'] ?? '');
-    $is_free_plan = (strpos($plan_name, 'free') !== false || 
+    $is_free_plan = (strpos($plan_name, 'free') !== false ||
                      strpos($plan_name, 'trial') !== false ||
                      ($subscription['price'] ?? 0) == 0);
 } else {
@@ -159,7 +159,7 @@ $recent_reports = $DB->get_records_sql("
 foreach ($recent_reports as $key => $recent_report) {
     // Add formatted date with time
     $recent_reports[$key]->formatted_date = userdate($recent_report->generatedat, '%d %B %Y at %H:%M');
-    
+
     // Parse saved parameters
     $recent_reports[$key]->saved_parameters = [];
     if (!empty($recent_report->parameters)) {
@@ -168,7 +168,7 @@ foreach ($recent_reports as $key => $recent_report) {
             $recent_reports[$key]->saved_parameters = $params;
         }
     }
-    
+
     // Since reportid is now the report name (string), use it directly
     $recent_reports[$key]->name = $recent_report->reportid;
     $recent_reports[$key]->category = 'Unknown'; // Will be populated by frontend
@@ -187,7 +187,7 @@ $generated_reports = $DB->get_records_sql("
 foreach ($generated_reports as $key => $generated_report) {
     // Add formatted date with time
     $generated_reports[$key]->formatted_date = userdate($generated_report->generatedat, '%d %B %Y at %H:%M');
-    
+
     // Parse saved parameters
     $generated_reports[$key]->saved_parameters = [];
     if (!empty($generated_report->parameters)) {
@@ -196,7 +196,7 @@ foreach ($generated_reports as $key => $generated_report) {
             $generated_reports[$key]->saved_parameters = $params;
         }
     }
-    
+
     // Since reportid is now the report name (string), use it directly
     $generated_reports[$key]->name = $generated_report->reportid;
     $generated_reports[$key]->category = 'Unknown'; // Will be populated by frontend
@@ -214,7 +214,7 @@ $bookmarks = $DB->get_records_sql("
 // Add formatted date for bookmarks and map field names
 foreach ($bookmarks as $key => $bookmark) {
     $bookmarks[$key]->formatted_date = userdate($bookmark->createdat, '%d %B %Y at %H:%M');
-    
+
     // Since reportid is now the report name (string), use it directly
     $bookmarks[$key]->name = $bookmark->reportid;
     $bookmarks[$key]->category = 'Unknown'; // Will be populated by frontend
@@ -260,7 +260,7 @@ $templatedata = [
     'bookmarked_report_ids' => json_encode($bookmarked_report_ids),
     'is_free_plan' => $is_free_plan,
     'subscription' => $subscription,
-    'subscription_json' => json_encode($subscription)
+    'subscription_json' => json_encode($subscription),
 ];
 
 // Output the page
