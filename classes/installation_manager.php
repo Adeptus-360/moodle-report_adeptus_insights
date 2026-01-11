@@ -1192,7 +1192,8 @@ class installation_manager {
             throw new \Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
         }
 
-        if ($http_code !== 200) {
+        // Accept both 200 OK and 201 Created as success responses
+        if ($http_code !== 200 && $http_code !== 201) {
             debugging('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
             throw new \Exception('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
         }

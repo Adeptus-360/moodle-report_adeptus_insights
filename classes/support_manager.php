@@ -146,14 +146,35 @@ class support_manager {
                 $data['submitter_email'] = trim($submitter_email);
             }
 
-            // Check if we have file attachments
+            // Check if we have file attachments with actual files
+            $has_valid_files = false;
             if (!empty($attachments) && isset($attachments['tmp_name'])) {
+                if (is_array($attachments['tmp_name'])) {
+                    foreach ($attachments['tmp_name'] as $tmp_name) {
+                        if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
+                            $has_valid_files = true;
+                            break;
+                        }
+                    }
+                } elseif (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
+                    $has_valid_files = true;
+                }
+            }
+
+            debugging('Support ticket creation - has_valid_files: ' . ($has_valid_files ? 'true' : 'false'));
+            debugging('Support ticket creation - data: ' . json_encode($data));
+
+            if ($has_valid_files) {
                 // Use multipart form data for file uploads
+                debugging('Using multipart request for file uploads');
                 $response = $this->make_multipart_request('support/tickets', $data, $attachments);
             } else {
                 // Standard JSON request without files
+                debugging('Using standard JSON request (no files)');
                 $response = $this->installation_manager->make_api_request('support/tickets', $data);
             }
+
+            debugging('Support ticket API response: ' . json_encode($response));
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -249,9 +270,18 @@ class support_manager {
         $error = curl_error($ch);
         curl_close($ch);
 
+        debugging('Multipart request to: ' . $url);
+        debugging('Multipart request HTTP code: ' . $httpCode);
+        debugging('Multipart request response: ' . substr($response, 0, 1000));
+
         if ($response === false) {
             debugging('Multipart API request failed: ' . $error);
             return null;
+        }
+
+        // Check for HTTP error codes
+        if ($httpCode >= 400) {
+            debugging('Multipart API request returned error HTTP ' . $httpCode);
         }
 
         $decoded = json_decode($response, true);
@@ -364,9 +394,10 @@ class support_manager {
      * @param int $ticket_id The ticket ID
      * @param string $message The reply message
      * @param string|null $sender_name Optional sender name
+     * @param array $attachments Array of file attachment info
      * @return array Result with success status and reply data
      */
-    public function add_reply(int $ticket_id, string $message, ?string $sender_name = null): array {
+    public function add_reply(int $ticket_id, string $message, ?string $sender_name = null, array $attachments = []): array {
         if (!$this->is_available()) {
             return [
                 'success' => false,
@@ -390,7 +421,28 @@ class support_manager {
                 $data['sender_name'] = trim($sender_name);
             }
 
-            $response = $this->installation_manager->make_api_request("support/tickets/{$ticket_id}/reply", $data);
+            // Check if we have file attachments with actual files
+            $has_valid_files = false;
+            if (!empty($attachments) && isset($attachments['tmp_name'])) {
+                if (is_array($attachments['tmp_name'])) {
+                    foreach ($attachments['tmp_name'] as $tmp_name) {
+                        if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
+                            $has_valid_files = true;
+                            break;
+                        }
+                    }
+                } elseif (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
+                    $has_valid_files = true;
+                }
+            }
+
+            if ($has_valid_files) {
+                // Use multipart form data for file uploads
+                $response = $this->make_multipart_request("support/tickets/{$ticket_id}/reply", $data, $attachments);
+            } else {
+                // Standard JSON request without files
+                $response = $this->installation_manager->make_api_request("support/tickets/{$ticket_id}/reply", $data);
+            }
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [

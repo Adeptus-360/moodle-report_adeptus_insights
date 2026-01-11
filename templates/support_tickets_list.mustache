@@ -57,7 +57,7 @@
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="fa fa-ticket-alt"></i> {{#str}}support_tickets, report_adeptus_insights{{/str}}</h5>
-                        <a href="{{new_ticket_url}}" class="btn btn-light btn-sm">
+                        <a href="{{{new_ticket_url}}}" class="btn btn-light btn-sm">
                             <i class="fa fa-plus"></i> {{#str}}new_ticket, report_adeptus_insights{{/str}}
                         </a>
                     </div>
@@ -106,7 +106,7 @@
                                         <td><span class="badge {{priority_class}}">{{priority_label}}</span></td>
                                         <td>{{created_at}}</td>
                                         <td>
-                                            <a href="{{view_url}}" class="btn btn-sm btn-outline-primary">
+                                            <a href="{{{view_url}}}" class="btn btn-sm btn-outline-primary">
                                                 <i class="fa fa-eye"></i> {{#str}}view_ticket, report_adeptus_insights{{/str}}
                                             </a>
                                         </td>
@@ -122,7 +122,7 @@
                             <i class="fa fa-inbox fa-4x text-muted mb-3"></i>
                             <h5 class="text-muted">{{#str}}no_tickets, report_adeptus_insights{{/str}}</h5>
                             <p class="text-muted">Submit your first support ticket to get help.</p>
-                            <a href="{{new_ticket_url}}" class="btn btn-primary mt-2">
+                            <a href="{{{new_ticket_url}}}" class="btn btn-primary mt-2">
                                 <i class="fa fa-plus"></i> {{#str}}submit_ticket, report_adeptus_insights{{/str}}
                             </a>
                         </div>

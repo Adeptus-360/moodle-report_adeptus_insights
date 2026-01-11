@@ -54,7 +54,8 @@ $message = '';
 $message_type = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
-    $post_action = required_param('action', PARAM_ALPHA);
+    // Use PARAM_ALPHANUMEXT to allow underscores in action names
+    $post_action = required_param('action', PARAM_ALPHANUMEXT);
 
     if ($post_action === 'create_ticket') {
         $category = required_param('category', PARAM_ALPHA);
@@ -64,10 +65,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $submitter_name = optional_param('submitter_name', '', PARAM_TEXT);
         $submitter_email = optional_param('submitter_email', '', PARAM_EMAIL);
 
-        // Get uploaded files if any
+        // Get uploaded files if any - check if actual files were uploaded
         $attachments = [];
-        if (isset($_FILES['attachments']) && !empty($_FILES['attachments']['tmp_name'])) {
-            $attachments = $_FILES['attachments'];
+        if (isset($_FILES['attachments']) && isset($_FILES['attachments']['tmp_name'])) {
+            // Handle array of files (multiple upload)
+            if (is_array($_FILES['attachments']['tmp_name'])) {
+                $has_files = false;
+                foreach ($_FILES['attachments']['tmp_name'] as $tmp_name) {
+                    if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
+                        $has_files = true;
+                        break;
+                    }
+                }
+                if ($has_files) {
+                    $attachments = $_FILES['attachments'];
+                }
+            } else {
+                // Single file upload
+                if (!empty($_FILES['attachments']['tmp_name']) && is_uploaded_file($_FILES['attachments']['tmp_name'])) {
+                    $attachments = $_FILES['attachments'];
+                }
+            }
         }
 
         $result = $support_manager->create_ticket(
@@ -94,7 +112,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
         $reply_message = required_param('reply_message', PARAM_RAW);
         $sender_name = optional_param('sender_name', '', PARAM_TEXT);
 
-        $result = $support_manager->add_reply($reply_ticket_id, $reply_message, $sender_name ?: null);
+        // Get uploaded files if any - check if actual files were uploaded
+        $reply_attachments = [];
+        if (isset($_FILES['reply_attachments']) && isset($_FILES['reply_attachments']['tmp_name'])) {
+            if (is_array($_FILES['reply_attachments']['tmp_name'])) {
+                $has_files = false;
+                foreach ($_FILES['reply_attachments']['tmp_name'] as $tmp_name) {
+                    if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
+                        $has_files = true;
+                        break;
+                    }
+                }
+                if ($has_files) {
+                    $reply_attachments = $_FILES['reply_attachments'];
+                }
+            } else {
+                if (!empty($_FILES['reply_attachments']['tmp_name']) && is_uploaded_file($_FILES['reply_attachments']['tmp_name'])) {
+                    $reply_attachments = $_FILES['reply_attachments'];
+                }
+            }
+        }
+
+        $result = $support_manager->add_reply($reply_ticket_id, $reply_message, $sender_name ?: null, $reply_attachments);
 
         if ($result['success']) {
             $message = $result['message'];
@@ -267,7 +306,7 @@ if ($view === 'changelog') {
                 'priority_class' => \report_adeptus_insights\support_manager::get_priority_class($ticket['priority']),
                 'created_at' => $ticket['created_at'],
                 'last_reply_at' => $ticket['last_reply_at'] ?? null,
-                'view_url' => new moodle_url('/report/adeptus_insights/support.php', ['action' => 'view', 'ticket_id' => $ticket['id']]),
+                'view_url' => (new moodle_url('/report/adeptus_insights/support.php', ['action' => 'view', 'ticket_id' => $ticket['id']]))->out(false),
             ];
         }
     }
@@ -294,7 +333,7 @@ if ($view === 'changelog') {
         'total_tickets' => count($tickets),
         'status_options' => $status_options,
         'category_options' => $category_options,
-        'new_ticket_url' => new moodle_url('/report/adeptus_insights/support.php', ['action' => 'new']),
+        'new_ticket_url' => (new moodle_url('/report/adeptus_insights/support.php', ['action' => 'new']))->out(false),
     ]);
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_tickets_list', $templatecontext);
