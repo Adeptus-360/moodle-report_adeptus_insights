@@ -2100,4 +2100,77 @@ class installation_manager {
                 return -1;
         }
     }
+
+    /**
+     * Cache for feature permissions to avoid repeated API calls.
+     *
+     * @var array|null
+     */
+    private static $feature_permissions_cache = null;
+
+    /**
+     * Check if a specific feature is enabled for the current subscription.
+     *
+     * This method calls the backend API to check if a feature is enabled.
+     * The backend is the single source of truth - permissions are determined
+     * by the product-price level of the installation's subscription.
+     *
+     * If the backend cannot be reached, features are disabled (no fallbacks).
+     *
+     * @param string $feature The feature name to check (e.g., 'alerts', 'advanced_export')
+     * @return bool True if the feature is enabled, false otherwise
+     */
+    public function is_feature_enabled(string $feature): bool {
+        $permissions = $this->get_feature_permissions();
+
+        return (bool) ($permissions[$feature] ?? false);
+    }
+
+    /**
+     * Get all feature permissions from the backend.
+     *
+     * Fetches permissions from the backend API and caches them.
+     * The backend is the single source of truth for permissions.
+     * If the backend cannot be reached, an empty array is returned
+     * (all features disabled - no fallbacks).
+     *
+     * @param bool $force_refresh Force a refresh from the backend
+     * @return array Associative array of feature => enabled status
+     */
+    public function get_feature_permissions(bool $force_refresh = false): array {
+        // Return cached permissions if available and not forcing refresh.
+        if (!$force_refresh && self::$feature_permissions_cache !== null) {
+            return self::$feature_permissions_cache;
+        }
+
+        try {
+            // Call the backend permissions endpoint.
+            $response = $this->make_api_request('features/permissions', [], 'GET');
+
+            if ($response && isset($response['success']) && $response['success']) {
+                $permissions = $response['data']['permissions'] ?? $response['data'] ?? [];
+                self::$feature_permissions_cache = $permissions;
+                return self::$feature_permissions_cache;
+            }
+
+            debugging('Failed to get feature permissions from backend: ' .
+                ($response['message'] ?? 'Unknown error'), DEBUG_DEVELOPER);
+
+        } catch (\Exception $e) {
+            debugging('Exception fetching feature permissions: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+
+        // Backend unreachable - all features disabled (no fallbacks).
+        self::$feature_permissions_cache = [];
+        return self::$feature_permissions_cache;
+    }
+
+    /**
+     * Clear the feature permissions cache.
+     *
+     * Call this when the subscription changes or is updated.
+     */
+    public function clear_feature_permissions_cache(): void {
+        self::$feature_permissions_cache = null;
+    }
 }
