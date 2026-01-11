@@ -229,10 +229,46 @@ if ($view === 'changelog') {
     if ($ticket_result['success']) {
         $ticket = $ticket_result['ticket'];
 
+        // Format attachments for ticket
+        $ticket_attachments = [];
+        if (!empty($ticket['attachments'])) {
+            foreach ($ticket['attachments'] as $attachment) {
+                $ticket_attachments[] = [
+                    'id' => $attachment['id'],
+                    'filename' => $attachment['original_filename'],
+                    'file_size' => $attachment['file_size_formatted'] ?? $attachment['file_size'],
+                    'mime_type' => $attachment['mime_type'],
+                    'is_image' => $attachment['is_image'] ?? false,
+                    'download_url' => (new moodle_url('/report/adeptus_insights/attachment.php', [
+                        'id' => $attachment['id'],
+                        'ticket_id' => $ticket['id'],
+                    ]))->out(false),
+                ];
+            }
+        }
+
         // Format replies
         $replies = [];
         if (!empty($ticket['replies'])) {
             foreach ($ticket['replies'] as $reply) {
+                // Format reply attachments
+                $reply_attachments = [];
+                if (!empty($reply['attachments'])) {
+                    foreach ($reply['attachments'] as $attachment) {
+                        $reply_attachments[] = [
+                            'id' => $attachment['id'],
+                            'filename' => $attachment['original_filename'],
+                            'file_size' => $attachment['file_size_formatted'] ?? $attachment['file_size'],
+                            'mime_type' => $attachment['mime_type'],
+                            'is_image' => $attachment['is_image'] ?? false,
+                            'download_url' => (new moodle_url('/report/adeptus_insights/attachment.php', [
+                                'id' => $attachment['id'],
+                                'ticket_id' => $ticket['id'],
+                            ]))->out(false),
+                        ];
+                    }
+                }
+
                 $replies[] = [
                     'id' => $reply['id'],
                     'sender_name' => $reply['sender_name'],
@@ -242,6 +278,8 @@ if ($view === 'changelog') {
                     'message' => nl2br(htmlspecialchars($reply['message'])),
                     'created_at' => $reply['created_at'],
                     'is_internal' => $reply['is_internal_note'] ?? false,
+                    'attachments' => $reply_attachments,
+                    'has_attachments' => !empty($reply_attachments),
                 ];
             }
         }
@@ -264,6 +302,8 @@ if ($view === 'changelog') {
                 'submitter_email' => $ticket['submitter_email'] ?? '',
                 'created_at' => $ticket['created_at'],
                 'is_closed' => $ticket['status'] === 'closed',
+                'attachments' => $ticket_attachments,
+                'has_attachments' => !empty($ticket_attachments),
             ],
             'replies' => $replies,
             'has_replies' => !empty($replies),

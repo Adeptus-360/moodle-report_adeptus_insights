@@ -365,6 +365,10 @@ $string['allowed_file_types'] = 'Allowed file types: images (jpg, png, gif), PDF
 $string['max_file_size'] = 'Maximum file size: 10MB';
 $string['max_files'] = 'Maximum 5 files per upload';
 
+// Attachments
+$string['attachment_not_found'] = 'Attachment not found or you do not have permission to access it.';
+$string['attachment_download_failed'] = 'Failed to download attachment. Please try again.';
+
 // Changelog
 $string['changelog_title'] = 'Changelog & Updates';
 $string['failed_to_load_changelog'] = 'Failed to load changelog. Please try again.';
