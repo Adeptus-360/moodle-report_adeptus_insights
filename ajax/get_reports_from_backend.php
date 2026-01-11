@@ -89,7 +89,7 @@ try {
     curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5); // Limit redirects
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);

@@ -61,7 +61,6 @@ try {
         echo json_encode(['success' => false, 'error' => $result['error']]);
     }
 } catch (\Exception $e) {
-    debugging('Webhook error: ' . $e->getMessage());
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
@@ -109,7 +108,6 @@ function process_webhook_event($event) {
                 return ['success' => true];
         }
     } catch (\Exception $e) {
-        debugging('Failed to process webhook event: ' . $e->getMessage());
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }
@@ -128,7 +126,6 @@ function handle_subscription_created($event) {
     $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $price_id]);
 
     if (!$plan) {
-        debugging('Plan not found for price ID: ' . $price_id);
         return ['success' => false, 'error' => 'Plan not found'];
     }
 
@@ -154,7 +151,6 @@ function handle_subscription_created($event) {
         $customer = $stripe_service->stripe->customers->retrieve($customer_id);
         $subscription_data['billing_email'] = $customer->email;
     } catch (\Exception $e) {
-        debugging('Failed to get customer email: ' . $e->getMessage());
     }
 
     // Update local subscription status
@@ -187,7 +183,6 @@ function handle_subscription_updated($event) {
     $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $price_id]);
 
     if (!$plan) {
-        debugging('Plan not found for price ID: ' . $price_id);
         return ['success' => false, 'error' => 'Plan not found'];
     }
 
@@ -276,14 +271,12 @@ function handle_payment_succeeded($event) {
     // Get subscription details
     $subscription = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscription_id]);
     if (!$subscription) {
-        debugging('Subscription not found for ID: ' . $subscription_id);
         return ['success' => false, 'error' => 'Subscription not found'];
     }
 
     // Get plan details
     $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_product_id' => $subscription->plan_id]);
     if (!$plan) {
-        debugging('Plan not found for subscription: ' . $subscription_id);
         return ['success' => false, 'error' => 'Plan not found'];
     }
 

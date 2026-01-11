@@ -610,7 +610,6 @@ class external extends \external_api {
             $subscription = $installation_manager->get_subscription_details();
 
             if ($subscription) {
-                debugging('External function returning subscription data: ' . json_encode($subscription));
                 return [
                     'success' => true,
                     'data' => $subscription,
@@ -670,15 +669,9 @@ class external extends \external_api {
 
             // Log to file for debugging
 
-            debugging('External function received result: ' . json_encode($result));
-            debugging('Result success: ' . ($result['success'] ?? 'NOT_SET'));
-            debugging('Result data: ' . json_encode($result['data'] ?? 'NOT_SET'));
-            debugging('URL in result[data][url]: ' . ($result['data']['url'] ?? 'NOT_FOUND'));
-            debugging('URL in result[portal_url]: ' . ($result['portal_url'] ?? 'NOT_FOUND'));
 
             if ($result['success']) {
                 $portal_url = $result['data']['url'] ?? $result['portal_url'] ?? null;
-                debugging('Final portal_url to return: ' . ($portal_url ?? 'NULL'));
 
                 return [
                     'success' => true,

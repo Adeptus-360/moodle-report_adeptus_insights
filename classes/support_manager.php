@@ -161,20 +161,15 @@ class support_manager {
                 }
             }
 
-            debugging('Support ticket creation - has_valid_files: ' . ($has_valid_files ? 'true' : 'false'));
-            debugging('Support ticket creation - data: ' . json_encode($data));
 
             if ($has_valid_files) {
                 // Use multipart form data for file uploads
-                debugging('Using multipart request for file uploads');
                 $response = $this->make_multipart_request('support/tickets', $data, $attachments);
             } else {
                 // Standard JSON request without files
-                debugging('Using standard JSON request (no files)');
                 $response = $this->installation_manager->make_api_request('support/tickets', $data);
             }
 
-            debugging('Support ticket API response: ' . json_encode($response));
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -191,7 +186,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Support ticket creation failed: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('ticket_creation_failed', 'report_adeptus_insights'),
@@ -263,30 +257,24 @@ class support_manager {
         }
 
         curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Longer timeout for file uploads
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
 
-        debugging('Multipart request to: ' . $url);
-        debugging('Multipart request HTTP code: ' . $httpCode);
-        debugging('Multipart request response: ' . substr($response, 0, 1000));
 
         if ($response === false) {
-            debugging('Multipart API request failed: ' . $error);
             return null;
         }
 
         // Check for HTTP error codes
         if ($httpCode >= 400) {
-            debugging('Multipart API request returned error HTTP ' . $httpCode);
         }
 
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            debugging('Invalid JSON response from multipart request: ' . $response);
             return null;
         }
 
@@ -341,7 +329,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Failed to get support tickets: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('failed_to_load_tickets', 'report_adeptus_insights'),
@@ -380,7 +367,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Failed to get support ticket: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('ticket_not_found', 'report_adeptus_insights'),
@@ -458,7 +444,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Failed to add reply: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('reply_failed', 'report_adeptus_insights'),
@@ -503,7 +488,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Failed to get changelog: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('failed_to_load_changelog', 'report_adeptus_insights'),
@@ -546,7 +530,6 @@ class support_manager {
             ];
 
         } catch (\Exception $e) {
-            debugging('Failed to check for updates: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => get_string('failed_to_check_updates', 'report_adeptus_insights'),

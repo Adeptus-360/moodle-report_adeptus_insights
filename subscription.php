@@ -123,7 +123,6 @@ if (!$subscription) {
                 $subscription = $installation_manager->get_subscription_details();
             }
         } catch (\Exception $e) {
-            debugging('Exception during subscription creation: ' . $e->getMessage());
         }
     }
 }

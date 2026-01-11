@@ -273,7 +273,7 @@ class token_auth_manager {
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
             $response = curl_exec($ch);
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -281,12 +281,10 @@ class token_auth_manager {
             curl_close($ch);
 
             if ($response === false) {
-                debugging('Backend subscription data fetch failed: ' . $error);
                 return null;
             }
 
             if ($http_code !== 200) {
-                debugging('Backend subscription data fetch failed with HTTP code: ' . $http_code);
                 return null;
             }
 
@@ -294,11 +292,9 @@ class token_auth_manager {
             if ($decoded && isset($decoded['success']) && $decoded['success']) {
                 return $decoded;
             } else {
-                debugging('Backend subscription data fetch failed: Invalid response');
                 return null;
             }
         } catch (\Exception $e) {
-            debugging('Backend subscription data fetch failed: ' . $e->getMessage());
             return null;
         }
     }
@@ -333,7 +329,6 @@ class token_auth_manager {
                 'current_period_end' => $currentMonthEnd,
             ];
         } catch (\Exception $e) {
-            debugging('Failed to get usage data: ' . $e->getMessage());
             return null;
         }
     }
@@ -344,7 +339,6 @@ class token_auth_manager {
      * @param array $validation_result
      */
     private function log_validation_error($validation_result) {
-        debugging('Adeptus Insights validation failed: ' . json_encode($validation_result));
     }
 
     /**

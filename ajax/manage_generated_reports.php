@@ -66,7 +66,7 @@ try {
             curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
@@ -93,7 +93,7 @@ try {
             curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['user_id' => $userid]));
             curl_setopt($ch, CURLOPT_HTTPHEADER, [

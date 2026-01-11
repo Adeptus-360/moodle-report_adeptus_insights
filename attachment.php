@@ -70,7 +70,7 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $download_url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 120);
 curl_setopt($ch, CURLOPT_HEADERFUNCTION, $header_callback);
 
@@ -91,12 +91,10 @@ curl_close($ch);
 
 // Check for errors
 if ($file_content === false) {
-    debugging('Attachment download failed: ' . $error);
     throw new moodle_exception('attachment_download_failed', 'report_adeptus_insights');
 }
 
 if ($http_code !== 200) {
-    debugging('Attachment download failed: HTTP ' . $http_code . ' from ' . $download_url);
     throw new moodle_exception('attachment_not_found', 'report_adeptus_insights');
 }
 

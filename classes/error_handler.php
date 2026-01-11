@@ -343,7 +343,6 @@ class error_handler {
         ];
 
         // Log to Moodle's debugging system
-        debugging('Adeptus Insights Error: ' . json_encode($log_data));
 
         // Log to plugin-specific log if enabled
         if (get_config('report_adeptus_insights', 'enable_error_logging')) {

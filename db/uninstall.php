@@ -61,7 +61,6 @@ function xmldb_report_adeptus_insights_uninstall() {
         }
     } catch (Exception $e) {
         // Silently fail - don't prevent uninstall if backend notification fails
-        debugging('Adeptus uninstall: Failed to notify backend - ' . $e->getMessage());
     }
 
     // Remove ALL custom user menu entries pointing to this plugin

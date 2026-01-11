@@ -37,6 +37,7 @@ error_reporting(0);
 
 try {
     require_login();
+    require_capability('report/adeptus_insights:view', context_system::instance());
 
     // Validate sesskey
     if (!confirm_sesskey(optional_param('sesskey', '', PARAM_ALPHANUM))) {

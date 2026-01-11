@@ -89,17 +89,14 @@ $current_subscription = $installation_manager->get_subscription_details();
 
 // If no local subscription record, try to get it from backend first
 if (!$current_subscription) {
-    debugging('No local subscription found, checking backend...');
 
     // Use the existing check_subscription_status method to sync from backend
     $backend_sync_result = $installation_manager->check_subscription_status();
 
     if ($backend_sync_result) {
-        debugging('Successfully synced subscription from backend');
         // Refresh subscription data
         $current_subscription = $installation_manager->get_subscription_details();
     } else {
-        debugging('Backend sync failed, creating new subscription...');
 
         // Only create if backend sync failed
         try {
@@ -107,19 +104,15 @@ if (!$current_subscription) {
             $result = $installation_manager->setup_starter_subscription($user->email, fullname($user));
 
             if (!$result) {
-                debugging('Automatic subscription creation failed, trying manual...');
                 $result = $installation_manager->activate_free_plan_manually();
             }
 
             if ($result) {
-                debugging('Subscription created successfully');
                 // Refresh subscription data
                 $current_subscription = $installation_manager->get_subscription_details();
             } else {
-                debugging('Failed to create subscription');
             }
         } catch (\Exception $e) {
-            debugging('Exception during subscription creation: ' . $e->getMessage());
         }
     }
 }

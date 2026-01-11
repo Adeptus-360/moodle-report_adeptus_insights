@@ -125,7 +125,7 @@ foreach ($local_reports as $report) {
     curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizard_report_data));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [

@@ -43,19 +43,16 @@ if (!confirm_sesskey()) {
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
-    debugging('No JSON input received');
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid input']);
     exit;
 }
 
-debugging('Subscription creation request received: ' . json_encode($input));
 
 // Validate required fields
 $required_fields = ['plan_id', 'payment_method_id', 'billing_email'];
 foreach ($required_fields as $field) {
     if (empty($input[$field])) {
-        debugging('Missing required field: ' . $field);
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Missing required field: ' . $field]);
         exit;
@@ -64,29 +61,24 @@ foreach ($required_fields as $field) {
 
 // Validate email
 if (!filter_var($input['billing_email'], FILTER_VALIDATE_EMAIL)) {
-    debugging('Invalid email address: ' . $input['billing_email']);
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid email address']);
     exit;
 }
 
 try {
-    debugging('Creating installation manager');
 
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
 
-    debugging('Checking if installation is registered');
 
     // Check if installation is registered
     if (!$installation_manager->is_registered()) {
-        debugging('Installation is not registered');
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => get_string('not_registered', 'report_adeptus_insights')]);
         exit;
     }
 
-    debugging('Installation is registered, creating subscription');
 
     // Create subscription
     $result = $installation_manager->create_subscription(
@@ -95,7 +87,6 @@ try {
         $input['billing_email']
     );
 
-    debugging('Subscription creation result: ' . json_encode($result));
 
     if ($result['success']) {
         echo json_encode([
@@ -104,7 +95,6 @@ try {
             'data' => $result['data'],
         ]);
     } else {
-        debugging('Subscription creation failed: ' . $result['message']);
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -112,8 +102,6 @@ try {
         ]);
     }
 } catch (\Exception $e) {
-    debugging('Subscription creation exception: ' . $e->getMessage());
-    debugging('Stack trace: ' . $e->getTraceAsString());
     http_response_code(500);
     echo json_encode([
         'success' => false,

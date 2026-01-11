@@ -27,18 +27,30 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class util {
-    private const SESSION_KEY = 'rai_redirect_subscription';
+    /** Session key for redirect flag. */
+    private const SESSION_KEY = 'report_adeptus_insights_redirect_subscription';
 
-    /** Mark that we should redirect after admin saves settings. */
+    /**
+     * Mark that we should redirect after admin saves settings.
+     *
+     * Uses Moodle's session API ($SESSION global) to survive the admin_settings post/redirect cycle.
+     *
+     * @return void
+     */
     public static function mark_post_settings_redirect(): void {
-        // Use SESSION so it survives the admin_settings post/redirect cycle.
-        $_SESSION[self::SESSION_KEY] = 1;
+        global $SESSION;
+        $SESSION->{self::SESSION_KEY} = 1;
     }
 
-    /** Consume and clear the redirect flag; returns true if set. */
+    /**
+     * Consume and clear the redirect flag.
+     *
+     * @return bool True if the redirect flag was set, false otherwise.
+     */
     public static function consume_post_settings_redirect(): bool {
-        if (!empty($_SESSION[self::SESSION_KEY])) {
-            unset($_SESSION[self::SESSION_KEY]);
+        global $SESSION;
+        if (!empty($SESSION->{self::SESSION_KEY})) {
+            unset($SESSION->{self::SESSION_KEY});
             return true;
         }
         return false;

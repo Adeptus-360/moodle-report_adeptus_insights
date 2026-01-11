@@ -71,13 +71,11 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
             }
         }
     } catch (Exception $e) {
-        debugging('Could not retrieve site name from database: ' . $e->getMessage());
     }
 }
 
 // Debug logging for troubleshooting
 if (empty($site_name) || $site_name === 'Moodle Site') {
-    debugging('Site name is empty or default. CFG->fullname: ' . ($CFG->fullname ?? 'NULL') . ', CFG->shortname: ' . ($CFG->shortname ?? 'NULL'));
 
     // In debug mode, try to get the actual value from the database
     if (debugging()) {
@@ -86,7 +84,6 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
             $fullname_record = $DB->get_record('config', ['name' => 'fullname']);
             $shortname_record = $DB->get_record('config', ['name' => 'shortname']);
 
-            debugging('Database values - fullname: ' . ($fullname_record->value ?? 'NULL') . ', shortname: ' . ($shortname_record->value ?? 'NULL'));
 
             // Use the database value if available
             if ($fullname_record && !empty($fullname_record->value)) {
@@ -95,7 +92,6 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
                 $site_name = $shortname_record->value;
             }
         } catch (Exception $e) {
-            debugging('Database error: ' . $e->getMessage());
         }
     }
 }

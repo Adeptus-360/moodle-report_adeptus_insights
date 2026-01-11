@@ -78,7 +78,6 @@ class stripe_service {
             }
             $this->is_test_mode = (bool)$this->config->is_test_mode;
         } catch (\Exception $e) {
-            debugging('Failed to load Stripe config: ' . $e->getMessage());
             $this->create_default_config();
         }
     }
@@ -118,7 +117,6 @@ class stripe_service {
             $DB->insert_record('adeptus_stripe_config', $record);
             $this->config = (object)$record;
         } catch (\Exception $e) {
-            debugging('Failed to create default Stripe config: ' . $e->getMessage());
         }
     }
 
@@ -181,7 +179,6 @@ class stripe_service {
 
             return $this->stripe->customers->create($customer_data);
         } catch (\Exception $e) {
-            debugging('Failed to create Stripe customer: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -203,7 +200,6 @@ class stripe_service {
 
             return $this->stripe->subscriptions->create($subscription_data);
         } catch (\Exception $e) {
-            debugging('Failed to create Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -215,7 +211,6 @@ class stripe_service {
         try {
             return $this->stripe->subscriptions->retrieve($subscription_id);
         } catch (\Exception $e) {
-            debugging('Failed to get Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -234,7 +229,6 @@ class stripe_service {
 
             return $this->stripe->subscriptions->update($subscription_id, $params);
         } catch (\Exception $e) {
-            debugging('Failed to cancel Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -256,7 +250,6 @@ class stripe_service {
                 'proration_behavior' => 'create_prorations',
             ]);
         } catch (\Exception $e) {
-            debugging('Failed to update Stripe subscription: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -276,7 +269,6 @@ class stripe_service {
                 ],
             ]);
         } catch (\Exception $e) {
-            debugging('Failed to create payment intent: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -291,7 +283,6 @@ class stripe_service {
                 'expand' => ['data.default_price'],
             ]);
         } catch (\Exception $e) {
-            debugging('Failed to get Stripe products: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -327,7 +318,6 @@ class stripe_service {
                 'price' => $price_obj,
             ];
         } catch (\Exception $e) {
-            debugging('Failed to create Stripe product: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -343,7 +333,6 @@ class stripe_service {
                 $this->config->webhook_secret
             );
         } catch (\Exception $e) {
-            debugging('Failed to verify webhook: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -358,7 +347,6 @@ class stripe_service {
                 'return_url' => $return_url,
             ]);
         } catch (\Exception $e) {
-            debugging('Failed to create portal session: ' . $e->getMessage());
             throw $e;
         }
     }

@@ -25,6 +25,7 @@
 require_once __DIR__ . '/../../../config.php';
 require_login();
 require_sesskey();
+require_capability('report/adeptus_insights:view', context_system::instance());
 
 header('Content-Type: application/json');
 
