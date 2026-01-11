@@ -25,57 +25,7 @@ require(['jquery'], function($) {
             </div>
         </div>
 
-        <!-- Quick actions section -->
-
-        <!-- Current subscription status -->
-       {{#subscription}}
-        <div class="row mt-4">
-        <div class="col-12">
-            <div class="card analytics-card">
-            <div class="card-header analytics-header d-flex align-items-center justify-content-between">
-                <h4 class="m-0">{{#str}}current_subscription, report_adeptus_insights{{/str}}</h4>
-                <span class="status-pill" aria-live="polite">
-                <i class="icon fa fa-check-circle"></i>
-                <span class="status-text text-capitalize">{{status}}</span>
-                </span>
-            </div>
-
-            <div class="card-body">
-                <div class="stats-grid">
-                <!-- Plan -->
-                <div class="stat-card" role="group" aria-label="Plan">
-                    <div class="stat-icon icon-plan"><i class="icon fa fa-cubes" aria-hidden="true"></i></div>
-                    <div class="stat-label">{{#str}}plan, report_adeptus_insights{{/str}}</div>
-                    <div class="stat-value stat-text no-animate" data-raw="{{plan_name}}">{{plan_name}}</div>
-                </div>
-
-                <!-- Status -->
-                <div class="stat-card" role="group" aria-label="Status">
-                    <div class="stat-icon icon-status"><i class="icon fa fa-bolt" aria-hidden="true"></i></div>
-                    <div class="stat-label">{{#str}}status, report_adeptus_insights{{/str}}</div>
-                    <div class="stat-value stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
-                </div>
-
-                <!-- AI tokens remaining -->
-                <div class="stat-card" role="group" aria-label="AI tokens remaining">
-                    <div class="stat-icon icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
-                    <div class="stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
-                    <div class="stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
-                </div>
-
-                <!-- Exports remaining -->
-                <div class="stat-card" role="group" aria-label="Exports remaining">
-                    <div class="stat-icon icon-exports"><i class="icon fa fa-cloud-download" aria-hidden="true"></i></div>
-                    <div class="stat-label">{{#str}}exports_remaining, report_adeptus_insights{{/str}}</div>
-                    <div class="stat-value" data-count-to="{{exports_remaining}}">0</div>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>
-        {{/subscription}}
-        <br>
+        <!-- Feature Cards -->
         <div class="row">
             <!-- Generated Reports Card -->
             <div class="col-md-4 mb-4">
@@ -120,9 +70,59 @@ require(['jquery'], function($) {
             </div>
         </div>
 
-        <!-- Subscription Management Banner -->
-        <div class="row mt-2">
+        <!-- Current subscription status -->
+        {{#subscription}}
+        <div class="row mt-4">
             <div class="col-12">
+                <div class="card analytics-card">
+                    <div class="card-header analytics-header d-flex align-items-center justify-content-between">
+                        <h4 class="m-0">{{#str}}current_subscription, report_adeptus_insights{{/str}}</h4>
+                        <span class="status-pill" aria-live="polite">
+                            <i class="icon fa fa-check-circle"></i>
+                            <span class="status-text text-capitalize">{{status}}</span>
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <!-- Plan -->
+                            <div class="stat-card" role="group" aria-label="Plan">
+                                <div class="stat-icon icon-plan"><i class="icon fa fa-cubes" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}plan, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value stat-text no-animate" data-raw="{{plan_name}}">{{plan_name}}</div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="stat-card" role="group" aria-label="Status">
+                                <div class="stat-icon icon-status"><i class="icon fa fa-bolt" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}status, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
+                            </div>
+
+                            <!-- AI tokens remaining -->
+                            <div class="stat-card" role="group" aria-label="AI tokens remaining">
+                                <div class="stat-icon icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
+                            </div>
+
+                            <!-- Exports remaining -->
+                            <div class="stat-card" role="group" aria-label="Exports remaining">
+                                <div class="stat-icon icon-exports"><i class="icon fa fa-cloud-download" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}exports_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value" data-count-to="{{exports_remaining}}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/subscription}}
+
+        <!-- Subscription Management & Support Banners -->
+        <div class="row mt-2">
+            <!-- Subscription Management Banner -->
+            <div class="col-md-6 mb-3 mb-md-0">
                 <div class="subscription-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
                     <div class="subscription-banner-content">
                         <div class="subscription-banner-icon">
@@ -135,6 +135,26 @@ require(['jquery'], function($) {
                         <div class="subscription-banner-action">
                             <a href="{{config.wwwroot}}/report/adeptus_insights/subscription.php" class="btn btn-light btn-sm">
                                 {{#str}}manage_subscription, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support & Updates Banner -->
+            <div class="col-md-6">
+                <div class="support-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/support.php';">
+                    <div class="support-banner-content">
+                        <div class="support-banner-icon">
+                            <i class="fa fa-life-ring"></i>
+                        </div>
+                        <div class="support-banner-text">
+                            <h6 class="mb-0">{{#str}}support_updates, report_adeptus_insights{{/str}}</h6>
+                            <small class="text-muted-light">{{#str}}support_updates_desc, report_adeptus_insights{{/str}}</small>
+                        </div>
+                        <div class="support-banner-action">
+                            <a href="{{config.wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light btn-sm">
+                                {{#str}}view_tickets, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
                             </a>
                         </div>
                     </div>
@@ -198,6 +218,7 @@ require(['jquery'], function($) {
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
     }
 
     .subscription-banner:hover {
@@ -227,7 +248,7 @@ require(['jquery'], function($) {
 
     .subscription-banner-text {
         flex: 1;
-        min-width: 200px;
+        min-width: 150px;
     }
 
     .subscription-banner-text h6 {
@@ -248,13 +269,74 @@ require(['jquery'], function($) {
         color: #2f63eb;
     }
 
+    /* Support Banner Styles */
+    .support-banner {
+        background: linear-gradient(135deg, #2f63eb 0%, #2fa4e9 100%);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
+    }
+
+    .support-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(47,99,235,0.3);
+    }
+
+    .support-banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .support-banner-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .support-banner-text {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .support-banner-text h6 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .support-banner-text .text-muted-light {
+        color: rgba(255,255,255,0.85);
+    }
+
+    .support-banner-action .btn {
+        white-space: nowrap;
+    }
+
+    .support-banner-action .btn:hover {
+        background-color: white;
+        color: #2f63eb;
+    }
+
     @media (max-width: 768px) {
-        .subscription-banner-content {
+        .subscription-banner-content,
+        .support-banner-content {
             flex-direction: column;
             text-align: center;
         }
 
-        .subscription-banner-text {
+        .subscription-banner-text,
+        .support-banner-text {
             min-width: 100%;
         }
     }

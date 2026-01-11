@@ -1,0 +1,160 @@
+{{! report/adeptus_insights/templates/support_new_ticket.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-ticket-alt page-header-icon"></i>
+                {{#str}}new_ticket, report_adeptus_insights{{/str}}
+            </h1>
+            <p class="page-header-subtitle">Submit a new support ticket for assistance.</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        {{^is_registered}}
+        <div class="alert alert-warning">
+            <i class="fa fa-exclamation-triangle"></i>
+            {{#str}}support_not_available, report_adeptus_insights{{/str}}
+            <a href="{{wwwroot}}/report/adeptus_insights/subscription.php" class="alert-link">Register now</a>
+        </div>
+        {{/is_registered}}
+
+        {{#is_registered}}
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa fa-edit"></i> {{#str}}new_ticket, report_adeptus_insights{{/str}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{wwwroot}}/report/adeptus_insights/support.php" enctype="multipart/form-data">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="create_ticket">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="category" class="form-label">
+                                            {{#str}}ticket_category, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="category" id="category" class="form-control" required>
+                                            <option value="">-- Select Category --</option>
+                                            {{#categories}}
+                                            <option value="{{value}}">{{label}}</option>
+                                            {{/categories}}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="priority" class="form-label">
+                                            {{#str}}ticket_priority, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <select name="priority" id="priority" class="form-control">
+                                            {{#priorities}}
+                                            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                                            {{/priorities}}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="subject" class="form-label">
+                                    {{#str}}ticket_subject, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="subject" id="subject" class="form-control" maxlength="255" required
+                                       placeholder="Brief description of your issue">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="message" class="form-label">
+                                    {{#str}}ticket_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="message" id="message" class="form-control" rows="8" maxlength="10000" required
+                                          placeholder="Please provide details about your issue, including steps to reproduce if applicable."></textarea>
+                                <small class="text-muted">Maximum 10,000 characters</small>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="text-muted mb-3"><i class="fa fa-user"></i> Contact Information (Optional)</h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="submitter_name" class="form-label">
+                                            {{#str}}ticket_submitter_name, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <input type="text" name="submitter_name" id="submitter_name" class="form-control"
+                                               maxlength="100" value="{{default_name}}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="submitter_email" class="form-label">
+                                            {{#str}}ticket_submitter_email, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <input type="email" name="submitter_email" id="submitter_email" class="form-control"
+                                               maxlength="255" value="{{default_email}}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="text-muted mb-3"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}} (Optional)</h6>
+
+                            <div class="form-group mb-3">
+                                <label for="attachments" class="form-label">
+                                    {{#str}}ticket_attachments, report_adeptus_insights{{/str}}
+                                </label>
+                                <div class="custom-file-upload">
+                                    <input type="file" name="attachments[]" id="attachments" class="form-control"
+                                           multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.log,.csv,.json,.zip">
+                                    <small class="text-muted d-block mt-1">
+                                        {{#str}}max_files, report_adeptus_insights{{/str}}
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle"></i>
+                                <strong>{{#str}}allowed_file_types, report_adeptus_insights{{/str}}</strong><br>
+                                {{#str}}max_file_size, report_adeptus_insights{{/str}}
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-secondary">
+                                    <i class="fa fa-times"></i> {{#str}}cancel, report_adeptus_insights{{/str}}
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane"></i> {{#str}}submit_ticket_btn, report_adeptus_insights{{/str}}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_registered}}
+    </div>
+</div>

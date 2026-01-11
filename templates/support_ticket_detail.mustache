@@ -1,0 +1,178 @@
+{{! report/adeptus_insights/templates/support_ticket_detail.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-ticket-alt page-header-icon"></i>
+                Ticket {{ticket.ticket_number}}
+            </h1>
+            <p class="page-header-subtitle">{{ticket.subject}}</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        <div class="row">
+            <!-- Ticket Details -->
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa fa-info-circle"></i> {{#str}}ticket_details, report_adeptus_insights{{/str}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ticket-message p-3 bg-light rounded mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>
+                                    {{#ticket.submitter_name}}{{ticket.submitter_name}}{{/ticket.submitter_name}}
+                                    {{^ticket.submitter_name}}Customer{{/ticket.submitter_name}}
+                                </strong>
+                                <small class="text-muted">{{ticket.created_at}}</small>
+                            </div>
+                            <div class="message-content">
+                                {{{ticket.message}}}
+                            </div>
+                        </div>
+
+                        <!-- Replies -->
+                        <h6 class="mb-3"><i class="fa fa-comments"></i> {{#str}}ticket_replies, report_adeptus_insights{{/str}}</h6>
+
+                        {{#has_replies}}
+                        <div class="replies-list">
+                            {{#replies}}
+                            <div class="reply-item p-3 mb-3 rounded {{#is_support}}bg-info-light border-left-info{{/is_support}}{{#is_customer}}bg-light{{/is_customer}}">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong>
+                                        {{#is_support}}<i class="fa fa-headset text-info"></i>{{/is_support}}
+                                        {{#is_customer}}<i class="fa fa-user text-secondary"></i>{{/is_customer}}
+                                        {{sender_name}}
+                                        <small class="badge {{#is_support}}badge-info{{/is_support}}{{#is_customer}}badge-secondary{{/is_customer}} ml-2">
+                                            {{#is_support}}{{#str}}from_support, report_adeptus_insights{{/str}}{{/is_support}}
+                                            {{#is_customer}}{{#str}}from_customer, report_adeptus_insights{{/str}}{{/is_customer}}
+                                        </small>
+                                    </strong>
+                                    <small class="text-muted">{{created_at}}</small>
+                                </div>
+                                <div class="message-content">
+                                    {{{message}}}
+                                </div>
+                            </div>
+                            {{/replies}}
+                        </div>
+                        {{/has_replies}}
+
+                        {{^has_replies}}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa fa-comment-slash fa-2x mb-2"></i>
+                            <p>{{#str}}no_replies, report_adeptus_insights{{/str}}</p>
+                        </div>
+                        {{/has_replies}}
+
+                        <!-- Reply Form -->
+                        {{#can_reply}}
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="fa fa-reply"></i> {{#str}}add_reply, report_adeptus_insights{{/str}}</h6>
+                        <form method="post" action="{{wwwroot}}/report/adeptus_insights/support.php">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="reply">
+                            <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+
+                            <div class="form-group mb-3">
+                                <label for="sender_name" class="form-label">{{#str}}ticket_submitter_name, report_adeptus_insights{{/str}}</label>
+                                <input type="text" name="sender_name" id="sender_name" class="form-control"
+                                       value="{{default_name}}" maxlength="100">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="reply_message" class="form-label">
+                                    {{#str}}reply_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="reply_message" id="reply_message" class="form-control" rows="5"
+                                          maxlength="10000" required placeholder="Type your reply..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i> {{#str}}add_reply, report_adeptus_insights{{/str}}
+                            </button>
+                        </form>
+                        {{/can_reply}}
+
+                        {{^can_reply}}
+                        <div class="alert alert-secondary mt-4">
+                            <i class="fa fa-lock"></i>
+                            This ticket is closed and cannot receive new replies.
+                        </div>
+                        {{/can_reply}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Sidebar -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fa fa-info"></i> Ticket Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_number, report_adeptus_insights{{/str}}</td>
+                                <td><code>{{ticket.ticket_number}}</code></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}status, report_adeptus_insights{{/str}}</td>
+                                <td><span class="badge {{ticket.status_class}}">{{ticket.status_label}}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_category, report_adeptus_insights{{/str}}</td>
+                                <td>{{ticket.category_label}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_priority, report_adeptus_insights{{/str}}</td>
+                                <td><span class="badge {{ticket.priority_class}}">{{ticket.priority_label}}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Created</td>
+                                <td>{{ticket.created_at}}</td>
+                            </tr>
+                            {{#ticket.submitter_email}}
+                            <tr>
+                                <td class="text-muted">Email</td>
+                                <td><a href="mailto:{{ticket.submitter_email}}">{{ticket.submitter_email}}</a></td>
+                            </tr>
+                            {{/ticket.submitter_email}}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+.border-left-info {
+    border-left: 4px solid #17a2b8;
+}
+.message-content {
+    line-height: 1.6;
+}
+</style>

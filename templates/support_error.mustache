@@ -1,0 +1,43 @@
+{{! report/adeptus_insights/templates/support_error.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-exclamation-triangle page-header-icon"></i>
+                Error
+            </h1>
+            <p class="page-header-subtitle">Something went wrong</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fa fa-exclamation-circle fa-4x text-danger mb-4"></i>
+                        <h4 class="text-danger">{{error_message}}</h4>
+                        <p class="text-muted">Please try again or contact support if the problem persists.</p>
+                        <div class="mt-4">
+                            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-primary">
+                                <i class="fa fa-ticket-alt"></i> View All Tickets
+                            </a>
+                            <a href="{{wwwroot}}/report/adeptus_insights/support.php?action=new" class="btn btn-outline-primary ml-2">
+                                <i class="fa fa-plus"></i> Create New Ticket
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

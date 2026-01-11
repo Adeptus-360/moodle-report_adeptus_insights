@@ -1,0 +1,147 @@
+{{! report/adeptus_insights/templates/support_tickets_list.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-life-ring page-header-icon"></i>
+                {{#str}}support_updates, report_adeptus_insights{{/str}}
+            </h1>
+            <p class="page-header-subtitle">{{#str}}support_updates_desc, report_adeptus_insights{{/str}}</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link {{#view_tickets}}active{{/view_tickets}}" href="{{wwwroot}}/report/adeptus_insights/support.php?view=tickets">
+                    <i class="fa fa-ticket-alt"></i> {{#str}}support_tickets, report_adeptus_insights{{/str}}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{#view_changelog}}active{{/view_changelog}}" href="{{wwwroot}}/report/adeptus_insights/support.php?view=changelog">
+                    <i class="fa fa-history"></i> {{#str}}changelog, report_adeptus_insights{{/str}}
+                </a>
+            </li>
+        </ul>
+
+        {{^is_registered}}
+        <div class="alert alert-warning">
+            <i class="fa fa-exclamation-triangle"></i>
+            {{#str}}support_not_available, report_adeptus_insights{{/str}}
+            <a href="{{wwwroot}}/report/adeptus_insights/subscription.php" class="alert-link">Register now</a>
+        </div>
+        {{/is_registered}}
+
+        {{#is_registered}}
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fa fa-ticket-alt"></i> {{#str}}support_tickets, report_adeptus_insights{{/str}}</h5>
+                        <a href="{{new_ticket_url}}" class="btn btn-light btn-sm">
+                            <i class="fa fa-plus"></i> {{#str}}new_ticket, report_adeptus_insights{{/str}}
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filters -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label">{{#str}}status, report_adeptus_insights{{/str}}</label>
+                                <select class="form-control" id="status-filter" onchange="applyFilters()">
+                                    {{#status_options}}
+                                    <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                                    {{/status_options}}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">{{#str}}ticket_category, report_adeptus_insights{{/str}}</label>
+                                <select class="form-control" id="category-filter" onchange="applyFilters()">
+                                    {{#category_options}}
+                                    <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                                    {{/category_options}}
+                                </select>
+                            </div>
+                        </div>
+
+                        {{#has_tickets}}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{#str}}ticket_number, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}ticket_category, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}ticket_subject, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}status, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}ticket_priority, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}ticket_date, report_adeptus_insights{{/str}}</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#tickets}}
+                                    <tr>
+                                        <td><code>{{ticket_number}}</code></td>
+                                        <td>{{category_label}}</td>
+                                        <td>{{subject}}</td>
+                                        <td><span class="badge {{status_class}}">{{status_label}}</span></td>
+                                        <td><span class="badge {{priority_class}}">{{priority_label}}</span></td>
+                                        <td>{{created_at}}</td>
+                                        <td>
+                                            <a href="{{view_url}}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-eye"></i> {{#str}}view_ticket, report_adeptus_insights{{/str}}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {{/tickets}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{/has_tickets}}
+
+                        {{^has_tickets}}
+                        <div class="text-center py-5">
+                            <i class="fa fa-inbox fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">{{#str}}no_tickets, report_adeptus_insights{{/str}}</h5>
+                            <p class="text-muted">Submit your first support ticket to get help.</p>
+                            <a href="{{new_ticket_url}}" class="btn btn-primary mt-2">
+                                <i class="fa fa-plus"></i> {{#str}}submit_ticket, report_adeptus_insights{{/str}}
+                            </a>
+                        </div>
+                        {{/has_tickets}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_registered}}
+    </div>
+</div>
+
+<script>
+function applyFilters() {
+    var status = document.getElementById('status-filter').value;
+    var category = document.getElementById('category-filter').value;
+    var url = '{{wwwroot}}/report/adeptus_insights/support.php?view=tickets';
+    if (status) url += '&status=' + status;
+    if (category) url += '&category=' + category;
+    window.location.href = url;
+}
+</script>

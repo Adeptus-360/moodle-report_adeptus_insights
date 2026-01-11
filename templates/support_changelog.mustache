@@ -1,0 +1,162 @@
+{{! report/adeptus_insights/templates/support_changelog.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-history page-header-icon"></i>
+                {{#str}}changelog_title, report_adeptus_insights{{/str}}
+            </h1>
+            <p class="page-header-subtitle">View release notes and check for plugin updates.</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link {{#view_tickets}}active{{/view_tickets}}" href="{{wwwroot}}/report/adeptus_insights/support.php?view=tickets">
+                    <i class="fa fa-ticket-alt"></i> {{#str}}support_tickets, report_adeptus_insights{{/str}}
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{#view_changelog}}active{{/view_changelog}}" href="{{wwwroot}}/report/adeptus_insights/support.php?view=changelog">
+                    <i class="fa fa-history"></i> {{#str}}changelog, report_adeptus_insights{{/str}}
+                </a>
+            </li>
+        </ul>
+
+        <div class="row">
+            <!-- Update Status Card -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header {{#update_available}}bg-warning{{/update_available}}{{^update_available}}bg-success{{/update_available}} text-white">
+                        <h5 class="mb-0">
+                            {{#update_available}}<i class="fa fa-exclamation-circle"></i> {{#str}}update_available, report_adeptus_insights{{/str}}{{/update_available}}
+                            {{^update_available}}<i class="fa fa-check-circle"></i> {{#str}}no_updates, report_adeptus_insights{{/str}}{{/update_available}}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <td class="text-muted">{{#str}}current_version, report_adeptus_insights{{/str}}</td>
+                                <td><strong>{{current_version}}</strong></td>
+                            </tr>
+                            {{#latest_version}}
+                            <tr>
+                                <td class="text-muted">{{#str}}latest_version, report_adeptus_insights{{/str}}</td>
+                                <td><strong class="{{#update_available}}text-warning{{/update_available}}">{{latest_version}}</strong></td>
+                            </tr>
+                            {{/latest_version}}
+                            {{#update_available}}
+                            {{#versions_behind}}
+                            <tr>
+                                <td colspan="2" class="text-warning">
+                                    <i class="fa fa-info-circle"></i>
+                                    {{#str}}versions_behind, report_adeptus_insights, {{versions_behind}}{{/str}}
+                                </td>
+                            </tr>
+                            {{/versions_behind}}
+                            {{/update_available}}
+                        </table>
+
+                        {{#update_available}}
+                        <hr>
+                        {{#latest_changelog}}
+                        <h6 class="text-muted mb-2">Latest Release: {{latest_changelog.title}}</h6>
+                        <p class="small">{{{latest_changelog.content}}}</p>
+                        {{/latest_changelog}}
+                        <div class="mt-3">
+                            <a href="https://moodle.org/plugins/report_adeptus_insights" target="_blank" class="btn btn-warning btn-block">
+                                <i class="fa fa-download"></i> {{#str}}download_update, report_adeptus_insights{{/str}}
+                            </a>
+                        </div>
+                        {{/update_available}}
+
+                        {{^update_available}}
+                        <p class="text-success mb-0 mt-3">
+                            <i class="fa fa-check"></i> You are running the latest version.
+                        </p>
+                        {{/update_available}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Changelog List -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa fa-list-alt"></i> Release History</h5>
+                    </div>
+                    <div class="card-body">
+                        {{#has_changelogs}}
+                        <div class="changelog-list">
+                            {{#changelogs}}
+                            <div class="changelog-item mb-4 pb-4 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="mb-1">
+                                            <span class="badge badge-primary">v{{version}}</span>
+                                            {{#is_major}}<span class="badge badge-warning ml-1"><i class="fa fa-star"></i> {{#str}}major_release, report_adeptus_insights{{/str}}</span>{{/is_major}}
+                                            {{title}}
+                                        </h5>
+                                        <small class="text-muted">
+                                            <i class="fa fa-calendar"></i> {{release_date}}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="changelog-content mt-3">
+                                    {{{content}}}
+                                </div>
+                            </div>
+                            {{/changelogs}}
+                        </div>
+                        {{/has_changelogs}}
+
+                        {{^has_changelogs}}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fa fa-file-alt fa-4x mb-3"></i>
+                            <h5>{{#str}}no_changelog_entries, report_adeptus_insights{{/str}}</h5>
+                            <p>Check back later for release notes and updates.</p>
+                        </div>
+                        {{/has_changelogs}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.changelog-content {
+    line-height: 1.7;
+}
+.changelog-content ul {
+    padding-left: 1.5rem;
+}
+.changelog-content li {
+    margin-bottom: 0.5rem;
+}
+.changelog-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+</style>

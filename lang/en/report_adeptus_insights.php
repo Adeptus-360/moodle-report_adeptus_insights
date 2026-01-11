@@ -289,3 +289,100 @@ $string['privacy:reporthistory'] = 'Report history';
 $string['privacy:bookmarks'] = 'Bookmarks';
 $string['privacy:usagetracking'] = 'Usage tracking';
 $string['privacy:exporttracking'] = 'Export tracking';
+
+// Support & Updates
+$string['support_updates'] = 'Support & Updates';
+$string['support_updates_desc'] = 'Submit support tickets and view changelog updates.';
+$string['support_tickets'] = 'Support Tickets';
+$string['changelog'] = 'Changelog';
+$string['submit_ticket'] = 'Submit Ticket';
+$string['view_tickets'] = 'View Tickets';
+$string['all'] = 'All';
+
+// Support ticket form
+$string['new_ticket'] = 'New Support Ticket';
+$string['ticket_category'] = 'Category';
+$string['ticket_subject'] = 'Subject';
+$string['ticket_message'] = 'Message';
+$string['ticket_priority'] = 'Priority';
+$string['ticket_attachments'] = 'Attachments';
+$string['ticket_submitter_name'] = 'Your Name';
+$string['ticket_submitter_email'] = 'Your Email';
+$string['submit_ticket_btn'] = 'Submit Ticket';
+$string['cancel'] = 'Cancel';
+
+// Ticket categories
+$string['category_support'] = 'Support';
+$string['category_bug'] = 'Bug Report';
+$string['category_feature_request'] = 'Feature Request';
+$string['category_other'] = 'Other';
+
+// Ticket priorities
+$string['priority_low'] = 'Low';
+$string['priority_medium'] = 'Medium';
+$string['priority_high'] = 'High';
+
+// Ticket statuses
+$string['status_open'] = 'Open';
+$string['status_in_progress'] = 'In Progress';
+$string['status_resolved'] = 'Resolved';
+$string['status_closed'] = 'Closed';
+
+// Support messages
+$string['support_not_available'] = 'Support features require plugin registration.';
+$string['ticket_created'] = 'Your support ticket has been submitted successfully.';
+$string['ticket_creation_failed'] = 'Failed to create support ticket. Please try again.';
+$string['failed_to_load_tickets'] = 'Failed to load tickets. Please try again.';
+$string['ticket_not_found'] = 'Ticket not found.';
+$string['reply_added'] = 'Your reply has been added.';
+$string['reply_failed'] = 'Failed to add reply. Please try again.';
+$string['invalid_category'] = 'Please select a valid category.';
+$string['subject_required'] = 'Subject is required.';
+$string['message_required'] = 'Message is required.';
+
+// Ticket list
+$string['no_tickets'] = 'No support tickets found.';
+$string['ticket_number'] = 'Ticket #';
+$string['ticket_date'] = 'Date';
+$string['ticket_last_reply'] = 'Last Reply';
+$string['view_ticket'] = 'View';
+$string['reply_to_ticket'] = 'Reply';
+
+// Ticket detail
+$string['ticket_details'] = 'Ticket Details';
+$string['ticket_replies'] = 'Replies';
+$string['add_reply'] = 'Add Reply';
+$string['reply_message'] = 'Your Reply';
+$string['no_replies'] = 'No replies yet.';
+$string['from_customer'] = 'Customer';
+$string['from_support'] = 'Support Team';
+
+// File uploads
+$string['file_upload_error'] = 'File upload failed.';
+$string['file_too_large'] = 'File size exceeds maximum allowed ({$a}).';
+$string['file_type_not_allowed'] = 'This file type is not allowed.';
+$string['allowed_file_types'] = 'Allowed file types: images (jpg, png, gif), PDF, text files (txt, log, csv, json), and ZIP archives.';
+$string['max_file_size'] = 'Maximum file size: 10MB';
+$string['max_files'] = 'Maximum 5 files per upload';
+
+// Changelog
+$string['changelog_title'] = 'Changelog & Updates';
+$string['failed_to_load_changelog'] = 'Failed to load changelog. Please try again.';
+$string['no_changelog_entries'] = 'No changelog entries available.';
+$string['version'] = 'Version';
+$string['release_date'] = 'Release Date';
+$string['major_release'] = 'Major Release';
+$string['view_details'] = 'View Details';
+
+// Updates
+$string['check_for_updates'] = 'Check for Updates';
+$string['failed_to_check_updates'] = 'Failed to check for updates.';
+$string['update_available'] = 'Update Available';
+$string['update_available_desc'] = 'A new version ({$a->version}) is available. You are currently using version {$a->current}.';
+$string['no_updates'] = 'No Updates Available';
+$string['no_updates_desc'] = 'You are using the latest version ({$a}).';
+$string['versions_behind'] = 'You are {$a} version(s) behind.';
+$string['current_version'] = 'Current Version';
+$string['latest_version'] = 'Latest Version';
+$string['download_update'] = 'Download Update';
+$string['view_changelog'] = 'View Changelog';
