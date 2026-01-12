@@ -637,6 +637,11 @@ class installation_manager {
 
             $data = $response['data'];
             $subscription = $data['subscription'] ?? [];
+
+            if (empty($subscription) || empty($subscription['status'])) {
+                return null;
+            }
+
             $tier = $data['tier'] ?? 'free';
 
             // Get token data from backend response.
