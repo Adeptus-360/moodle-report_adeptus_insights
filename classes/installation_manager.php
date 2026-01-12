@@ -1981,8 +1981,6 @@ class installation_manager {
                 self::$feature_permissions_cache = $permissions;
                 return self::$feature_permissions_cache;
             }
-
-                ($response['message'] ?? 'Unknown error'), DEBUG_DEVELOPER);
         } catch (\Exception $e) {
             // Backend unreachable - fall through to disable all features.
         }
