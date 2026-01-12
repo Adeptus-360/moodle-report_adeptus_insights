@@ -50,52 +50,13 @@ $user = $USER;
 $admin_email = $user->email ?? '';
 $admin_name = fullname($user) ?? '';
 
-// Get site information with better fallbacks
+// Get site information - use $SITE which contains the frontpage course with site name
+global $SITE;
 $site_url = $CFG->wwwroot ?? '';
-$site_name = $CFG->fullname ?? $CFG->shortname ?? 'Moodle Site';
+$site_name = $SITE->fullname ?? $SITE->shortname ?? 'Moodle Site';
 $moodle_version = $CFG->version ?? '';
 $php_version = PHP_VERSION ?? '';
 $plugin_version = $installation_manager->get_plugin_version() ?? '';
-
-// Try to get site name from database if config is not available
-if (empty($site_name) || $site_name === 'Moodle Site') {
-    global $DB;
-    try {
-        $config_record = $DB->get_record('config', ['name' => 'fullname']);
-        if ($config_record && !empty($config_record->value)) {
-            $site_name = $config_record->value;
-        } else {
-            $config_record = $DB->get_record('config', ['name' => 'shortname']);
-            if ($config_record && !empty($config_record->value)) {
-                $site_name = $config_record->value;
-            }
-        }
-    } catch (Exception $e) {
-        // Ignore database errors - fall back to default site name.
-    }
-}
-
-// Debug logging for troubleshooting
-if (empty($site_name) || $site_name === 'Moodle Site') {
-    // In debug mode, try to get the actual value from the database
-    if (debugging()) {
-        global $DB;
-        try {
-            $fullname_record = $DB->get_record('config', ['name' => 'fullname']);
-            $shortname_record = $DB->get_record('config', ['name' => 'shortname']);
-
-
-            // Use the database value if available
-            if ($fullname_record && !empty($fullname_record->value)) {
-                $site_name = $fullname_record->value;
-            } else if ($shortname_record && !empty($shortname_record->value)) {
-                $site_name = $shortname_record->value;
-            }
-        } catch (Exception $e) {
-            // Ignore database errors during debug mode lookup.
-        }
-    }
-}
 
 // Validate required fields
 $missing_fields = [];
