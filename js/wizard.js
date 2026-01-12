@@ -59,14 +59,8 @@ class AdeptusWizard {
             console.warn('Wizard data element not found in template');
         }
 
-        // Use backend API URL from template data, or fall back to default
-        // Configuration is passed via template data, not fetched from config.php
-        // (config.php cannot be accessed directly due to MOODLE_INTERNAL check)
-        if (this.wizardData.backend_api_url) {
-            this.backendApiUrl = this.wizardData.backend_api_url;
-        } else {
-            this.backendApiUrl = 'https://ai-backend.stagingwithswift.com/api';
-        }
+        // Backend API URL from template data
+        this.backendApiUrl = this.wizardData.backend_api_url || '';
         
         // Load additional wizard data from PHP (if needed)
         try {

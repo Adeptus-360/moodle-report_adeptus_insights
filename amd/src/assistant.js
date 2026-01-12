@@ -11,6 +11,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         cachedCategories: [],
         _initCalled: false,
         isCreditLimitExceeded: false,
+        backendUrl: 'https://backend.adeptus360.com/api/v1',
         init: function (authenticated) {
             if (this._initCalled) return;
             this._initCalled = true;
@@ -963,7 +964,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Fetch detailed usage data
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/credits/detailed-usage',
+                url: this.backendUrl + '/chat/credits/detailed-usage',
                 method: 'GET',
                 success: (response) => {
                     if (response.success) {
@@ -1302,7 +1303,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             params.append('per_page', 1000); // Get more data for DataTable
 
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/chat/credits/detailed-usage?${params.toString()}`,
+                url: `${this.backendUrl}/chat/credits/detailed-usage?${params.toString()}`,
                 method: 'GET',
                 success: (response) => {
                     if (response.success) {
@@ -1767,7 +1768,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             `);
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/history',
+                url: this.backendUrl + '/chat/history',
                 method: 'GET',
                 success: (response) => {
                     list.empty();
@@ -1885,7 +1886,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.clearMCQ(); // Clear and hide MCQ container when loading different chat
             this.showLoading();
 
-            const messageUrl = `https://a360backend.stagingwithswift.com/api/v1/chat/${chatId}/messages`;
+            const messageUrl = `${this.backendUrl}/chat/${chatId}/messages`;
 
             this.ajaxWithAuth({
                 url: messageUrl,
@@ -2109,7 +2110,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             };
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: this.backendUrl + '/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(requestData),
@@ -2691,7 +2692,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const self = this;
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories',
+                url: this.backendUrl + '/reports/categories',
                 method: 'GET',
                 contentType: 'application/json',
                 success: (response) => {
@@ -2750,7 +2751,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const userInfo = authStatus?.user || {};
             
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: this.backendUrl + '/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ 
@@ -2890,7 +2891,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const messageToSend = `I selected: ${answer.trim()}`;
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: this.backendUrl + '/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -3354,7 +3355,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Send to backend with report metadata
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/message',
+                url: this.backendUrl + '/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({
@@ -3398,7 +3399,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const chatId = parseInt(this.currentChatId) || 0;
 
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/chat/report-confirmation',
+                url: this.backendUrl + '/chat/report-confirmation',
                 method: 'POST',
                 contentType: 'application/json',
                 timeout: 90000, // 90 seconds for feedback processing (AI can be slow)
@@ -3666,7 +3667,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             $('#report-history-table-wrapper').addClass('d-none');
             
             this.ajaxWithAuth({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports',
+                url: this.backendUrl + '/ai-reports',
                 method: 'GET',
                 timeout: 10000, // 10 second timeout
                 success: (response) => {
@@ -3897,7 +3898,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             reportsView.html('<div class="report-display-wrapper w-100"><div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div></div>');
             
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}`,
+                url: `${this.backendUrl}/ai-reports/${reportSlug}`,
                 method: 'GET',
                 success: (response) => {
                     
@@ -4415,7 +4416,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             reportRow.html('<td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Executing...</span></div> Executing report...</td>');
             
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/execute`,
+                url: `${this.backendUrl}/ai-reports/${reportSlug}/execute`,
                 method: 'POST',
                 success: (response) => {
                     if (response.success) {
@@ -4657,7 +4658,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 didOpen: () => Swal.showLoading()
             });
             this.ajaxWithAuth({
-                url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/display-type`,
+                url: `${this.backendUrl}/ai-reports/${reportSlug}/display-type`,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify({ display_type: displayType }),
@@ -4736,7 +4737,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Helper: fetch timeline
             function fetchTimeline(cb) {
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots`,
+                    url: `${this.backendUrl}/ai-reports/${reportSlug}/snapshots`,
                     method: 'GET',
                     success: function(res) {
                         timeline = res.snapshots || [];
@@ -4756,7 +4757,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (section === 'b') loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/data/current`,
+                    url: `${this.backendUrl}/ai-reports/${reportSlug}/data/current`,
                     method: 'GET',
                     success: function(res) {
                         currentData = res.data || [];
@@ -4789,7 +4790,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (section === 'b') loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots/${snapId}`,
+                    url: `${this.backendUrl}/ai-reports/${reportSlug}/snapshots/${snapId}`,
                     method: 'GET',
                     success: function(res) {
                         if (section === 'a') {
@@ -4820,7 +4821,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 loadingB = true;
                 renderSections();
                 self.ajaxWithAuth({
-                    url: `https://a360backend.stagingwithswift.com/api/v1/ai-reports/${reportSlug}/snapshots/${aId}/compare/${bId}`,
+                    url: `${this.backendUrl}/ai-reports/${reportSlug}/snapshots/${aId}/compare/${bId}`,
                     method: 'GET',
                     success: function(res) {
                         compareDataA = res.a.data;
