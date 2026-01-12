@@ -56,7 +56,13 @@ $action = optional_param('action', '', PARAM_ALPHA);
 $plan_id = optional_param('plan_id', 0, PARAM_INT);
 
 if ($action === 'completeinstallation' && confirm_sesskey()) {
-    // Mark installation as completed
+    global $USER;
+    $activation_result = $installation_manager->setup_starter_subscription($USER->email, fullname($USER));
+
+    if (!$activation_result) {
+        $activation_result = $installation_manager->activate_free_plan_manually();
+    }
+
     set_config('installation_completed', '1', 'report_adeptus_insights');
     set_config('installation_step', '3', 'report_adeptus_insights');
 
@@ -84,39 +90,16 @@ if ($action === 'upgrade_plan' && confirm_sesskey() && $plan_id) {
     }
 }
 
-// Ensure free subscription exists before showing the page
 $current_subscription = $installation_manager->get_subscription_details();
 
-// If no local subscription record, try to get it from backend first
 if (!$current_subscription) {
-    // Use the existing check_subscription_status method to sync from backend
     $backend_sync_result = $installation_manager->check_subscription_status();
-
     if ($backend_sync_result) {
-        // Refresh subscription data
         $current_subscription = $installation_manager->get_subscription_details();
-    } else {
-        // Only create if backend sync failed
-        try {
-            $user = $USER;
-            $result = $installation_manager->setup_starter_subscription($user->email, fullname($user));
-
-            if (!$result) {
-                $result = $installation_manager->activate_free_plan_manually();
-            }
-
-            if ($result) {
-                // Refresh subscription data.
-                $current_subscription = $installation_manager->get_subscription_details();
-            }
-        } catch (\Exception $e) {
-            // Silently ignore validation errors - subscription check is optional.
-        }
     }
 }
 
-// If subscription exists, auto-complete installation and redirect
-if ($current_subscription) {
+if ($current_subscription && !empty($current_subscription['plan_name'])) {
     set_config('installation_completed', '1', 'report_adeptus_insights');
     set_config('installation_step', '3', 'report_adeptus_insights');
 
@@ -128,11 +111,8 @@ if ($current_subscription) {
     );
 }
 
-// Get available plans for upgrades
 $available_plans = $installation_manager->get_available_plans();
 
-// Transform and organize plans by tier and billing interval
-// Only include plans for Adeptus Insights (product_key = 'insights')
 $monthly_plans = [];
 $yearly_plans = [];
 $has_yearly_plans = false;
