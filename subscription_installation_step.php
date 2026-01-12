@@ -89,7 +89,6 @@ $current_subscription = $installation_manager->get_subscription_details();
 
 // If no local subscription record, try to get it from backend first
 if (!$current_subscription) {
-
     // Use the existing check_subscription_status method to sync from backend
     $backend_sync_result = $installation_manager->check_subscription_status();
 
@@ -97,7 +96,6 @@ if (!$current_subscription) {
         // Refresh subscription data
         $current_subscription = $installation_manager->get_subscription_details();
     } else {
-
         // Only create if backend sync failed
         try {
             $user = $USER;
@@ -108,11 +106,11 @@ if (!$current_subscription) {
             }
 
             if ($result) {
-                // Refresh subscription data
+                // Refresh subscription data.
                 $current_subscription = $installation_manager->get_subscription_details();
-            } else {
             }
         } catch (\Exception $e) {
+            // Silently ignore validation errors - subscription check is optional.
         }
     }
 }

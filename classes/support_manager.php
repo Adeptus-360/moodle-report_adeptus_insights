@@ -156,11 +156,10 @@ class support_manager {
                             break;
                         }
                     }
-                } elseif (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
+                } else if (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
                     $has_valid_files = true;
                 }
             }
-
 
             if ($has_valid_files) {
                 // Use multipart form data for file uploads
@@ -169,7 +168,6 @@ class support_manager {
                 // Standard JSON request without files
                 $response = $this->installation_manager->make_api_request('support/tickets', $data);
             }
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -184,7 +182,6 @@ class support_manager {
                 'success' => false,
                 'message' => $response['error']['message'] ?? get_string('ticket_creation_failed', 'report_adeptus_insights'),
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -234,7 +231,7 @@ class support_manager {
                     }
                 }
             }
-        } elseif (isset($files['tmp_name']) && !empty($files['tmp_name']) && is_uploaded_file($files['tmp_name'])) {
+        } else if (isset($files['tmp_name']) && !empty($files['tmp_name']) && is_uploaded_file($files['tmp_name'])) {
             // Single file upload
             $filename = $files['name'] ?? 'attachment';
             $mimeType = $files['type'] ?? 'application/octet-stream';
@@ -263,7 +260,6 @@ class support_manager {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
-
 
         if ($response === false) {
             return null;
@@ -327,7 +323,6 @@ class support_manager {
                 'message' => $response['error']['message'] ?? get_string('failed_to_load_tickets', 'report_adeptus_insights'),
                 'tickets' => [],
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -365,7 +360,6 @@ class support_manager {
                 'success' => false,
                 'message' => $response['error']['message'] ?? get_string('ticket_not_found', 'report_adeptus_insights'),
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -417,7 +411,7 @@ class support_manager {
                             break;
                         }
                     }
-                } elseif (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
+                } else if (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
                     $has_valid_files = true;
                 }
             }
@@ -442,7 +436,6 @@ class support_manager {
                 'success' => false,
                 'message' => $response['error']['message'] ?? get_string('reply_failed', 'report_adeptus_insights'),
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -486,7 +479,6 @@ class support_manager {
                 'message' => $response['error']['message'] ?? get_string('failed_to_load_changelog', 'report_adeptus_insights'),
                 'changelogs' => [],
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,
@@ -528,7 +520,6 @@ class support_manager {
                 'message' => $response['error']['message'] ?? get_string('failed_to_check_updates', 'report_adeptus_insights'),
                 'update_available' => false,
             ];
-
         } catch (\Exception $e) {
             return [
                 'success' => false,

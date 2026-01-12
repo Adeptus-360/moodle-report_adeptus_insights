@@ -151,6 +151,7 @@ function handle_subscription_created($event) {
         $customer = $stripe_service->stripe->customers->retrieve($customer_id);
         $subscription_data['billing_email'] = $customer->email;
     } catch (\Exception $e) {
+        // Ignore Stripe API errors - billing email is optional.
     }
 
     // Update local subscription status

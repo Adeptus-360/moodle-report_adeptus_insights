@@ -87,6 +87,7 @@ class installation_manager {
                 return true;
             }
         } catch (\Exception $e) {
+            // Silently fail - registration check will return false.
         }
 
         return false;
@@ -182,7 +183,6 @@ class installation_manager {
             } else {
                 // Check if the error is due to site already existing
                 if (isset($response['code']) && $response['code'] === 'SITE_EXISTS') {
-
                     // Set the existing installation data
                     $this->api_key = $response['data']['api_key'] ?? '';
                     $this->installation_id = $response['data']['existing_installation_id'] ?? null;
@@ -202,7 +202,6 @@ class installation_manager {
 
                     // 3. Ensure all required database tables exist
                     $this->ensure_database_tables_exist();
-
 
                     return [
                         'success' => false,
@@ -240,7 +239,6 @@ class installation_manager {
      */
     public function setup_starter_subscription($email, $name) {
         try {
-
             // Get available plans from backend
             $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
 
@@ -265,7 +263,6 @@ class installation_manager {
                 return;
             }
 
-
             // Activate free plan via backend
             $subscription_response = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $free_plan['id'],
@@ -273,7 +270,6 @@ class installation_manager {
             ]);
 
             if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
-
                 // Update local subscription status
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
@@ -289,9 +285,9 @@ class installation_manager {
                     'exports_remaining' => $subscription_response['data']['exports_remaining'] ?? $free_plan['exports'],
                     'billing_email' => $email,
                 ]);
-            } else {
             }
         } catch (\Exception $e) {
+            // Silently fail - subscription sync is not critical.
         }
     }
 
@@ -358,6 +354,7 @@ class installation_manager {
                         }
                     }
                 } catch (\Exception $e) {
+                    // Ignore database errors - site name lookup is optional.
                 }
             }
 
@@ -366,9 +363,7 @@ class installation_manager {
                 'site_name' => $site_name,
                 ];
 
-
             $response = $this->make_api_request('installation/status-by-site', $data);
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 return $response;
@@ -388,23 +383,22 @@ class installation_manager {
         global $DB;
 
         try {
-
             // Check if adeptus_subscription_status table exists
             if (!$DB->table_exists('adeptus_subscription_status')) {
                 $this->create_subscription_status_table();
             }
 
-            // Check if adeptus_install_settings table exists
+            // Check if adeptus_install_settings table exists.
             if (!$DB->table_exists('adeptus_install_settings')) {
                 $this->create_install_settings_table();
             }
-
         } catch (\Exception $e) {
+            // Ignore table creation errors - tables may already exist.
         }
     }
 
     /**
-     * Create adeptus_subscription_status table if it doesn't exist
+     * Create adeptus_subscription_status table if it doesn't exist.
      */
     private function create_subscription_status_table() {
         global $DB;
@@ -431,11 +425,12 @@ class installation_manager {
                 $DB->create_table($table);
             }
         } catch (\Exception $e) {
+            // Ignore table creation errors - table may already exist.
         }
     }
 
     /**
-     * Create adeptus_install_settings table if it doesn't exist
+     * Create adeptus_install_settings table if it doesn't exist.
      */
     private function create_install_settings_table() {
         global $DB;
@@ -466,6 +461,7 @@ class installation_manager {
                 $DB->create_table($table);
             }
         } catch (\Exception $e) {
+            // Ignore table creation errors - table may already exist.
         }
     }
 
@@ -561,16 +557,13 @@ class installation_manager {
         }
 
         try {
-
             $request_data = [
                 'payment_method_id' => $payment_method_id,
                 'billing_email' => $billing_email,
                 'plan_id' => $plan_id,
             ];
 
-
             $response = $this->make_api_request('subscription/create', $request_data);
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
@@ -625,15 +618,17 @@ class installation_manager {
                 return $subscription_data;
             }
         } catch (\Exception $e) {
+            // Primary endpoint failed - try fallback.
         }
 
-        // Fallback: Try to get subscription data from installation/status endpoint
+        // Fallback: Try to get subscription data from installation/status endpoint.
         try {
             $subscription_data = $this->get_subscription_from_installation_status();
             if ($subscription_data) {
                 return $subscription_data;
             }
         } catch (\Exception $e) {
+            // Fallback also failed - return null below.
         }
 
         return null;
@@ -733,12 +728,10 @@ class installation_manager {
 
         $data = $response['data'];
 
-
         // Transform backend data to match expected format
         $subscription = $data['subscription'];
         $plan = $data['plan'];
         $usage = $data['usage'] ?? [];
-
 
         // Ensure plan_id is always included, with fallback
         $plan_id = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
@@ -818,9 +811,7 @@ class installation_manager {
 
     public function get_payment_config() {
         try {
-
             $response = $this->make_api_request('subscription/config', [], 'GET');
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -891,7 +882,6 @@ class installation_manager {
 
     public function get_available_plans() {
         try {
-
             // Check if plugin is registered first
             if (!$this->is_registered()) {
                 return [
@@ -903,7 +893,6 @@ class installation_manager {
             }
 
             $response = $this->make_api_request('subscription/plans', [], 'GET');
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -1008,11 +997,9 @@ class installation_manager {
         }
 
         try {
-
             $response = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $plan_id,
             ]);
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
@@ -1055,7 +1042,6 @@ class installation_manager {
     public function make_api_request($endpoint, $data = [], $method = 'POST') {
         $url = $this->api_url . '/' . $endpoint;
 
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -1089,7 +1075,6 @@ class installation_manager {
         rewind($verbose);
         $verbose_log = stream_get_contents($verbose);
         fclose($verbose);
-
 
         curl_close($ch);
 
@@ -1156,11 +1141,12 @@ class installation_manager {
                 $DB->set_field('adeptus_install_settings', 'last_sync', time(), ['id' => $existing->id]);
             }
         } catch (\Exception $e) {
+            // Ignore sync timestamp update errors - non-critical.
         }
     }
 
     /**
-     * Convert technical error messages to user-friendly messages
+     * Convert technical error messages to user-friendly messages.
      */
     private function get_user_friendly_error_message($technical_message) {
         $message = strtolower($technical_message);
@@ -1231,7 +1217,6 @@ class installation_manager {
      */
     public function activate_free_plan_manually() {
         try {
-
             // Get available plans from backend
             $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
 
@@ -1256,7 +1241,6 @@ class installation_manager {
                 return false;
             }
 
-
             // Activate free plan via backend
             $subscription_response = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $free_plan['id'],
@@ -1264,7 +1248,6 @@ class installation_manager {
             ]);
 
             if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
-
                 // Update local subscription status
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
@@ -1295,7 +1278,6 @@ class installation_manager {
      */
     public function create_billing_portal_session($return_url = null, $plan_id = null, $action = null) {
         try {
-
             $data = [
                 'return_url' => $return_url ?: $this->get_site_url(),
             ];
@@ -1318,7 +1300,6 @@ class installation_manager {
             $response = $this->make_api_request('subscription/billing-portal', $data);
 
             // Log to file for debugging
-
 
             if ($response && isset($response['success']) && $response['success']) {
                 $url = $response['data']['url'] ?? $response['data']['billing_portal_url'] ?? null;
@@ -1353,7 +1334,6 @@ class installation_manager {
      */
     public function create_checkout_session($plan_id, $stripe_price_id = null, $return_url = null) {
         try {
-
             $data = [
                 'plan_id' => $plan_id,
                 'success_url' => $return_url ?: $this->get_site_url(),
@@ -1400,13 +1380,11 @@ class installation_manager {
      */
     public function verify_checkout_session($session_id) {
         try {
-
             $response = $this->make_api_request('subscription/verify-checkout', [
                 'session_id' => $session_id,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
-
                 // Clear local subscription cache to fetch fresh data
                 $this->clear_subscription_cache();
 
@@ -1510,7 +1488,6 @@ class installation_manager {
 
         // Get the plans array from the response
         $plans = $response['plans'] ?? [];
-
 
         foreach ($plans as $plan) {
             if (isset($plan['stripe_product_id']) && $plan['stripe_product_id'] === $stripe_product_id) {
@@ -2006,8 +1983,8 @@ class installation_manager {
             }
 
                 ($response['message'] ?? 'Unknown error'), DEBUG_DEVELOPER);
-
         } catch (\Exception $e) {
+            // Backend unreachable - fall through to disable all features.
         }
 
         // Backend unreachable - all features disabled (no fallbacks).

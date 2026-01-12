@@ -71,12 +71,12 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
             }
         }
     } catch (Exception $e) {
+        // Ignore database errors - fall back to default site name.
     }
 }
 
 // Debug logging for troubleshooting
 if (empty($site_name) || $site_name === 'Moodle Site') {
-
     // In debug mode, try to get the actual value from the database
     if (debugging()) {
         global $DB;
@@ -92,6 +92,7 @@ if (empty($site_name) || $site_name === 'Moodle Site') {
                 $site_name = $shortname_record->value;
             }
         } catch (Exception $e) {
+            // Ignore database errors during debug mode lookup.
         }
     }
 }

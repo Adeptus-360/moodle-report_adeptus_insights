@@ -117,11 +117,12 @@ class stripe_service {
             $DB->insert_record('adeptus_stripe_config', $record);
             $this->config = (object)$record;
         } catch (\Exception $e) {
+            // Ignore config creation errors - Stripe may not be configured yet.
         }
     }
 
     /**
-     * Get Stripe configuration
+     * Get Stripe configuration.
      */
     public function get_config() {
         return $this->config;

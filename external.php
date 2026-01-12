@@ -669,7 +669,6 @@ class external extends \external_api {
 
             // Log to file for debugging
 
-
             if ($result['success']) {
                 $portal_url = $result['data']['url'] ?? $result['portal_url'] ?? null;
 

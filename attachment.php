@@ -53,7 +53,7 @@ $download_url = $api_url . '/support/tickets/' . $ticket_id . '/attachments/' . 
 $response_headers = [];
 
 // Header callback to capture headers
-$header_callback = function($ch, $header) use (&$response_headers) {
+$header_callback = function ($ch, $header) use (&$response_headers) {
     $len = strlen($header);
     $header = explode(':', $header, 2);
     if (count($header) < 2) {
@@ -105,7 +105,7 @@ if (isset($response_headers['content-disposition'])) {
     // Try to extract filename from header
     if (preg_match('/filename[^;=\n]*=([\'"]?)([^\'"\n;]*)\1/', $disposition, $matches)) {
         $filename = $matches[2];
-    } elseif (preg_match('/filename\*=(?:UTF-8\'\')?(.+)/', $disposition, $matches)) {
+    } else if (preg_match('/filename\*=(?:UTF-8\'\')?(.+)/', $disposition, $matches)) {
         $filename = urldecode($matches[1]);
     }
 }

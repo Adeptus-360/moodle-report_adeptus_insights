@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
             $message_type = 'error';
             $action = 'new';
         }
-    } elseif ($post_action === 'reply') {
+    } else if ($post_action === 'reply') {
         $reply_ticket_id = required_param('ticket_id', PARAM_INT);
         $reply_message = required_param('reply_message', PARAM_RAW);
         $sender_name = optional_param('sender_name', '', PARAM_TEXT);
@@ -200,8 +200,7 @@ if ($view === 'changelog') {
     ]);
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_changelog', $templatecontext);
-
-} elseif ($action === 'new') {
+} else if ($action === 'new') {
     // New ticket form
     $categories = [];
     foreach (\report_adeptus_insights\support_manager::TICKET_CATEGORIES as $key => $label) {
@@ -221,8 +220,7 @@ if ($view === 'changelog') {
     ]);
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_new_ticket', $templatecontext);
-
-} elseif ($action === 'view' && $ticket_id > 0) {
+} else if ($action === 'view' && $ticket_id > 0) {
     // View ticket detail
     $ticket_result = $support_manager->get_ticket($ticket_id);
 
@@ -318,7 +316,6 @@ if ($view === 'changelog') {
         ]);
         echo $OUTPUT->render_from_template('report_adeptus_insights/support_error', $templatecontext);
     }
-
 } else {
     // List tickets (default view)
     $status_filter = optional_param('status', '', PARAM_ALPHA);

@@ -123,6 +123,7 @@ if (!$subscription) {
                 $subscription = $installation_manager->get_subscription_details();
             }
         } catch (\Exception $e) {
+            // Silently ignore validation errors - subscription refresh is optional.
         }
     }
 }

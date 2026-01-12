@@ -67,7 +67,6 @@ if (!filter_var($input['billing_email'], FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
 
