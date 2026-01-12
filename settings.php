@@ -31,45 +31,6 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('report_adeptus_insights', get_string('pluginname', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);
 
-    // General Configuration Section
-    $settings->add(new admin_setting_heading(
-        'report_adeptus_insights/general',
-        get_string('general_configuration', 'report_adeptus_insights'),
-        get_string('general_configuration_desc', 'report_adeptus_insights')
-    ));
-
-    // Enable Plugin
-    $settings->add(new admin_setting_configcheckbox(
-        'report_adeptus_insights/enabled',
-        get_string('enable_plugin', 'report_adeptus_insights'),
-        get_string('enable_plugin_desc', 'report_adeptus_insights'),
-        1
-    ));
-
-    // Usage Tracking Section
-    $settings->add(new admin_setting_heading(
-        'report_adeptus_insights/usage',
-        get_string('usage_tracking', 'report_adeptus_insights'),
-        get_string('usage_tracking_desc', 'report_adeptus_insights')
-    ));
-
-    // Enable Usage Tracking
-    $settings->add(new admin_setting_configcheckbox(
-        'report_adeptus_insights/enable_usage_tracking',
-        get_string('enable_usage_tracking', 'report_adeptus_insights'),
-        get_string('enable_usage_tracking_desc', 'report_adeptus_insights'),
-        1
-    ));
-
-    // Usage Retention Days
-    $settings->add(new admin_setting_configtext(
-        'report_adeptus_insights/usage_retention_days',
-        get_string('usage_retention_days', 'report_adeptus_insights'),
-        get_string('usage_retention_days_desc', 'report_adeptus_insights'),
-        365,
-        PARAM_INT
-    ));
-
     // Email Notifications Section
     $settings->add(new admin_setting_heading(
         'report_adeptus_insights/notifications',
@@ -92,30 +53,6 @@ if ($hassiteconfig) {
         get_string('notification_email_desc', 'report_adeptus_insights'),
         '',
         PARAM_EMAIL
-    ));
-
-    // Advanced Settings Section
-    $settings->add(new admin_setting_heading(
-        'report_adeptus_insights/advanced',
-        get_string('advanced_settings', 'report_adeptus_insights'),
-        get_string('advanced_settings_desc', 'report_adeptus_insights')
-    ));
-
-    // Debug Mode
-    $settings->add(new admin_setting_configcheckbox(
-        'report_adeptus_insights/debug_mode',
-        get_string('debug_mode', 'report_adeptus_insights'),
-        get_string('debug_mode_desc', 'report_adeptus_insights'),
-        0
-    ));
-
-    // API Timeout
-    $settings->add(new admin_setting_configtext(
-        'report_adeptus_insights/api_timeout',
-        get_string('api_timeout', 'report_adeptus_insights'),
-        get_string('api_timeout_desc', 'report_adeptus_insights'),
-        30,
-        PARAM_INT
     ));
 
     // Stripe Configuration Link
