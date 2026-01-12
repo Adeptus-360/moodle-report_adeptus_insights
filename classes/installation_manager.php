@@ -169,12 +169,6 @@ class installation_manager {
                 // Save settings to database
                 $this->save_installation_settings();
 
-                // Create starter subscription
-                $this->setup_starter_subscription($admin_email, $admin_name);
-
-                // Set post-install notification
-                $this->set_post_install_notification();
-
                 return [
                     'success' => true,
                     'message' => get_string('registration_success', 'report_adeptus_insights'),
@@ -191,16 +185,7 @@ class installation_manager {
                     // Save settings to database
                     $this->save_installation_settings();
 
-                    // IMPORTANT: Complete all setup steps as if this was a fresh installation
-                    // This ensures the plugin works correctly even when skipping installation
-
-                    // 1. Setup starter subscription (this creates local subscription records)
-                    $this->setup_starter_subscription($admin_email, $admin_name);
-
-                    // 2. Set post-install notification (marks installation as complete)
-                    $this->set_post_install_notification();
-
-                    // 3. Ensure all required database tables exist
+                    // Ensure all required database tables exist
                     $this->ensure_database_tables_exist();
 
                     return [
