@@ -55,15 +55,6 @@ if ($hassiteconfig) {
         PARAM_EMAIL
     ));
 
-    // Stripe Configuration Link
-    $settings->add(new admin_setting_heading(
-        'report_adeptus_insights/stripe_link',
-        get_string('stripe_configuration', 'report_adeptus_insights'),
-        get_string('stripe_configuration_desc', 'report_adeptus_insights') . '<br><br>' .
-        '<a href="' . new moodle_url('/report/adeptus_insights/admin/stripe_config.php') . '" class="btn btn-primary">' .
-        get_string('configure_stripe', 'report_adeptus_insights') . '</a>'
-    ));
-
     // ---------- Simple post-install redirect to subscription ----------
     if (!empty($ADMIN->fulltree)) {
         $component = 'report_adeptus_insights';
