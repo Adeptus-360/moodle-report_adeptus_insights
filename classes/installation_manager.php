@@ -654,25 +654,24 @@ class installation_manager {
             $subscription = $data['subscription'] ?? [];
             $tier = $data['tier'] ?? 'free';
 
-            // Map tier to plan details
-            $plan_map = [
-                'free' => ['name' => 'Free Plan', 'price' => '£0', 'ai_credits' => 1000, 'exports' => 10],
-                'starter' => ['name' => 'Starter Plan', 'price' => '£9/month', 'ai_credits' => 5000, 'exports' => 50],
-                'pro' => ['name' => 'Pro Plan', 'price' => '£29/month', 'ai_credits' => 25000, 'exports' => 200],
-                'enterprise' => ['name' => 'Enterprise Plan', 'price' => 'Custom', 'ai_credits' => -1, 'exports' => -1],
-            ];
+            // Get token data from backend response.
+            $tokens_used = $data['tokens_used'] ?? 0;
+            $tokens_remaining = $data['tokens_remaining'] ?? -1;
+            $tokens_limit = $data['tokens_limit'] ?? -1;
+            $exports_remaining = $data['exports_remaining'] ?? 0;
 
-            $plan = $plan_map[$tier] ?? $plan_map['free'];
+            // Calculate usage percentage.
+            $tokens_usage_percent = 0;
+            if ($tokens_limit > 0 && $tokens_remaining !== -1) {
+                $tokens_usage_percent = min(100, round(($tokens_used / $tokens_limit) * 100));
+            }
 
-            // Build subscription data structure matching expected format
+            // Build subscription data structure matching expected format.
             return [
-                'plan_id' => array_search($tier, array_keys($plan_map)) + 1,
-                'plan_name' => $plan['name'],
-                'price' => $plan['price'],
+                'plan_name' => ucfirst($tier) . ' Plan',
                 'billing_cycle' => 'monthly',
                 'status' => $subscription['status'] ?? $data['license_status'] ?? 'active',
-                'ai_credits_remaining' => $plan['ai_credits'],
-                'exports_remaining' => $plan['exports'],
+                'exports_remaining' => $exports_remaining,
                 'current_period_start' => null,
                 'current_period_end' => $subscription['current_period_end'] ?? null,
                 'next_billing' => $subscription['current_period_end'] ?? null,
@@ -687,7 +686,7 @@ class installation_manager {
                 'is_cancelled' => false,
                 'has_payment_issues' => false,
                 'should_disable_api_access' => false,
-                'status_message' => 'Active subscription (from installation status)',
+                'status_message' => 'Active subscription',
                 'is_registered' => true,
                 'subscription_id' => null,
                 'stripe_subscription_id' => null,
@@ -695,12 +694,15 @@ class installation_manager {
                 'status_details' => json_encode([]),
                 'cancellation_info' => json_encode([]),
                 'payment_info' => json_encode([]),
-                'ai_credits_used_this_month' => 0,
-                'reports_generated_this_month' => 0,
-                'plan_ai_credits_limit' => $plan['ai_credits'],
-                'plan_exports_limit' => $plan['exports'],
                 'tier' => $tier,
-                'is_fallback_data' => true,
+                // Token-based usage metrics from backend.
+                'tokens_used' => $tokens_used,
+                'tokens_remaining' => $tokens_remaining,
+                'tokens_limit' => $tokens_limit,
+                'tokens_used_formatted' => $this->format_token_count($tokens_used),
+                'tokens_remaining_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_remaining),
+                'tokens_limit_formatted' => $tokens_limit === -1 ? 'Unlimited' : $this->format_token_count($tokens_limit),
+                'tokens_usage_percent' => $tokens_usage_percent,
             ];
         } catch (\Exception $e) {
             return null;
@@ -736,10 +738,10 @@ class installation_manager {
         // Ensure plan_id is always included, with fallback
         $plan_id = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
 
-        // Token usage data from API (flattened fields first, then nested as fallback)
-        $tokens_used = $data['tokens_used'] ?? 0;
-        $tokens_remaining = $data['tokens_remaining'] ?? -1;
-        $tokens_limit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? 50000;
+        // Token usage data from API (flattened fields first, then nested as fallback).
+        $tokens_used = $data['tokens_used'] ?? $usage['token_usage']['total_tokens_used'] ?? 0;
+        $tokens_remaining = $data['tokens_remaining'] ?? $usage['token_usage']['tokens_remaining'] ?? -1;
+        $tokens_limit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? -1;
 
         // Calculate usage percentage
         $tokens_usage_percent = 0;
