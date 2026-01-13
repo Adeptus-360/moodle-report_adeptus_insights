@@ -300,6 +300,34 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             } else if (response.type === 'sql' || response.type === 'report') {
                 // Handle report generation with confirmation workflow
                 if (response.awaiting_confirmation && response.report) {
+                    // Check if local execution is required (SaaS model - data stays on customer server)
+                    if (response.execution_required && response.report.sql && !response.report_data) {
+                        // Execute SQL locally before showing confirmation
+                        this.executeReportLocally(response.report.sql, response.report.params || {})
+                            .then((executionResult) => {
+                                // Show report confirmation with locally executed data
+                                this.showReportConfirmation(
+                                    response.report,
+                                    executionResult.data || null,
+                                    response.message,
+                                    response.credit_info,
+                                    executionResult.error || null
+                                );
+                            })
+                            .catch((error) => {
+                                // Show confirmation with execution error
+                                this.showReportConfirmation(
+                                    response.report,
+                                    null,
+                                    response.message,
+                                    response.credit_info,
+                                    error.message || 'Failed to execute report locally'
+                                );
+                            });
+                        return;
+                    }
+
+                    // Backend already executed (legacy) or no execution needed
                     // Show report data first, then confirmation prompt
                     this.showReportConfirmation(
                         response.report,
@@ -3886,8 +3914,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        // Helper to fetch report from API, update cache, and display
+        /**
+         * Fetch report from API and display.
+         * Supports local execution for SaaS model - executes SQL on customer's Moodle server.
+         */
         fetchAndDisplayReport: function(reportSlug, rowElem) {
+            const self = this;
             const reportsView = $('#reports-panel .col-md-8 .card-body');
 
             // Ensure report history loader is hidden since we're displaying a report
@@ -3896,32 +3928,64 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Ensure loading spinner is visible
             reportsView.html('<div class="report-display-wrapper w-100"><div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div></div>');
-            
+
             this.ajaxWithAuth({
                 url: `${this.backendUrl}/ai-reports/${reportSlug}`,
                 method: 'GET',
                 success: (response) => {
-                    
-                    // Add or update in cache
-                    if (!Array.isArray(this.cachedReports)) this.cachedReports = [];
-                    let idx = this.cachedReports.findIndex(r => r.slug === reportSlug);
-                    if (idx > -1) {
-                        this.cachedReports[idx] = Object.assign({}, response.report, { data: response.data });
-                    } else {
-                        this.cachedReports.push(Object.assign({}, response.report, { data: response.data }));
-                    }
-                    
-                    // Check if data exists before displaying
-                    if (!response.data || (Array.isArray(response.data) && response.data.length === 0)) {
-                        reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-warning py-4"><i class="fa fa-exclamation-triangle"></i> Report completed but no data is available. The report may need to be re-executed.</div>');
+                    const report = response.report;
+
+                    // Check if backend provided data (legacy mode)
+                    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+                        // Backend executed - use that data (legacy support)
+                        self.displayFetchedReport(report, response.data, rowElem);
                         return;
                     }
-                    
-                    this.updateReportsView(response.report, response.data);
-                    
-                    // Highlight the current report in the history
-                    $('.report-row').removeClass('table-primary');
-                    if (rowElem) rowElem.addClass('table-primary');
+
+                    // Check if we have SQL to execute locally (SaaS model)
+                    if (report && report.sql) {
+                        self.executeReportLocally(report.sql, report.params || {})
+                            .then((executionResult) => {
+                                if (executionResult.error) {
+                                    reportsView.find('.report-display-wrapper').html(
+                                        `<div class="w-100 text-center text-danger py-4">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                            Failed to execute report: ${executionResult.error}
+                                        </div>`
+                                    );
+                                    return;
+                                }
+
+                                if (!executionResult.data || executionResult.data.length === 0) {
+                                    reportsView.find('.report-display-wrapper').html(
+                                        '<div class="w-100 text-center text-warning py-4">' +
+                                        '<i class="fa fa-info-circle"></i> ' +
+                                        'Report executed successfully but returned no data.' +
+                                        '</div>'
+                                    );
+                                    return;
+                                }
+
+                                self.displayFetchedReport(report, executionResult.data, rowElem);
+                            })
+                            .catch((error) => {
+                                reportsView.find('.report-display-wrapper').html(
+                                    `<div class="w-100 text-center text-danger py-4">
+                                        <i class="fa fa-exclamation-triangle"></i>
+                                        Failed to execute report: ${error.message}
+                                    </div>`
+                                );
+                            });
+                        return;
+                    }
+
+                    // No data and no SQL - show warning
+                    reportsView.find('.report-display-wrapper').html(
+                        '<div class="w-100 text-center text-warning py-4">' +
+                        '<i class="fa fa-exclamation-triangle"></i> ' +
+                        'Report has no data or SQL to execute.' +
+                        '</div>'
+                    );
                 },
                 error: (xhr, status, error) => {
                     console.error('fetchAndDisplayReport error:', reportSlug, status, error);
@@ -3929,6 +3993,31 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-danger py-4">Failed to load report. Please try again.</div>');
                 }
             });
+        },
+
+        /**
+         * Display fetched report data (helper for fetchAndDisplayReport)
+         */
+        displayFetchedReport: function(report, data, rowElem) {
+            // Add or update in cache
+            if (!Array.isArray(this.cachedReports)) this.cachedReports = [];
+            let idx = this.cachedReports.findIndex(r => r.slug === report.slug);
+            if (idx > -1) {
+                this.cachedReports[idx] = Object.assign({}, report, { data: data });
+            } else {
+                this.cachedReports.push(Object.assign({}, report, { data: data }));
+            }
+
+            // Store for export functionality
+            this.currentViewedReport = report;
+            this.currentViewedReportData = data;
+
+            // Update the view
+            this.updateReportsView(report, data);
+
+            // Highlight the current report in the history
+            $('.report-row').removeClass('table-primary');
+            if (rowElem) rowElem.addClass('table-primary');
         },
 
         /**
@@ -4407,64 +4496,179 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
-         * Execute a pending report
+         * Execute a pending report.
+         * Fetches report SQL from backend and executes locally (SaaS model).
          */
         executeReport: function(reportSlug) {
+            const self = this;
+
             // Show loading indicator
             const reportRow = $(`.report-row[data-report-slug="${reportSlug}"]`);
             const originalContent = reportRow.html();
             reportRow.html('<td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Executing...</span></div> Executing report...</td>');
-            
+
+            // First, fetch the report details (including SQL) from backend
             this.ajaxWithAuth({
-                url: `${this.backendUrl}/ai-reports/${reportSlug}/execute`,
-                method: 'POST',
+                url: `${this.backendUrl}/ai-reports/${reportSlug}`,
+                method: 'GET',
                 success: (response) => {
-                    if (response.success) {
-                        // Update the cached report status
-                        if (Array.isArray(this.cachedReports)) {
-                            const reportIndex = this.cachedReports.findIndex(r => r.slug === reportSlug);
-                            if (reportIndex !== -1) {
-                                this.cachedReports[reportIndex] = Object.assign({}, this.cachedReports[reportIndex], response.report);
-                            }
-                        }
-                        
-                        // Refresh the report display
-                        setTimeout(() => {
-                            this.fetchAndDisplayReport(reportSlug, reportRow);
-                        }, 1000); // Small delay to show completion
-                        
-                        this.showSuccess('Report executed successfully!');
-                    } else {
+                    const report = response.report;
+
+                    // Check if we have SQL to execute
+                    if (!report || !report.sql) {
                         reportRow.html(originalContent);
-                        this.showError('Failed to execute report: ' + (response.error || 'Unknown error'));
+                        this.showError('Report SQL not found. Please regenerate the report.');
+                        return;
                     }
+
+                    // Check if backend already provided data (legacy mode)
+                    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+                        // Backend executed - use that data (legacy support)
+                        self.handleExecutionSuccess(reportSlug, report, response.data, reportRow);
+                        return;
+                    }
+
+                    // Execute SQL locally (SaaS model)
+                    self.executeReportLocally(report.sql, report.params || {})
+                        .then((executionResult) => {
+                            if (executionResult.error) {
+                                reportRow.html(originalContent);
+                                self.showError('Failed to execute report: ' + executionResult.error);
+                                return;
+                            }
+
+                            self.handleExecutionSuccess(reportSlug, report, executionResult.data, reportRow);
+                        })
+                        .catch((error) => {
+                            reportRow.html(originalContent);
+                            self.showError('Failed to execute report: ' + error.message);
+                        });
                 },
                 error: (xhr, status, error) => {
                     reportRow.html(originalContent);
-                    
-                    let errorMessage = 'Failed to execute report';
-                    
-                    // Handle different error scenarios
-                    if (xhr.status === 500) {
-                        errorMessage = 'Server error occurred while executing the report. Please check the SQL query and try again.';
-                    } else if (xhr.status === 403) {
-                        errorMessage = 'You do not have permission to execute this report.';
-                    } else if (xhr.status === 404) {
+
+                    let errorMessage = 'Failed to fetch report';
+
+                    if (xhr.status === 404) {
                         errorMessage = 'Report not found.';
+                    } else if (xhr.status === 403) {
+                        errorMessage = 'You do not have permission to view this report.';
                     } else if (xhr.responseJSON && xhr.responseJSON.error) {
                         errorMessage = xhr.responseJSON.error;
                     } else {
                         errorMessage += ': ' + error;
                     }
-                    
-                    console.error('Report execution failed:', {
+
+                    console.error('Report fetch failed:', {
                         status: xhr.status,
                         error: error,
                         response: xhr.responseText
                     });
-                    
+
                     this.showError(errorMessage);
                 }
+            });
+        },
+
+        /**
+         * Handle successful report execution (shared between local and legacy modes)
+         */
+        handleExecutionSuccess: function(reportSlug, report, data, reportRow) {
+            // Update the cached report with new data
+            if (Array.isArray(this.cachedReports)) {
+                const reportIndex = this.cachedReports.findIndex(r => r.slug === reportSlug);
+                if (reportIndex !== -1) {
+                    this.cachedReports[reportIndex] = Object.assign({}, this.cachedReports[reportIndex], report, { data: data });
+                } else {
+                    this.cachedReports.push(Object.assign({}, report, { data: data }));
+                }
+            }
+
+            // Store current report data for export functionality
+            this.currentViewedReport = report;
+            this.currentViewedReportData = data;
+
+            // Update the reports view with fresh data
+            this.updateReportsView(report, data);
+
+            // Highlight the current report
+            $('.report-row').removeClass('table-primary');
+            if (reportRow) reportRow.addClass('table-primary');
+
+            this.showSuccess('Report executed successfully!');
+        },
+
+        /**
+         * Execute report SQL locally on the Moodle server.
+         * This supports the SaaS model where customer data stays on their server.
+         *
+         * @param {string} sql - The SQL query to execute
+         * @param {Object} params - Optional parameters for the query
+         * @returns {Promise<Object>} Promise resolving to {data: array, headers: array, error: string|null}
+         */
+        executeReportLocally: function(sql, params = {}) {
+            const self = this;
+
+            return new Promise((resolve, reject) => {
+                // Show loading indicator
+                self.showLoading();
+
+                $.ajax({
+                    url: `${M.cfg.wwwroot}/report/adeptus_insights/ajax/execute_ai_report.php`,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        sql: sql,
+                        params: params,
+                        sesskey: M.cfg.sesskey
+                    }),
+                    timeout: 60000, // 60 second timeout for complex queries
+                    success: function(response) {
+                        self.hideLoading();
+
+                        if (response.success) {
+                            resolve({
+                                data: response.data || [],
+                                headers: response.headers || [],
+                                row_count: response.row_count || 0,
+                                error: null
+                            });
+                        } else {
+                            // SQL error or validation error
+                            resolve({
+                                data: null,
+                                headers: [],
+                                row_count: 0,
+                                error: response.message || response.details || 'Query execution failed'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        self.hideLoading();
+
+                        let errorMessage = 'Failed to execute report locally';
+
+                        if (xhr.status === 400) {
+                            // Bad request - likely SQL validation error
+                            const response = xhr.responseJSON;
+                            errorMessage = response?.message || response?.details || 'Invalid SQL query';
+                        } else if (xhr.status === 403) {
+                            errorMessage = 'Session expired. Please refresh the page.';
+                        } else if (xhr.status === 0) {
+                            errorMessage = 'Network error. Please check your connection.';
+                        } else if (status === 'timeout') {
+                            errorMessage = 'Query timed out. Try simplifying your request.';
+                        }
+
+                        console.error('Local report execution failed:', {
+                            status: xhr.status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+
+                        reject(new Error(errorMessage));
+                    }
+                });
             });
         },
 
