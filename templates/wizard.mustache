@@ -1,9 +1,8 @@
 {{!
     This file is part of Moodle - http://moodle.org/
     Report Wizard Template - Modern, Beautiful, Animated Interface
-    Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+    Note: Do NOT load Bootstrap or Font Awesome from CDN - Moodle includes them and loading another version breaks things
 }}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
@@ -341,7 +340,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
     <div class="wizard-header">
         <div class="wizard-header-content">
             <h1 class="wizard-title">
-                <i class="fa fa-magic wizard-icon"></i>
+                <i class="fa-solid fa-wand-magic-sparkles wizard-icon"></i>
                 {{wizard_title}}
             </h1>
             <p class="wizard-subtitle">Generate powerful reports in just a few clicks</p>
