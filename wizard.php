@@ -63,24 +63,33 @@ $PAGE->requires->js('/report/adeptus_insights/js/wizard.js' . $cache_buster);
 $context = context_system::instance();
 require_capability('report/adeptus_insights:view', $context);
 
-// Category icons mapping - Using free FontAwesome icons only
+// Category icons mapping - Using FontAwesome 6 Free icons
 $category_icons = [
     'USER and ENROLLMENT Reports' => 'fa-users',
     'COURSE Reports' => 'fa-book',
-    'ROLES and PERMISSIONS Reports' => 'fa-shield',
-    'GRADES and ASSESSMENT Reports' => 'fa-bar-chart',
+    'ROLES and PERMISSIONS Reports' => 'fa-shield-halved',
+    'GRADES and ASSESSMENT Reports' => 'fa-chart-bar',
     'SYSTEM USAGE Reports' => 'fa-desktop',
     'COMMUNICATION Reports' => 'fa-comments',
-    'QUIZ and ASSESSMENT Reports' => 'fa-question-circle',
+    'QUIZ and ASSESSMENT Reports' => 'fa-circle-question',
     'ATTENDANCE Reports' => 'fa-calendar',
-    'FINANCIAL Reports' => 'fa-dollar',
+    'FINANCIAL Reports' => 'fa-dollar-sign',
     'ENGAGEMENT Reports' => 'fa-heart',
     'COMPLETION Reports' => 'fa-trophy',
-    'CONTENT Reports' => 'fa-file-text',
-    'ANALYTICS Reports' => 'fa-line-chart',
+    'CONTENT Reports' => 'fa-file-lines',
+    'ANALYTICS Reports' => 'fa-chart-line',
     'COMPLIANCE Reports' => 'fa-clipboard',
-    'TEACHER Reports' => 'fa-user',
-    'STUDENT Reports' => 'fa-user',
+    'TEACHER Reports' => 'fa-chalkboard-user',
+    'STUDENT Reports' => 'fa-user-graduate',
+    'BADGES Reports' => 'fa-award',
+    'COHORTS Reports' => 'fa-user-group',
+    'COMPETENCIES Reports' => 'fa-bullseye',
+    'COURSE DESIGN Reports' => 'fa-pen-ruler',
+    'GROUP Reports' => 'fa-people-group',
+    'LOG Reports' => 'fa-clock-rotate-left',
+    'MESSAGING Reports' => 'fa-envelope',
+    'SCALES Reports' => 'fa-scale-balanced',
+    'USER FILES Reports' => 'fa-folder-open',
 ];
 
 // Define report priority keywords for free tier selection

@@ -348,15 +348,15 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
         </div>
         <div class="wizard-header-section">
             <a style="margin-bottom: 17px;" href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
-                    <i class="fa fa-arrow-left"></i> Back to Dashboard
+                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
                 </a>
             
             {{#is_free_plan}}
             <div class="reports-left-indicator" style="margin-top: 15px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
                 <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa fa-file-text-o" style="font-size: 16px; opacity: 0.9;"></i>
+                    <i class="fa-regular fa-file-lines" style="font-size: 16px; opacity: 0.9;"></i>
                     <span style="font-size: 14px; font-weight: 600;" id="reports-counter-content">
-                        <i class="fa fa-spinner fa-spin"></i> Loading...
+                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
                     </span>
                 </div>
                 <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;" id="usage-type-text">
@@ -366,9 +366,9 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
             
             <div class="exports-left-indicator" style="margin-top: 10px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
                 <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa fa-download" style="font-size: 16px; opacity: 0.9;"></i>
+                    <i class="fa-solid fa-download" style="font-size: 16px; opacity: 0.9;"></i>
                     <span style="font-size: 14px; font-weight: 600;" id="exports-counter-content">
-                        <i class="fa fa-spinner fa-spin"></i> Loading...
+                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
                     </span>
                 </div>
                 <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
@@ -393,7 +393,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                 {{#categories}}
                 <div class="category-card" data-category="{{name}}">
                     <div class="category-icon">
-                        <i class="fa {{icon}}"></i>
+                        <i class="fa-solid {{icon}}"></i>
                     </div>
                     <div class="category-content">
                         <h6>{{name}}</h6>
@@ -405,7 +405,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                         {{/is_free_plan}}
                     </div>
                     <div class="category-arrow">
-                        <i class="fa fa-chevron-right"></i>
+                        <i class="fa-solid fa-chevron-right"></i>
                     </div>
                 </div>
                 {{/categories}}
@@ -421,7 +421,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                </div>
                <div class="back-to-categories-btn">
                     <button class="btn-back" id="back-to-categories">
-                        <i class="fa fa-arrow-left"></i> Back to Categories
+                        <i class="fa-solid fa-arrow-left"></i> Back to Categories
                     </button>
                 </div> 
             </div>
@@ -441,7 +441,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                 </div>
                <div class="back-to-categories-btn">
                     <button class="btn-back" id="back-to-reports">
-                        <i class="fa fa-arrow-left"></i> Back to Reports
+                        <i class="fa-solid fa-arrow-left"></i> Back to Reports
                     </button>
                 </div>
             </div>
@@ -455,7 +455,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                     <h3>Report Preview</h3>
                     <div class="preview-content" id="preview-content">
                         <div class="preview-placeholder">
-                            <i class="fa fa-eye"></i>
+                            <i class="fa-solid fa-eye"></i>
                             <p>Configure parameters to see preview</p>
                         </div>
                     </div>
@@ -464,10 +464,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
             
             <div class="step-actions">
                 <button class="btn-primary btn-generate-report" id="generate-report">
-                    <i class="fa fa-play"></i> Generate Report
+                    <i class="fa-solid fa-play"></i> Generate Report
                 </button>
                 <button class="btn-secondary btn-save-config" id="save-config">
-                    <i class="fa fa-bookmark"></i> Bookmark Configuration
+                    <i class="fa-solid fa-bookmark"></i> Bookmark Configuration
                 </button>
             </div>
         </div>
@@ -481,7 +481,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                 </div>
                <div class="back-to-categories-btn">
                      <button class="btn-back" id="back-to-config">
-                    <i class="fa fa-arrow-left"></i> Back to Configuration
+                    <i class="fa-solid fa-arrow-left"></i> Back to Configuration
                      </button>
                 </div>
             </div>
@@ -494,30 +494,30 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                     <div class="results-actions">
                         <div class="export-dropdown">
                             <button class="btn-export" id="export-btn">
-                                <i class="fa fa-download"></i> Export
-                                <i class="fa fa-chevron-down"></i>
+                                <i class="fa-solid fa-download"></i> Export
+                                <i class="fa-solid fa-chevron-down"></i>
                             </button>
                             <div class="export-menu" id="export-menu">
                                 <a href="#" data-format="csv" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
-                                    <i class="fa fa-file-text-o"></i> CSV
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                    <i class="fa-regular fa-file-lines"></i> CSV
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
                                 <a href="#" data-format="excel" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
-                                    <i class="fa fa-file-excel-o"></i> Excel
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                    <i class="fa-regular fa-file-excel"></i> Excel
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
-                                <a href="#" data-format="pdf"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                                <a href="#" data-format="pdf"><i class="fa-regular fa-file-pdf"></i> PDF</a>
                                 <a href="#" data-format="json" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
-                                    <i class="fa fa-code"></i> JSON
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa fa-crown"></i></span>{{/is_free_plan}}
+                                    <i class="fa-solid fa-code"></i> JSON
+                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
                             </div>
                         </div>
                         <button class="btn-bookmark" id="bookmark-report">
-                            <i class="fa fa-star-o"></i> Bookmark
+                            <i class="fa-regular fa-star"></i> Bookmark
                         </button>
                         <button class="btn-regenerate" id="regenerate-report">
-                            <i class="fa fa-refresh"></i> Regenerate
+                            <i class="fa-solid fa-rotate"></i> Regenerate
                         </button>
                     </div>
                 </div>
@@ -526,10 +526,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
                     <div class="results-view-header">
                         <div class="view-toggle btn-group" role="group">
                             <button type="button" class="btn btn-sm view-toggle-btn active" data-view="table">
-                                <i class="fa fa-table"></i> Table
+                                <i class="fa-solid fa-table"></i> Table
                             </button>
                             <button type="button" class="btn btn-sm view-toggle-btn" data-view="chart">
-                                <i class="fa fa-bar-chart"></i> Chart
+                                <i class="fa-solid fa-chart-bar"></i> Chart
                             </button>
                         </div>
                     </div>
@@ -573,10 +573,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
             <p>Your recently accessed reports</p>
             <div class="section-actions">
                 <button class="btn-toggle-recent" id="toggle-recent-reports">
-                    <i class="fa fa-eye"></i> Show All
+                    <i class="fa-solid fa-eye"></i> Show All
                 </button>
                 <button class="btn-clear-recent" id="clear-recent-reports">
-                    <i class="fa fa-trash"></i> Clear All
+                    <i class="fa-solid fa-trash"></i> Clear All
                 </button>
             </div>
         </div>
@@ -593,7 +593,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
             <p>Your saved favorite reports</p>
             <div class="section-actions">
                 <button class="btn-clear-bookmarks" id="clear-bookmarked-reports">
-                    <i class="fa fa-trash"></i> Clear All
+                    <i class="fa-solid fa-trash"></i> Clear All
                 </button>
             </div>
         </div>
