@@ -300,10 +300,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             } else if (response.type === 'sql' || response.type === 'report') {
                 // Handle report generation with confirmation workflow
                 if (response.awaiting_confirmation && response.report) {
+                    // Get SQL from response - check multiple possible locations
+                    // New API: response.sql (top level) or response.report.sql_query
+                    // Legacy: response.report.sql
+                    const sqlQuery = response.sql || response.report.sql_query || response.report.sql;
+
                     // Check if local execution is required (SaaS model - data stays on customer server)
-                    if (response.execution_required && response.report.sql && !response.report_data) {
+                    if ((response.execution_required || !response.report_data) && sqlQuery) {
                         // Execute SQL locally before showing confirmation
-                        this.executeReportLocally(response.report.sql, response.report.params || {})
+                        this.executeReportLocally(sqlQuery, response.report.params || {})
                             .then((executionResult) => {
                                 // Show report confirmation with locally executed data
                                 this.showReportConfirmation(
@@ -3914,9 +3919,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         return;
                     }
 
+                    // Get SQL from response - check multiple possible locations
+                    // New API: response.sql (top level) or response.report.sql_query
+                    // Legacy: report.sql
+                    const sqlQuery = response.sql || (report && report.sql_query) || (report && report.sql);
+
                     // Check if we have SQL to execute locally (SaaS model)
-                    if (report && report.sql) {
-                        self.executeReportLocally(report.sql, report.params || {})
+                    if (sqlQuery) {
+                        self.executeReportLocally(sqlQuery, report?.params || {})
                             .then((executionResult) => {
                                 if (executionResult.error) {
                                     reportsView.find('.report-display-wrapper').html(
@@ -4486,8 +4496,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 success: (response) => {
                     const report = response.report;
 
+                    // Get SQL from response - check multiple possible locations
+                    // New API: response.sql (top level) or response.report.sql_query
+                    // Legacy: report.sql
+                    const sqlQuery = response.sql || (report && report.sql_query) || (report && report.sql);
+
                     // Check if we have SQL to execute
-                    if (!report || !report.sql) {
+                    if (!sqlQuery) {
                         reportRow.html(originalContent);
                         this.showError('Report SQL not found. Please regenerate the report.');
                         return;
@@ -4501,7 +4516,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
 
                     // Execute SQL locally (SaaS model)
-                    self.executeReportLocally(report.sql, report.params || {})
+                    self.executeReportLocally(sqlQuery, report?.params || {})
                         .then((executionResult) => {
                             if (executionResult.error) {
                                 reportRow.html(originalContent);
