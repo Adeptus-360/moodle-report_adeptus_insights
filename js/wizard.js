@@ -270,27 +270,53 @@ class AdeptusWizard {
     }
     
     getCategoryIcon(categoryName) {
-        // Map category names to appropriate Font Awesome icons
+        // Map category names to appropriate Font Awesome 6 icons
         const iconMap = {
-            'Student Performance': 'fa-graduation-cap',
-            'Engagement': 'fa-users',
-            'Course Analytics': 'fa-line-chart',
-            'Assessment': 'fa-check-square-o',
-            'Attendance': 'fa-calendar-check-o',
-            'User Activity': 'fa-user-circle',
-            'System': 'fa-cog',
-            'Reports': 'fa-file-text-o',
-            'Quiz': 'fa-question-circle',
-            'Assignment': 'fa-edit',
+            // Exact category names from backend API
+            'USER and ENROLLMENT Reports': 'fa-users',
+            'COURSE Reports': 'fa-book',
+            'ROLES and PERMISSIONS Reports': 'fa-shield-halved',
+            'GRADES and ASSESSMENT Reports': 'fa-chart-bar',
+            'SYSTEM USAGE Reports': 'fa-desktop',
+            'COMMUNICATION Reports': 'fa-comments',
+            'QUIZ and ASSESSMENT Reports': 'fa-circle-question',
+            'ATTENDANCE Reports': 'fa-calendar',
+            'FINANCIAL Reports': 'fa-dollar-sign',
+            'ENGAGEMENT Reports': 'fa-heart',
+            'COMPLETION Reports': 'fa-trophy',
+            'CONTENT Reports': 'fa-file-lines',
+            'ANALYTICS Reports': 'fa-chart-line',
+            'COMPLIANCE Reports': 'fa-clipboard',
+            'TEACHER Reports': 'fa-chalkboard-user',
+            'STUDENT Reports': 'fa-user-graduate',
+            'BADGES Reports': 'fa-award',
+            'COHORTS Reports': 'fa-user-group',
+            'COMPETENCIES Reports': 'fa-bullseye',
+            'COURSE DESIGN Reports': 'fa-pen-ruler',
+            'GROUP Reports': 'fa-people-group',
+            'LOG Reports': 'fa-clock-rotate-left',
+            'MESSAGING Reports': 'fa-envelope',
+            'SCALES Reports': 'fa-scale-balanced',
+            'USER FILES Reports': 'fa-folder-open',
+            // Fallback keywords for partial matching
+            'Student': 'fa-user-graduate',
+            'Engagement': 'fa-heart',
+            'Course': 'fa-book',
+            'Assessment': 'fa-chart-bar',
+            'Attendance': 'fa-calendar',
+            'User': 'fa-users',
+            'System': 'fa-gear',
+            'Quiz': 'fa-circle-question',
+            'Assignment': 'fa-pen-to-square',
             'Forum': 'fa-comments',
             'Grades': 'fa-trophy',
-            'Progress': 'fa-line-chart',
-            'Completion': 'fa-check-circle',
-            'Time': 'fa-clock-o',
+            'Progress': 'fa-chart-line',
+            'Completion': 'fa-trophy',
+            'Time': 'fa-clock',
             'Resource': 'fa-folder-open',
             'Activity': 'fa-bolt',
             'Learning': 'fa-book',
-            'Teaching': 'fa-chalkboard-teacher',
+            'Teaching': 'fa-chalkboard-user',
             'Administration': 'fa-user-shield'
         };
 
@@ -308,7 +334,7 @@ class AdeptusWizard {
         }
 
         // Default icon
-        return 'fa-folder-o';
+        return 'fa-folder';
     }
 
     createCategoryCard(category) {
@@ -326,7 +352,7 @@ class AdeptusWizard {
         
         card.innerHTML = `
             <div class="category-icon">
-                <i class="fa ${iconClass}"></i>
+                <i class="fa-solid ${iconClass}"></i>
             </div>
             <div class="category-content">
                 <h6 class="category-title">${category.name}</h6>
@@ -755,7 +781,7 @@ class AdeptusWizard {
                 card.style.display = '';
                 card.classList.remove('hidden-recent');
             });
-            toggleBtn.innerHTML = '<i class="fa fa-eye-slash"></i> Hide All';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Hide All';
         } else {
             // Show only last 4 cards
             recentCards.forEach((card, index) => {
@@ -767,7 +793,7 @@ class AdeptusWizard {
                     card.classList.remove('hidden-recent');
                 }
             });
-            toggleBtn.innerHTML = '<i class="fa fa-eye"></i> Show All';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Show All';
         }
     }
 
@@ -787,10 +813,10 @@ class AdeptusWizard {
         if (!bookmarkBtn) return;
 
         if (isBookmarked) {
-            bookmarkBtn.innerHTML = '<i class="fa fa-star"></i> Remove Bookmark';
+            bookmarkBtn.innerHTML = '<i class="fa-solid fa-star"></i> Remove Bookmark';
             bookmarkBtn.classList.add('bookmarked');
         } else {
-            bookmarkBtn.innerHTML = '<i class="fa fa-star-o"></i> Bookmark';
+            bookmarkBtn.innerHTML = '<i class="fa-regular fa-star"></i> Bookmark';
             bookmarkBtn.classList.remove('bookmarked');
         }
         bookmarkBtn.disabled = false;
@@ -891,8 +917,8 @@ class AdeptusWizard {
             <div class="report-meta">
                 <span>Name: ${report.name}</span>
                 ${report.charttype ? `<span class="chart-type">${report.charttype}</span>` : ''}
-                ${isBookmarked ? '<span class="bookmark-indicator"><i class="fa fa-star"></i></span>' : ''}
-                ${isPremiumReport ? '<span class="premium-badge"><i class="fa fa-crown"></i> Premium</span>' : ''}
+                ${isBookmarked ? '<span class="bookmark-indicator"><i class="fa-solid fa-star"></i></span>' : ''}
+                ${isPremiumReport ? '<span class="premium-badge"><i class="fa-solid fa-crown"></i> Premium</span>' : ''}
             </div>
         `;
 
@@ -935,7 +961,7 @@ class AdeptusWizard {
         
         card.innerHTML = `
             <div class="card-icon" style="background: linear-gradient(135deg, ${iconColor} 0%, ${this.darkenColor(iconColor)} 100%);">
-                <i class="fa ${iconClass}"></i>
+                <i class="fa-solid ${iconClass}"></i>
             </div>
             <div class="card-content">
                 <h4>${report.name}</h4>
@@ -944,11 +970,11 @@ class AdeptusWizard {
             </div>
             <div class="card-actions">
                 <button class="btn-load-config" title="Load Configuration">
-                    <i class="fa fa-cog"></i>
+                    <i class="fa-solid fa-gear"></i>
                     <span>Load</span>
                 </button>
                 <button class="btn-remove" data-report-id="${report.reportid || report.name}" title="Remove">
-                    <i class="fa fa-trash"></i>
+                    <i class="fa-solid fa-trash"></i>
                     <span>Remove</span>
                 </button>
             </div>
@@ -1381,11 +1407,11 @@ class AdeptusWizard {
             const tableContainer = document.getElementById('results-table');
             tableContainer.innerHTML = `
                 <div class="alert alert-info" style="padding: 20px; margin: 20px 0; border-left: 4px solid #5bc0de;">
-                    <h4 style="margin-top: 0;"><i class="fa fa-download"></i> Large Dataset - Export Mode</h4>
+                    <h4 style="margin-top: 0;"><i class="fa-solid fa-download"></i> Large Dataset - Export Mode</h4>
                     <p style="font-size: 16px;">Your report has successfully generated <strong>${recordCount.toLocaleString()} records</strong>.</p>
                     <p>For datasets of this size, we've automatically enabled <strong>Export Mode</strong> to provide you with the best experience.</p>
                     <hr style="margin: 15px 0;">
-                    <h5><i class="fa fa-file-text-o"></i> Download Your Data:</h5>
+                    <h5><i class="fa-solid fa-file-lines"></i> Download Your Data:</h5>
                     <p>Use the <strong>Export</strong> button above to download your complete report:</p>
                     <ul>
                         <li><strong>CSV</strong> - Perfect for Excel, data analysis, and pivot tables</li>
@@ -1393,7 +1419,7 @@ class AdeptusWizard {
                         <li><strong>PDF</strong> - Professional document for presentations and reports</li>
                     </ul>
                     <hr style="margin: 15px 0;">
-                    <p><i class="fa fa-lightbulb-o"></i> <strong>Pro Tip:</strong> For browser viewing, consider adding filters or date ranges to your report parameters to narrow down the results.</p>
+                    <p><i class="fa-regular fa-lightbulb"></i> <strong>Pro Tip:</strong> For browser viewing, consider adding filters or date ranges to your report parameters to narrow down the results.</p>
                 </div>
             `;
 
@@ -1420,10 +1446,10 @@ class AdeptusWizard {
                 const tableContainer = document.getElementById('results-table');
                 tableContainer.innerHTML = `
                     <div class="alert alert-success" style="padding: 20px; margin: 20px 0; border-left: 4px solid #5cb85c;">
-                        <h4 style="margin-top: 0;"><i class="fa fa-check-circle"></i> Export Mode Selected</h4>
+                        <h4 style="margin-top: 0;"><i class="fa-solid fa-check-circle"></i> Export Mode Selected</h4>
                         <p style="font-size: 16px;">Great choice! Export Mode is optimized for datasets with <strong>${recordCount.toLocaleString()} records</strong>.</p>
                         <hr style="margin: 15px 0;">
-                        <p><i class="fa fa-download"></i> Use the <strong>Export</strong> button above to download your complete report in your preferred format.</p>
+                        <p><i class="fa-solid fa-download"></i> Use the <strong>Export</strong> button above to download your complete report in your preferred format.</p>
                         <p style="margin-top: 10px;"><em>Your data is ready and waiting for you!</em></p>
                     </div>
                 `;
@@ -1698,7 +1724,7 @@ class AdeptusWizard {
             console.error('Invalid chart data format');
             chartContainer.innerHTML = `
                 <div class="chart-placeholder">
-                    <i class="fa fa-exclamation-triangle"></i>
+                    <i class="fa-solid fa-exclamation-triangle"></i>
                     <p>Invalid chart data format</p>
                     <small>Chart Type: ${chartType}</small>
                 </div>
@@ -1713,7 +1739,7 @@ class AdeptusWizard {
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             console.error('Error creating chart:', error);
-            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
+            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
         }
     }
 
@@ -2138,7 +2164,7 @@ class AdeptusWizard {
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             console.error('Error creating chart:', error);
-            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
+            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
         }
     }
 
@@ -2913,7 +2939,7 @@ class AdeptusWizard {
         toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
         toast.style.cssText = 'min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin-bottom: 10px;';
         toast.innerHTML = `
-            <i class="fa fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            <i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
             <span>${message}</span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 0.5rem;"></button>
         `;
@@ -2971,7 +2997,7 @@ class AdeptusWizard {
         // Show loader
         const counterContent = document.getElementById('reports-counter-content');
         if (counterContent) {
-            counterContent.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+            counterContent.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
         }
 
         // Debounce multiple calls
@@ -3044,7 +3070,7 @@ class AdeptusWizard {
                 console.error('Failed to get subscription data:', data);
                 // Show error in counter
                 if (counterContent) {
-                    counterContent.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error';
+                    counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 }
             }
             } catch (error) {
@@ -3052,7 +3078,7 @@ class AdeptusWizard {
                 // Show error in counter
                 const counterContent = document.getElementById('reports-counter-content');
                 if (counterContent) {
-                    counterContent.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error';
+                    counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 }
             }
         }, 1000); // 1 second debounce to allow backend to process
@@ -3076,7 +3102,7 @@ class AdeptusWizard {
             const showAllBtn = document.createElement('button');
             showAllBtn.className = 'btn-show-all';
             showAllBtn.dataset.section = sectionId;
-            showAllBtn.innerHTML = '<i class="fa fa-eye"></i> Show All (' + totalCount + ')';
+            showAllBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Show All (' + totalCount + ')';
             
             showAllBtn.addEventListener('click', () => {
                 this.toggleShowAll(sectionId);
@@ -3173,7 +3199,7 @@ class AdeptusWizard {
         // Show loader
         const counterContent = document.getElementById('exports-counter-content');
         if (counterContent) {
-            counterContent.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Loading...';
+            counterContent.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading...';
         }
         
         try {
@@ -3228,7 +3254,7 @@ class AdeptusWizard {
                 console.error('✗ Failed to get exports counter data:', data);
                 // Show error in counter
                 if (counterContent) {
-                    counterContent.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error';
+                    counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 }
             }
         } catch (error) {
@@ -3236,7 +3262,7 @@ class AdeptusWizard {
             console.error('Error details:', error.message, error.stack);
             // Show error in counter
             if (counterContent) {
-                counterContent.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error';
+                counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
             }
         }
         
@@ -3249,12 +3275,12 @@ class AdeptusWizard {
             if (disabled) {
                 generateBtn.disabled = true;
                 generateBtn.classList.add('disabled');
-                generateBtn.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Report Limit Reached';
+                generateBtn.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Report Limit Reached';
                 generateBtn.title = 'Report generation limit reached. Upgrade your plan for more reports.';
             } else {
                 generateBtn.disabled = false;
                 generateBtn.classList.remove('disabled');
-                generateBtn.innerHTML = '<i class="fa fa-play"></i> Generate Report';
+                generateBtn.innerHTML = '<i class="fa-solid fa-play"></i> Generate Report';
                 generateBtn.title = 'Generate the configured report';
             }
         }
@@ -3268,12 +3294,12 @@ class AdeptusWizard {
             if (disabled) {
                 exportBtn.disabled = true;
                 exportBtn.classList.add('disabled');
-                exportBtn.innerHTML = '<i class="fa fa-download"></i> Export (Limit Reached) <i class="fa fa-chevron-down"></i>';
+                exportBtn.innerHTML = '<i class="fa-solid fa-download"></i> Export (Limit Reached) <i class="fa-solid fa-chevron-down"></i>';
                 exportBtn.title = 'Export limit reached. Upgrade your plan for more exports.';
             } else {
                 exportBtn.disabled = false;
                 exportBtn.classList.remove('disabled');
-                exportBtn.innerHTML = '<i class="fa fa-download"></i> Export <i class="fa fa-chevron-down"></i>';
+                exportBtn.innerHTML = '<i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down"></i>';
                 exportBtn.title = 'Export report in various formats';
             }
         }
@@ -3303,7 +3329,7 @@ class AdeptusWizard {
             html: `
                 <div style="text-align: center; padding: 20px;">
                     <div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">
-                        <i class="fa fa-crown"></i>
+                        <i class="fa-solid fa-crown"></i>
                     </div>
                     <h3 style="color: #2c3e50; margin-bottom: 15px;">"${report.name}" is a Premium Report</h3>
                     <p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
@@ -3318,8 +3344,8 @@ class AdeptusWizard {
                 </div>
             `,
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
-            cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+            confirmButtonText: '<i class="fa-solid fa-arrow-up"></i> Upgrade Now',
+            cancelButtonText: '<i class="fa-solid fa-times"></i> Cancel',
             confirmButtonColor: '#3498db',
             cancelButtonColor: '#95a5a6',
             width: 500,
@@ -3349,7 +3375,7 @@ class AdeptusWizard {
             html: `
                 <div style="text-align: center; padding: 20px;">
                     <div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">
-                        <i class="fa fa-crown"></i>
+                        <i class="fa-solid fa-crown"></i>
                     </div>
                     <h3 style="color: #2c3e50; margin-bottom: 15px;">${formatName} Export is a Premium Feature</h3>
                     <p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
@@ -3364,8 +3390,8 @@ class AdeptusWizard {
                 </div>
             `,
             showCancelButton: true,
-            confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
-            cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+            confirmButtonText: '<i class="fa-solid fa-arrow-up"></i> Upgrade Now',
+            cancelButtonText: '<i class="fa-solid fa-times"></i> Cancel',
             confirmButtonColor: '#3498db',
             cancelButtonColor: '#95a5a6',
             width: 500,
