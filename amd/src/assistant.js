@@ -3354,17 +3354,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
-         * Send a message to persist report link in chat history
+         * Display report link in chat after saving
+         * Note: We only display locally - no backend call to avoid triggering AI processing.
+         * The report is already persisted via the /chat/report-confirmation endpoint.
          */
         sendReportMessage: function(report) {
-            // Get user information from auth status
-            const authStatus = AuthUtils.getAuthStatus();
-            const userInfo = authStatus?.user || {};
-
             // Create a message that includes report metadata
             const reportMessage = `📊 Report saved: ${report.description || report.name}`;
 
-            // Also display the report link immediately in the current chat
+            // Display the report link immediately in the current chat
             const reportLinkMsg = {
                 id: Date.now(), // Temporary ID
                 sender_type: 'ai',
@@ -3378,34 +3376,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 }
             };
 
-            // Display the report link in the chat immediately
+            // Display the report link in the chat (local only - no AI call)
             this.displayReportLink(reportLinkMsg);
-
-            // Send to backend with report metadata
-            this.ajaxWithAuth({
-                url: this.backendUrl + '/chat/message',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    message: reportMessage,
-                    chat_id: this.currentChatId,
-                    user_id: userInfo.id || null,
-                    user_name: userInfo.name || null,
-                    // Include report metadata
-                    metadata: {
-                        type: 'report',
-                        report_slug: report.slug,
-                        report_name: report.name || report.description,
-                        report_description: report.description
-                    }
-                }),
-                success: () => {
-                    // Report message saved successfully
-                },
-                error: () => {
-                    // Failed to save report message - non-critical
-                }
-            });
         },
 
         confirmReport: function(action, report, feedback) {
