@@ -27,6 +27,7 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
+require_once($CFG->dirroot . '/report/adeptus_insights/classes/api_config.php');
 
 // Require login and capability
 require_login();
@@ -35,6 +36,9 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/report/adeptus_insights/generated_reports.php'));
 $PAGE->set_title(get_string('generated_reports_title', 'report_adeptus_insights'));
+
+// Get backend URL from config
+$backend_url = \report_adeptus_insights\api_config::get_backend_url();
 
 // Check authentication using the new token-based system
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
@@ -59,6 +63,7 @@ echo $OUTPUT->header();
 $templatecontext = [
     'authenticated' => $authenticated,
     'wwwroot' => $CFG->wwwroot,
+    'backendUrl' => $backend_url,
 ];
 
 echo $OUTPUT->render_from_template('report_adeptus_insights/generated_reports', $templatecontext);

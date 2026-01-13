@@ -119,6 +119,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     'use strict';
 
     var GeneratedReports = {
+        backendUrl: '{{backendUrl}}',
         cachedReports: [],
         cachedCategories: [],
         currentReport: null,
@@ -229,7 +230,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!token) return;
 
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories',
+                url: this.backendUrl + '/reports/categories',
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -444,7 +445,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!token) return;
 
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories',
+                url: this.backendUrl + '/reports/categories',
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -560,7 +561,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!token) return;
 
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories/' + categoryId,
+                url: this.backendUrl + '/reports/categories/' + categoryId,
                 method: 'PUT',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -618,7 +619,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!token) return;
 
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/reports/categories/' + categoryId,
+                url: this.backendUrl + '/reports/categories/' + categoryId,
                 method: 'DELETE',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -722,8 +723,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // Determine the correct API endpoint based on report source
             var apiUrl = source === 'wizard'
-                ? 'https://a360backend.stagingwithswift.com/api/v1/wizard-reports/' + slug + '/category'
-                : 'https://a360backend.stagingwithswift.com/api/v1/ai-reports/' + slug + '/category';
+                ? this.backendUrl + '/wizard-reports/' + slug + '/category'
+                : this.backendUrl + '/ai-reports/' + slug + '/category';
 
             $.ajax({
                 url: apiUrl,
@@ -852,7 +853,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // Fetch from both AI Assistant reports (external API) and Wizard reports (local Moodle)
             var assistantPromise = $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports',
+                url: this.backendUrl + '/ai-reports',
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -1053,7 +1054,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // For assistant reports, fetch from external API
             $.ajax({
-                url: 'https://a360backend.stagingwithswift.com/api/v1/ai-reports/' + slug,
+                url: this.backendUrl + '/ai-reports/' + slug,
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -1067,6 +1068,40 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                     // Preserve source
                     report.source = source;
+
+                    // Check if local execution is required (SaaS model)
+                    // Get SQL from response - check multiple possible locations
+                    var sqlQuery = response.sql || (report && report.sql_query) || (report && report.sql);
+                    var needsLocalExecution = response.execution_required || (!data || data.length === 0) && sqlQuery;
+
+                    if (needsLocalExecution && sqlQuery) {
+                        // Execute SQL locally
+                        self.executeReportLocally(sqlQuery, report.params || {})
+                            .then(function(executionResult) {
+                                var localData = executionResult.data || [];
+
+                                self.currentReport = report;
+                                self.currentReportData = localData;
+
+                                // Update cached report with full data
+                                var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
+                                if (cacheIndex !== -1) {
+                                    self.cachedReports[cacheIndex] = Object.assign({}, report, { data: localData, source: source });
+                                }
+
+                                self.renderReportContent(report, localData);
+                            })
+                            .catch(function(error) {
+                                $('#report-loading').addClass('d-none');
+                                $('#report-content').html(
+                                    '<div class="alert alert-danger">' +
+                                        '<i class="fa fa-exclamation-circle"></i> Failed to execute report: ' + error.message +
+                                        '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                                    '</div>'
+                                ).removeClass('d-none');
+                            });
+                        return;
+                    }
 
                     self.currentReport = report;
                     self.currentReportData = data;
@@ -1152,6 +1187,58 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         '</div>'
                     ).removeClass('d-none');
                 }
+            });
+        },
+
+        /**
+         * Execute SQL locally for SaaS model
+         * @param {string} sql - The SQL query to execute
+         * @param {object} params - Query parameters
+         * @returns {Promise} - Resolves with execution result
+         */
+        executeReportLocally: function(sql, params) {
+            var self = this;
+            params = params || {};
+
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/execute_ai_report.php',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        sql: sql,
+                        params: params,
+                        sesskey: M.cfg.sesskey
+                    }),
+                    timeout: 60000,
+                    success: function(response) {
+                        if (response.success) {
+                            resolve({
+                                data: response.data || [],
+                                headers: response.headers || [],
+                                row_count: response.row_count || 0,
+                                error: null
+                            });
+                        } else {
+                            resolve({
+                                data: [],
+                                headers: [],
+                                row_count: 0,
+                                error: response.message || 'Query execution failed'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var errorMessage = 'Failed to execute report';
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = error || errorMessage;
+                        }
+                        reject(new Error(errorMessage));
+                    }
+                });
             });
         },
 
