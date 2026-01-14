@@ -130,12 +130,69 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         currentView: 'table',
         chartInstance: null,
         Chart: Chart,
+        isFreePlan: {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}},
 
         init: function() {
             this.loadReports();
             this.loadCategories();
             this.bindViewToggle();
             this.bindCategoryManagement();
+        },
+
+        /**
+         * Show upgrade prompt for premium export formats
+         */
+        showExportUpgradePrompt: function(format) {
+            var subscriptionUrl = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
+            var formatNames = {
+                'csv': 'CSV',
+                'excel': 'Excel',
+                'json': 'JSON'
+            };
+            var formatName = formatNames[format] || format.toUpperCase();
+
+            Swal.fire({
+                title: 'Premium Export Format',
+                html: '<div style="text-align: center; padding: 20px;">' +
+                    '<div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">' +
+                    '<i class="fa fa-crown"></i></div>' +
+                    '<h3 style="color: #2c3e50; margin-bottom: 15px;">' + formatName + ' Export is a Premium Feature</h3>' +
+                    '<p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">' +
+                    'Export to ' + formatName + ' format is only available with a paid subscription plan. ' +
+                    'Upgrade now to unlock all export formats and advanced features.</p>' +
+                    '<div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">' +
+                    '<p style="margin: 0; font-size: 14px; color: #34495e;">' +
+                    '<strong>Free Plan:</strong> PDF exports only<br>' +
+                    '<strong>Paid Plans:</strong> CSV, Excel, JSON, and PDF exports</p></div></div>',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
+                cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+                confirmButtonColor: '#3498db',
+                cancelButtonColor: '#95a5a6',
+                width: 500
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    window.open(subscriptionUrl, '_blank');
+                }
+            });
+        },
+
+        /**
+         * Check export eligibility before exporting
+         */
+        checkExportEligibility: async function(format) {
+            try {
+                var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/check_export_eligibility.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'format=' + encodeURIComponent(format) + '&sesskey=' + M.cfg.sesskey
+                });
+                var data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error checking export eligibility:', error);
+                return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
+            }
         },
 
         /**
@@ -1276,10 +1333,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> Chart</button>';
             contentHtml += '</div>';
 
-            // Export buttons
+            // Export buttons - PDF available for all, CSV/JSON premium on free plan
+            var premiumClass = self.isFreePlan ? ' export-premium' : '';
             contentHtml += '<div class="export-buttons d-flex gap-2">';
-            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn"><i class="fa fa-file-excel-o"></i> Export CSV</button>';
-            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn"><i class="fa fa-code"></i> Export JSON</button>';
+            contentHtml += '<button class="btn btn-outline-danger btn-sm export-pdf-btn"><i class="fa fa-file-pdf-o"></i> Export PDF</button>';
+            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> Export CSV' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> Export JSON' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
             contentHtml += '</div>';
             contentHtml += '</div>';
 
@@ -1400,10 +1459,21 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             self.currentView = 'table';
 
             // Attach export handlers
+            $('#report-content .export-pdf-btn').on('click', function() {
+                self.exportReport(report.slug, 'pdf');
+            });
             $('#report-content .export-csv-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('csv');
+                    return;
+                }
                 self.exportReport(report.slug, 'csv');
             });
             $('#report-content .export-json-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('json');
+                    return;
+                }
                 self.exportReport(report.slug, 'json');
             });
         },
@@ -1582,6 +1652,22 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             });
 
             try {
+                // Check export eligibility first
+                var eligibility = await self.checkExportEligibility(format);
+                if (!eligibility.success || !eligibility.eligible) {
+                    Swal.close();
+                    if (self.isFreePlan && format !== 'pdf') {
+                        self.showExportUpgradePrompt(format);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Export Not Available',
+                            text: eligibility.message || 'You are not eligible to export in this format.'
+                        });
+                    }
+                    return;
+                }
+
                 // For wizard reports, use the actual report name instead of the slug
                 var reportId = reportSlug;
                 var isWizardReport = self.currentReport && self.currentReport.source === 'wizard';
@@ -1590,7 +1676,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 }
 
                 var body = 'reportid=' + encodeURIComponent(reportId) + '&format=' + format + '&sesskey=' + M.cfg.sesskey;
-                body += '&view=table';
+                body += '&view=' + self.currentView;
 
                 // Always pass the frontend data for export
                 var headers = self.currentReportData.length > 0 ? Object.keys(self.currentReportData[0]) : [];
@@ -1601,6 +1687,21 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     report_category: self.currentReport?.category || ''
                 };
                 body += '&report_data=' + encodeURIComponent(JSON.stringify(reportDataPayload));
+
+                // For PDF, capture chart image if in chart view
+                if (format === 'pdf' && self.currentView === 'chart') {
+                    var chartCanvas = document.getElementById('report-chart');
+                    if (chartCanvas) {
+                        try {
+                            var chartImage = chartCanvas.toDataURL('image/png', 0.8);
+                            if (chartImage && chartImage.length < 1000000) {
+                                body += '&chart_image=' + encodeURIComponent(chartImage);
+                            }
+                        } catch (e) {
+                            console.warn('Could not capture chart image:', e);
+                        }
+                    }
+                }
 
                 var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/export_report.php', {
                     method: 'POST',

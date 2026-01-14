@@ -12,7 +12,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         _initCalled: false,
         isCreditLimitExceeded: false,
         backendUrl: 'https://backend.adeptus360.com/api/v1',
-        init: function (authenticated) {
+        isFreePlan: true,
+        init: function (authenticated, isFreePlan) {
+            this.isFreePlan = isFreePlan !== false; // Default to true if not passed
             if (this._initCalled) return;
             this._initCalled = true;
             this.currentChatId = 0;
@@ -4205,14 +4207,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             chartControlsHtml += '</div></div>'; // End chart-controls and wrapper
 
             // Controls row: export buttons (left), view toggle (right)
+            // PDF available for all, CSV/JSON premium on free plan
+            const premiumClass = self.isFreePlan ? ' export-premium' : '';
+            const premiumIcon = self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '';
             let controlsHtml = `
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
                     <div class="action-buttons d-flex gap-2">
-                        <button class="btn btn-outline-secondary btn-sm export-csv-btn mr-10">
-                            <i class="fa fa-download me-1"></i>Export CSV
+                        <button class="btn btn-outline-danger btn-sm export-pdf-btn">
+                            <i class="fa fa-file-pdf-o me-1"></i>Export PDF
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm export-json-btn">
-                            <i class="fa fa-code me-1"></i>Export JSON
+                        <button class="btn btn-outline-secondary btn-sm export-csv-btn${premiumClass} mr-10">
+                            <i class="fa fa-download me-1"></i>Export CSV${premiumIcon}
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm export-json-btn${premiumClass}">
+                            <i class="fa fa-code me-1"></i>Export JSON${premiumIcon}
                         </button>
                     </div>
                     <div class="view-toggle btn-group" role="group">
@@ -4337,9 +4345,22 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 self.renderReportChartFromSelectors(self._currentReportData, self._currentReportName);
             });
 
-            // Export buttons
-            reportsView.find('.export-csv-btn').on('click', () => self.exportReport(report.slug, 'csv'));
-            reportsView.find('.export-json-btn').on('click', () => self.exportReport(report.slug, 'json'));
+            // Export buttons - with plan-based restrictions
+            reportsView.find('.export-pdf-btn').on('click', () => self.exportReport(report.slug, 'pdf'));
+            reportsView.find('.export-csv-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('csv');
+                    return;
+                }
+                self.exportReport(report.slug, 'csv');
+            });
+            reportsView.find('.export-json-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('json');
+                    return;
+                }
+                self.exportReport(report.slug, 'json');
+            });
         },
 
         /**
@@ -4660,6 +4681,66 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
+         * Show upgrade prompt for premium export formats
+         */
+        showExportUpgradePrompt: function(format) {
+            const subscriptionUrl = `${M.cfg.wwwroot}/report/adeptus_insights/subscription.php`;
+            const formatNames = {
+                'csv': 'CSV',
+                'excel': 'Excel',
+                'json': 'JSON'
+            };
+            const formatName = formatNames[format] || format.toUpperCase();
+
+            Swal.fire({
+                title: 'Premium Export Format',
+                html: `<div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">
+                        <i class="fa fa-crown"></i>
+                    </div>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">${formatName} Export is a Premium Feature</h3>
+                    <p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                        Export to ${formatName} format is only available with a paid subscription plan.
+                        Upgrade now to unlock all export formats and advanced features.
+                    </p>
+                    <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 14px; color: #34495e;">
+                            <strong>Free Plan:</strong> PDF exports only<br>
+                            <strong>Paid Plans:</strong> CSV, Excel, JSON, and PDF exports
+                        </p>
+                    </div>
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
+                cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+                confirmButtonColor: '#3498db',
+                cancelButtonColor: '#95a5a6',
+                width: 500
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(subscriptionUrl, '_blank');
+                }
+            });
+        },
+
+        /**
+         * Check export eligibility before exporting
+         */
+        checkExportEligibility: async function(format) {
+            try {
+                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_export_eligibility.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `format=${encodeURIComponent(format)}&sesskey=${M.cfg.sesskey}`
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Error checking export eligibility:', error);
+                return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
+            }
+        },
+
+        /**
          * Export report using local Moodle endpoint (same as Wizard)
          */
         exportReport: async function(reportSlug, format) {
@@ -4673,6 +4754,22 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
 
             try {
+                // Check export eligibility first
+                const eligibility = await self.checkExportEligibility(format);
+                if (!eligibility.success || !eligibility.eligible) {
+                    Swal.close();
+                    if (self.isFreePlan && format !== 'pdf') {
+                        self.showExportUpgradePrompt(format);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Export Not Available',
+                            text: eligibility.message || 'You are not eligible to export in this format.'
+                        });
+                    }
+                    return;
+                }
+
                 // Build the request body
                 let body = `reportid=${encodeURIComponent(reportSlug)}&format=${format}&sesskey=${M.cfg.sesskey}`;
 

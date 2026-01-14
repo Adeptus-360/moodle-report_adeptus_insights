@@ -406,3 +406,13 @@ $string['pdf_of'] = 'of';
 $string['branding_unavailable'] = 'PDF branding is temporarily unavailable. Please try again later.';
 $string['branding_fetch_failed'] = 'Unable to fetch branding assets from the server.';
 $string['export_branding_required'] = 'PDF export requires connection to the branding server. Please ensure you have an active internet connection.';
+
+// Export plan restrictions
+$string['export_premium_title'] = 'Premium Export Format';
+$string['export_premium_feature'] = '{$a} Export is a Premium Feature';
+$string['export_premium_description'] = 'Export to {$a} format is only available with a paid subscription plan. Upgrade now to unlock all export formats and advanced features.';
+$string['export_free_plan_info'] = 'Free Plan: PDF exports only';
+$string['export_paid_plan_info'] = 'Paid Plans: CSV, Excel, JSON, and PDF exports';
+$string['export_upgrade_now'] = 'Upgrade Now';
+$string['export_not_available'] = 'Export Not Available';
+$string['export_not_eligible'] = 'You are not eligible to export in this format.';
