@@ -196,6 +196,77 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         },
 
         /**
+         * Capture chart as image for PDF export
+         * Uses native toDataURL with html2canvas fallback
+         */
+        captureChartImage: async function() {
+            var self = this;
+
+            // Wait for chart animation to complete
+            await new Promise(function(resolve) { setTimeout(resolve, 300); });
+
+            var chartCanvas = document.getElementById('report-chart');
+            if (!chartCanvas) {
+                console.warn('[GeneratedReports] Chart canvas not found');
+                return null;
+            }
+
+            // Method 1: Native canvas toDataURL (fastest, most reliable)
+            try {
+                var dataUrl = chartCanvas.toDataURL('image/png', 0.8);
+                if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                    console.log('[GeneratedReports] Chart captured via toDataURL, size:', dataUrl.length);
+                    return dataUrl;
+                }
+            } catch (e) {
+                console.warn('[GeneratedReports] Native canvas capture failed:', e);
+            }
+
+            // Method 2: html2canvas fallback (handles CORS/tainted canvas)
+            try {
+                if (!window.html2canvas) {
+                    await self.loadHtml2Canvas();
+                }
+
+                if (window.html2canvas) {
+                    var capturedCanvas = await window.html2canvas(chartCanvas, {
+                        backgroundColor: '#ffffff',
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false
+                    });
+                    var dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
+                    if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                        console.log('[GeneratedReports] Chart captured via html2canvas, size:', dataUrl.length);
+                        return dataUrl;
+                    }
+                }
+            } catch (e) {
+                console.warn('[GeneratedReports] html2canvas capture failed:', e);
+            }
+
+            return null;
+        },
+
+        /**
+         * Load html2canvas library from CDN
+         */
+        loadHtml2Canvas: function() {
+            return new Promise(function(resolve, reject) {
+                if (window.html2canvas) {
+                    resolve();
+                    return;
+                }
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.onload = function() { resolve(); };
+                script.onerror = function() { reject(new Error('Failed to load html2canvas')); };
+                document.head.appendChild(script);
+            });
+        },
+
+        /**
          * Show toast notification
          */
         showToast: function(message, type) {
@@ -1690,16 +1761,23 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                 // For PDF, capture chart image if in chart view
                 if (format === 'pdf' && self.currentView === 'chart') {
-                    var chartCanvas = document.getElementById('report-chart');
-                    if (chartCanvas) {
-                        try {
-                            var chartImage = chartCanvas.toDataURL('image/png', 0.8);
-                            if (chartImage && chartImage.length < 1000000) {
-                                body += '&chart_image=' + encodeURIComponent(chartImage);
-                            }
-                        } catch (e) {
-                            console.warn('Could not capture chart image:', e);
+                    try {
+                        // Use robust chart capture with timeout protection
+                        var chartImagePromise = self.captureChartImage();
+                        var timeoutPromise = new Promise(function(_, reject) {
+                            setTimeout(function() { reject(new Error('Chart capture timeout')); }, 10000);
+                        });
+
+                        var chartImage = await Promise.race([chartImagePromise, timeoutPromise]);
+
+                        if (chartImage && chartImage.length > 100) {
+                            body += '&chart_image=' + encodeURIComponent(chartImage);
+                            console.log('[GeneratedReports] Chart image included in export');
+                        } else {
+                            console.warn('[GeneratedReports] Chart capture returned empty or invalid data');
                         }
+                    } catch (e) {
+                        console.warn('[GeneratedReports] Chart capture failed, continuing without chart:', e.message);
                     }
                 }
 

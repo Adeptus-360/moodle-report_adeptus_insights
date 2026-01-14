@@ -13,6 +13,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         isCreditLimitExceeded: false,
         backendUrl: 'https://backend.adeptus360.com/api/v1',
         isFreePlan: true,
+        _currentReportView: 'table', // Track current view: 'table' or 'chart'
+        _currentReportData: null, // Store current report data for chart rendering
+        _currentReportName: '', // Store current report name for chart title
+        currentViewedReport: null, // Store current report object for export
+        currentViewedReportData: null, // Store current report data for export
         init: function (authenticated, isFreePlan) {
             this.isFreePlan = isFreePlan !== false; // Default to true if not passed
             if (this._initCalled) return;
@@ -4258,6 +4263,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             self._currentReportData = data;
             self._currentReportName = report.description || report.name || 'Report';
 
+            // Set initial view state based on report display type
+            self._currentReportView = (report.display_type === 'chart') ? 'chart' : 'table';
+
             // Initialize Vanilla Table Enhancer if table is active
             if (this._pendingTableId && report.display_type !== 'chart') {
                 setTimeout(() => {
@@ -4294,6 +4302,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 const type = $(this).data('type');
                 reportsView.find('.view-toggle-btn').removeClass('active');
                 $(this).addClass('active');
+
+                // Track current view for export
+                self._currentReportView = type;
 
                 // Toggle view panels
                 reportsView.find('.report-view-panel').addClass('d-none');
@@ -4741,6 +4752,77 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         /**
+         * Capture chart as image for PDF export
+         * Uses native toDataURL with html2canvas fallback
+         */
+        captureChartImage: async function() {
+            const self = this;
+
+            // Wait for chart animation to complete
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            const chartCanvas = document.getElementById('reportChart');
+            if (!chartCanvas) {
+                console.warn('[Assistant] Chart canvas not found');
+                return null;
+            }
+
+            // Method 1: Native canvas toDataURL (fastest, most reliable)
+            try {
+                const dataUrl = chartCanvas.toDataURL('image/png', 0.8);
+                if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                    console.log('[Assistant] Chart captured via toDataURL, size:', dataUrl.length);
+                    return dataUrl;
+                }
+            } catch (e) {
+                console.warn('[Assistant] Native canvas capture failed:', e);
+            }
+
+            // Method 2: html2canvas fallback (handles CORS/tainted canvas)
+            try {
+                if (!window.html2canvas) {
+                    await self.loadHtml2Canvas();
+                }
+
+                if (window.html2canvas) {
+                    const capturedCanvas = await window.html2canvas(chartCanvas, {
+                        backgroundColor: '#ffffff',
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false
+                    });
+                    const dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
+                    if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                        console.log('[Assistant] Chart captured via html2canvas, size:', dataUrl.length);
+                        return dataUrl;
+                    }
+                }
+            } catch (e) {
+                console.warn('[Assistant] html2canvas capture failed:', e);
+            }
+
+            return null;
+        },
+
+        /**
+         * Load html2canvas library from CDN
+         */
+        loadHtml2Canvas: function() {
+            return new Promise((resolve, reject) => {
+                if (window.html2canvas) {
+                    resolve();
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Failed to load html2canvas'));
+                document.head.appendChild(script);
+            });
+        },
+
+        /**
          * Export report using local Moodle endpoint (same as Wizard)
          */
         exportReport: async function(reportSlug, format) {
@@ -4773,8 +4855,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Build the request body
                 let body = `reportid=${encodeURIComponent(reportSlug)}&format=${format}&sesskey=${M.cfg.sesskey}`;
 
-                // Add view type (default to table)
-                body += `&view=table`;
+                // Add view type based on current view
+                body += `&view=${self._currentReportView}`;
 
                 // Include the report data if we have it stored
                 if (self.currentViewedReportData && Array.isArray(self.currentViewedReportData)) {
@@ -4788,6 +4870,28 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         headers: headers
                     };
                     body += `&report_data=${encodeURIComponent(JSON.stringify(reportDataPayload))}`;
+                }
+
+                // For PDF, capture chart image if in chart view
+                if (format === 'pdf' && self._currentReportView === 'chart') {
+                    try {
+                        // Use robust chart capture with timeout protection
+                        const chartImagePromise = self.captureChartImage();
+                        const timeoutPromise = new Promise((_, reject) => {
+                            setTimeout(() => reject(new Error('Chart capture timeout')), 10000);
+                        });
+
+                        const chartImage = await Promise.race([chartImagePromise, timeoutPromise]);
+
+                        if (chartImage && chartImage.length > 100) {
+                            body += `&chart_image=${encodeURIComponent(chartImage)}`;
+                            console.log('[Assistant] Chart image included in export');
+                        } else {
+                            console.warn('[Assistant] Chart capture returned empty or invalid data');
+                        }
+                    } catch (e) {
+                        console.warn('[Assistant] Chart capture failed, continuing without chart:', e.message);
+                    }
                 }
 
                 // Make the request to the local Moodle endpoint
