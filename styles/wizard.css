@@ -70,11 +70,17 @@
     height: 200%;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
     animation: float 20s linear infinite;
+    pointer-events: none; /* Prevent decorative element from blocking clicks */
 }
 
 @keyframes float {
     0% { transform: translateY(0) rotate(0deg); }
     100% { transform: translateY(-100px) rotate(360deg); }
+}
+
+.wizard-header-content {
+    position: relative;
+    z-index: 1; /* Ensure header content stays above decorative elements */
 }
 
 .wizard-title {
@@ -103,6 +109,8 @@
 
 .wizard-header-section {
     text-align: right;
+    position: relative;
+    z-index: 1; /* Ensure header controls stay above decorative elements */
 }
 
 .wizard-user-info {
