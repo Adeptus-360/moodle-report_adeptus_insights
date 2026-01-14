@@ -97,4 +97,13 @@ class api_config {
     public static function get_subscriptions_endpoint() {
         return self::get_backend_url() . '/subscriptions';
     }
+
+    /**
+     * Get the branding logo endpoint.
+     *
+     * @return string The branding logo endpoint URL.
+     */
+    public static function get_branding_endpoint() {
+        return self::get_backend_url() . '/branding/logo';
+    }
 }

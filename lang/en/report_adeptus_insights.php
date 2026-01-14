@@ -390,3 +390,19 @@ $string['current_version'] = 'Current Version';
 $string['latest_version'] = 'Latest Version';
 $string['download_update'] = 'Download Update';
 $string['view_changelog'] = 'View Changelog';
+
+// PDF Export Branding
+$string['pdf_footer_default'] = 'Powered by Adeptus Insights | © 2026 Adeptus 360';
+$string['pdf_parameters'] = 'Report Parameters';
+$string['pdf_table_data'] = 'Table Data';
+$string['pdf_chart_visualization'] = 'Chart Visualization';
+$string['pdf_no_data'] = 'No data available for this report.';
+$string['pdf_no_chart'] = 'No chart visualization available for this report.';
+$string['pdf_generated_on'] = 'Generated on';
+$string['pdf_page'] = 'Page';
+$string['pdf_of'] = 'of';
+
+// Branding errors
+$string['branding_unavailable'] = 'PDF branding is temporarily unavailable. Please try again later.';
+$string['branding_fetch_failed'] = 'Unable to fetch branding assets from the server.';
+$string['export_branding_required'] = 'PDF export requires connection to the branding server. Please ensure you have an active internet connection.';

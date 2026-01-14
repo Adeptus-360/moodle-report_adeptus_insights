@@ -516,212 +516,88 @@ function generateExcelHTML($sheets_data, $report_name) {
 }
 
 /**
- * Generate PDF with chart on page 1 and table on page 2
+ * Generate branded PDF with Adeptus 360 branding.
+ *
+ * This function generates a PDF with secure branding fetched from the backend.
+ * The branding (logo, footer) cannot be tampered with locally as it is
+ * retrieved server-side on each export.
+ *
+ * @param string $report_name Report title.
+ * @param array $table_data Table data with headers as first row.
+ * @param array $chart_data Chart data (unused, kept for compatibility).
+ * @param array $report_params Report parameters.
+ * @param string $chart_image Base64 encoded chart image.
+ * @return string PDF content.
+ * @throws Exception If branding is unavailable or PDF generation fails.
  */
 function generatePDF($report_name, $table_data, $chart_data, $report_params, $chart_image = '') {
-    // Use Moodle's built-in TCPDF library
     global $CFG;
 
+    // Load branding manager and get branding configuration.
+    require_once(__DIR__ . '/../classes/branding_manager.php');
+    require_once(__DIR__ . '/../classes/branded_pdf.php');
+
+    $branding_manager = new \report_adeptus_insights\branding_manager();
+
+    // SECURITY: Branding is REQUIRED - fail if backend is unreachable.
+    // This prevents PDF exports without proper Adeptus 360 branding.
+    if (!$branding_manager->is_branding_available()) {
+        throw new Exception(get_string('export_branding_required', 'report_adeptus_insights'));
+    }
+
+    // Get branding configuration from backend.
+    $branding_config = $branding_manager->get_pdf_branding_config();
+
     try {
-        // Check if TCPDF is available
-        if (!class_exists('TCPDF')) {
-            // Load TCPDF config first
-            $tcpdf_config_path = $CFG->libdir . '/tcpdf/config/tcpdf_config.php';
-            if (file_exists($tcpdf_config_path)) {
-                require_once($tcpdf_config_path);
+        // Create branded PDF instance.
+        $pdf = new \report_adeptus_insights\branded_pdf($branding_config, 'P', 'mm', 'A4');
+        $pdf->set_report_title($report_name);
+        $pdf->SetTitle($report_name);
+
+        // Add first page for table data.
+        $pdf->AddPage();
+
+        // Add parameters section if present.
+        if (!empty($report_params)) {
+            $pdf->add_parameters_section($report_params);
+        }
+
+        // Add table data section.
+        $pdf->add_section_title(get_string('pdf_table_data', 'report_adeptus_insights'));
+
+        if (!empty($table_data) && count($table_data) > 1) {
+            // First row is headers, rest is data.
+            $headers = $table_data[0];
+            $data = array_slice($table_data, 1);
+            $pdf->add_data_table($headers, $data);
+        } else {
+            $pdf->add_no_data_message(get_string('pdf_no_data', 'report_adeptus_insights'));
+        }
+
+        // Add second page for chart visualization.
+        $pdf->AddPage();
+        $pdf->add_section_title(get_string('pdf_chart_visualization', 'report_adeptus_insights'));
+
+        if (!empty($chart_image)) {
+            $chart_added = $pdf->add_chart_image($chart_image);
+            if (!$chart_added) {
+                $pdf->add_no_data_message(get_string('pdf_no_chart', 'report_adeptus_insights'));
             }
-
-            $tcpdf_path = $CFG->libdir . '/tcpdf/tcpdf.php';
-            if (!file_exists($tcpdf_path)) {
-                throw new Exception('TCPDF library not found at: ' . $tcpdf_path);
-            }
-            require_once($tcpdf_path);
+        } else {
+            $pdf->add_no_data_message(get_string('pdf_no_chart', 'report_adeptus_insights'));
         }
 
-        // Define PDF constants if not already defined
-        if (!defined('PDF_PAGE_ORIENTATION')) {
-            define('PDF_PAGE_ORIENTATION', 'P');
-        }
-        if (!defined('PDF_UNIT')) {
-            define('PDF_UNIT', 'mm');
-        }
-        if (!defined('PDF_PAGE_FORMAT')) {
-            define('PDF_PAGE_FORMAT', 'A4');
-        }
-        if (!defined('PDF_MARGIN_LEFT')) {
-            define('PDF_MARGIN_LEFT', 15);
-        }
-        if (!defined('PDF_MARGIN_TOP')) {
-            define('PDF_MARGIN_TOP', 27);
-        }
-        if (!defined('PDF_MARGIN_RIGHT')) {
-            define('PDF_MARGIN_RIGHT', 15);
-        }
-        if (!defined('PDF_MARGIN_HEADER')) {
-            define('PDF_MARGIN_HEADER', 5);
-        }
-        if (!defined('PDF_MARGIN_FOOTER')) {
-            define('PDF_MARGIN_FOOTER', 10);
-        }
-        if (!defined('PDF_MARGIN_BOTTOM')) {
-            define('PDF_MARGIN_BOTTOM', 25);
-        }
-        if (!defined('PDF_IMAGE_SCALE_RATIO')) {
-            define('PDF_IMAGE_SCALE_RATIO', 1.25);
-        }
-        if (!defined('PDF_FONT_NAME_MAIN')) {
-            define('PDF_FONT_NAME_MAIN', 'helvetica');
-        }
-        if (!defined('PDF_FONT_SIZE_MAIN')) {
-            define('PDF_FONT_SIZE_MAIN', 10);
-        }
-        if (!defined('PDF_FONT_NAME_DATA')) {
-            define('PDF_FONT_NAME_DATA', 'helvetica');
-        }
-        if (!defined('PDF_FONT_SIZE_DATA')) {
-            define('PDF_FONT_SIZE_DATA', 8);
-        }
-        if (!defined('PDF_FONT_MONOSPACED')) {
-            define('PDF_FONT_MONOSPACED', 'courier');
-        }
-
-        // Create new PDF document
-        $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-    } catch (Exception $e) {
-        throw new Exception('Failed to initialize PDF library: ' . $e->getMessage());
-    }
-
-    // Set document information
-    $pdf->SetCreator('Moodle Adeptus Insights');
-    $pdf->SetAuthor('Adeptus Insights Report');
-    $pdf->SetTitle($report_name);
-    $pdf->SetSubject('Report Export');
-
-    // Set default header data
-    $pdf->SetHeaderData('', 0, $report_name, 'Generated on: ' . date('Y-m-d H:i:s'));
-
-    // Set header and footer fonts
-    $pdf->setHeaderFont([PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN]);
-    $pdf->setFooterFont([PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA]);
-
-    // Set default monospaced font
-    $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-    // Set margins
-    $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-    // Set auto page breaks
-    $pdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
-
-    // Set image scale factor
-    $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-    // Add a page
-    $pdf->AddPage();
-
-    // Page 1: Report Information and Table Data
-    $pdf->SetFont('helvetica', 'B', 16);
-    $pdf->Cell(0, 10, $report_name, 0, 1, 'L');
-    $pdf->Ln(5);
-
-    // Date
-    $pdf->SetFont('helvetica', '', 10);
-    $pdf->Cell(0, 8, 'Generated on: ' . date('Y-m-d H:i:s'), 0, 1, 'L');
-    $pdf->Ln(5);
-
-    // Parameters
-    if (!empty($report_params)) {
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 8, 'Parameters:', 0, 1, 'L');
-        $pdf->SetFont('helvetica', '', 10);
-        foreach ($report_params as $key => $value) {
-            $pdf->Cell(0, 6, $key . ': ' . $value, 0, 1, 'L');
-        }
-        $pdf->Ln(5);
-    }
-
-    // Table Data
-    $pdf->SetFont('helvetica', 'B', 14);
-    $pdf->Cell(0, 10, 'Table Data', 0, 1, 'L');
-    $pdf->Ln(5);
-
-    if (!empty($table_data)) {
-        $pdf->SetFont('helvetica', '', 8);
-
-        // Calculate column widths
-        $max_cols = 0;
-        foreach ($table_data as $row) {
-            $max_cols = max($max_cols, count($row));
-        }
-
-        $page_width = $pdf->getPageWidth() - PDF_MARGIN_LEFT - PDF_MARGIN_RIGHT;
-        $col_width = $page_width / $max_cols;
-
-        // Add table headers
-        if (!empty($table_data)) {
-            $first_row = $table_data[0];
-            $pdf->SetFont('helvetica', 'B', 8);
-            $pdf->SetFillColor(240, 240, 240);
-            foreach ($first_row as $cell) {
-                $pdf->Cell($col_width, 6, $cell, 1, 0, 'L', true);
-            }
-            $pdf->Ln();
-
-            // Add table data
-            $pdf->SetFont('helvetica', '', 7);
-            for ($i = 1; $i < count($table_data); $i++) {
-                $row = $table_data[$i];
-                foreach ($row as $cell) {
-                    $pdf->Cell($col_width, 5, $cell, 1, 0, 'L');
-                }
-                $pdf->Ln();
-            }
-        }
-    } else {
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(0, 10, 'No table data available for this report.', 0, 1, 'L');
-    }
-
-    // Add a new page for chart visualization
-    $pdf->AddPage();
-
-    // Page 2: Chart Visualization
-    $pdf->SetFont('helvetica', 'B', 14);
-    $pdf->Cell(0, 10, 'Chart Visualization', 0, 1, 'L');
-    $pdf->Ln(5);
-
-    // Display chart image if available
-    if (!empty($chart_image)) {
-        // Extract base64 data
-        $image_data = base64_decode(preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $chart_image));
-
-        // Save temporary image file
-        $temp_file = tempnam(sys_get_temp_dir(), 'chart_');
-        file_put_contents($temp_file, $image_data);
-
-        // Add image to PDF
-        $pdf->Image($temp_file, PDF_MARGIN_LEFT, $pdf->GetY(), $page_width, 0, 'PNG', '', '', false, 300, '', false, false, 0, false, false, false);
-
-        // Clean up temporary file
-        unlink($temp_file);
-    } else {
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(0, 10, 'No chart visualization available for this report.', 0, 1, 'L');
-    }
-
-    // Output PDF
-    try {
-        $pdf_output = $pdf->Output('', 'S'); // Return as string
+        // Generate PDF content.
+        $pdf_output = $pdf->get_pdf_content();
 
         if (empty($pdf_output)) {
-            throw new Exception('PDF Output returned empty content');
+            throw new Exception('PDF generation returned empty content');
         }
 
         return $pdf_output;
+
     } catch (Exception $e) {
-        throw new Exception('Failed to output PDF: ' . $e->getMessage());
+        throw new Exception('PDF generation failed: ' . $e->getMessage());
     }
 }
 
