@@ -45,6 +45,8 @@ if (!confirm_sesskey($sesskey)) {
 }
 
 try {
+    global $DB, $USER;
+
     // Get installation manager
     $installation_manager = new \report_adeptus_insights\installation_manager();
 
@@ -75,18 +77,55 @@ try {
                 'eligible' => false,
                 'message' => 'This export format requires a premium subscription. PDF exports are available on the free plan.',
             ];
+        } else {
+            // Check export limit for free plan users (10 exports total)
+            $exports_limit = 10;
+            $exports_used = 0;
+
+            try {
+                $exports_used = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
+            } catch (Exception $e) {
+                // Table might not exist yet, allow export
+                $exports_used = 0;
+            }
+
+            $exports_remaining = max(0, $exports_limit - $exports_used);
+
+            if ($exports_remaining <= 0) {
+                $response = [
+                    'success' => true,
+                    'eligible' => false,
+                    'message' => 'You have reached your export limit of ' . $exports_limit . ' exports. Upgrade to a paid plan for more exports.',
+                    'exports_used' => $exports_used,
+                    'exports_limit' => $exports_limit,
+                    'exports_remaining' => 0,
+                ];
+            } else {
+                // Include remaining count in successful response
+                $response['exports_used'] = $exports_used;
+                $response['exports_limit'] = $exports_limit;
+                $response['exports_remaining'] = $exports_remaining;
+            }
         }
     } else {
         // Check export limits for paid users
         $exports_remaining = $subscription['exports_remaining'] ?? 50;
+        $exports_limit = $subscription['plan_exports_limit'] ?? 50;
 
         if ($exports_remaining <= 0) {
-            $exports_limit = $subscription['plan_exports_limit'] ?? 50;
             $response = [
                 'success' => true,
                 'eligible' => false,
                 'message' => 'You have reached your monthly export limit of ' . $exports_limit . ' exports.',
+                'exports_used' => $exports_limit,
+                'exports_limit' => $exports_limit,
+                'exports_remaining' => 0,
             ];
+        } else {
+            // Include remaining count in successful response
+            $response['exports_used'] = max(0, $exports_limit - $exports_remaining);
+            $response['exports_limit'] = $exports_limit;
+            $response['exports_remaining'] = $exports_remaining;
         }
     }
 
