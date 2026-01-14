@@ -124,13 +124,17 @@ try {
         exit;
     }
 
-    // Return backend response
+    // Return backend response - handle alternate field names
+    $reports_used = $backend_data['reports_used'] ?? $backend_data['used'] ?? 0;
+    $reports_limit = $backend_data['reports_limit'] ?? $backend_data['limit'] ?? 0;
+    $reports_remaining = $backend_data['reports_remaining'] ?? $backend_data['remaining'] ?? 0;
+
     echo json_encode([
         'success' => $backend_data['success'] ?? true,
         'message' => $backend_data['message'] ?? 'Report creation tracked successfully',
-        'reports_used' => $backend_data['reports_used'] ?? 0,
-        'reports_limit' => $backend_data['reports_limit'] ?? 0,
-        'reports_remaining' => $backend_data['reports_remaining'] ?? 0,
+        'reports_used' => $reports_used,
+        'reports_limit' => $reports_limit,
+        'reports_remaining' => $reports_remaining,
     ]);
 
 } catch (Exception $e) {

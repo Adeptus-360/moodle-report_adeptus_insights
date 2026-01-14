@@ -24,6 +24,7 @@ class AdeptusWizard {
         this.reportsUsed = 0;
         this.reportsLimit = 0;
         this.reportsRemaining = 0;
+        this.isReexecution = false; // True when loading a saved report (doesn't count against limit)
     }
 
     async init() {
@@ -273,10 +274,14 @@ class AdeptusWizard {
                     const messageDiv = document.createElement('div');
                     messageDiv.id = 'report-limit-message';
                     messageDiv.className = 'alert alert-warning mt-3';
+                    // Only show counts if we have valid data (not 0 of 0)
+                    const hasValidCounts = this.reportsLimit > 0;
+                    const countText = hasValidCounts
+                        ? `You have used ${this.reportsUsed} of ${this.reportsLimit} reports. `
+                        : '';
                     messageDiv.innerHTML = `
                         <i class="fa-solid fa-exclamation-triangle"></i>
-                        <strong>Report limit reached!</strong> You have used ${this.reportsUsed} of ${this.reportsLimit} reports.
-                        Delete existing reports to free up slots or <a href="#" onclick="window.adeptusWizardInstance.showUpgradePrompt(); return false;">upgrade your plan</a>.
+                        <strong>Report limit reached!</strong> ${countText}Delete existing reports to free up slots or <a href="#" onclick="window.adeptusWizardInstance.showUpgradePrompt(); return false;">upgrade your plan</a>.
                     `;
                     reportsGrid.parentNode.insertBefore(messageDiv, reportsGrid);
                 }
@@ -1201,21 +1206,24 @@ class AdeptusWizard {
 
     selectReport(reportId) {
         // Find the report data to check if it's premium
-        const category = this.wizardData.categories.find(cat => 
+        const category = this.wizardData.categories.find(cat =>
             cat.reports.some(rep => rep.name === reportId) // Changed from rep.id == reportId to rep.name === reportId
         );
         const report = category ? category.reports.find(rep => rep.name === reportId) : null; // Changed from rep.id == reportId to rep.name === reportId
-        
+
         // Check if this is a premium report for free plan users
         const isFreePlan = this.wizardData.is_free_plan;
         const isPremiumReport = isFreePlan && report && !report.is_free_tier;
-        
+
         if (isPremiumReport) {
             this.showUpgradePrompt(report);
             return;
         }
-        
+
         this.selectedReport = reportId;
+
+        // This is a NEW report selection (not loading saved), so it's not a re-execution
+        this.isReexecution = false;
         
         // Animate report selection
         const reportCard = document.querySelector(`[data-report-id="${reportId}"]`);
@@ -1478,22 +1486,29 @@ class AdeptusWizard {
             return;
         }
 
-        // Check if generate button is disabled (limit reached)
-        const generateBtn = document.getElementById('generate-report');
-        if (generateBtn && generateBtn.disabled) {
-            return;
+        // Check if this is a re-execution (viewing saved report)
+        const isReexecution = this.isReexecution || false;
+
+        // For new reports (not re-executions), check if button is disabled
+        if (!isReexecution) {
+            const generateBtn = document.getElementById('generate-report');
+            if (generateBtn && generateBtn.disabled) {
+                return;
+            }
         }
 
         this.isGeneratingReport = true;
-        this.showLoading('Checking report eligibility...');
 
-        // STEP 1: Check eligibility with backend BEFORE generating
-        const eligibility = await this.checkReportEligibility();
-        if (!eligibility.eligible) {
-            this.hideLoading();
-            this.isGeneratingReport = false;
-            this.showError(eligibility.message || 'You have reached your report limit. Delete existing reports or upgrade your plan.');
-            return;
+        // STEP 1: Check eligibility with backend BEFORE generating (skip for re-executions)
+        if (!isReexecution) {
+            this.showLoading('Checking report eligibility...');
+            const eligibility = await this.checkReportEligibility();
+            if (!eligibility.eligible) {
+                this.hideLoading();
+                this.isGeneratingReport = false;
+                this.showError(eligibility.message || 'You have reached your report limit. Delete existing reports or upgrade your plan.');
+                return;
+            }
         }
 
         this.showLoading('Generating your report...');
@@ -1502,6 +1517,11 @@ class AdeptusWizard {
         const formData = new FormData();
         formData.append('reportid', this.selectedReport);
         formData.append('sesskey', this.wizardData.sesskey);
+
+        // Mark as re-execution if loading saved report (skips server-side eligibility check)
+        if (isReexecution) {
+            formData.append('reexecution', '1');
+        }
 
         const paramInputs = document.querySelectorAll('#config-form input, #config-form select');
         paramInputs.forEach(input => {
@@ -1520,8 +1540,8 @@ class AdeptusWizard {
                 this.displayResults(data);
                 this.goToStep('step-results');
 
-                // STEP 2: Track report creation with backend (only if not a duplicate)
-                if (!data.is_duplicate) {
+                // STEP 2: Track report creation with backend (only if not a duplicate and not re-execution)
+                if (!data.is_duplicate && !isReexecution) {
                     // Track with backend - this is the source of truth
                     await this.trackReportCreated(this.selectedReport, false);
                 }
@@ -1537,6 +1557,8 @@ class AdeptusWizard {
         } finally {
             this.hideLoading();
             this.isGeneratingReport = false;
+            // Reset re-execution flag after generation
+            this.isReexecution = false;
         }
     }
 
@@ -2745,7 +2767,7 @@ class AdeptusWizard {
 
     handleLoadConfiguration(reportId, action, parameters) {
         this.selectedReport = reportId;
-        
+
         // Parse saved parameters if available
         let savedParams = {};
         if (parameters && parameters !== 'undefined') {
@@ -2755,12 +2777,25 @@ class AdeptusWizard {
                 console.warn('Could not parse saved parameters:', parameters);
             }
         }
-        
+
         if (action === 'recent' || action === 'generated') {
+            // Mark this as a re-execution (viewing saved report, not creating new)
+            // Re-executions don't count against the report limit
+            this.isReexecution = true;
+
+            // Temporarily enable generate button for re-executions even if limit reached
+            const generateBtn = document.getElementById('generate-report');
+            if (generateBtn) {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('disabled');
+            }
+
             // Load the report configuration with saved parameters
             this.loadReportParameters(reportId, savedParams);
             this.goToStep('step-configure');
         } else if (action === 'bookmark') {
+            // Bookmarks are NEW executions (not previously generated)
+            this.isReexecution = false;
             // Load the report configuration for bookmarked report
             this.loadReportParameters(reportId);
             this.goToStep('step-configure');

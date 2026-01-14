@@ -1259,7 +1259,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var self = this;
 
             // Build form data for the generate_report.php endpoint
-            var formData = 'reportid=' + encodeURIComponent(cachedReport.name) + '&sesskey=' + M.cfg.sesskey;
+            // Include reexecution=1 to skip eligibility check (this is a saved report being viewed)
+            var formData = 'reportid=' + encodeURIComponent(cachedReport.name) + '&sesskey=' + M.cfg.sesskey + '&reexecution=1';
 
             // Add saved parameters if available
             if (cachedReport.parameters && typeof cachedReport.parameters === 'object') {

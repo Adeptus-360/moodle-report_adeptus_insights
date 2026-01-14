@@ -137,6 +137,13 @@ try {
     // This check happens server-side and cannot be bypassed by client
     // =========================================================================
 
+    // Check if this is a re-execution of an existing report (viewing saved reports)
+    // Re-executions don't count against the limit since the report was already tracked
+    $is_reexecution = optional_param('reexecution', 0, PARAM_BOOL);
+
+    // Skip eligibility check for re-executions (viewing existing reports)
+    // The original report creation was already tracked and counted
+    if (!$is_reexecution) {
     // Check report creation eligibility with backend (cumulative limits)
     $limits_endpoint = rtrim($backendApiUrl, '/') . '/api/v1/report-limits/check';
     $ch_limits = curl_init();
@@ -203,6 +210,7 @@ try {
         ]);
         exit;
     }
+    } // End of eligibility check (skipped for re-executions)
 
     // =========================================================================
     // SERVER-SIDE ENFORCEMENT: Check subscription tier access
