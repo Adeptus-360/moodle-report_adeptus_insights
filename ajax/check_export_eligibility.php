@@ -17,6 +17,12 @@
 /**
  * Check export eligibility AJAX endpoint.
  *
+ * This endpoint calls the backend API to verify export eligibility.
+ * The backend is the single source of truth for export limits - no local
+ * limit checking is performed to prevent tampering.
+ *
+ * Security: Fail closed - if backend is unreachable, exports are denied.
+ *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,6 +32,7 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../classes/installation_manager.php');
+require_once(__DIR__ . '/../classes/api_config.php');
 
 // Require login and capability
 require_login();
@@ -44,99 +51,98 @@ if (!confirm_sesskey($sesskey)) {
     exit;
 }
 
+header('Content-Type: application/json');
+
 try {
-    global $DB, $USER;
-
-    // Get installation manager
+    // Get installation manager and API configuration
     $installation_manager = new \report_adeptus_insights\installation_manager();
+    $api_key = $installation_manager->get_api_key();
+    $backend_url = \report_adeptus_insights\api_config::get_backend_url();
 
-    // Get subscription details (contains tier, exports_remaining, etc.)
-    $subscription = $installation_manager->get_subscription_details();
-
-    $response = [
-        'success' => true,
-        'eligible' => true,
-        'message' => 'Export allowed',
-    ];
-
-    // Determine if user is on free plan (same logic as check_subscription_status.php)
-    $is_free_plan = true; // Default to free
-    if ($subscription) {
-        $plan_name = strtolower($subscription['plan_name'] ?? '');
-        $is_free_plan = (strpos($plan_name, 'free') !== false ||
-                         strpos($plan_name, 'trial') !== false ||
-                         ($subscription['price'] ?? 0) == 0);
+    if (empty($api_key)) {
+        throw new Exception('Installation not configured. Please complete plugin setup.');
     }
 
-    // Check if user is on free plan
-    if ($is_free_plan) {
-        // Free plan users can only export PDF
-        if ($format !== 'pdf') {
-            $response = [
-                'success' => true,
-                'eligible' => false,
-                'message' => 'This export format requires a premium subscription. PDF exports are available on the free plan.',
-            ];
+    // Call backend API to check export eligibility
+    // The backend is the ONLY authority for export limits
+    $endpoint = rtrim($backend_url, '/') . '/exports/check-eligibility';
+
+    $post_data = json_encode([
+        'format' => $format,
+    ]);
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $endpoint);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'X-API-Key: ' . $api_key,
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
+    $response = curl_exec($ch);
+    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    // Handle connection/timeout errors - FAIL CLOSED
+    if ($response === false || !empty($curl_error)) {
+        error_log('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curl_error);
+        throw new Exception('Unable to verify export eligibility. Please try again later.');
+    }
+
+    // Handle HTTP errors - FAIL CLOSED
+    if ($http_code !== 200) {
+        error_log('[Adeptus Insights] Export eligibility check failed - HTTP ' . $http_code . ': ' . $response);
+
+        if ($http_code === 401) {
+            throw new Exception('Authentication failed. Please check your plugin configuration.');
+        } else if ($http_code === 403) {
+            throw new Exception('Access denied. Your subscription may have expired.');
+        } else if ($http_code === 404) {
+            throw new Exception('Export verification service unavailable. Please contact support.');
+        } else if ($http_code >= 500) {
+            throw new Exception('Server error. Please try again later.');
         } else {
-            // Check export limit for free plan users (10 exports total)
-            $exports_limit = 10;
-            $exports_used = 0;
-
-            try {
-                $exports_used = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
-            } catch (Exception $e) {
-                // Table might not exist yet, allow export
-                $exports_used = 0;
-            }
-
-            $exports_remaining = max(0, $exports_limit - $exports_used);
-
-            if ($exports_remaining <= 0) {
-                $response = [
-                    'success' => true,
-                    'eligible' => false,
-                    'message' => 'You have reached your export limit of ' . $exports_limit . ' exports. Upgrade to a paid plan for more exports.',
-                    'exports_used' => $exports_used,
-                    'exports_limit' => $exports_limit,
-                    'exports_remaining' => 0,
-                ];
-            } else {
-                // Include remaining count in successful response
-                $response['exports_used'] = $exports_used;
-                $response['exports_limit'] = $exports_limit;
-                $response['exports_remaining'] = $exports_remaining;
-            }
-        }
-    } else {
-        // Check export limits for paid users
-        $exports_remaining = $subscription['exports_remaining'] ?? 50;
-        $exports_limit = $subscription['plan_exports_limit'] ?? 50;
-
-        if ($exports_remaining <= 0) {
-            $response = [
-                'success' => true,
-                'eligible' => false,
-                'message' => 'You have reached your monthly export limit of ' . $exports_limit . ' exports.',
-                'exports_used' => $exports_limit,
-                'exports_limit' => $exports_limit,
-                'exports_remaining' => 0,
-            ];
-        } else {
-            // Include remaining count in successful response
-            $response['exports_used'] = max(0, $exports_limit - $exports_remaining);
-            $response['exports_limit'] = $exports_limit;
-            $response['exports_remaining'] = $exports_remaining;
+            throw new Exception('Unable to verify export eligibility. Please try again later.');
         }
     }
 
-    header('Content-Type: application/json');
-    echo json_encode($response);
+    // Parse backend response
+    $backend_data = json_decode($response, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        error_log('[Adeptus Insights] Export eligibility check failed - invalid JSON response');
+        throw new Exception('Invalid response from server. Please try again later.');
+    }
+
+    if (!isset($backend_data['success'])) {
+        error_log('[Adeptus Insights] Export eligibility check failed - missing success field');
+        throw new Exception('Invalid response from server. Please try again later.');
+    }
+
+    // Return backend response - the backend is authoritative
+    echo json_encode([
+        'success' => $backend_data['success'],
+        'eligible' => $backend_data['eligible'] ?? false,
+        'message' => $backend_data['message'] ?? 'Unknown status',
+        'reason' => $backend_data['reason'] ?? null,
+        'exports_used' => $backend_data['exports_used'] ?? 0,
+        'exports_limit' => $backend_data['exports_limit'] ?? 0,
+        'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
+        'allowed_formats' => $backend_data['allowed_formats'] ?? [],
+    ]);
+
 } catch (Exception $e) {
-    header('Content-Type: application/json');
+    // FAIL CLOSED - deny export if we cannot verify eligibility with backend
     echo json_encode([
         'success' => false,
         'eligible' => false,
-        'message' => 'Error checking export eligibility: ' . $e->getMessage(),
+        'message' => $e->getMessage(),
     ]);
 }
 
