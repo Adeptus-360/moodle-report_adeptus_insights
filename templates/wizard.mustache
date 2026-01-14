@@ -349,35 +349,9 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
             
         </div>
         <div class="wizard-header-section">
-            <a style="margin-bottom: 17px;" href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
-                    <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-                </a>
-            
-            {{#is_free_plan}}
-            <div class="reports-left-indicator" style="margin-top: 15px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa-regular fa-file-lines" style="font-size: 16px; opacity: 0.9;"></i>
-                    <span style="font-size: 14px; font-weight: 600;" id="reports-counter-content">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
-                    </span>
-                </div>
-                <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;" id="usage-type-text">
-                    Free Plan Total Limit
-                </div>
-            </div>
-            
-            <div class="exports-left-indicator" style="margin-top: 10px; padding: 10px 15px; background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); border-radius: 8px; color: white; text-align: center; box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i class="fa-solid fa-download" style="font-size: 16px; opacity: 0.9;"></i>
-                    <span style="font-size: 14px; font-weight: 600;" id="exports-counter-content">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Loading...
-                    </span>
-                </div>
-                <div style="font-size: 11px; opacity: 0.8; margin-top: 2px;">
-                    Monthly Export Limit
-                </div>
-            </div>
-            {{/is_free_plan}}
+            <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary back-to-dashboard-btn">
+                <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
     </div>
 

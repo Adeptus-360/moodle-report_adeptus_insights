@@ -113,7 +113,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Hide authentication modal
          */
         hideModal: function() {
-            $('#global-auth-modal').modal('hide');
+            var $modal = $('#global-auth-modal');
+            // Only try to hide if modal exists and is visible
+            if ($modal.length && $modal.hasClass('show')) {
+                $modal.modal('hide');
+            }
+            // Clean up any orphaned modal backdrops that might block clicks
+            $('.modal-backdrop').remove();
+            // Ensure body doesn't have modal-open class stuck
+            $('body').removeClass('modal-open');
         },
         
         /**

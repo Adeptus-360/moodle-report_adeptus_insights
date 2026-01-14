@@ -2913,6 +2913,9 @@ class AdeptusWizard {
 
     hideLoading() {
         document.getElementById('loading-overlay').classList.remove('show');
+        // Clean up any orphaned modal backdrops that might block clicks
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
     }
 
     showError(message) {
