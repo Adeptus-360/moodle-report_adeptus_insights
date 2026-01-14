@@ -18,6 +18,12 @@ class AdeptusWizard {
         this.fallbackEnabled = true; // Default to enabled
         this.debugMode = false; // Default to disabled
         this.chartJS = null; // Will store Chart.js instance
+
+        // Report limit tracking
+        this.reportLimitReached = false;
+        this.reportsUsed = 0;
+        this.reportsLimit = 0;
+        this.reportsRemaining = 0;
     }
 
     async init() {
@@ -29,6 +35,9 @@ class AdeptusWizard {
             this.updateBookmarkStates();
             this.updateReportsLeftCounter();
             this.updateExportsCounter();
+
+            // Check report eligibility on load (updates UI state)
+            await this.checkReportEligibility();
 
             // Render sections with persisted data immediately
             this.renderGeneratedReports();
@@ -131,8 +140,196 @@ class AdeptusWizard {
     resetCategoriesLoaded() {
         this.categoriesLoaded = false;
     }
-    
-    
+
+    /**
+     * Check report creation eligibility with the backend
+     * Backend is the single source of truth for report limits
+     */
+    async checkReportEligibility() {
+        try {
+            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_report_eligibility.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `sesskey=${this.wizardData.sesskey}`
+            });
+
+            const data = await response.json();
+
+            // Update internal state
+            this.reportsUsed = data.reports_used || 0;
+            this.reportsLimit = data.reports_limit || 0;
+            this.reportsRemaining = data.reports_remaining || 0;
+            this.reportLimitReached = !data.eligible;
+
+            // Update UI to reflect current state
+            this.updateReportLimitUI();
+
+            return data;
+        } catch (error) {
+            console.error('Error checking report eligibility:', error);
+            // Fail closed - assume limit reached on error
+            this.reportLimitReached = true;
+            this.updateReportLimitUI();
+            return { success: false, eligible: false, message: 'Unable to verify eligibility' };
+        }
+    }
+
+    /**
+     * Track report creation with the backend
+     */
+    async trackReportCreated(reportName, isAiGenerated = false) {
+        try {
+            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_report_created.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=${isAiGenerated ? 1 : 0}&sesskey=${this.wizardData.sesskey}`
+            });
+
+            const data = await response.json();
+
+            if (data.success && !data.tracking_error) {
+                // Update internal state with new counts
+                this.reportsUsed = data.reports_used || this.reportsUsed;
+                this.reportsLimit = data.reports_limit || this.reportsLimit;
+                this.reportsRemaining = data.reports_remaining || this.reportsRemaining;
+                this.reportLimitReached = this.reportsRemaining <= 0 && this.reportsLimit !== -1;
+                this.updateReportLimitUI();
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error tracking report creation:', error);
+            // Don't fail the user experience, just log the error
+            return { success: true, tracking_error: true };
+        }
+    }
+
+    /**
+     * Track report deletion with the backend
+     */
+    async trackReportDeleted(reportName, isAiGenerated = false) {
+        try {
+            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_report_deleted.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=${isAiGenerated ? 1 : 0}&sesskey=${this.wizardData.sesskey}`
+            });
+
+            const data = await response.json();
+
+            if (data.success && !data.tracking_error) {
+                // Update internal state with new counts
+                this.reportsUsed = data.reports_used || this.reportsUsed;
+                this.reportsLimit = data.reports_limit || this.reportsLimit;
+                this.reportsRemaining = data.reports_remaining || this.reportsRemaining;
+                this.reportLimitReached = this.reportsRemaining <= 0 && this.reportsLimit !== -1;
+                this.updateReportLimitUI();
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error tracking report deletion:', error);
+            // Don't fail the user experience, just log the error
+            return { success: true, tracking_error: true };
+        }
+    }
+
+    /**
+     * Update UI elements based on report limit state
+     */
+    updateReportLimitUI() {
+        const generateBtn = document.getElementById('generate-report');
+        const reportsGrid = document.getElementById('reports-grid');
+
+        // Handle unlimited (-1) as no limit
+        const isUnlimited = this.reportsLimit === -1;
+
+        if (this.reportLimitReached && !isUnlimited) {
+            // Disable generate button
+            if (generateBtn) {
+                generateBtn.disabled = true;
+                generateBtn.classList.add('disabled');
+                generateBtn.title = 'Report limit reached. Delete existing reports or upgrade your plan.';
+            }
+
+            // Add disabled overlay to report cards in Step 2
+            if (reportsGrid) {
+                reportsGrid.querySelectorAll('.report-card').forEach(card => {
+                    if (!card.classList.contains('report-limit-disabled')) {
+                        card.classList.add('report-limit-disabled');
+                        card.style.opacity = '0.5';
+                        card.style.pointerEvents = 'none';
+                    }
+                });
+
+                // Show limit reached message if not already shown
+                if (!document.getElementById('report-limit-message')) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.id = 'report-limit-message';
+                    messageDiv.className = 'alert alert-warning mt-3';
+                    messageDiv.innerHTML = `
+                        <i class="fa-solid fa-exclamation-triangle"></i>
+                        <strong>Report limit reached!</strong> You have used ${this.reportsUsed} of ${this.reportsLimit} reports.
+                        Delete existing reports to free up slots or <a href="#" onclick="window.adeptusWizardInstance.showUpgradePrompt(); return false;">upgrade your plan</a>.
+                    `;
+                    reportsGrid.parentNode.insertBefore(messageDiv, reportsGrid);
+                }
+            }
+        } else {
+            // Enable generate button
+            if (generateBtn) {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove('disabled');
+                generateBtn.title = '';
+            }
+
+            // Remove disabled state from report cards
+            if (reportsGrid) {
+                reportsGrid.querySelectorAll('.report-card.report-limit-disabled').forEach(card => {
+                    card.classList.remove('report-limit-disabled');
+                    card.style.opacity = '';
+                    card.style.pointerEvents = '';
+                });
+
+                // Remove limit message if exists
+                const message = document.getElementById('report-limit-message');
+                if (message) {
+                    message.remove();
+                }
+            }
+        }
+
+        // Update any report counter displays
+        this.updateReportCounterDisplay();
+    }
+
+    /**
+     * Update report counter display elements
+     */
+    updateReportCounterDisplay() {
+        const isUnlimited = this.reportsLimit === -1;
+        const limitText = isUnlimited ? 'Unlimited' : this.reportsLimit;
+        const remainingText = isUnlimited ? 'Unlimited' : this.reportsRemaining;
+
+        // Update any elements showing report counts
+        document.querySelectorAll('.reports-used-count').forEach(el => {
+            el.textContent = this.reportsUsed;
+        });
+        document.querySelectorAll('.reports-limit-count').forEach(el => {
+            el.textContent = limitText;
+        });
+        document.querySelectorAll('.reports-remaining-count').forEach(el => {
+            el.textContent = remainingText;
+        });
+    }
+
+
     renderCategories() {
         
         const categoryGrid = document.querySelector('.category-grid');
@@ -859,7 +1056,7 @@ class AdeptusWizard {
     }
 
     loadReportsForCategory(categoryName) {
-        
+
         const category = this.wizardData.categories.find(cat => cat.name === categoryName);
         if (!category) {
             console.error('Category not found:', categoryName);
@@ -867,7 +1064,7 @@ class AdeptusWizard {
         }
 
         document.getElementById('selected-category-name').textContent = `Reports in ${categoryName}`;
-        
+
         const reportsGrid = document.getElementById('reports-grid');
         reportsGrid.innerHTML = '';
 
@@ -875,6 +1072,9 @@ class AdeptusWizard {
             const reportCard = this.createReportCard(report);
             reportsGrid.appendChild(reportCard);
         });
+
+        // Apply report limit UI state after loading cards
+        this.updateReportLimitUI();
 
         // Add entrance animation
         setTimeout(() => {
@@ -885,7 +1085,12 @@ class AdeptusWizard {
                     card.style.transform = 'translateY(20px)';
                     card.style.transition = 'all 0.3s ease-out';
                     setTimeout(() => {
-                        card.style.opacity = '1';
+                        // Only set full opacity if not disabled due to limit
+                        if (!card.classList.contains('report-limit-disabled')) {
+                            card.style.opacity = '1';
+                        } else {
+                            card.style.opacity = '0.5';
+                        }
                         card.style.transform = 'translateY(0)';
                     }, 50);
                 }, index * 100);
@@ -1272,21 +1477,32 @@ class AdeptusWizard {
         if (this.isGeneratingReport) {
             return;
         }
-        
+
         // Check if generate button is disabled (limit reached)
         const generateBtn = document.getElementById('generate-report');
         if (generateBtn && generateBtn.disabled) {
             return;
         }
-        
+
         this.isGeneratingReport = true;
+        this.showLoading('Checking report eligibility...');
+
+        // STEP 1: Check eligibility with backend BEFORE generating
+        const eligibility = await this.checkReportEligibility();
+        if (!eligibility.eligible) {
+            this.hideLoading();
+            this.isGeneratingReport = false;
+            this.showError(eligibility.message || 'You have reached your report limit. Delete existing reports or upgrade your plan.');
+            return;
+        }
+
         this.showLoading('Generating your report...');
-        
+
         // Collect parameters
         const formData = new FormData();
         formData.append('reportid', this.selectedReport);
         formData.append('sesskey', this.wizardData.sesskey);
-        
+
         const paramInputs = document.querySelectorAll('#config-form input, #config-form select');
         paramInputs.forEach(input => {
             formData.append(input.name, input.value);
@@ -1299,17 +1515,17 @@ class AdeptusWizard {
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.displayResults(data);
                 this.goToStep('step-results');
-                
-                // Update reports left counter only if it's not a duplicate
+
+                // STEP 2: Track report creation with backend (only if not a duplicate)
                 if (!data.is_duplicate) {
-                    // Update counter immediately after generation
-                    this.updateReportsLeftCounter();
+                    // Track with backend - this is the source of truth
+                    await this.trackReportCreated(this.selectedReport, false);
                 }
-                
+
                 // Refresh recent reports to show the newly generated report
                 this.refreshRecentReports();
             } else {
@@ -3561,21 +3777,28 @@ class AdeptusWizard {
 
     async removeFromGeneratedView(reportId) {
         this.showLoading('Removing generated report...');
-        
+
         try {
             // Create a new endpoint for removing generated reports
             const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/manage_generated_reports.php`, {
-                        method: 'POST',
-                        headers: {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: `action=remove_single&reportid=${reportId}&sesskey=${this.wizardData.sesskey}`
             });
 
             const data = await response.json();
-            
+
             if (data.success) {
                 this.showSuccess('Generated report removed successfully!');
+
+                // Track report deletion with backend to free up a slot
+                // Check if this was an AI-generated report
+                const report = this.wizardData.generated_reports?.find(r => r.reportid === reportId);
+                const isAiGenerated = report?.is_ai_generated || false;
+                await this.trackReportDeleted(reportId, isAiGenerated);
+
                 // Remove from data and re-render only generated reports section
                 if (this.wizardData.generated_reports) {
                     const index = this.wizardData.generated_reports.findIndex(r => r.reportid === reportId);
@@ -3583,7 +3806,7 @@ class AdeptusWizard {
                         this.wizardData.generated_reports.splice(index, 1);
                     }
                 }
-                
+
                 // Re-render only generated reports section
                 this.renderGeneratedReports();
                 // Don't re-render other sections - they should remain independent

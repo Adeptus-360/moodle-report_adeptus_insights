@@ -18,6 +18,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         _currentReportName: '', // Store current report name for chart title
         currentViewedReport: null, // Store current report object for export
         currentViewedReportData: null, // Store current report data for export
+
+        // Report limit tracking
+        isReportLimitReached: false,
+        reportsUsed: 0,
+        reportsLimit: 0,
+        reportsRemaining: 0,
+        reportEligibilityChecked: false,
         init: function (authenticated, isFreePlan) {
             this.isFreePlan = isFreePlan !== false; // Default to true if not passed
             if (this._initCalled) return;
@@ -41,6 +48,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     this.loadChatHistory();
                     this.loadReportsHistory();
                     this.loadCategories(); // Load report categories for save dialog
+                    this.checkReportEligibility(); // Check report limits on startup
                     getAssistantContainer().fadeIn(200);
                 } else {
                     // Try to refresh authentication
@@ -55,6 +63,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             this.loadChatHistory();
                             this.loadReportsHistory();
                             this.loadCategories(); // Load report categories for save dialog
+                            this.checkReportEligibility(); // Check report limits on startup
                             getAssistantContainer().fadeIn(200);
                         } else {
                             // Show read-only mode or error message
@@ -66,6 +75,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 console.error('[AI Assistant] Failed to initialize authentication:', error);
                 // Fallback to basic initialization
                 this.setupEventListeners();
+                this.checkReportEligibility(); // Check report limits even on fallback
                 getAssistantContainer().fadeIn(200);
             }
         },
@@ -288,6 +298,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Handle token/credit limit errors specifically
                 if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                     this.handleCreditLimitError(response.message);
+                    return;
+                }
+                // Handle report limit errors (cumulative, no monthly reset)
+                if (response.error_type === 'report_limit') {
+                    this.handleReportLimitError(response.message);
                     return;
                 }
                 // error bubble from backend
@@ -890,6 +905,167 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (result.isConfirmed) {
                     this.showCreditUsageModal();
                 }
+            });
+        },
+
+        /**
+         * Check report creation eligibility with the backend
+         * Backend is the single source of truth for report limits
+         */
+        checkReportEligibility: async function() {
+            try {
+                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_report_eligibility.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sesskey=${M.cfg.sesskey}`
+                });
+
+                const data = await response.json();
+
+                // Update internal state
+                this.reportsUsed = data.reports_used || 0;
+                this.reportsLimit = data.reports_limit || 0;
+                this.reportsRemaining = data.reports_remaining || 0;
+                this.isReportLimitReached = !data.eligible;
+                this.reportEligibilityChecked = true;
+
+                // Update UI to reflect current state
+                this.updateReportLimitUI();
+
+                console.log('[AI Assistant] Report eligibility checked:', {
+                    eligible: data.eligible,
+                    used: this.reportsUsed,
+                    limit: this.reportsLimit,
+                    remaining: this.reportsRemaining
+                });
+
+                return data;
+            } catch (error) {
+                console.error('[AI Assistant] Error checking report eligibility:', error);
+                // Fail closed - assume limit reached on error
+                this.isReportLimitReached = true;
+                this.reportEligibilityChecked = true;
+                this.updateReportLimitUI();
+                return { success: false, eligible: false, message: 'Unable to verify eligibility' };
+            }
+        },
+
+        /**
+         * Track AI-generated report creation with the backend
+         */
+        trackReportCreated: async function(reportName) {
+            try {
+                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/track_report_created.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=1&sesskey=${M.cfg.sesskey}`
+                });
+
+                const data = await response.json();
+
+                if (data.success && !data.tracking_error) {
+                    // Update internal state with new counts
+                    this.reportsUsed = data.reports_used || this.reportsUsed;
+                    this.reportsLimit = data.reports_limit || this.reportsLimit;
+                    this.reportsRemaining = data.reports_remaining || this.reportsRemaining;
+                    this.isReportLimitReached = this.reportsRemaining <= 0 && this.reportsLimit !== -1;
+                    this.updateReportLimitUI();
+                }
+
+                return data;
+            } catch (error) {
+                console.error('[AI Assistant] Error tracking report creation:', error);
+                return { success: true, tracking_error: true };
+            }
+        },
+
+        /**
+         * Handle report limit reached error
+         */
+        handleReportLimitError: function(message) {
+            this.isReportLimitReached = true;
+            this.updateReportLimitUI();
+
+            // Show user-friendly report limit error in chat
+            this.addMessage(message || 'You have reached your report limit. Delete existing reports or upgrade your plan.', 'error');
+
+            // Show upgrade prompt
+            Swal.fire({
+                icon: 'warning',
+                title: 'Report Limit Reached',
+                html: `
+                    <div class="text-center">
+                        <p>${message || 'You have reached your report limit.'}</p>
+                        <p class="text-muted">You have used ${this.reportsUsed} of ${this.reportsLimit} reports.</p>
+                        <p class="text-muted">Delete existing reports to free up slots or upgrade your plan.</p>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'View Reports',
+                cancelButtonText: 'Close',
+                confirmButtonColor: '#007bff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Switch to reports tab to manage reports
+                    this.switchTab('reports');
+                }
+            });
+        },
+
+        /**
+         * Update UI elements based on report limit state
+         */
+        updateReportLimitUI: function() {
+            const isUnlimited = this.reportsLimit === -1;
+
+            if (this.isReportLimitReached && !isUnlimited) {
+                // Disable send button and input
+                $('#send-button').prop('disabled', true).addClass('disabled');
+                $('#message-input').prop('disabled', true).attr('placeholder', 'Report limit reached. Delete reports or upgrade to continue.');
+
+                // Show persistent report limit message
+                if (!$('#report-limit-banner').length) {
+                    const banner = $(`
+                        <div id="report-limit-banner" class="alert alert-warning mb-2" style="margin: 10px; border-radius: 8px;">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                            <strong>Report limit reached!</strong> You have used ${this.reportsUsed} of ${this.reportsLimit} reports.
+                            <a href="#" class="alert-link" onclick="window.assistant.switchTab('reports'); return false;">Manage reports</a> or
+                            <a href="#" class="alert-link" onclick="window.assistant.showUpgradePrompt(); return false;">upgrade your plan</a>.
+                        </div>
+                    `);
+                    $('.chat-input-area').before(banner);
+                }
+            } else {
+                // Only enable if credit limit is also not exceeded
+                if (!this.isCreditLimitExceeded) {
+                    $('#send-button').prop('disabled', false).removeClass('disabled');
+                    $('#message-input').prop('disabled', false).attr('placeholder', 'Ask me anything about your Moodle data...');
+                }
+
+                // Remove report limit banner
+                $('#report-limit-banner').remove();
+            }
+        },
+
+        /**
+         * Show upgrade prompt for report limits
+         */
+        showUpgradePrompt: function() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Upgrade Your Plan',
+                html: `
+                    <div class="text-center">
+                        <p>Unlock more reports and features by upgrading your plan.</p>
+                        <p class="text-muted">Current usage: ${this.reportsUsed} / ${this.reportsLimit === -1 ? 'Unlimited' : this.reportsLimit} reports</p>
+                    </div>
+                `,
+                confirmButtonText: 'View Plans',
+                confirmButtonColor: '#007bff'
             });
         },
 
@@ -2103,6 +2279,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 return;
             }
 
+            // Check if report limit is reached
+            if (this.isReportLimitReached && this.reportsLimit !== -1) {
+                this.handleReportLimitError('You have reached your report limit. Delete existing reports or upgrade your plan to continue using the AI assistant.');
+                return;
+            }
+
             // Prevent double sending
             if (this.isSending) {
                 return;
@@ -2161,6 +2343,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         // Handle specific error types
                         if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message, response.credit_data);
+                        } else if (response.error_type === 'report_limit') {
+                            this.handleReportLimitError(response.message);
                         } else if (response.error_type === 'timeout') {
                             this.handleTimeoutError(response.message);
                         } else {
@@ -2194,20 +2378,29 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         AuthUtils.clearAuthData();
                         this.showAuthenticationError();
                     } else if (err.status === 429) {
-                        // Handle credit limit exceeded (429 Too Many Requests)
-                        let errorMessage = 'You have reached your credit limit. Please upgrade your plan or wait until your credits refresh.';
-                        let creditData = null;
+                        // Check error_type to distinguish between report limits and credit limits
+                        const errorType = err.responseJSON?.error_type || 'credit_limit';
 
-                        // Try to extract error details from response
-                        if (err.responseJSON) {
-                            errorMessage = err.responseJSON.message || errorMessage;
-                            creditData = err.responseJSON.credit_data || null;
+                        if (errorType === 'report_limit') {
+                            // Report limit (cumulative, no monthly reset)
+                            const errorMessage = err.responseJSON?.message || 'You have reached your report limit. Please upgrade your plan to generate more reports.';
+                            this.handleReportLimitError(errorMessage);
+                        } else {
+                            // Credit/token limit (has monthly reset)
+                            let errorMessage = 'You have reached your credit limit. Please upgrade your plan or wait until your credits refresh.';
+                            let creditData = null;
+
+                            // Try to extract error details from response
+                            if (err.responseJSON) {
+                                errorMessage = err.responseJSON.message || errorMessage;
+                                creditData = err.responseJSON.credit_data || null;
+                            }
+
+                            // Handle credit limit error with proper UI updates
+                            this.handleCreditLimitError(errorMessage, creditData);
                         }
 
-                        // Handle credit limit error with proper UI updates
-                        this.handleCreditLimitError(errorMessage, creditData);
-
-                        // Don't show resend icon for credit limit errors
+                        // Don't show resend icon for limit errors
                         $userMsg.remove(); // Remove the user message that couldn't be sent
                     } else {
                         // Show resend icon on the specific user message that failed
@@ -2807,6 +3000,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         // Handle specific error types
                         if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message, response.credit_data);
+                        } else if (response.error_type === 'report_limit') {
+                            this.handleReportLimitError(response.message);
                         } else {
                         // Display backend error as chat bubble
                         this.addMessage(response.message, 'error');
@@ -2947,6 +3142,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         // Handle specific error types
                         if (response.error_type === 'credit_limit' || response.error_type === 'token_limit') {
                             this.handleCreditLimitError(response.message);
+                        } else if (response.error_type === 'report_limit') {
+                            this.handleReportLimitError(response.message);
                         } else {
                         this.addMessage(response.message, 'error');
                         this.showResendIconOnMessage($userMsg, answer);
@@ -3431,6 +3628,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         }
                         this.cachedReports.unshift(response.report);
                         this.updateReportsHistory(this.cachedReports);
+
+                        // Track AI-generated report creation with backend
+                        const reportName = response.report.name || report.name || report.description || 'AI Generated Report';
+                        this.trackReportCreated(reportName);
 
                         // Send a message to persist the report link in chat history
                         this.sendReportMessage(response.report);

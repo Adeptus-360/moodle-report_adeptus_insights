@@ -133,12 +133,84 @@ try {
     }
 
     // =========================================================================
-    // SERVER-SIDE ENFORCEMENT: Check subscription tier and usage limits
+    // SERVER-SIDE ENFORCEMENT: Check report limits (TAMPER-PROOF)
+    // This check happens server-side and cannot be bypassed by client
+    // =========================================================================
+
+    // Check report creation eligibility with backend (cumulative limits)
+    $limits_endpoint = rtrim($backendApiUrl, '/') . '/api/v1/report-limits/check';
+    $ch_limits = curl_init();
+    curl_setopt($ch_limits, CURLOPT_URL, $limits_endpoint);
+    curl_setopt($ch_limits, CURLOPT_POST, true);
+    curl_setopt($ch_limits, CURLOPT_POSTFIELDS, json_encode(new stdClass()));
+    curl_setopt($ch_limits, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Accept: application/json',
+        'X-API-Key: ' . $api_key,
+    ]);
+    curl_setopt($ch_limits, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch_limits, CURLOPT_TIMEOUT, 15);
+    curl_setopt($ch_limits, CURLOPT_CONNECTTIMEOUT, 10);
+
+    $limits_response = curl_exec($ch_limits);
+    $limits_http_code = curl_getinfo($ch_limits, CURLINFO_HTTP_CODE);
+    $limits_curl_error = curl_error($ch_limits);
+    curl_close($ch_limits);
+
+    // FAIL CLOSED: If we can't verify limits, deny the request
+    if ($limits_response === false || !empty($limits_curl_error)) {
+        error_log('[Adeptus Insights] Report limits check failed - curl error: ' . $limits_curl_error);
+        echo json_encode([
+            'success' => false,
+            'error' => 'limit_check_failed',
+            'message' => 'Unable to verify report eligibility. Please try again later.',
+        ]);
+        exit;
+    }
+
+    if ($limits_http_code !== 200) {
+        error_log('[Adeptus Insights] Report limits check failed - HTTP ' . $limits_http_code);
+        echo json_encode([
+            'success' => false,
+            'error' => 'limit_check_failed',
+            'message' => 'Unable to verify report eligibility. Please try again later.',
+        ]);
+        exit;
+    }
+
+    $limits_data = json_decode($limits_response, true);
+    if (json_last_error() !== JSON_ERROR_NONE || !isset($limits_data['eligible'])) {
+        error_log('[Adeptus Insights] Report limits check failed - invalid response');
+        echo json_encode([
+            'success' => false,
+            'error' => 'limit_check_failed',
+            'message' => 'Unable to verify report eligibility. Please try again later.',
+        ]);
+        exit;
+    }
+
+    // Check if user has reached their report limit
+    if (!$limits_data['eligible']) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'limit_reached',
+            'error_type' => 'limit_reached',
+            'message' => $limits_data['message'] ?? 'You have reached your report limit. Delete existing reports or upgrade your plan.',
+            'reports_used' => $limits_data['reports_used'] ?? 0,
+            'reports_limit' => $limits_data['reports_limit'] ?? 0,
+            'reports_remaining' => $limits_data['reports_remaining'] ?? 0,
+            'upgrade_required' => true,
+        ]);
+        exit;
+    }
+
+    // =========================================================================
+    // SERVER-SIDE ENFORCEMENT: Check subscription tier access
     // =========================================================================
     $report_key = $report['report_key'] ?? $report['name'] ?? $reportid;
     $is_ai_generated = $report['is_ai_generated'] ?? false;
 
-    // Check if user can access this report based on tier and limits
+    // Check if user can access this report based on tier
     $access_check = $installation_manager->check_report_access($report_key);
 
     if (!$access_check['allowed']) {
