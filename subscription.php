@@ -132,6 +132,15 @@ if (!$subscription) {
 $availableplans = $installationmanager->get_available_plans();
 $paymentconfig = $installationmanager->get_payment_config();
 
+// Get report usage data (cumulative counts) from subscriptions/status endpoint.
+$usagewithreports = $installationmanager->get_subscription_with_usage();
+if ($subscription && $usagewithreports) {
+    // Merge report tracking data into subscription array.
+    $subscription['reports_total'] = $usagewithreports['reports_total'] ?? 0;
+    $subscription['reports_remaining'] = $usagewithreports['reports_remaining'] ?? 0;
+    $subscription['reports_limit'] = $usagewithreports['reports_limit'] ?? 10;
+}
+
 // Check for any errors from installation manager
 $lasterror = $installationmanager->get_last_error();
 if ($lasterror) {
@@ -232,6 +241,10 @@ if ($subscription) {
         'tokens_remaining_formatted' => $subscription['tokens_remaining_formatted'] ?? '50K',
         'tokens_limit_formatted' => $subscription['tokens_limit_formatted'] ?? '50K',
         'tokens_usage_percent' => $subscription['tokens_usage_percent'] ?? 0,
+        // Report usage metrics
+        'reports_total' => $subscription['reports_total'] ?? 0,
+        'reports_remaining' => $subscription['reports_remaining'] ?? 0,
+        'reports_limit' => $subscription['reports_limit'] ?? 10,
     ];
 }
 
@@ -301,6 +314,7 @@ if ($usagestats) {
     $templatecontext['usage'] = [
         'ai_credits_used_this_month' => 0,
         'reports_generated_this_month' => 0,
+        'reports_generated_total' => 0,
         'current_period_start' => null,
         'current_period_end' => null,
     ];

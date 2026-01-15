@@ -1050,17 +1050,19 @@ class installation_manager {
                 return [
                     'ai_credits_used_this_month' => 0,
                     'reports_generated_this_month' => 0,
+                    'reports_generated_total' => 0,
                     'current_period_start' => null,
                     'current_period_end' => null,
                 ];
             }
 
-            // Extract usage from the backend response structure
+            // Extract usage from the backend response structure.
             $usage = $data['usage'] ?? [];
 
             return [
                 'ai_credits_used_this_month' => $usage['ai_credits_used_this_month'] ?? 0,
                 'reports_generated_this_month' => $usage['reports_generated_this_month'] ?? 0,
+                'reports_generated_total' => $usage['reports_generated_total'] ?? 0,
                 'current_period_start' => $usage['current_period_start'] ?? null,
                 'current_period_end' => $usage['current_period_end'] ?? null,
             ];

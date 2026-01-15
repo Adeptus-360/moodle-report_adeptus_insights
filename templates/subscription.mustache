@@ -90,10 +90,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Generated:</span>
-                        <span class="detail-value used numeric">{{#usage}}{{reports_generated_this_month}}{{/usage}}{{^usage}}0{{/usage}}</span>
+                        <span class="detail-value used numeric">{{#current_subscription}}{{reports_total}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Left:</span>
+                        <span class="detail-label">Exports Left:</span>
                         <span class="detail-value remaining numeric">{{#current_subscription}}{{exports_remaining}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
@@ -249,6 +249,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                 {{/is_trial}}
                 
                 <div class="usage-details">
+                    <div class="usage-item">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>{{reports_total}} / {{reports_limit}} Reports Generated</span>
+                    </div>
                     <div class="usage-item">
                         <i class="fa fa-code"></i>
                         <span>{{tokens_remaining_formatted}} AI Tokens Remaining</span>
