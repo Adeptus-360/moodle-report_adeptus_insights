@@ -595,7 +595,6 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         }
 
         return $pdf_output;
-
     } catch (Exception $e) {
         throw new Exception('PDF generation failed: ' . $e->getMessage());
     }

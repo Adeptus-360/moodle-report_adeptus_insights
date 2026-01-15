@@ -38,7 +38,6 @@ defined('MOODLE_INTERNAL') || die();
  * is controlled server-side for maximum security.
  */
 class branding_manager {
-
     /**
      * Cache key for branding data.
      */

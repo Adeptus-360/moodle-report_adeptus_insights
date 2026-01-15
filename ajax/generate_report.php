@@ -144,61 +144,61 @@ try {
     // Skip eligibility check for re-executions (viewing existing reports)
     // The original report creation was already tracked and counted
     if (!$is_reexecution) {
-    // Check report creation eligibility with backend (cumulative limits)
-    $limits_endpoint = rtrim($backendApiUrl, '/') . '/api/v1/report-limits/check';
-    $ch_limits = curl_init();
-    curl_setopt($ch_limits, CURLOPT_URL, $limits_endpoint);
-    curl_setopt($ch_limits, CURLOPT_POST, true);
-    curl_setopt($ch_limits, CURLOPT_POSTFIELDS, json_encode(new stdClass()));
-    curl_setopt($ch_limits, CURLOPT_HTTPHEADER, [
+        // Check report creation eligibility with backend (cumulative limits)
+        $limits_endpoint = rtrim($backendApiUrl, '/') . '/api/v1/report-limits/check';
+        $ch_limits = curl_init();
+        curl_setopt($ch_limits, CURLOPT_URL, $limits_endpoint);
+        curl_setopt($ch_limits, CURLOPT_POST, true);
+        curl_setopt($ch_limits, CURLOPT_POSTFIELDS, json_encode(new stdClass()));
+        curl_setopt($ch_limits, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
         'X-API-Key: ' . $api_key,
-    ]);
-    curl_setopt($ch_limits, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch_limits, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch_limits, CURLOPT_CONNECTTIMEOUT, 10);
+        ]);
+        curl_setopt($ch_limits, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch_limits, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch_limits, CURLOPT_CONNECTTIMEOUT, 10);
 
-    $limits_response = curl_exec($ch_limits);
-    $limits_http_code = curl_getinfo($ch_limits, CURLINFO_HTTP_CODE);
-    $limits_curl_error = curl_error($ch_limits);
-    curl_close($ch_limits);
+        $limits_response = curl_exec($ch_limits);
+        $limits_http_code = curl_getinfo($ch_limits, CURLINFO_HTTP_CODE);
+        $limits_curl_error = curl_error($ch_limits);
+        curl_close($ch_limits);
 
-    // FAIL CLOSED: If we can't verify limits, deny the request
-    if ($limits_response === false || !empty($limits_curl_error)) {
-        error_log('[Adeptus Insights] Report limits check failed - curl error: ' . $limits_curl_error);
-        echo json_encode([
+        // FAIL CLOSED: If we can't verify limits, deny the request
+        if ($limits_response === false || !empty($limits_curl_error)) {
+            error_log('[Adeptus Insights] Report limits check failed - curl error: ' . $limits_curl_error);
+            echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
             'message' => 'Unable to verify report eligibility. Please try again later.',
-        ]);
-        exit;
-    }
+            ]);
+            exit;
+        }
 
-    if ($limits_http_code !== 200) {
-        error_log('[Adeptus Insights] Report limits check failed - HTTP ' . $limits_http_code);
-        echo json_encode([
+        if ($limits_http_code !== 200) {
+            error_log('[Adeptus Insights] Report limits check failed - HTTP ' . $limits_http_code);
+            echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
             'message' => 'Unable to verify report eligibility. Please try again later.',
-        ]);
-        exit;
-    }
+            ]);
+            exit;
+        }
 
-    $limits_data = json_decode($limits_response, true);
-    if (json_last_error() !== JSON_ERROR_NONE || !isset($limits_data['eligible'])) {
-        error_log('[Adeptus Insights] Report limits check failed - invalid response');
-        echo json_encode([
+        $limits_data = json_decode($limits_response, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !isset($limits_data['eligible'])) {
+            error_log('[Adeptus Insights] Report limits check failed - invalid response');
+            echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
             'message' => 'Unable to verify report eligibility. Please try again later.',
-        ]);
-        exit;
-    }
+            ]);
+            exit;
+        }
 
-    // Check if user has reached their report limit
-    if (!$limits_data['eligible']) {
-        echo json_encode([
+        // Check if user has reached their report limit
+        if (!$limits_data['eligible']) {
+            echo json_encode([
             'success' => false,
             'error' => 'limit_reached',
             'error_type' => 'limit_reached',
@@ -207,9 +207,9 @@ try {
             'reports_limit' => $limits_data['reports_limit'] ?? 0,
             'reports_remaining' => $limits_data['reports_remaining'] ?? 0,
             'upgrade_required' => true,
-        ]);
-        exit;
-    }
+            ]);
+            exit;
+        }
     } // End of eligibility check (skipped for re-executions)
 
     // =========================================================================

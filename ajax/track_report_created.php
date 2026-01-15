@@ -136,7 +136,6 @@ try {
         'reports_limit' => $reports_limit,
         'reports_remaining' => $reports_remaining,
     ]);
-
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Report creation tracking exception: ' . $e->getMessage());
     // Don't fail the user experience for tracking errors

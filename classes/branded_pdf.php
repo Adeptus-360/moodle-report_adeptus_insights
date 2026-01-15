@@ -40,7 +40,6 @@ require_once($CFG->libdir . '/tcpdf/tcpdf.php');
  * The branding cannot be modified locally as it is fetched from the backend.
  */
 class branded_pdf extends \TCPDF {
-
     /**
      * Branding configuration.
      *

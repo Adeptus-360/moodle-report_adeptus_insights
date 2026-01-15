@@ -133,7 +133,6 @@ try {
         'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
         'exports_limit' => $backend_data['exports_limit'] ?? 0,
     ]);
-
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Export tracking exception: ' . $e->getMessage());
     // Don't fail the user experience for tracking errors

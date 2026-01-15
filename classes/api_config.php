@@ -29,7 +29,6 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class api_config {
-
     /**
      * Production backend URL.
      * This is the single source of truth for the Adeptus 360 backend API.

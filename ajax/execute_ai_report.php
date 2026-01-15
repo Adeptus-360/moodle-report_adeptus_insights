@@ -67,7 +67,7 @@ if (!confirm_sesskey($sesskey)) {
     echo json_encode([
         'success' => false,
         'error' => 'invalid_sesskey',
-        'message' => 'Invalid session key'
+        'message' => 'Invalid session key',
     ]);
     exit;
 }
@@ -78,7 +78,7 @@ if (empty($sql)) {
     echo json_encode([
         'success' => false,
         'error' => 'missing_sql',
-        'message' => 'SQL query is required'
+        'message' => 'SQL query is required',
     ]);
     exit;
 }
@@ -102,7 +102,7 @@ if ($sql_upper !== 'SELECT') {
     echo json_encode([
         'success' => false,
         'error' => 'invalid_sql',
-        'message' => 'Only SELECT queries are allowed'
+        'message' => 'Only SELECT queries are allowed',
     ]);
     exit;
 }
@@ -131,7 +131,7 @@ foreach ($dangerous_patterns as $pattern) {
         echo json_encode([
             'success' => false,
             'error' => 'dangerous_sql',
-            'message' => 'Query contains disallowed SQL commands'
+            'message' => 'Query contains disallowed SQL commands',
         ]);
         exit;
     }
@@ -215,9 +215,8 @@ try {
         'data' => $results_array,
         'headers' => $headers,
         'row_count' => count($results_array),
-        'executed_locally' => true
+        'executed_locally' => true,
     ]);
-
 } catch (\dml_read_exception $e) {
     // SQL syntax or execution error
     http_response_code(400);
@@ -225,7 +224,7 @@ try {
         'success' => false,
         'error' => 'sql_error',
         'message' => 'SQL execution failed',
-        'details' => $e->debuginfo ?? $e->getMessage()
+        'details' => $e->debuginfo ?? $e->getMessage(),
     ]);
 } catch (\Exception $e) {
     // General error
@@ -234,6 +233,6 @@ try {
         'success' => false,
         'error' => 'execution_error',
         'message' => 'Failed to execute report',
-        'details' => $e->getMessage()
+        'details' => $e->getMessage(),
     ]);
 }

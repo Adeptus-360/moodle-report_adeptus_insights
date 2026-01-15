@@ -136,7 +136,6 @@ try {
         'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
         'allowed_formats' => $backend_data['allowed_formats'] ?? [],
     ]);
-
 } catch (Exception $e) {
     // FAIL CLOSED - deny export if we cannot verify eligibility with backend
     echo json_encode([

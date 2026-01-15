@@ -135,7 +135,6 @@ try {
         'reports_limit' => $reports_limit,
         'reports_remaining' => $reports_remaining,
     ]);
-
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Report eligibility check exception: ' . $e->getMessage());
     // FAIL CLOSED - deny on any error
