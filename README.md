@@ -12,7 +12,7 @@ Adeptus Insights is a Moodle report plugin that provides AI-powered analytics an
 - **Report Wizard**: Create reports using an intuitive step-by-step interface
 - **Generated Reports**: Save, manage, and re-run your custom reports
 - **Subscription Management**: Flexible subscription tiers with usage tracking
-- **Export Capabilities**: Export reports to CSV and JSON formats
+- **Export Capabilities**: Export reports to PDF, CSV, and JSON formats
 - **Interactive Data Tables**: Sort, filter, and search through report results
 - **Chart Visualizations**: Visualize data with various chart types
 
@@ -82,14 +82,13 @@ Navigate to **Reports > Adeptus Insights** from the site administration menu or 
 1. Go to the **Generated Reports** tab
 2. View all your saved reports
 3. Re-run reports with updated data
-4. Export reports to CSV or JSON
+4. Export reports to PDF, CSV, or JSON
 
 ## Capabilities
 
-The plugin defines the following capabilities:
+The plugin defines the following capability:
 
-- `report/adeptus_insights:view` - View the Adeptus Insights reports
-- `report/adeptus_insights:manage` - Manage report settings and configurations
+- `report/adeptus_insights:view` - View and use the Adeptus Insights reports (granted to Manager and Teacher archetypes by default)
 
 ## Privacy and Data Security
 
@@ -172,6 +171,6 @@ See [http://www.gnu.org/copyleft/gpl.html](http://www.gnu.org/copyleft/gpl.html)
 
 ## Version
 
-- **Current Version**: 1.2.1
+- **Current Version**: 1.0.0
 - **Moodle Compatibility**: 4.1+
 - **Maturity**: Stable
