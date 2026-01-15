@@ -72,7 +72,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }, 500);
                 }
             } catch (error) {
-                console.error('[AI Assistant] Failed to initialize authentication:', error);
                 // Fallback to basic initialization
                 this.setupEventListeners();
                 this.checkReportEligibility(); // Check report limits even on fallback
@@ -414,7 +413,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             }
                         }
                     } catch (error) {
-                        console.error('Error reinitializing DataTable:', error);
+                        // DataTable reinitialization failed silently.
                     }
                 }, 100);
                 // Show SweetAlert loader for report generation
@@ -934,16 +933,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Update UI to reflect current state
                 this.updateReportLimitUI();
 
-                console.log('[AI Assistant] Report eligibility checked:', {
-                    eligible: data.eligible,
-                    used: this.reportsUsed,
-                    limit: this.reportsLimit,
-                    remaining: this.reportsRemaining
-                });
-
                 return data;
             } catch (error) {
-                console.error('[AI Assistant] Error checking report eligibility:', error);
                 // Fail closed - assume limit reached on error
                 this.isReportLimitReached = true;
                 this.reportEligibilityChecked = true;
@@ -978,7 +969,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                 return data;
             } catch (error) {
-                console.error('[AI Assistant] Error tracking report creation:', error);
+                // Tracking failed but report was created.
                 return { success: true, tracking_error: true };
             }
         },
@@ -1389,13 +1380,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             setTimeout(() => {
                 // Check if simpleDatatables is available
                 if (typeof simpleDatatables === 'undefined' || !simpleDatatables.DataTable) {
-                    console.error('simpleDatatables library not available');
                     return;
                 }
-                
+
                 // Check if table exists
                 if (!$('#usage-datatable').length) {
-                    console.error('Usage datatable element not found');
                     return;
                 }
                 
@@ -1425,8 +1414,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         }
                     }
                 } catch (error) {
-                    console.error('Error initializing Simple DataTable:', error);
-                    console.error('Error details:', error.message, error.stack);
+                    // DataTable initialization failed silently.
                 }
             }, 500);
 
@@ -1590,7 +1578,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             try {
                 this.usageDataTable.refresh();
             } catch (error) {
-                console.error('Error refreshing Simple DataTable:', error);
+                // Refresh failed silently.
             }
         } else {
             }
@@ -1817,7 +1805,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             try {
                 self.reportChartInstance = new Chart(chartEl.getContext('2d'), chartConfig);
             } catch (error) {
-                console.error('Error creating chart:', error);
+                // Chart creation failed silently.
             }
         },
 
@@ -2074,7 +2062,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                 },
                 error: (xhr, status, error) => {
-                    console.error('[Chat History] Failed to load:', error);
                     list.html(`
                         <li class="list-group-item text-center">
                             <div class="text-danger">
@@ -2620,9 +2607,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                 }
             } catch (error) {
-                console.error('[AI Assistant] Error fetching latest subscription status:', error);
+                // Subscription status fetch failed, continue with cached data.
             }
-            
+
             // Get subscription info from auth status (now updated with fresh data)
             const authStatus = AuthUtils.getAuthStatus();
             
@@ -2783,7 +2770,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 this.showRefreshSuccessFeedback();
                 
             } catch (error) {
-                console.error('[AI Assistant] Failed to refresh subscription info:', error);
                 this.showRefreshErrorFeedback();
             } finally {
                 // Reset button state
@@ -2934,7 +2920,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                 },
                 error: (xhr) => {
-                    console.error('[AI Assistant] Failed to load categories:', xhr);
                     // Set default category as fallback
                     self.cachedCategories = [
                         { id: null, name: 'General', slug: 'general', color: '#6c757d', icon: 'fa-folder' }
@@ -3763,15 +3748,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 error: (xhr, status, error) => {
                     this.hideLoading();
 
-                    // Log the error for debugging
-                    console.error('[AI Assistant] Report confirmation failed:', {
-                        status: xhr.status,
-                        statusText: status,
-                        error: error,
-                        responseText: xhr.responseText,
-                        responseJSON: xhr.responseJSON
-                    });
-
                     // Determine error type and message
                     let errorMessage = 'Failed to process request. Please try again.';
                     let showRetry = true;
@@ -3788,7 +3764,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     } else if (xhr.status >= 500) {
                         errorMessage = 'Server error. Please try again in a moment.';
                     } else if (xhr.responseJSON && xhr.responseJSON.errors) {
-                        console.error('[AI Assistant] Validation errors:', xhr.responseJSON.errors);
                         const errors = xhr.responseJSON.errors;
                         const errorDetails = Object.keys(errors).map(field => `${field}: ${errors[field].join(', ')}`).join('; ');
                         errorMessage = `Validation failed: ${errorDetails}`;
@@ -3955,8 +3930,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 }
                             }
                         } catch (error) {
-                            console.error('Error initializing DataTable:', error);
-                            // Fallback: table will still be functional without DataTable features
+                            // Fallback: table will still be functional without DataTable features.
                         }
 
                     if (typeof callback === 'function') {
@@ -3965,13 +3939,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }, 100); // Small delay to ensure DOM is ready
                 },
                 error: (xhr, status, error) => {
-                    console.error('[AI Assistant] Failed to load report history:', {
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        error: error,
-                        responseText: xhr.responseText
-                    });
-
                     // Always hide loader and show table
                     $('#report-history-loader').addClass('d-none');
                     $('#report-history-table-wrapper').removeClass('d-none');
@@ -4064,7 +4031,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Find the report from cached reports
                 const report = self.cachedReports.find(r => r.slug === reportSlug);
                 if (!report) {
-                    console.error('Report not found in cache:', reportSlug);
                     return;
                 }
 
@@ -4178,8 +4144,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     );
                 },
                 error: (xhr, status, error) => {
-                    console.error('fetchAndDisplayReport error:', reportSlug, status, error);
-                    console.error('XHR:', xhr);
                     reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-danger py-4">Failed to load report. Please try again.</div>');
                 }
             });
@@ -4258,7 +4222,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 try {
                     self._vteController.destroy();
                 } catch (e) {
-                    console.error('Error destroying VTE controller:', e);
+                    // VTE destroy failed silently.
                 }
                 self._vteController = null;
             }
@@ -4484,7 +4448,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 }
                             })[0];
                         } catch (e) {
-                            console.error('Error initializing Vanilla Table Enhancer:', e);
+                            // VTE initialization failed silently.
                         }
                     }
                     this._pendingTableId = null;
@@ -4528,7 +4492,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     }
                                 })[0];
                             } catch (e) {
-                                console.error('Error initializing Vanilla Table Enhancer on view switch:', e);
+                                // VTE initialization failed silently.
                             }
                         }
                     }, 100);
@@ -4779,12 +4743,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         errorMessage += ': ' + error;
                     }
 
-                    console.error('Report fetch failed:', {
-                        status: xhr.status,
-                        error: error,
-                        response: xhr.responseText
-                    });
-
                     this.showError(errorMessage);
                 }
             });
@@ -4880,12 +4838,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             errorMessage = 'Query timed out. Try simplifying your request.';
                         }
 
-                        console.error('Local report execution failed:', {
-                            status: xhr.status,
-                            error: error,
-                            response: xhr.responseText
-                        });
-
                         reject(new Error(errorMessage));
                     }
                 });
@@ -4947,7 +4899,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 });
                 return await response.json();
             } catch (error) {
-                console.error('Error checking export eligibility:', error);
                 return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
             }
         },
@@ -4964,7 +4915,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             const chartCanvas = document.getElementById('reportChart');
             if (!chartCanvas) {
-                console.warn('[Assistant] Chart canvas not found');
                 return null;
             }
 
@@ -4972,11 +4922,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             try {
                 const dataUrl = chartCanvas.toDataURL('image/png', 0.8);
                 if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                    console.log('[Assistant] Chart captured via toDataURL, size:', dataUrl.length);
                     return dataUrl;
                 }
             } catch (e) {
-                console.warn('[Assistant] Native canvas capture failed:', e);
+                // Native capture failed, try fallback.
             }
 
             // Method 2: html2canvas fallback (handles CORS/tainted canvas)
@@ -4995,12 +4944,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     });
                     const dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
                     if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                        console.log('[Assistant] Chart captured via html2canvas, size:', dataUrl.length);
                         return dataUrl;
                     }
                 }
             } catch (e) {
-                console.warn('[Assistant] html2canvas capture failed:', e);
+                // html2canvas capture failed silently.
             }
 
             return null;
@@ -5086,12 +5034,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                         if (chartImage && chartImage.length > 100) {
                             body += `&chart_image=${encodeURIComponent(chartImage)}`;
-                            console.log('[Assistant] Chart image included in export');
-                        } else {
-                            console.warn('[Assistant] Chart capture returned empty or invalid data');
                         }
                     } catch (e) {
-                        console.warn('[Assistant] Chart capture failed, continuing without chart:', e.message);
+                        // Chart capture failed, continue without chart.
                     }
                 }
 
@@ -5164,7 +5109,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 const data = await response.json();
                 // Silently handle tracking failures - not critical to user experience.
             } catch (error) {
-                console.error('Error tracking export:', error);
+                // Tracking failed silently.
             }
         },
 

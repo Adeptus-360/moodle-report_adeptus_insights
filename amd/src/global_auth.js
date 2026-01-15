@@ -23,7 +23,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 this.checkAuthStatus().then(() => {
                     resolve();
                 }).catch((error) => {
-                    console.error('[GlobalAuth] Authentication failed:', error);
                     reject(error);
                 });
             });
@@ -48,7 +47,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         }
                     },
                     error: (xhr, status, error) => {
-                        console.error('[GlobalAuth] Error getting auth status:', error);
                         this.handleAuthFailure('Failed to check authentication status');
                         reject(new Error('Failed to check authentication status'));
                     }

@@ -77,7 +77,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         }
                     },
                     fail: function(error) {
-                        console.error('[Subscription] Verification failed:', error);
                         Swal.fire({
                             icon: 'info',
                             title: 'Processing Payment',
@@ -175,7 +174,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             var planName = $button.data('plan-name');
 
             if (!planId) {
-                console.error('[Subscription] No plan ID available');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -210,7 +208,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             var planName = $button.data('plan-name');
 
             if (!planId) {
-                console.error('[Subscription] No plan ID available');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -329,7 +326,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     }
                 },
                 fail: function(error) {
-                    console.error('[Subscription] AJAX failed:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Connection Error',
@@ -355,7 +351,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     }
                 },
                 fail: function(error) {
-                    console.error('[Subscription] Failed to get subscription details:', error);
+                    // Subscription details fetch failed silently.
                 }
             }]);
         },
@@ -528,7 +524,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     }
                 })
                 .catch(function(error) {
-                    console.error('[Subscription] Error fetching plans:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Connection Error',
@@ -865,7 +860,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     }
                 },
                 fail: function(error) {
-                    console.error('[Subscription] Billing portal failed:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Connection Error',
@@ -945,7 +939,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     }
                 },
                 fail: function(error) {
-                    console.error('[Subscription] Checkout session failed:', error);
                     Swal.fire({
                         icon: 'error',
                         title: 'Connection Error',
@@ -961,7 +954,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         handleSelectPlan: function($button, planId, planName) {
             if (!planId) {
-                console.error('[Subscription] No plan ID available');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',

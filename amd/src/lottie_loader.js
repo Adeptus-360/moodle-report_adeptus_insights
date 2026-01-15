@@ -11,7 +11,6 @@ define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
     if (!hosts.length) return;
 
     if (!lottie || typeof lottie.loadAnimation !== 'function') {
-      console.error('[Lottie Loader] Lottie library not available');
                 return;
             }
             
@@ -27,7 +26,7 @@ define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
           path: p
         });
       } catch (e) {
-        console.error('[Lottie Loader] Failed for', p, e);
+        // Animation load failed silently.
                 }
             });
         }

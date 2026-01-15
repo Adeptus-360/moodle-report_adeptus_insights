@@ -49,7 +49,6 @@ class AdeptusWizard {
             this.hideLoading();
         } catch (error) {
             this.hideLoading();
-            console.error('Initialization failed:', error);
             throw error;
         }
     }
@@ -63,10 +62,8 @@ class AdeptusWizard {
                 const templateData = JSON.parse(wizardDataElement.textContent);
                 this.wizardData = { ...this.wizardData, ...templateData };
             } catch (error) {
-                console.error('Error parsing template data:', error);
+                // Template data parsing failed.
             }
-        } else {
-            console.warn('Wizard data element not found in template');
         }
 
         // Backend API URL from template data
@@ -79,11 +76,9 @@ class AdeptusWizard {
             
             if (data.success) {
                 this.wizardData = { ...this.wizardData, ...data.data };
-            } else {
-                console.error('Failed to load additional wizard data:', data);
             }
         } catch (error) {
-            console.error('Error loading additional wizard data:', error);
+            // Additional wizard data load failed.
         }
         
         // Load reports from backend API
@@ -121,12 +116,9 @@ class AdeptusWizard {
                 this.enhanceRecentReportsAndBookmarks();
                 this.updateBookmarkStates();
             } else {
-                console.error('Failed to load reports from backend:', data.message);
                 throw new Error(data.message || 'Failed to load reports from backend');
             }
         } catch (error) {
-            console.error('Error loading reports from backend:', error);
-
             // Check if this is an authentication error (301/302 redirect to login)
             if (error.message.includes('HTTP 301') || error.message.includes('HTTP 302')) {
                 this.showError('Your session has expired. Please refresh the page and log in again.');
@@ -169,8 +161,7 @@ class AdeptusWizard {
 
             return data;
         } catch (error) {
-            console.error('Error checking report eligibility:', error);
-            // Fail closed - assume limit reached on error
+            // Fail closed - assume limit reached on error.
             this.reportLimitReached = true;
             this.updateReportLimitUI();
             return { success: false, eligible: false, message: 'Unable to verify eligibility' };
@@ -203,8 +194,7 @@ class AdeptusWizard {
 
             return data;
         } catch (error) {
-            console.error('Error tracking report creation:', error);
-            // Don't fail the user experience, just log the error
+            // Tracking failed, don't fail the user experience.
             return { success: true, tracking_error: true };
         }
     }
@@ -235,8 +225,7 @@ class AdeptusWizard {
 
             return data;
         } catch (error) {
-            console.error('Error tracking report deletion:', error);
-            // Don't fail the user experience, just log the error
+            // Tracking failed, don't fail the user experience.
             return { success: true, tracking_error: true };
         }
     }
@@ -339,7 +328,6 @@ class AdeptusWizard {
         
         const categoryGrid = document.querySelector('.category-grid');
         if (!categoryGrid) {
-            console.error('Category grid container not found');
             return;
         }
         
@@ -359,7 +347,6 @@ class AdeptusWizard {
         const grid = document.getElementById('generated-reports-grid');
         
         if (!section || !grid) {
-            console.error('Generated reports section or grid not found');
             return;
         }
 
@@ -400,7 +387,6 @@ class AdeptusWizard {
         const grid = document.getElementById('recent-reports-grid');
         
         if (!section || !grid) {
-            console.error('Recent reports section or grid not found');
             return;
         }
 
@@ -438,7 +424,6 @@ class AdeptusWizard {
         const grid = document.getElementById('bookmarks-grid');
         
         if (!section || !grid) {
-            console.error('Bookmarks section or grid not found');
             return;
         }
 
@@ -708,8 +693,6 @@ class AdeptusWizard {
                     window.Chart = ChartModule;
                 }
             });
-        } else {
-            console.error('Moodle require() not available');
         }
     }
 
@@ -740,7 +723,6 @@ class AdeptusWizard {
                     }
                     resolve(this.chartJS);
                 }, (err) => {
-                    console.error('Failed to load Chart.js via AMD:', err);
                     reject(new Error('Chart.js not available - please refresh the page'));
                 });
             } else {
@@ -824,7 +806,8 @@ class AdeptusWizard {
                         this.removeFromGeneratedView(reportId);
                         break;
                     default:
-                        console.warn('Unknown action for remove button:', action);
+                        // Unknown action.
+                        break;
                 }
             }
         });
@@ -1047,13 +1030,11 @@ class AdeptusWizard {
         setTimeout(() => {
             categoryCard.style.transform = 'scale(1)';
         }, 150);
-        } else {
-            console.error('Category card not found for:', categoryName);
         }
 
         // Load reports for this category
         this.loadReportsForCategory(categoryName);
-        
+
         // Navigate to report selection
         setTimeout(() => {
             this.goToStep('step-select-report');
@@ -1064,7 +1045,6 @@ class AdeptusWizard {
 
         const category = this.wizardData.categories.find(cat => cat.name === categoryName);
         if (!category) {
-            console.error('Category not found:', categoryName);
             return;
         }
 
@@ -1270,16 +1250,15 @@ class AdeptusWizard {
                     try {
                         enhancedParameters = await this.enhanceParametersWithBackend(data.parameters);
                     } catch (error) {
-                        console.warn('Backend enhancement failed, using local parameters:', error);
                         if (this.debugMode) {
                             this.showError('Backend enhancement failed, using local fallback');
                         }
                     }
                 }
-                
+
                 this.displayReportConfiguration(data.report, enhancedParameters);
                 this.updateBookmarkStates(); // Update bookmark button state
-                
+
                 // Show backend status if debug mode is enabled
                 if (this.debugMode && data.backend_enhanced !== undefined) {
                 }
@@ -1287,7 +1266,6 @@ class AdeptusWizard {
                 this.showError('Failed to load report parameters');
             }
         } catch (error) {
-            console.error('Error loading report parameters:', error);
             this.showError('Error loading report parameters');
         } finally {
             this.hideLoading();
@@ -1312,7 +1290,6 @@ class AdeptusWizard {
             const typeMappingData = await typeMappingResponse.json();
             
             if (!typeMappingData.success) {
-                console.warn('Failed to get parameter type mapping from backend, using local fallback');
                 return parameters;
             }
 
@@ -1363,20 +1340,18 @@ class AdeptusWizard {
                         if (this.debugMode) {
                         }
                     } else {
-                        // Fallback to original parameter if backend processing fails
-                        console.warn(`Backend parameter processing failed for ${param.name}, using local fallback`);
+                        // Fallback to original parameter if backend processing fails.
                         enhancedParameters.push(param);
                     }
                 } catch (error) {
-                    console.warn(`Error processing parameter ${param.name} with backend, using local fallback:`, error);
+                    // Processing failed, use local fallback.
                     enhancedParameters.push(param);
                 }
             }
-            
+
             return enhancedParameters;
-            
+
         } catch (error) {
-            console.warn('Backend API enhancement failed, using original parameters:', error);
             if (this.fallbackEnabled) {
                 return parameters;
             } else {
@@ -1552,7 +1527,6 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to generate report');
             }
         } catch (error) {
-            console.error('Error generating report:', error);
             this.showError('Error generating report');
         } finally {
             this.hideLoading();
@@ -1572,32 +1546,31 @@ class AdeptusWizard {
                 },
                 body: `sesskey=${this.wizardData.sesskey}`
             });
-            
+
             const html = await response.text();
-            
+
             // Parse the new wizard data from the response
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const newWizardDataScript = doc.querySelector('script#wizard-data');
-            
+
             if (newWizardDataScript) {
                 const newWizardData = JSON.parse(newWizardDataScript.textContent);
                 this.wizardData.recent_reports = newWizardData.recent_reports;
                 this.wizardData.generated_reports = newWizardData.generated_reports;
                 this.wizardData.bookmarks = newWizardData.bookmarks;
                 this.wizardData.bookmarked_report_ids = newWizardData.bookmarked_report_ids;
-                
+
                 // Re-enhance recent reports and bookmarks with backend data
                 this.enhanceRecentReportsAndBookmarks();
-                
+
                 // Re-render all sections
                 this.renderGeneratedReports();
                 this.renderRecentReports();
                 this.renderBookmarks();
-                
+
             }
         } catch (error) {
-            console.error('Error refreshing recent reports:', error);
             // Fallback: just re-render all sections with current data
             this.renderGeneratedReports();
             this.renderRecentReports();
@@ -1800,7 +1773,7 @@ class AdeptusWizard {
                     return `${day}-${month}-${year} ${hoursStr}:${minutesStr}`;
                 }
             } catch (e) {
-                console.warn('Failed to format date:', value, e);
+                // Date formatting failed.
             }
         }
 
@@ -1867,8 +1840,6 @@ class AdeptusWizard {
                         searchable: true,
                         paging: true
                     });
-                } else {
-                    console.error('DataTable class not found after loading simple-datatables.js');
                 }
             };
             document.head.appendChild(script);
@@ -1878,7 +1849,6 @@ class AdeptusWizard {
     async displayChart(chartData, chartType) {
         const chartContainer = document.getElementById('results-chart');
         if (!chartContainer || !chartData) {
-            console.error('Chart container or data not available');
             return;
         }
 
@@ -1958,8 +1928,7 @@ class AdeptusWizard {
             // Create chart configuration based on type
             chartConfig = this.createChartConfig(chartType, labels, values, valueKey, colors);
         } else {
-            // Invalid data format
-            console.error('Invalid chart data format');
+            // Invalid data format - display error to user.
             chartContainer.innerHTML = `
                 <div class="chart-placeholder">
                     <i class="fa-solid fa-exclamation-triangle"></i>
@@ -1976,7 +1945,7 @@ class AdeptusWizard {
             const ChartJS = await this.getChartJS();
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
-            console.error('Error creating chart:', error);
+            // Chart creation failed - display error to user.
             chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
         }
     }
@@ -2401,7 +2370,7 @@ class AdeptusWizard {
             const ChartJS = await this.getChartJS();
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
-            console.error('Error creating chart:', error);
+            // Chart creation failed - display error to user.
             chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
         }
     }
@@ -2774,7 +2743,7 @@ class AdeptusWizard {
             try {
                 savedParams = JSON.parse(parameters);
             } catch (e) {
-                console.warn('Could not parse saved parameters:', parameters);
+                // Could not parse saved parameters, use defaults.
             }
         }
 
@@ -2868,12 +2837,10 @@ class AdeptusWizard {
                         
                         if (chartImage && chartImage.length < 1000000) { // Limit to 1MB
                             body += `&chart_image=${encodeURIComponent(chartImage)}`;
-                        } else {
-                            console.warn('Chart image too large or failed to capture, proceeding without image');
                         }
+                        // If image too large, proceed without it.
                     } catch (error) {
-                        console.warn('Failed to capture chart image:', error);
-                        // Continue without chart image
+                        // Failed to capture chart image, continue without it.
                     }
                 }
             }
@@ -2894,12 +2861,8 @@ class AdeptusWizard {
             const isFileDownload = contentDisposition && contentDisposition.includes('attachment');
 
             if (contentType && contentType.includes('application/json') && !isFileDownload) {
-                // This is an error response, not a file download
+                // This is an error response, not a file download.
                 const errorData = await response.json();
-                // Only log actual errors, not restrictions
-                if (errorData.error !== 'dataset_too_large') {
-                    console.error('Export error:', errorData.message || errorData.error);
-                }
                 const error = new Error(errorData.message || 'Export failed');
                 error.customTitle = errorData.title; // Store custom title if provided
                 error.errorType = errorData.error; // Store error type
@@ -2922,11 +2885,8 @@ class AdeptusWizard {
             
             // Download the file
                 const blob = await response.blob();
-            
-            if (blob.size < 1000) {
-                console.warn('Export file is suspiciously small:', blob.size, 'bytes - might be an error');
-            }
-            
+            // Note: Small blob size may indicate an error, but proceed anyway.
+
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -2947,11 +2907,6 @@ class AdeptusWizard {
             
             this.hideExportMenu();
         } catch (error) {
-            // Only log actual errors, not restrictions
-            if (error.errorType !== 'dataset_too_large') {
-                console.error('Error exporting report:', error);
-            }
-
             // Check if it's a response error
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 this.showError('Network error. Please check your connection and try again.');
@@ -2970,16 +2925,16 @@ class AdeptusWizard {
         try {
             const chartContainer = document.getElementById('results-chart');
             if (!chartContainer) {
-                console.warn('Chart container not found');
+                // Chart container not found.
                 return null;
             }
-            
+
             const canvas = chartContainer.querySelector('canvas');
             if (!canvas) {
-                console.warn('Chart canvas not found');
+                // Chart canvas not found.
                 return null;
             }
-            
+
             // Try native canvas method first (more reliable)
             try {
                 const dataUrl = canvas.toDataURL('image/png', 0.8); // Reduce quality to 80%
@@ -2987,15 +2942,15 @@ class AdeptusWizard {
                     return dataUrl;
                 }
             } catch (canvasError) {
-                console.warn('Native canvas capture failed:', canvasError);
+                // Native canvas capture failed, try fallback.
             }
-            
+
             // Fallback to html2canvas if native method fails
             try {
                 if (!window.html2canvas) {
                     await this.loadHTML2Canvas();
                 }
-                
+
                 if (window.html2canvas) {
                     const chartImage = await html2canvas(canvas, {
                         backgroundColor: '#ffffff',
@@ -3007,12 +2962,12 @@ class AdeptusWizard {
                     return chartImage.toDataURL('image/png', 0.8);
                 }
             } catch (html2canvasError) {
-                console.warn('HTML2Canvas capture failed:', html2canvasError);
+                // HTML2Canvas capture failed.
             }
-            
+
             return null;
         } catch (error) {
-            console.error('Error capturing chart image:', error);
+            // Error capturing chart image.
             return null;
         }
     }
@@ -3071,7 +3026,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to toggle bookmark');
             }
         } catch (error) {
-            console.error('Error toggling bookmark:', error);
+            // Error toggling bookmark - show user feedback.
             this.showError('Error toggling bookmark');
         } finally {
             this.hideLoading();
@@ -3116,7 +3071,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to remove bookmark');
             }
         } catch (error) {
-            console.error('Error removing bookmark:', error);
+            // Error removing bookmark - show user feedback.
             this.showError('Error removing bookmark');
         } finally {
             this.hideLoading();
@@ -3321,15 +3276,13 @@ class AdeptusWizard {
                 this.updateGenerateButtonState(reportsRemaining <= 0);
 
             } else {
-                console.error('Failed to get subscription data:', data);
-                // Show error in counter
+                // Failed to get subscription data - show error in counter.
                 if (counterContent) {
                     counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 }
             }
             } catch (error) {
-                console.error('Error updating reports left counter:', error);
-                // Show error in counter
+                // Error updating reports left counter - show error.
                 const counterContent = document.getElementById('reports-counter-content');
                 if (counterContent) {
                     counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
@@ -3406,7 +3359,7 @@ class AdeptusWizard {
     async trackExport(format) {
         // Ensure we have a report name
         if (!this.selectedReport) {
-            console.warn('trackExport: No selectedReport set, skipping tracking');
+            // No report selected, skip tracking.
             return;
         }
 
@@ -3414,7 +3367,6 @@ class AdeptusWizard {
             // Use Moodle endpoint which handles both free and paid plans
             const url = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_export.php`;
             const body = `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`;
-
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -3424,28 +3376,23 @@ class AdeptusWizard {
                 body: body
             });
 
-
             const data = await response.json();
-            
+
             if (data.success) {
                 // Update export counter in UI
                 await this.updateExportsCounter();
             } else {
-                console.warn('✗ Failed to track export:', data.message);
-                // Still try to update the counter
+                // Failed to track export, still try to update the counter.
                 await this.updateExportsCounter();
             }
         } catch (error) {
-            console.error('✗ Error tracking export:', error);
-            console.error('Error details:', error.message, error.stack);
-            // Still try to update the counter even if tracking fails
+            // Error tracking export, still try to update the counter.
             try {
                 await this.updateExportsCounter();
             } catch (e) {
-                console.error('Failed to update counter after error:', e);
+                // Failed to update counter after error.
             }
         }
-        
     }
 
     async updateExportsCounter() {
@@ -3505,21 +3452,17 @@ class AdeptusWizard {
                 this.updateExportButtonState(exportsRemaining <= 0);
 
             } else {
-                console.error('✗ Failed to get exports counter data:', data);
-                // Show error in counter
+                // Failed to get exports counter data - show error.
                 if (counterContent) {
                     counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
                 }
             }
         } catch (error) {
-            console.error('✗ Error updating exports counter:', error);
-            console.error('Error details:', error.message, error.stack);
-            // Show error in counter
+            // Error updating exports counter - show error.
             if (counterContent) {
                 counterContent.innerHTML = '<i class="fa-solid fa-exclamation-triangle"></i> Error';
             }
         }
-        
     }
 
     updateGenerateButtonState(disabled) {
@@ -3690,7 +3633,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to remove report');
             }
         } catch (error) {
-            console.error('Error removing recent report:', error);
+            // Error removing recent report - show user feedback.
             this.showError('Error removing recent report');
         } finally {
             this.hideLoading();
@@ -3725,7 +3668,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to clear recent reports');
             }
         } catch (error) {
-            console.error('Error clearing recent reports:', error);
+            // Error clearing recent reports - show user feedback.
             this.showError('Error clearing recent reports');
         } finally {
             this.hideLoading();
@@ -3758,7 +3701,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to clear bookmarks');
             }
         } catch (error) {
-            console.error('Error clearing bookmarks:', error);
+            // Error clearing bookmarks - show user feedback.
             this.showError('Error clearing bookmarks');
         } finally {
             this.hideLoading();
@@ -3849,7 +3792,7 @@ class AdeptusWizard {
                 this.showError(data.message || 'Failed to remove generated report');
             }
         } catch (error) {
-            console.error('Error removing generated report:', error);
+            // Error removing generated report - show user feedback.
             this.showError('Error removing generated report');
         } finally {
             this.hideLoading();
@@ -3868,7 +3811,7 @@ window.testAdeptusWizard = function() {
         const wizard = new AdeptusWizard();
         return true;
     } else {
-        console.error('✗ AdeptusWizard class not available');
+        // AdeptusWizard class not available.
         return false;
     }
 };
