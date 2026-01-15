@@ -145,7 +145,7 @@ try {
     // The original report creation was already tracked and counted
     if (!$isreexecution) {
         // Check report creation eligibility with backend (cumulative limits)
-        $limitsendpoint = rtrim($backendapiurl, '/') . '/api/v1/report-limits/check';
+        $limitsendpoint = rtrim($backendapiurl, '/') . '/report-limits/check';
         $chlimits = curl_init();
         curl_setopt($chlimits, CURLOPT_URL, $limitsendpoint);
         curl_setopt($chlimits, CURLOPT_POST, true);

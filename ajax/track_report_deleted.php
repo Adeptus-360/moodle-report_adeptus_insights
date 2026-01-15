@@ -64,7 +64,7 @@ try {
 
     // Call backend API to track report deletion
     // The backend is the ONLY authority for report tracking
-    $endpoint = rtrim($backendurl, '/') . '/api/v1/report-limits/track-deleted';
+    $endpoint = rtrim($backendurl, '/') . '/report-limits/track-deleted';
 
     $postdata = json_encode([
         'report_name' => $reportname,

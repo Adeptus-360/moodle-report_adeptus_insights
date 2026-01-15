@@ -63,7 +63,7 @@ try {
 
     // Call backend API to track report creation
     // The backend is the ONLY authority for report tracking
-    $endpoint = rtrim($backendurl, '/') . '/api/v1/report-limits/track-created';
+    $endpoint = rtrim($backendurl, '/') . '/report-limits/track-created';
 
     $postdata = json_encode([
         'report_name' => $reportname,

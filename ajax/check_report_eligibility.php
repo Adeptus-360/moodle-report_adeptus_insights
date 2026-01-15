@@ -61,7 +61,7 @@ try {
 
     // Call backend API to check report eligibility
     // The backend is the ONLY authority for report limits
-    $endpoint = rtrim($backendurl, '/') . '/api/v1/report-limits/check';
+    $endpoint = rtrim($backendurl, '/') . '/report-limits/check';
 
     $postdata = json_encode(new stdClass()); // Empty object
 
