@@ -1512,9 +1512,23 @@ class installation_manager {
                 ];
             }
         } catch (\Exception $e) {
+            // Try to extract error code from exception message (contains JSON response).
+            $errorcode = '';
+            $errormessage = $e->getMessage();
+
+            // Look for JSON in the exception message.
+            if (preg_match('/Response: ({.+})/', $errormessage, $matches)) {
+                $errorresponse = json_decode($matches[1], true);
+                if ($errorresponse && isset($errorresponse['error']['code'])) {
+                    $errorcode = $errorresponse['error']['code'];
+                    $errormessage = $errorresponse['error']['message'] ?? $errormessage;
+                }
+            }
+
             return [
                 'success' => false,
-                'message' => 'Failed to create checkout session: ' . $e->getMessage(),
+                'error_code' => $errorcode,
+                'message' => $errormessage,
             ];
         }
     }
@@ -1553,9 +1567,23 @@ class installation_manager {
                 ];
             }
         } catch (\Exception $e) {
+            // Try to extract error code from exception message (contains JSON response).
+            $errorcode = '';
+            $errormessage = $e->getMessage();
+
+            // Look for JSON in the exception message.
+            if (preg_match('/Response: ({.+})/', $errormessage, $matches)) {
+                $errorresponse = json_decode($matches[1], true);
+                if ($errorresponse && isset($errorresponse['error']['code'])) {
+                    $errorcode = $errorresponse['error']['code'];
+                    $errormessage = $errorresponse['error']['message'] ?? $errormessage;
+                }
+            }
+
             return [
                 'success' => false,
-                'message' => 'Failed to verify checkout session: ' . $e->getMessage(),
+                'error_code' => $errorcode,
+                'message' => $errormessage,
             ];
         }
     }
