@@ -354,15 +354,15 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         loadCategories: function() {
             var self = this;
-            var token = this.getAuthToken();
-            if (!token) return;
 
+            // Use PHP proxy to avoid CORS issues
             $.ajax({
-                url: this.backendUrl + '/reports/categories',
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'list',
+                    sesskey: M.cfg.sesskey
                 },
                 success: function(response) {
                     if (response.success && response.data) {
@@ -569,17 +569,18 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         createCategory: function(name, color) {
             var self = this;
-            var token = this.getAuthToken();
-            if (!token) return;
 
+            // Use PHP proxy to avoid CORS issues
             $.ajax({
-                url: this.backendUrl + '/reports/categories',
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
                 method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
+                dataType: 'json',
+                data: {
+                    action: 'create',
+                    name: name,
+                    color: color,
+                    sesskey: M.cfg.sesskey
                 },
-                data: JSON.stringify({ name: name, color: color }),
                 success: function(response) {
                     if (response.success) {
                         self.cachedCategories.push(response.data);
@@ -685,17 +686,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         updateCategory: function(categoryId, name, color) {
             var self = this;
-            var token = this.getAuthToken();
-            if (!token) return;
 
+            // Use PHP proxy to avoid CORS issues
             $.ajax({
-                url: this.backendUrl + '/reports/categories/' + categoryId,
-                method: 'PUT',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'update',
+                    category_id: categoryId,
+                    name: name,
+                    color: color,
+                    sesskey: M.cfg.sesskey
                 },
-                data: JSON.stringify({ name: name, color: color }),
                 success: function(response) {
                     if (response.success) {
                         // Update cached category
@@ -743,15 +746,16 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         deleteCategory: function(categoryId) {
             var self = this;
-            var token = this.getAuthToken();
-            if (!token) return;
 
+            // Use PHP proxy to avoid CORS issues
             $.ajax({
-                url: this.backendUrl + '/reports/categories/' + categoryId,
-                method: 'DELETE',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'delete',
+                    category_id: categoryId,
+                    sesskey: M.cfg.sesskey
                 },
                 success: function(response) {
                     if (response.success) {
@@ -792,20 +796,59 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             $('#category-name').text(categoryInfo.name || 'General');
             $('#report-category-selector').removeClass('d-none');
 
-            // Build dropdown menu
-            var menuHtml = this.cachedCategories.map(function(cat) {
-                var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
-                                 (!categoryInfo.id && cat.name.toLowerCase() === (categoryInfo.name || 'general').toLowerCase());
-                return '<button type="button" class="category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
-                    '<span class="category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
-                    '<span class="category-menu-name">' + cat.name + '</span>' +
-                    (isSelected ? '<svg class="category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
-                '</button>';
-            }).join('');
+            // Helper function to build and bind dropdown
+            var buildDropdown = function() {
+                // Build dropdown menu
+                var menuHtml = self.cachedCategories.map(function(cat) {
+                    var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
+                                     (!categoryInfo.id && cat.name.toLowerCase() === (categoryInfo.name || 'general').toLowerCase());
+                    return '<button type="button" class="category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
+                        '<span class="category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                        '<span class="category-menu-name">' + cat.name + '</span>' +
+                        (isSelected ? '<svg class="category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+                    '</button>';
+                }).join('');
 
-            $('#category-dropdown-menu').html(menuHtml);
+                $('#category-dropdown-menu').html(menuHtml);
 
-            // Bind events (remove old ones first)
+                // Bind click events for menu items
+                $('.category-menu-item').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var catId = $(this).data('id');
+                    var catName = $(this).data('name');
+                    var catColor = $(this).data('color');
+                    $('#category-dropdown-menu').removeClass('show');
+                    self.updateReportCategory(report.slug, catId, catName, catColor, report);
+                });
+            };
+
+            // If categories not loaded yet, load them first
+            if (!this.cachedCategories || this.cachedCategories.length === 0) {
+                $.ajax({
+                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'list',
+                        sesskey: M.cfg.sesskey
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            self.cachedCategories = response.data;
+                        }
+                        buildDropdown();
+                    },
+                    error: function() {
+                        self.cachedCategories = [];
+                        buildDropdown();
+                    }
+                });
+            } else {
+                buildDropdown();
+            }
+
+            // Bind events for dropdown toggle (remove old ones first)
             $('#category-current-btn').off('click').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -814,16 +857,6 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             $('#category-dropdown-menu').off('click').on('click', function(e) {
                 e.stopPropagation();
-            });
-
-            $('.category-menu-item').off('click').on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                var catId = $(this).data('id');
-                var catName = $(this).data('name');
-                var catColor = $(this).data('color');
-                $('#category-dropdown-menu').removeClass('show');
-                self.updateReportCategory(report.slug, catId, catName, catColor, report);
             });
 
             // Close on outside click
@@ -845,23 +878,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             $('#category-dot').css('background', categoryColor);
             $('#category-name').text(categoryName);
 
-            // Both wizard and assistant reports use the backend API
-            var token = this.getAuthToken();
-            if (!token) return;
-
-            // Determine the correct API endpoint based on report source
-            var apiUrl = source === 'wizard'
-                ? this.backendUrl + '/wizard-reports/' + slug + '/category'
-                : this.backendUrl + '/ai-reports/' + slug + '/category';
-
+            // Use PHP proxy to avoid CORS issues (server-to-server call to backend)
             $.ajax({
-                url: apiUrl,
-                method: 'PUT',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/update_report_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    slug: slug,
+                    category_id: categoryId,
+                    source: source,
+                    sesskey: M.cfg.sesskey
                 },
-                data: JSON.stringify({ category_id: categoryId }),
                 success: function(response) {
                     if (response.success) {
                         // Update cached report
@@ -882,8 +909,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                             $('#category-current-btn').removeClass('success-flash');
                         }, 600);
                     } else {
-                        // Revert on failure
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to update category' });
+                        // Revert on failure.
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to update category'
+                        });
                     }
                 },
                 error: function(xhr) {
