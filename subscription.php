@@ -320,20 +320,7 @@ if ($usagestats) {
     ];
 }
 
-// Debug: Show the data being passed to template
-// echo '<div style="background: #f0f0f0; padding: 20px; margin: 20px; border: 1px solid #ccc;">';
-// echo '<h3>Debug: Template Context Data</h3>';
-// echo '<h4>Subscription Data:</h4>';
-// echo '<pre>' . print_r($subscription, true) . '</pre>';
-// echo '<h4>Available Plans:</h4>';
-// echo '<pre>' . print_r($availableplans, true) . '</pre>';
-// echo '<h4>Usage Stats:</h4>';
-// echo '<pre>' . print_r($usagestats, true) . '</pre>';
-// echo '<h4>Template Context:</h4>';
-// echo '<pre>' . print_r($templatecontext, true) . '</pre>';
-// echo '</div>';
-
-// Render the template
+// Render the template.
 echo $OUTPUT->render_from_template('report_adeptus_insights/subscription', $templatecontext);
 
 echo $OUTPUT->footer();

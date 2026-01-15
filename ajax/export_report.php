@@ -58,15 +58,15 @@ if (!empty($chartimage)) {
 }
 
 
-// Validate session key
+// Validate session key.
 if (!confirm_sesskey($sesskey)) {
     if ($format === 'json') {
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+        exit;
     } else {
-        print_error('invalidsesskey');
+        throw new moodle_exception('invalidsesskey');
     }
-    exit;
 }
 
 
