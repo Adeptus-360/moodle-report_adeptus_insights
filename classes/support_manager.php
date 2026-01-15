@@ -209,40 +209,40 @@ class support_manager {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
         // Build multipart form data
-        $postData = $data;
+        $postdata = $data;
 
         // Add files to the request
         if (isset($files['tmp_name']) && is_array($files['tmp_name'])) {
-            foreach ($files['tmp_name'] as $index => $tmpName) {
-                if (!empty($tmpName) && is_uploaded_file($tmpName)) {
+            foreach ($files['tmp_name'] as $index => $tmpname) {
+                if (!empty($tmpname) && is_uploaded_file($tmpname)) {
                     $filename = $files['name'][$index] ?? 'attachment_' . $index;
-                    $mimeType = $files['type'][$index] ?? 'application/octet-stream';
+                    $mimetype = $files['type'][$index] ?? 'application/octet-stream';
 
                     // Validate file
                     $validation = $this->validate_attachment([
-                        'tmp_name' => $tmpName,
+                        'tmp_name' => $tmpname,
                         'name' => $filename,
                         'size' => $files['size'][$index] ?? 0,
                         'error' => $files['error'][$index] ?? UPLOAD_ERR_OK,
                     ]);
 
                     if ($validation['success']) {
-                        $postData['attachments[' . $index . ']'] = new \CURLFile($tmpName, $mimeType, $filename);
+                        $postdata['attachments[' . $index . ']'] = new \CURLFile($tmpname, $mimetype, $filename);
                     }
                 }
             }
         } else if (isset($files['tmp_name']) && !empty($files['tmp_name']) && is_uploaded_file($files['tmp_name'])) {
             // Single file upload
             $filename = $files['name'] ?? 'attachment';
-            $mimeType = $files['type'] ?? 'application/octet-stream';
+            $mimetype = $files['type'] ?? 'application/octet-stream';
 
             $validation = $this->validate_attachment($files);
             if ($validation['success']) {
-                $postData['attachments[0]'] = new \CURLFile($files['tmp_name'], $mimeType, $filename);
+                $postdata['attachments[0]'] = new \CURLFile($files['tmp_name'], $mimetype, $filename);
             }
         }
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 
         // Headers for multipart (don't set Content-Type, let cURL handle it)
         $headers = [];
@@ -257,7 +257,7 @@ class support_manager {
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
         $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         curl_close($ch);
 
@@ -266,7 +266,7 @@ class support_manager {
         }
 
         // Check for HTTP error codes
-        if ($httpCode >= 400) {
+        if ($httpcode >= 400) {
         }
 
         $decoded = json_decode($response, true);

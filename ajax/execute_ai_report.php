@@ -43,23 +43,23 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 header('Content-Type: application/json');
 
 // Get parameters - accept both GET and POST, and JSON body
-$requestMethod = $_SERVER['REQUEST_METHOD'];
-$inputData = [];
+$requestmethod = $_SERVER['REQUEST_METHOD'];
+$inputdata = [];
 
-if ($requestMethod === 'POST') {
+if ($requestmethod === 'POST') {
     // Try to get JSON body first
-    $jsonInput = file_get_contents('php://input');
-    if (!empty($jsonInput)) {
-        $inputData = json_decode($jsonInput, true) ?: [];
+    $jsoninput = file_get_contents('php://input');
+    if (!empty($jsoninput)) {
+        $inputdata = json_decode($jsoninput, true) ?: [];
     }
     // Merge with POST data (POST takes precedence for sesskey)
-    $inputData = array_merge($inputData, $_POST);
+    $inputdata = array_merge($inputdata, $_POST);
 }
 
 // Get SQL - required
-$sql = $inputData['sql'] ?? optional_param('sql', '', PARAM_RAW);
-$sesskey = $inputData['sesskey'] ?? required_param('sesskey', PARAM_ALPHANUM);
-$params = $inputData['params'] ?? optional_param('params', '{}', PARAM_RAW);
+$sql = $inputdata['sql'] ?? optional_param('sql', '', PARAM_RAW);
+$sesskey = $inputdata['sesskey'] ?? required_param('sesskey', PARAM_ALPHANUM);
+$params = $inputdata['params'] ?? optional_param('params', '{}', PARAM_RAW);
 
 // Validate session key
 if (!confirm_sesskey($sesskey)) {

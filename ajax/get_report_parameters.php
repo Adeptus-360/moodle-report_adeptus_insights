@@ -48,12 +48,12 @@ if (!confirm_sesskey($sesskey)) {
 
 try {
     // Fetch the report from backend API
-    $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
-    $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
-    $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
+    $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
+    $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+    $debugmode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
 
-    if (!$backendEnabled) {
+    if (!$backendenabled) {
         echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
         exit;
     }
@@ -65,9 +65,9 @@ try {
 
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
@@ -76,30 +76,30 @@ try {
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
-    if (!$response || $httpCode !== 200 || !empty($curlError)) {
+    if (!$response || $httpcode !== 200 || !empty($curlerror)) {
         echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
         exit;
     }
 
-    $backendData = json_decode($response, true);
-    if (!$backendData || !$backendData['success']) {
+    $backenddata = json_decode($response, true);
+    if (!$backenddata || !$backenddata['success']) {
         echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
         exit;
     }
 
     // Find the report by ID (which is now the report name)
     $report = null;
-    foreach ($backendData['data'] as $backendReport) {
+    foreach ($backenddata['data'] as $backendreport) {
         // Trim whitespace and normalize for comparison
-        $backendName = trim($backendReport['name']);
-        $requestedName = trim($reportid);
+        $backendname = trim($backendreport['name']);
+        $requestedname = trim($reportid);
 
-        if ($backendName === $requestedName) {
-            $report = $backendReport;
+        if ($backendname === $requestedname) {
+            $report = $backendreport;
             break;
         }
     }
@@ -124,20 +124,20 @@ try {
         }
     }
 
-    $fallbackEnabled = isset($CFG->adeptus_wizard_fallback_to_local) ? $CFG->adeptus_wizard_fallback_to_local : true;
+    $fallbackenabled = isset($CFG->adeptus_wizard_fallback_to_local) ? $CFG->adeptus_wizard_fallback_to_local : true;
 
     // Enhance parameters with dynamic data based on type
     // Only process if we have actual parameters (not just metadata)
     foreach ($parameters as &$param) {
         // Try to get parameter type mapping from backend first if enabled
-        $enhancedParam = null;
+        $enhancedparam = null;
 
         // Backend parameter enhancement disabled - endpoint not available in new backend
         if (false) {
             try {
                 // Call backend API to get enhanced parameter data
                 $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/adeptus-reports/process-parameter');
+                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/adeptus-reports/process-parameter');
                 curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
                     'paramName' => $param['name'],
@@ -153,26 +153,26 @@ try {
                     'Accept: application/json',
                 ]);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+                curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
                 $response = curl_exec($ch);
-                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlError = curl_error($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlerror = curl_error($ch);
                 curl_close($ch);
 
-                if ($debugMode) {
+                if ($debugmode) {
                 }
 
-                if ($response && $httpCode === 200 && empty($curlError)) {
-                    $backendData = json_decode($response, true);
-                    if ($backendData && $backendData['success']) {
-                        $enhancedParam = $backendData['data'];
-                        if ($debugMode) {
+                if ($response && $httpcode === 200 && empty($curlerror)) {
+                    $backenddata = json_decode($response, true);
+                    if ($backenddata && $backenddata['success']) {
+                        $enhancedparam = $backenddata['data'];
+                        if ($debugmode) {
                         }
                     }
                 } else {
-                    if ($debugMode) {
+                    if ($debugmode) {
                     }
                 }
             } catch (Exception $e) {
@@ -181,8 +181,8 @@ try {
         }
 
         // If backend enhancement succeeded, use it; otherwise fall back to local processing
-        if ($enhancedParam) {
-            $param = array_merge($param, $enhancedParam);
+        if ($enhancedparam) {
+            $param = array_merge($param, $enhancedparam);
         }
 
         // Local fallback parameter processing (always available as backup)
@@ -203,7 +203,7 @@ try {
             'charttype' => $report['charttype'],
         ],
         'parameters' => $paramarray,
-        'backend_enhanced' => $backendEnabled && !empty($enhancedParam),
+        'backend_enhanced' => $backendenabled && !empty($enhancedparam),
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'message' => 'Database error occurred']);
@@ -382,10 +382,10 @@ function processParameterLocally(&$param) {
             ");
             $param['options'] = [];
             foreach ($gradeitems as $item) {
-                $typeLabel = ucfirst($item->itemtype);
+                $typelabel = ucfirst($item->itemtype);
                 $param['options'][] = [
                     'value' => $item->id,
-                    'label' => s($item->coursename) . ' - ' . $typeLabel . ': ' . s($item->itemname),
+                    'label' => s($item->coursename) . ' - ' . $typelabel . ': ' . s($item->itemname),
                 ];
             }
             break;

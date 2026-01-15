@@ -166,19 +166,19 @@ if ($paymentconfig && isset($paymentconfig['success']) && $paymentconfig['succes
 // Add current subscription if exists
 if ($subscription) {
     // Helper function to convert date strings to formatted dates
-    $formatDate = function ($dateValue) {
-        if (empty($dateValue)) {
+    $formatdate = function ($datevalue) {
+        if (empty($datevalue)) {
             return 'N/A';
         }
 
         // If it's already a timestamp (integer)
-        if (is_numeric($dateValue)) {
-            return date('F j, Y', $dateValue);
+        if (is_numeric($datevalue)) {
+            return date('F j, Y', $datevalue);
         }
 
         // If it's a date string, try to parse it
-        if (is_string($dateValue)) {
-            $timestamp = strtotime($dateValue);
+        if (is_string($datevalue)) {
+            $timestamp = strtotime($datevalue);
             if ($timestamp !== false) {
                 return date('F j, Y', $timestamp);
             }
@@ -188,10 +188,10 @@ if ($subscription) {
     };
 
     // Check if current plan is free
-    $isFreePlan = false;
+    $isfreeplan = false;
     if (isset($subscription['price'])) {
         $price = floatval(str_replace(['£', ','], '', $subscription['price']));
-        $isFreePlan = ($price == 0);
+        $isfreeplan = ($price == 0);
     }
 
     $templatecontext['current_subscription'] = [
@@ -201,18 +201,18 @@ if ($subscription) {
         'status' => $subscription['status'] ?? 'active',
         'ai_credits_remaining' => $subscription['ai_credits_remaining'] ?? 0,
         'exports_remaining' => $subscription['exports_remaining'] ?? 0,
-        'next_billing' => $formatDate($subscription['current_period_end'] ?? null),
+        'next_billing' => $formatdate($subscription['current_period_end'] ?? null),
         'is_trial' => $subscription['is_trial'] ?? false,
-        'trial_ends_at' => $formatDate($subscription['trial_ends_at'] ?? null),
+        'trial_ends_at' => $formatdate($subscription['trial_ends_at'] ?? null),
         'is_cancelled' => $subscription['is_cancelled'] ?? false,
         'is_active' => $subscription['is_active'] ?? true,
         'has_payment_issues' => $subscription['has_payment_issues'] ?? false,
         'should_disable_api_access' => $subscription['should_disable_api_access'] ?? false,
         'status_message' => $subscription['status_message'] ?? 'Active subscription',
-        'is_free_plan' => $isFreePlan,
+        'is_free_plan' => $isfreeplan,
         // Add period dates for billing period card
-        'current_period_start' => $formatDate($subscription['current_period_start'] ?? null),
-        'current_period_end' => $formatDate($subscription['current_period_end'] ?? null),
+        'current_period_start' => $formatdate($subscription['current_period_start'] ?? null),
+        'current_period_end' => $formatdate($subscription['current_period_end'] ?? null),
         // Enhanced status information
         'status_details' => $subscription['status_details'] ?? [],
         'cancellation_info' => $subscription['cancellation_info'] ?? [],

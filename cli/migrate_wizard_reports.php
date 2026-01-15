@@ -65,13 +65,13 @@ cli_heading('Wizard Reports Migration');
 // Get API configuration
 $installationmanager = new \report_adeptus_insights\installation_manager();
 $apikey = $installationmanager->get_api_key();
-$backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
+$backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
 
 if (empty($apikey)) {
     cli_error('API key not configured. Please complete plugin registration first.');
 }
 
-cli_writeln("Backend URL: {$backendApiUrl}");
+cli_writeln("Backend URL: {$backendapiurl}");
 cli_writeln("Dry run: " . ($dryrun ? 'Yes' : 'No'));
 cli_writeln("");
 
@@ -92,10 +92,10 @@ $failed = 0;
 $skipped = 0;
 
 foreach ($localreports as $report) {
-    $reportName = $report->reportid;
-    $userId = $report->userid;
+    $reportname = $report->reportid;
+    $userid = $report->userid;
 
-    cli_write("Migrating report '{$reportName}' for user {$userId}... ");
+    cli_write("Migrating report '{$reportname}' for user {$userid}... ");
 
     // Parse parameters
     $parameters = [];
@@ -108,9 +108,9 @@ foreach ($localreports as $report) {
 
     // Prepare data for backend
     $wizardreportdata = [
-        'user_id' => $userId,
-        'report_template_id' => $reportName,
-        'name' => $reportName,
+        'user_id' => $userid,
+        'report_template_id' => $reportname,
+        'name' => $reportname,
         'parameters' => $parameters,
     ];
 
@@ -122,7 +122,7 @@ foreach ($localreports as $report) {
 
     // Call backend API to save the wizard report
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -135,11 +135,11 @@ foreach ($localreports as $report) {
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
-    if ($httpCode === 201 || $httpCode === 200) {
+    if ($httpcode === 201 || $httpcode === 200) {
         $data = json_decode($response, true);
         if (!empty($data['success'])) {
             cli_writeln("OK (slug: " . ($data['report']['slug'] ?? 'unknown') . ")");
@@ -155,7 +155,7 @@ foreach ($localreports as $report) {
             $failed++;
         }
     } else {
-        cli_writeln("FAILED: HTTP {$httpCode} - {$curlError}");
+        cli_writeln("FAILED: HTTP {$httpcode} - {$curlerror}");
         if ($response) {
             $data = json_decode($response, true);
             if (!empty($data['message'])) {

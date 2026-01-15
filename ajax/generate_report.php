@@ -53,11 +53,11 @@ if (!confirm_sesskey($sesskey)) {
 
 try {
     // Fetch the report from backend API
-    $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
-    $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+    $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
+    $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
-    if (!$backendEnabled) {
+    if (!$backendenabled) {
         echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
         exit;
     }
@@ -69,9 +69,9 @@ try {
 
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
@@ -80,30 +80,30 @@ try {
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
-    if (!$response || $httpCode !== 200 || !empty($curlError)) {
+    if (!$response || $httpcode !== 200 || !empty($curlerror)) {
         echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
         exit;
     }
 
-    $backendData = json_decode($response, true);
-    if (!$backendData || !$backendData['success']) {
+    $backenddata = json_decode($response, true);
+    if (!$backenddata || !$backenddata['success']) {
         echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
         exit;
     }
 
     // Find the report by ID (which is now the report name)
     $report = null;
-    foreach ($backendData['data'] as $backendReport) {
+    foreach ($backenddata['data'] as $backendreport) {
         // Trim whitespace and normalize for comparison
-        $backendName = trim($backendReport['name']);
-        $requestedName = trim($reportid);
+        $backendname = trim($backendreport['name']);
+        $requestedname = trim($reportid);
 
-        if ($backendName === $requestedName) {
-            $report = $backendReport;
+        if ($backendname === $requestedname) {
+            $report = $backendreport;
             break;
         }
     }
@@ -145,7 +145,7 @@ try {
     // The original report creation was already tracked and counted
     if (!$isreexecution) {
         // Check report creation eligibility with backend (cumulative limits)
-        $limitsendpoint = rtrim($backendApiUrl, '/') . '/api/v1/report-limits/check';
+        $limitsendpoint = rtrim($backendapiurl, '/') . '/api/v1/report-limits/check';
         $chlimits = curl_init();
         curl_setopt($chlimits, CURLOPT_URL, $limitsendpoint);
         curl_setopt($chlimits, CURLOPT_POST, true);
@@ -420,7 +420,7 @@ try {
 
         // Call backend API to save the wizard report
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
+        curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -588,25 +588,25 @@ try {
 /**
  * Generate colors for charts based on chart type and data count
  */
-function generateChartColors($count, $chartType) {
-    $baseColors = [
+function generateChartColors($count, $charttype) {
+    $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
         '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d',
     ];
 
-    $chartType = strtolower($chartType);
+    $charttype = strtolower($charttype);
 
-    if ($chartType === 'pie' || $chartType === 'donut' || $chartType === 'polar') {
+    if ($charttype === 'pie' || $charttype === 'donut' || $charttype === 'polar') {
         // Generate distinct colors for each data point
         $colors = [];
         for ($i = 0; $i < $count; $i++) {
-            $colors[] = $baseColors[$i % count($baseColors)];
+            $colors[] = $basecolors[$i % count($basecolors)];
         }
         return $colors;
     } else {
         // Use single color for bar, line, radar charts
-        return [$baseColors[0]];
+        return [$basecolors[0]];
     }
 }
 

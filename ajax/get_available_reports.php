@@ -37,11 +37,11 @@ header('Content-Type: application/json');
 
 try {
     // Fetch all reports from backend API
-    $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
-    $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+    $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
+    $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
-    if (!$backendEnabled) {
+    if (!$backendenabled) {
         echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
         exit;
     }
@@ -53,9 +53,9 @@ try {
 
     // Fetch all reports from backend
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
@@ -64,22 +64,22 @@ try {
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
-    if (!$response || $httpCode !== 200) {
+    if (!$response || $httpcode !== 200) {
         echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
         exit;
     }
 
-    $backendData = json_decode($response, true);
-    if (!$backendData || !$backendData['success']) {
+    $backenddata = json_decode($response, true);
+    if (!$backenddata || !$backenddata['success']) {
         echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
         exit;
     }
 
     // Filter reports using validator
-    $filteredreports = \report_adeptus_insights\report_validator::filter_reports($backendData['data']);
+    $filteredreports = \report_adeptus_insights\report_validator::filter_reports($backenddata['data']);
 
     // Optionally, remove unavailable reports entirely or mark them
     $showunavailable = optional_param('show_unavailable', false, PARAM_BOOL);
@@ -97,9 +97,9 @@ try {
     echo json_encode([
         'success' => true,
         'data' => $filteredreports,
-        'total' => count($backendData['data']),
+        'total' => count($backenddata['data']),
         'available' => count($filteredreports),
-        'filtered' => count($backendData['data']) - count($filteredreports),
+        'filtered' => count($backenddata['data']) - count($filteredreports),
     ]);
 } catch (Exception $e) {
     echo json_encode([

@@ -45,7 +45,7 @@ try {
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
         echo json_encode([
@@ -58,7 +58,7 @@ try {
 
     // Fetch wizard reports from backend API
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports?user_id=' . $userid);
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports?user_id=' . $userid);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -69,11 +69,11 @@ try {
     ]);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
-    if ($httpCode !== 200) {
+    if ($httpcode !== 200) {
         echo json_encode([
             'success' => false,
             'message' => 'Failed to fetch wizard reports from server',

@@ -40,31 +40,31 @@ try {
     global $DB;
 
     // Get current month timestamps
-    $currentMonthStart = strtotime('first day of this month');
-    $currentMonthEnd = strtotime('last day of this month');
+    $currentmonthstart = strtotime('first day of this month');
+    $currentmonthend = strtotime('last day of this month');
 
     // Get reports generated this month
-    $reportsThisMonth = $DB->count_records_sql(
+    $reportsthismonth = $DB->count_records_sql(
         "SELECT COUNT(*) FROM {adeptus_report_history} 
          WHERE generatedat >= ? AND generatedat <= ?",
-        [$currentMonthStart, $currentMonthEnd]
+        [$currentmonthstart, $currentmonthend]
     );
 
     // Get AI credits used this month
-    $aiCreditsThisMonth = $DB->get_field_sql(
+    $aicreditsthismonth = $DB->get_field_sql(
         "SELECT COALESCE(SUM(credits_used), 0) FROM {adeptus_usage_tracking} 
          WHERE usage_type = 'ai_chat' AND timecreated >= ? AND timecreated <= ?",
-        [$currentMonthStart, $currentMonthEnd]
+        [$currentmonthstart, $currentmonthend]
     );
 
     // Get subscription details for limits
     $subscription = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
 
-    $usageData = [
-        'reports_generated_this_month' => (int)$reportsThisMonth,
-        'ai_credits_used_this_month' => (int)$aiCreditsThisMonth,
-        'current_period_start' => $currentMonthStart,
-        'current_period_end' => $currentMonthEnd,
+    $usagedata = [
+        'reports_generated_this_month' => (int)$reportsthismonth,
+        'ai_credits_used_this_month' => (int)$aicreditsthismonth,
+        'current_period_start' => $currentmonthstart,
+        'current_period_end' => $currentmonthend,
         'last_updated' => time(),
         'subscription_limits' => [
             'max_reports_per_month' => $subscription ? ($subscription->exports_remaining ?? 0) : 0,
@@ -74,7 +74,7 @@ try {
 
     echo json_encode([
         'success' => true,
-        'data' => $usageData,
+        'data' => $usagedata,
     ]);
 } catch (Exception $e) {
     http_response_code(500);

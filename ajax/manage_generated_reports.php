@@ -47,7 +47,7 @@ try {
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
         echo json_encode([
@@ -63,7 +63,7 @@ try {
 
             // Delete the specific wizard report from backend
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
+            curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -75,10 +75,10 @@ try {
             ]);
 
             $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($httpCode === 200) {
+            if ($httpcode === 200) {
                 $data = json_decode($response, true);
                 echo json_encode(['success' => true, 'message' => $data['message'] ?? 'Report removed successfully']);
             } else {
@@ -90,7 +90,7 @@ try {
         case 'clear_all':
             // Delete all wizard reports for the user from backend
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/wizard-reports');
+            curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
@@ -103,10 +103,10 @@ try {
             ]);
 
             $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            if ($httpCode === 200) {
+            if ($httpcode === 200) {
                 $data = json_decode($response, true);
                 $count = $data['deleted_count'] ?? 0;
                 echo json_encode(['success' => true, 'message' => "Deleted {$count} wizard reports"]);

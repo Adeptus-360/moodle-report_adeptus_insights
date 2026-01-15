@@ -307,26 +307,26 @@ class token_auth_manager {
     private function get_usage_data() {
         try {
             global $DB;
-            $currentMonthStart = strtotime('first day of this month');
-            $currentMonthEnd = strtotime('last day of this month');
+            $currentmonthstart = strtotime('first day of this month');
+            $currentmonthend = strtotime('last day of this month');
 
-            $reportsThisMonth = $DB->count_records_sql(
+            $reportsthismonth = $DB->count_records_sql(
                 "SELECT COUNT(*) FROM {adeptus_report_history} 
                  WHERE generatedat >= ? AND generatedat <= ?",
-                [$currentMonthStart, $currentMonthEnd]
+                [$currentmonthstart, $currentmonthend]
             );
 
-            $aiCreditsThisMonth = $DB->get_field_sql(
+            $aicreditsthismonth = $DB->get_field_sql(
                 "SELECT COALESCE(SUM(credits_used), 0) FROM {adeptus_usage_tracking} 
                  WHERE usage_type = 'ai_chat' AND timecreated >= ? AND timecreated <= ?",
-                [$currentMonthStart, $currentMonthEnd]
+                [$currentmonthstart, $currentmonthend]
             );
 
             return [
-                'reports_generated_this_month' => (int)$reportsThisMonth,
-                'ai_credits_used_this_month' => (int)$aiCreditsThisMonth,
-                'current_period_start' => $currentMonthStart,
-                'current_period_end' => $currentMonthEnd,
+                'reports_generated_this_month' => (int)$reportsthismonth,
+                'ai_credits_used_this_month' => (int)$aicreditsthismonth,
+                'current_period_start' => $currentmonthstart,
+                'current_period_end' => $currentmonthend,
             ];
         } catch (\Exception $e) {
             return null;

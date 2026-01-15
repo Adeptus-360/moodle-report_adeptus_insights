@@ -127,11 +127,11 @@ try {
         require_once(__DIR__ . '/../classes/api_config.php');
         require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
-        $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-        $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
-        $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+        $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+        $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
+        $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
-        if (!$backendEnabled) {
+        if (!$backendenabled) {
             throw new Exception('Backend API is disabled and no data provided');
         }
 
@@ -141,9 +141,9 @@ try {
 
         // Fetch report definition
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+        curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
@@ -152,41 +152,41 @@ try {
         ]);
 
         $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if (!$response || $httpCode !== 200) {
+        if (!$response || $httpcode !== 200) {
             throw new Exception('Failed to fetch report definition from backend');
         }
 
-        $backendData = json_decode($response, true);
-        if (!$backendData || !$backendData['success']) {
+        $backenddata = json_decode($response, true);
+        if (!$backenddata || !$backenddata['success']) {
             throw new Exception('Invalid response from backend API');
         }
 
         // Find the report
-        $backendReport = null;
-        foreach ($backendData['data'] as $r) {
+        $backendreport = null;
+        foreach ($backenddata['data'] as $r) {
             if (trim($r['name']) === trim($reportid)) {
-                $backendReport = $r;
+                $backendreport = $r;
                 break;
             }
         }
 
-        if (!$backendReport) {
+        if (!$backendreport) {
             throw new Exception('Report not found: ' . $reportid);
         }
 
         // Create report object
-        $report->name = $backendReport['name'];
-        $report->category = $backendReport['category'] ?? '';
-        $report->charttype = $backendReport['charttype'] ?? 'bar';
-        $report->sqlquery = $backendReport['sqlquery'];
-        $report->parameters = json_encode($backendReport['parameters'] ?? []);
+        $report->name = $backendreport['name'];
+        $report->category = $backendreport['category'] ?? '';
+        $report->charttype = $backendreport['charttype'] ?? 'bar';
+        $report->sqlquery = $backendreport['sqlquery'];
+        $report->parameters = json_encode($backendreport['parameters'] ?? []);
 
         // Collect parameters from request (same logic as generate_report.php)
-        if (!empty($backendReport['parameters'])) {
-            foreach ($backendReport['parameters'] as $paramdef) {
+        if (!empty($backendreport['parameters'])) {
+            foreach ($backendreport['parameters'] as $paramdef) {
                 if (isset($paramdef['name'])) {
                     $paramvalue = optional_param($paramdef['name'], '', PARAM_RAW);
                     if (!empty($paramvalue)) {
@@ -658,25 +658,25 @@ function generateExcelCSV($reportname, $tabledata, $chartdata, $reportparams) {
 /**
  * Generate colors for charts based on chart type and data count
  */
-function generateChartColors($count, $chartType) {
-    $baseColors = [
+function generateChartColors($count, $charttype) {
+    $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
         '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6c757d',
     ];
 
-    $chartType = strtolower($chartType);
+    $charttype = strtolower($charttype);
 
-    if ($chartType === 'pie' || $chartType === 'donut' || $chartType === 'polar') {
+    if ($charttype === 'pie' || $charttype === 'donut' || $charttype === 'polar') {
         // Generate distinct colors for each data point
         $colors = [];
         for ($i = 0; $i < $count; $i++) {
-            $colors[] = $baseColors[$i % count($baseColors)];
+            $colors[] = $basecolors[$i % count($basecolors)];
         }
         return $colors;
     } else {
         // Use single color for bar, line, radar charts
-        return [$baseColors[0]];
+        return [$basecolors[0]];
     }
 }
 

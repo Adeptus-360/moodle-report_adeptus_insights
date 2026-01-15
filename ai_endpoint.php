@@ -47,24 +47,24 @@ if ($action === 'login') {
         echo json_encode(['error' => 'Missing credentials']);
         exit;
     }
-    $loginUrl = \report_adeptus_insights\api_config::get_ai_login_endpoint();
-    $postData = json_encode(['email' => $email, 'password' => $password]);
+    $loginurl = \report_adeptus_insights\api_config::get_ai_login_endpoint();
+    $postdata = json_encode(['email' => $email, 'password' => $password]);
     $context = stream_context_create([
         'http' => [
             'method'  => 'POST',
             'header'  => "Content-Type: application/json\r\nAccept: application/json\r\n",
-            'content' => $postData,
+            'content' => $postdata,
         ],
     ]);
-    $result = file_get_contents($loginUrl, false, $context);
+    $result = file_get_contents($loginurl, false, $context);
     if ($result === false) {
         http_response_code(500);
         echo json_encode(['error' => 'Login request failed']);
         exit;
     }
-    $resultData = json_decode($result, true);
-    if (!empty($resultData['token'])) {
-        $SESSION->ai_token = $resultData['token'];
+    $resultdata = json_decode($result, true);
+    if (!empty($resultdata['token'])) {
+        $SESSION->ai_token = $resultdata['token'];
         echo json_encode(['success' => true]);
         exit;
     }
@@ -89,14 +89,14 @@ if (!$prompt) {
 }
 
 // Proxy request to AI backend, including auth header
-$backendUrl = \report_adeptus_insights\api_config::get_ai_report_endpoint() . '?prompt=' . urlencode($prompt);
+$backendurl = \report_adeptus_insights\api_config::get_ai_report_endpoint() . '?prompt=' . urlencode($prompt);
 $opts = [
     'http' => [
         'method' => 'GET',
         'header' => "Authorization: Bearer {$token}\r\nAccept: application/json\r\n",
     ],
 ];
-$response = file_get_contents($backendUrl, false, stream_context_create($opts));
+$response = file_get_contents($backendurl, false, stream_context_create($opts));
 $data = json_decode($response, true);
 
 echo json_encode([

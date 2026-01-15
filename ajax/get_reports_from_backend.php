@@ -52,13 +52,13 @@ try {
     $moodleversionstring = '4.2'; // Hardcoded for now
 
     // Backend API configuration using centralized API config
-    $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
-    $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
-    $apiTimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
-    $debugMode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
+    $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
+    $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
+    $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
+    $debugmode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
 
 
-    if (!$backendEnabled) {
+    if (!$backendenabled) {
         throw new Exception('Backend API is disabled');
     }
 
@@ -86,44 +86,44 @@ try {
     // Fetch reports from backend API
     // Use the reports/definitions endpoint
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
+    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apiTimeout);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5); // Limit redirects
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
     $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlError = curl_error($ch);
-    $finalUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
+    $finalurl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     curl_close($ch);
 
-    if ($debugMode) {
+    if ($debugmode) {
     }
 
     if ($response === false) {
-        throw new Exception('Failed to fetch reports from backend: cURL Error - ' . $curlError);
+        throw new Exception('Failed to fetch reports from backend: cURL Error - ' . $curlerror);
     }
 
-    if ($httpCode !== 200) {
-        $errorDetails = "HTTP $httpCode";
-        if (!empty($curlError)) {
-            $errorDetails .= ", cURL Error: $curlError";
+    if ($httpcode !== 200) {
+        $errordetails = "HTTP $httpcode";
+        if (!empty($curlerror)) {
+            $errordetails .= ", cURL Error: $curlerror";
         }
         if (!empty($response)) {
-            $errorDetails .= ", Response: " . substr($response, 0, 100);
+            $errordetails .= ", Response: " . substr($response, 0, 100);
         }
-        throw new Exception('Failed to fetch reports from backend: ' . $errorDetails);
+        throw new Exception('Failed to fetch reports from backend: ' . $errordetails);
     }
 
-    $backendData = json_decode($response, true);
-    if (!$backendData || !$backendData['success']) {
+    $backenddata = json_decode($response, true);
+    if (!$backenddata || !$backenddata['success']) {
         throw new Exception('Invalid response from backend API');
     }
 
-    $allreports = $backendData['data'];
+    $allreports = $backenddata['data'];
 
     // Load report validator for table/module compatibility checking
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
@@ -159,7 +159,7 @@ try {
                 $iscompatible = false;
                 $filterreason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
 
-                if ($debugMode) {
+                if ($debugmode) {
                 }
             }
         }
@@ -168,12 +168,12 @@ try {
             $compatiblereports[] = $report;
         } else {
             $filteredcount++;
-            if ($debugMode && !empty($filterreason)) {
+            if ($debugmode && !empty($filterreason)) {
             }
         }
     }
 
-    if ($debugMode) {
+    if ($debugmode) {
     }
 
     // Organize reports by category
