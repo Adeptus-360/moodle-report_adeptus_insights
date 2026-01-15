@@ -51,41 +51,41 @@ header('Content-Type: application/json');
 
 try {
     // Get installation manager and API configuration
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
-    $backend_url = \report_adeptus_insights\api_config::get_backend_url();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
+    $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
-    if (empty($api_key)) {
+    if (empty($apikey)) {
         throw new Exception('Installation not configured. Please complete plugin setup.');
     }
 
     // Call backend API to check report eligibility
     // The backend is the ONLY authority for report limits
-    $endpoint = rtrim($backend_url, '/') . '/api/v1/report-limits/check';
+    $endpoint = rtrim($backendurl, '/') . '/api/v1/report-limits/check';
 
-    $post_data = json_encode(new stdClass()); // Empty object
+    $postdata = json_encode(new stdClass()); // Empty object
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $endpoint);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
     $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
     // Handle connection errors - FAIL CLOSED (deny if backend unreachable)
-    if ($response === false || !empty($curl_error)) {
-        error_log('[Adeptus Insights] Report eligibility check failed - curl error: ' . $curl_error);
+    if ($response === false || !empty($curlerror)) {
+        error_log('[Adeptus Insights] Report eligibility check failed - curl error: ' . $curlerror);
         echo json_encode([
             'success' => false,
             'eligible' => false,
@@ -96,8 +96,8 @@ try {
     }
 
     // Handle HTTP errors - FAIL CLOSED
-    if ($http_code !== 200) {
-        error_log('[Adeptus Insights] Report eligibility check failed - HTTP ' . $http_code . ': ' . $response);
+    if ($httpcode !== 200) {
+        error_log('[Adeptus Insights] Report eligibility check failed - HTTP ' . $httpcode . ': ' . $response);
         echo json_encode([
             'success' => false,
             'eligible' => false,
@@ -108,7 +108,7 @@ try {
     }
 
     // Parse backend response
-    $backend_data = json_decode($response, true);
+    $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log('[Adeptus Insights] Report eligibility check failed - invalid JSON response');
@@ -122,18 +122,18 @@ try {
     }
 
     // Return backend response - handle alternate field names
-    $reports_used = $backend_data['reports_used'] ?? $backend_data['used'] ?? 0;
-    $reports_limit = $backend_data['reports_limit'] ?? $backend_data['limit'] ?? 0;
-    $reports_remaining = $backend_data['reports_remaining'] ?? $backend_data['remaining'] ?? 0;
+    $reportsused = $backenddata['reports_used'] ?? $backenddata['used'] ?? 0;
+    $reportslimit = $backenddata['reports_limit'] ?? $backenddata['limit'] ?? 0;
+    $reportsremaining = $backenddata['reports_remaining'] ?? $backenddata['remaining'] ?? 0;
 
     echo json_encode([
-        'success' => $backend_data['success'] ?? false,
-        'eligible' => $backend_data['eligible'] ?? false,
-        'message' => $backend_data['message'] ?? 'Unknown status',
-        'reason' => $backend_data['reason'] ?? null,
-        'reports_used' => $reports_used,
-        'reports_limit' => $reports_limit,
-        'reports_remaining' => $reports_remaining,
+        'success' => $backenddata['success'] ?? false,
+        'eligible' => $backenddata['eligible'] ?? false,
+        'message' => $backenddata['message'] ?? 'Unknown status',
+        'reason' => $backenddata['reason'] ?? null,
+        'reports_used' => $reportsused,
+        'reports_limit' => $reportslimit,
+        'reports_remaining' => $reportsremaining,
     ]);
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Report eligibility check exception: ' . $e->getMessage());

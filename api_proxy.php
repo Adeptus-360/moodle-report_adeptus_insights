@@ -32,10 +32,10 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/classes/api_config.php');
 
 // Get CORS origin from centralized config.
-$cors_origin = \report_adeptus_insights\api_config::get_cors_origin();
+$corsorigin = \report_adeptus_insights\api_config::get_cors_origin();
 
 // Set CORS headers.
-header('Access-Control-Allow-Origin: ' . $cors_origin);
+header('Access-Control-Allow-Origin: ' . $corsorigin);
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origin, X-Sesskey');
 header('Access-Control-Allow-Credentials: true');
@@ -48,16 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Define endpoints that don't require authentication (used during initial setup).
-$public_endpoints = ['register'];
+$publicendpoints = ['register'];
 
 // Get the request path to determine the endpoint early.
-$request_uri = $_SERVER['REQUEST_URI'];
-$path = parse_url($request_uri, PHP_URL_PATH);
-$path_parts = explode('/', trim($path, '/'));
-$endpoint = end($path_parts);
+$requesturi = $_SERVER['REQUEST_URI'];
+$path = parse_url($requesturi, PHP_URL_PATH);
+$pathparts = explode('/', trim($path, '/'));
+$endpoint = end($pathparts);
 
 // Require authentication for non-public endpoints.
-if (!in_array($endpoint, $public_endpoints)) {
+if (!in_array($endpoint, $publicendpoints)) {
     require_login();
     $context = context_system::instance();
     require_capability('report/adeptus_insights:view', $context);
@@ -74,9 +74,9 @@ if (!in_array($endpoint, $public_endpoints)) {
             $sesskey = $_POST['sesskey'];
         } else {
             // Try to get from JSON body.
-            $json_input = json_decode(file_get_contents('php://input'), true);
-            if (isset($json_input['sesskey'])) {
-                $sesskey = $json_input['sesskey'];
+            $jsoninput = json_decode(file_get_contents('php://input'), true);
+            if (isset($jsoninput['sesskey'])) {
+                $sesskey = $jsoninput['sesskey'];
             }
         }
 
@@ -94,7 +94,7 @@ if (!in_array($endpoint, $public_endpoints)) {
 // Backend API URL - using legacy URL for backward compatibility.
 $BACKEND_URL = \report_adeptus_insights\api_config::get_legacy_api_url();
 
-// Note: $endpoint and $path_parts are already defined above during authentication check.
+// Note: $endpoint and $pathparts are already defined above during authentication check.
 
 // Handle different endpoints
 switch ($endpoint) {
@@ -124,7 +124,7 @@ switch ($endpoint) {
         break;
     default:
         // Check if this is an installation endpoint
-        if (in_array('installation', $path_parts)) {
+        if (in_array('installation', $pathparts)) {
             handleRegistration();
         } else {
             http_response_code(404);
@@ -166,7 +166,7 @@ function forwardToBackend($endpoint, $data = [], $method = 'POST') {
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
     $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
     curl_close($ch);
 
@@ -174,8 +174,8 @@ function forwardToBackend($endpoint, $data = [], $method = 'POST') {
         throw new Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
     }
 
-    if ($http_code !== 200) {
-        throw new Exception('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
+    if ($httpcode !== 200) {
+        throw new Exception('API request failed: HTTP ' . $httpcode . ' - Response: ' . $response . ' (URL: ' . $url . ')');
     }
 
     $decoded = json_decode($response, true);
@@ -200,17 +200,17 @@ function handleRegistration() {
     $input = [];
 
     // Try to get JSON input first
-    $json_input = json_decode(file_get_contents('php://input'), true);
-    if ($json_input) {
-        $input = $json_input;
+    $jsoninput = json_decode(file_get_contents('php://input'), true);
+    if ($jsoninput) {
+        $input = $jsoninput;
     } else {
         // Fall back to form data
         $input = $_POST;
     }
 
     // Validate required fields for form data
-    $required_fields = ['admin_email', 'admin_name'];
-    foreach ($required_fields as $field) {
+    $requiredfields = ['admin_email', 'admin_name'];
+    foreach ($requiredfields as $field) {
         if (empty($input[$field])) {
             http_response_code(400);
             echo json_encode([

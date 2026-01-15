@@ -37,27 +37,27 @@ $PAGE->set_pagelayout('report');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
-$auth_manager = new \report_adeptus_insights\token_auth_manager();
-$authenticated = $auth_manager->check_auth(false); // Don't redirect, just check status
+$authmanager = new \report_adeptus_insights\token_auth_manager();
+$authenticated = $authmanager->check_auth(false); // Don't redirect, just check status
 
 // Get authentication data for JavaScript
-$auth_data = $auth_manager->get_auth_status();
+$authdata = $authmanager->get_auth_status();
 
 // Get subscription details to determine if user is on free plan
-$installation_manager = new \report_adeptus_insights\installation_manager();
-$subscription = $installation_manager->get_subscription_details();
-$is_free_plan = true; // Default to free plan
+$installationmanager = new \report_adeptus_insights\installation_manager();
+$subscription = $installationmanager->get_subscription_details();
+$isfreeplan = true; // Default to free plan
 
 if ($subscription) {
-    $plan_name = strtolower($subscription['plan_name'] ?? '');
-    $is_free_plan = (strpos($plan_name, 'free') !== false ||
-                     strpos($plan_name, 'trial') !== false ||
+    $planname = strtolower($subscription['plan_name'] ?? '');
+    $isfreeplan = (strpos($planname, 'free') !== false ||
+                     strpos($planname, 'trial') !== false ||
                      ($subscription['price'] ?? 0) == 0);
 }
 
 // Load required AMD modules and CSS
-$PAGE->requires->js_call_amd('report_adeptus_insights/assistant', 'init', [$authenticated, $is_free_plan]);
-$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$auth_data]);
+$PAGE->requires->js_call_amd('report_adeptus_insights/assistant', 'init', [$authenticated, $isfreeplan]);
+$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authdata]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles/readonly-mode.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
@@ -67,7 +67,7 @@ $PAGE->requires->js('/report/adeptus_insights/lib/vanilla-table-enhancer.js');
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('report_adeptus_insights/assistant', [
     'authenticated' => $authenticated,
-    'is_free_plan' => $is_free_plan,
+    'is_free_plan' => $isfreeplan,
     'wwwroot' => $CFG->wwwroot,
 ]);
 echo $OUTPUT->footer();

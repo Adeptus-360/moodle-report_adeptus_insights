@@ -38,77 +38,77 @@ header('Content-Type: application/json');
 
 try {
     // Get installation manager
-    $installation_manager = new \report_adeptus_insights\installation_manager();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
 
     // Get subscription details
-    $subscription = $installation_manager->get_subscription_details();
+    $subscription = $installationmanager->get_subscription_details();
 
     // Debug: Log what we received from backend
 
     // Determine if user is on free plan
-    $is_free_plan = false;
-    $usage_type = 'monthly';
-    $reports_generated_this_month = 0;
+    $isfreeplan = false;
+    $usagetype = 'monthly';
+    $reportsgeneratedthismonth = 0;
 
     if ($subscription) {
-        $plan_name = strtolower($subscription['plan_name'] ?? '');
-        $is_free_plan = (strpos($plan_name, 'free') !== false ||
-                         strpos($plan_name, 'trial') !== false ||
+        $planname = strtolower($subscription['plan_name'] ?? '');
+        $isfreeplan = (strpos($planname, 'free') !== false ||
+                         strpos($planname, 'trial') !== false ||
                          ($subscription['price'] ?? 0) == 0);
 
         // Set usage type based on plan
-        $usage_type = $is_free_plan ? 'all-time' : 'monthly';
+        $usagetype = $isfreeplan ? 'all-time' : 'monthly';
 
         // Get reports count from subscription for paid plans
-        $reports_generated_this_month = $subscription['reports_generated_this_month'] ?? 0;
+        $reportsgeneratedthismonth = $subscription['reports_generated_this_month'] ?? 0;
     } else {
         // Default to free plan if no subscription data
-        $is_free_plan = true;
-        $usage_type = 'all-time';
+        $isfreeplan = true;
+        $usagetype = 'all-time';
     }
 
     // For free plan users, count actual reports from database
-    if ($is_free_plan) {
+    if ($isfreeplan) {
         try {
-            $reports_generated_this_month = $DB->count_records('adeptus_generated_reports', ['userid' => $USER->id]);
+            $reportsgeneratedthismonth = $DB->count_records('adeptus_generated_reports', ['userid' => $USER->id]);
         } catch (Exception $e) {
-            $reports_generated_this_month = 0;
+            $reportsgeneratedthismonth = 0;
         }
     }
 
     // Get exports used - calculate from limit and remaining
-    $exports_used = 0;
-    $exports_limit = 10; // Default for free plan
+    $exportsused = 0;
+    $exportslimit = 10; // Default for free plan
 
-    if ($is_free_plan) {
+    if ($isfreeplan) {
         // For free plan users, count exports from tracking table
         try {
-            $exports_used = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
+            $exportsused = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
         } catch (Exception $e) {
-            $exports_used = 0;
+            $exportsused = 0;
         }
-        $exports_limit = 10; // Free plan limit
-        $exports_remaining = max(0, $exports_limit - $exports_used);
+        $exportslimit = 10; // Free plan limit
+        $exportsremaining = max(0, $exportslimit - $exportsused);
     } else if ($subscription) {
         // For paid plan users, get from subscription
-        $exports_limit = $subscription['plan_exports_limit'] ?? 100;
-        $exports_remaining = $subscription['exports_remaining'] ?? $exports_limit;
-        $exports_used = max(0, $exports_limit - $exports_remaining);
+        $exportslimit = $subscription['plan_exports_limit'] ?? 100;
+        $exportsremaining = $subscription['exports_remaining'] ?? $exportslimit;
+        $exportsused = max(0, $exportslimit - $exportsremaining);
     } else {
-        $exports_remaining = $exports_limit;
+        $exportsremaining = $exportslimit;
     }
 
     // Extract effective credits and status from subscription data
     $status = $subscription['status'] ?? 'unknown';
-    $credit_type = $subscription['credit_type'] ?? 'basic';
-    $total_credits_used = $subscription['total_credits_used_this_month'] ?? 0;
-    $plan_total_credits_limit = $subscription['plan_total_credits_limit'] ?? 1000; // Default for free plan
+    $credittype = $subscription['credit_type'] ?? 'basic';
+    $totalcreditsused = $subscription['total_credits_used_this_month'] ?? 0;
+    $plantotalcreditslimit = $subscription['plan_total_credits_limit'] ?? 1000; // Default for free plan
 
     // Return subscription status with all required fields
     echo json_encode([
         'success' => true,
         'data' => [
-            'is_free_plan' => $is_free_plan,
+            'is_free_plan' => $isfreeplan,
             'subscription' => $subscription,
 
             // Plan info
@@ -117,15 +117,15 @@ try {
             'status' => $status, // ✅ NOW INCLUDED
 
             // Credits info (tier-based effective credits)
-            'credit_type' => $credit_type, // ✅ NOW INCLUDED
-            'total_credits_used_this_month' => $total_credits_used, // ✅ NOW INCLUDED
-            'plan_total_credits_limit' => $plan_total_credits_limit, // ✅ NOW INCLUDED
+            'credit_type' => $credittype, // ✅ NOW INCLUDED
+            'total_credits_used_this_month' => $totalcreditsused, // ✅ NOW INCLUDED
+            'plan_total_credits_limit' => $plantotalcreditslimit, // ✅ NOW INCLUDED
 
             // Reports and exports
-            'usage_type' => $usage_type,
-            'reports_generated_this_month' => $reports_generated_this_month,
+            'usage_type' => $usagetype,
+            'reports_generated_this_month' => $reportsgeneratedthismonth,
             'plan_exports_limit' => $subscription['plan_exports_limit'] ?? 10,
-            'exports_used' => $exports_used,
+            'exports_used' => $exportsused,
             'exports_remaining' => $subscription['exports_remaining'] ?? 10,
         ],
     ]);

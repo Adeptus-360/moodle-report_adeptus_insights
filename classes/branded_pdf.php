@@ -45,46 +45,46 @@ class branded_pdf extends \TCPDF {
      *
      * @var array
      */
-    protected $branding_config;
+    protected $brandingconfig;
 
     /**
      * Report title for header.
      *
      * @var string
      */
-    protected $report_title = '';
+    protected $reporttitle = '';
 
     /**
      * Generation timestamp.
      *
      * @var string
      */
-    protected $generation_timestamp = '';
+    protected $generationtimestamp = '';
 
     /**
      * Temporary file path for logo.
      *
      * @var string|null
      */
-    protected $logo_temp_file = null;
+    protected $logotempfile = null;
 
     /**
      * Constructor.
      *
-     * @param array $branding_config Branding configuration from branding_manager.
+     * @param array $brandingconfig Branding configuration from branding_manager.
      * @param string $orientation Page orientation (P=portrait, L=landscape).
      * @param string $unit Unit of measure.
      * @param string $format Page format.
      */
     public function __construct(
-        array $branding_config,
+        array $brandingconfig,
         string $orientation = 'P',
         string $unit = 'mm',
         string $format = 'A4'
     ) {
         parent::__construct($orientation, $unit, $format, true, 'UTF-8', false);
 
-        $this->branding_config = $branding_config;
+        $this->branding_config = $brandingconfig;
         $this->generation_timestamp = date('Y-m-d H:i:s');
 
         // Prepare logo temp file if branding is available.
@@ -120,8 +120,8 @@ class branded_pdf extends \TCPDF {
      */
     public function Header() {
         // Save current position.
-        $orig_x = $this->GetX();
-        $orig_y = $this->GetY();
+        $origx = $this->GetX();
+        $origy = $this->GetY();
 
         // Header background color (subtle).
         $this->SetFillColor(248, 249, 250);
@@ -130,18 +130,18 @@ class branded_pdf extends \TCPDF {
         // Logo on the left (if available).
         if ($this->branding_config['has_branding'] && $this->logo_temp_file && file_exists($this->logo_temp_file)) {
             // Calculate logo dimensions for header (max height 12mm).
-            $max_height = 12;
+            $maxheight = 12;
             $ratio = $this->branding_config['logo_width'] / max($this->branding_config['logo_height'], 1);
-            $logo_height = min($max_height, $this->branding_config['logo_height'] * 0.2);
-            $logo_width = $logo_height * $ratio;
+            $logoheight = min($maxheight, $this->branding_config['logo_height'] * 0.2);
+            $logowidth = $logoheight * $ratio;
 
             // Position logo.
             $this->Image(
                 $this->logo_temp_file,
                 15,
                 5,
-                $logo_width,
-                $logo_height,
+                $logowidth,
+                $logoheight,
                 '',
                 '',
                 '',
@@ -175,7 +175,7 @@ class branded_pdf extends \TCPDF {
         $this->Line(15, 20, $this->getPageWidth() - 15, 20);
 
         // Restore position.
-        $this->SetXY($orig_x, $orig_y);
+        $this->SetXY($origx, $origy);
     }
 
     /**
@@ -198,12 +198,12 @@ class branded_pdf extends \TCPDF {
         $this->SetFont('helvetica', '', 8);
         $this->SetTextColor(127, 140, 141);
 
-        $footer_text = $this->branding_config['footer_text'];
-        $this->Cell(0, 5, $footer_text, 0, 0, 'L');
+        $footertext = $this->branding_config['footer_text'];
+        $this->Cell(0, 5, $footertext, 0, 0, 'L');
 
         // Page numbers on right.
-        $page_text = 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages();
-        $this->Cell(0, 5, $page_text, 0, 0, 'R');
+        $pagetext = 'Page ' . $this->getAliasNumPage() . ' of ' . $this->getAliasNbPages();
+        $this->Cell(0, 5, $pagetext, 0, 0, 'R');
     }
 
     /**
@@ -217,17 +217,17 @@ class branded_pdf extends \TCPDF {
             return;
         }
 
-        $branding_manager = new branding_manager();
-        $image_data = $branding_manager->extract_image_data($this->branding_config['logo']);
+        $brandingmanager = new branding_manager();
+        $imagedata = $brandingmanager->extract_image_data($this->branding_config['logo']);
 
-        if ($image_data === null) {
+        if ($imagedata === null) {
             return;
         }
 
-        $extension = $branding_manager->get_image_extension($this->branding_config['logo']);
+        $extension = $brandingmanager->get_image_extension($this->branding_config['logo']);
         $this->logo_temp_file = tempnam(sys_get_temp_dir(), 'adeptus_logo_') . '.' . $extension;
 
-        file_put_contents($this->logo_temp_file, $image_data);
+        file_put_contents($this->logo_temp_file, $imagedata);
     }
 
     /**
@@ -298,9 +298,9 @@ class branded_pdf extends \TCPDF {
         $this->SetFont('helvetica', '', 8);
 
         // Calculate column widths.
-        $page_width = $this->getPageWidth() - 30; // Account for margins.
-        $num_cols = count($headers);
-        $col_width = $page_width / max($num_cols, 1);
+        $pagewidth = $this->getPageWidth() - 30; // Account for margins.
+        $numcols = count($headers);
+        $colwidth = $pagewidth / max($numcols, 1);
 
         // Header row.
         $this->SetFont('helvetica', 'B', 8);
@@ -308,7 +308,7 @@ class branded_pdf extends \TCPDF {
         $this->SetTextColor(255, 255, 255);
 
         foreach ($headers as $header) {
-            $this->Cell($col_width, 7, $header, 1, 0, 'L', true);
+            $this->Cell($colwidth, 7, $header, 1, 0, 'L', true);
         }
         $this->Ln();
 
@@ -326,7 +326,7 @@ class branded_pdf extends \TCPDF {
             }
 
             foreach ($row as $cell) {
-                $this->Cell($col_width, 6, $cell, 1, 0, 'L', true);
+                $this->Cell($colwidth, 6, $cell, 1, 0, 'L', true);
             }
             $this->Ln();
             $fill = !$fill;
@@ -336,40 +336,40 @@ class branded_pdf extends \TCPDF {
     /**
      * Add a chart image to the PDF.
      *
-     * @param string $chart_image Base64 encoded chart image.
+     * @param string $chartimage Base64 encoded chart image.
      * @return bool True if image was added successfully.
      */
-    public function add_chart_image(string $chart_image): bool {
-        if (empty($chart_image)) {
+    public function add_chart_image(string $chartimage): bool {
+        if (empty($chartimage)) {
             return false;
         }
 
         // Validate chart image format.
-        if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chart_image)) {
+        if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chartimage)) {
             return false;
         }
 
         // Extract image data.
-        $image_data = base64_decode(
-            preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $chart_image)
+        $imagedata = base64_decode(
+            preg_replace('/^data:image\/(png|jpeg|jpg);base64,/', '', $chartimage)
         );
 
-        if ($image_data === false) {
+        if ($imagedata === false) {
             return false;
         }
 
         // Create temp file for chart.
-        $temp_file = tempnam(sys_get_temp_dir(), 'chart_');
-        file_put_contents($temp_file, $image_data);
+        $tempfile = tempnam(sys_get_temp_dir(), 'chart_');
+        file_put_contents($tempfile, $imagedata);
 
         try {
             // Calculate image dimensions to fit page width.
-            $page_width = $this->getPageWidth() - 30;
+            $pagewidth = $this->getPageWidth() - 30;
             $this->Image(
-                $temp_file,
+                $tempfile,
                 15,
                 $this->GetY(),
-                $page_width,
+                $pagewidth,
                 0,
                 'PNG',
                 '',
@@ -390,7 +390,7 @@ class branded_pdf extends \TCPDF {
         }
 
         // Clean up temp file.
-        @unlink($temp_file);
+        @unlink($tempfile);
 
         return $result;
     }
@@ -411,8 +411,8 @@ class branded_pdf extends \TCPDF {
         $this->SetTextColor(52, 73, 94);
 
         foreach ($params as $key => $value) {
-            $formatted_key = ucwords(str_replace('_', ' ', $key));
-            $this->Cell(50, 6, $formatted_key . ':', 0, 0, 'L');
+            $formattedkey = ucwords(str_replace('_', ' ', $key));
+            $this->Cell(50, 6, $formattedkey . ':', 0, 0, 'L');
             $this->Cell(0, 6, $value, 0, 1, 'L');
         }
 

@@ -28,10 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 
 class report_validator {
     /** @var array Cache of table existence checks */
-    private static $table_cache = [];
+    private static $tablecache = [];
 
     /** @var array Cache of module availability checks */
-    private static $module_cache = null;
+    private static $modulecache = null;
 
     /**
      * Validate if a report can be executed on this Moodle installation
@@ -51,23 +51,23 @@ class report_validator {
         $tables = self::extract_table_names($sql);
 
         // Check if all tables exist
-        $missing_tables = [];
+        $missingtables = [];
         foreach ($tables as $table) {
             if (!self::table_exists($table)) {
-                $missing_tables[] = $table;
+                $missingtables[] = $table;
             }
         }
 
         // Check for MySQL-specific functions that may fail
-        $mysql_functions = self::check_mysql_functions($sql);
+        $mysqlfunctions = self::check_mysql_functions($sql);
 
         // Determine if valid
-        $valid = empty($missing_tables);
+        $valid = empty($missingtables);
         $reason = '';
 
         if (!$valid) {
-            $reason = 'Missing required tables: ' . implode(', ', $missing_tables);
-        } else if (!empty($mysql_functions)) {
+            $reason = 'Missing required tables: ' . implode(', ', $missingtables);
+        } else if (!empty($mysqlfunctions)) {
             // Still valid, but warn about potential issues
             $reason = 'Warning: Uses database-specific functions';
         }
@@ -75,8 +75,8 @@ class report_validator {
         return [
             'valid' => $valid,
             'reason' => $reason,
-            'missing_tables' => $missing_tables,
-            'mysql_functions' => $mysql_functions,
+            'missing_tables' => $missingtables,
+            'mysql_functions' => $mysqlfunctions,
         ];
     }
 
@@ -113,23 +113,23 @@ class report_validator {
         global $DB;
 
         // Check cache first
-        if (isset(self::$table_cache[$table])) {
-            return self::$table_cache[$table];
+        if (isset(self::$tablecache[$table])) {
+            return self::$tablecache[$table];
         }
 
         // Check if table exists
         try {
             $dbman = $DB->get_manager();
-            $table_obj = new \xmldb_table($table);
-            $exists = $dbman->table_exists($table_obj);
+            $tableobj = new \xmldb_table($table);
+            $exists = $dbman->table_exists($tableobj);
 
             // Cache result
-            self::$table_cache[$table] = $exists;
+            self::$tablecache[$table] = $exists;
 
             return $exists;
         } catch (\Exception $e) {
             // If check fails, assume table doesn't exist
-            self::$table_cache[$table] = false;
+            self::$tablecache[$table] = false;
             return false;
         }
     }
@@ -143,7 +143,7 @@ class report_validator {
     private static function check_mysql_functions($sql) {
         $functions = [];
 
-        $mysql_specific = [
+        $mysqlspecific = [
             'DATE_FORMAT' => 'Date formatting function',
             'FROM_UNIXTIME' => 'Unix timestamp conversion',
             'UNIX_TIMESTAMP' => 'Timestamp conversion',
@@ -158,7 +158,7 @@ class report_validator {
             'DATE\(' => 'Date extraction',
         ];
 
-        foreach ($mysql_specific as $func => $description) {
+        foreach ($mysqlspecific as $func => $description) {
             if (preg_match('/' . $func . '/i', $sql)) {
                 $functions[] = $func;
             }
@@ -173,15 +173,15 @@ class report_validator {
      * @return array List of module names
      */
     private static function get_installed_modules() {
-        if (self::$module_cache !== null) {
-            return self::$module_cache;
+        if (self::$modulecache !== null) {
+            return self::$modulecache;
         }
 
         // Get list of all installed activity modules
         $modules = \core_component::get_plugin_list('mod');
-        self::$module_cache = array_keys($modules);
+        self::$modulecache = array_keys($modules);
 
-        return self::$module_cache;
+        return self::$modulecache;
     }
 
     /**
@@ -212,7 +212,7 @@ class report_validator {
      * Clear validation cache (useful after installing new modules)
      */
     public static function clear_cache() {
-        self::$table_cache = [];
-        self::$module_cache = null;
+        self::$tablecache = [];
+        self::$modulecache = null;
     }
 }

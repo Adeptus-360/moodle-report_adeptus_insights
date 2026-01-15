@@ -85,13 +85,13 @@ try {
             $bookmark->reportid = $reportid;
             $bookmark->createdat = time();
 
-            $bookmark_id = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+            $bookmarkid = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
 
-            if ($bookmark_id) {
+            if ($bookmarkid) {
                 echo json_encode([
                     'success' => true,
                     'message' => 'Report bookmarked successfully',
-                    'bookmark_id' => $bookmark_id,
+                    'bookmark_id' => $bookmarkid,
                     'action' => 'added',
                     'bookmarked' => true,
                 ]);
@@ -128,13 +128,13 @@ try {
         $bookmark->reportid = $reportid;
         $bookmark->createdat = time();
 
-        $bookmark_id = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+        $bookmarkid = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
 
-        if ($bookmark_id) {
+        if ($bookmarkid) {
             echo json_encode([
             'success' => true,
             'message' => 'Report bookmarked successfully',
-                'bookmark_id' => $bookmark_id,
+                'bookmark_id' => $bookmarkid,
                 'action' => 'added',
                 'bookmarked' => true,
             ]);

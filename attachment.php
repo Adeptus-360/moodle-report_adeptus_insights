@@ -32,28 +32,28 @@ require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
 // Get parameters
-$attachment_id = required_param('id', PARAM_INT);
-$ticket_id = required_param('ticket_id', PARAM_INT);
+$attachmentid = required_param('id', PARAM_INT);
+$ticketid = required_param('ticket_id', PARAM_INT);
 
 // Load the installation manager
-$installation_manager = new \report_adeptus_insights\installation_manager();
+$installationmanager = new \report_adeptus_insights\installation_manager();
 
-if (!$installation_manager->is_registered()) {
+if (!$installationmanager->is_registered()) {
     throw new moodle_exception('support_not_available', 'report_adeptus_insights');
 }
 
 // Build the API URL for downloading the attachment
-$api_url = $installation_manager->get_api_url();
-$api_key = $installation_manager->get_api_key();
+$apiurl = $installationmanager->get_api_url();
+$apikey = $installationmanager->get_api_key();
 
 // Try the download endpoint - include ticket_id for authorization
-$download_url = $api_url . '/support/tickets/' . $ticket_id . '/attachments/' . $attachment_id . '/download';
+$downloadurl = $apiurl . '/support/tickets/' . $ticketid . '/attachments/' . $attachmentid . '/download';
 
 // Variables to capture response headers
-$response_headers = [];
+$responseheaders = [];
 
 // Header callback to capture headers
-$header_callback = function ($ch, $header) use (&$response_headers) {
+$headercallback = function ($ch, $header) use (&$responseheaders) {
     $len = strlen($header);
     $header = explode(':', $header, 2);
     if (count($header) < 2) {
@@ -61,47 +61,47 @@ $header_callback = function ($ch, $header) use (&$response_headers) {
     }
     $name = strtolower(trim($header[0]));
     $value = trim($header[1]);
-    $response_headers[$name] = $value;
+    $responseheaders[$name] = $value;
     return $len;
 };
 
 // Initialize cURL
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $download_url);
+curl_setopt($ch, CURLOPT_URL, $downloadurl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-curl_setopt($ch, CURLOPT_HEADERFUNCTION, $header_callback);
+curl_setopt($ch, CURLOPT_HEADERFUNCTION, $headercallback);
 
 // Set authorization header
 $headers = [];
-if ($api_key) {
-    $headers[] = 'Authorization: Bearer ' . $api_key;
+if ($apikey) {
+    $headers[] = 'Authorization: Bearer ' . $apikey;
 }
 if (!empty($headers)) {
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 }
 
-$file_content = curl_exec($ch);
-$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$content_type = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+$filecontent = curl_exec($ch);
+$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$contenttype = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 $error = curl_error($ch);
 curl_close($ch);
 
 // Check for errors
-if ($file_content === false) {
+if ($filecontent === false) {
     throw new moodle_exception('attachment_download_failed', 'report_adeptus_insights');
 }
 
-if ($http_code !== 200) {
+if ($httpcode !== 200) {
     throw new moodle_exception('attachment_not_found', 'report_adeptus_insights');
 }
 
 // Extract filename from Content-Disposition header if available
-$filename = 'attachment_' . $attachment_id;
-if (isset($response_headers['content-disposition'])) {
-    $disposition = $response_headers['content-disposition'];
+$filename = 'attachment_' . $attachmentid;
+if (isset($responseheaders['content-disposition'])) {
+    $disposition = $responseheaders['content-disposition'];
     // Try to extract filename from header
     if (preg_match('/filename[^;=\n]*=([\'"]?)([^\'"\n;]*)\1/', $disposition, $matches)) {
         $filename = $matches[2];
@@ -114,10 +114,10 @@ if (isset($response_headers['content-disposition'])) {
 $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
 
 // Determine content type if not set
-if (empty($content_type) || $content_type === 'application/octet-stream') {
+if (empty($contenttype) || $contenttype === 'application/octet-stream') {
     // Try to detect from filename extension
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    $mime_types = [
+    $mimetypes = [
         'jpg' => 'image/jpeg',
         'jpeg' => 'image/jpeg',
         'png' => 'image/png',
@@ -130,16 +130,16 @@ if (empty($content_type) || $content_type === 'application/octet-stream') {
         'json' => 'application/json',
         'zip' => 'application/zip',
     ];
-    $content_type = $mime_types[$ext] ?? 'application/octet-stream';
+    $contenttype = $mimetypes[$ext] ?? 'application/octet-stream';
 }
 
 // Set headers for file download
-header('Content-Type: ' . $content_type);
-header('Content-Length: ' . strlen($file_content));
+header('Content-Type: ' . $contenttype);
+header('Content-Length: ' . strlen($filecontent));
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Cache-Control: private, max-age=0, must-revalidate');
 header('Pragma: public');
 
 // Output the file content
-echo $file_content;
+echo $filecontent;
 exit;

@@ -31,11 +31,11 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/filelib.php');
 
 class installation_manager {
-    private $api_key;
-    private $api_url;
-    private $installation_id;
-    private $is_registered;
-    private $last_error;
+    private $apikey;
+    private $apiurl;
+    private $installationid;
+    private $isregistered;
+    private $lasterror;
 
     public function __construct() {
         global $DB;
@@ -121,21 +121,21 @@ class installation_manager {
     /**
      * Register installation with backend API
      */
-    public function register_installation($admin_email, $admin_name, $site_url = null, $site_name = null) {
+    public function register_installation($adminemail, $adminname, $siteurl = null, $sitename = null) {
         global $CFG, $DB;
 
         try {
             // Use provided site info or fall back to Moodle config
-            $site_url = $site_url ?: $CFG->wwwroot;
-            $site_name = $site_name ?: $CFG->fullname;
+            $siteurl = $siteurl ?: $CFG->wwwroot;
+            $sitename = $sitename ?: $CFG->fullname;
 
             // First check if the site is already registered
-            $existing_status = $this->check_site_registration_status();
+            $existingstatus = $this->check_site_registration_status();
 
-            if ($existing_status && isset($existing_status['success']) && $existing_status['success']) {
+            if ($existingstatus && isset($existingstatus['success']) && $existingstatus['success']) {
                 // Use the existing installation data
-                $this->api_key = $existing_status['data']['api_key'] ?? '';
-                $this->installation_id = $existing_status['data']['installation_id'] ?? null;
+                $this->api_key = $existingstatus['data']['api_key'] ?? '';
+                $this->installation_id = $existingstatus['data']['installation_id'] ?? null;
                 $this->is_registered = true;
 
                 // Save settings to database
@@ -144,16 +144,16 @@ class installation_manager {
                 return [
                     'success' => true,
                     'message' => get_string('registration_success', 'report_adeptus_insights') . ' (Site was already registered)',
-                    'data' => $existing_status['data'],
+                    'data' => $existingstatus['data'],
                 ];
             }
 
             // If not already registered, proceed with new registration
             $data = [
-                'site_url' => $site_url,
-                'site_name' => $site_name,
-                'admin_email' => $admin_email,
-                'admin_name' => $admin_name,
+                'site_url' => $siteurl,
+                'site_name' => $sitename,
+                'admin_email' => $adminemail,
+                'admin_name' => $adminname,
                 'moodle_version' => $CFG->version,
                 'php_version' => PHP_VERSION,
                 'plugin_version' => $this->get_plugin_version(),
@@ -197,14 +197,14 @@ class installation_manager {
                     ];
                 }
 
-                $error_message = $response['message'] ?? get_string('registration_error', 'report_adeptus_insights');
+                $errormessage = $response['message'] ?? get_string('registration_error', 'report_adeptus_insights');
                 $this->last_error = [
-                    'message' => $error_message,
+                    'message' => $errormessage,
                     'details' => $response['details'] ?? null,
                 ];
                 return [
                     'success' => false,
-                    'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $error_message,
+                    'message' => get_string('registration_error', 'report_adeptus_insights') . ': ' . $errormessage,
                 ];
             }
         } catch (\Exception $e) {
@@ -225,49 +225,49 @@ class installation_manager {
     public function setup_starter_subscription($email, $name) {
         try {
             // Get available plans from backend
-            $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
+            $plansresponse = $this->make_api_request('subscription/plans', [], 'GET');
 
-            if (!$plans_response || !isset($plans_response['success']) || !$plans_response['success']) {
+            if (!$plansresponse || !isset($plansresponse['success']) || !$plansresponse['success']) {
                 return;
             }
 
             // Find free plan for Insights product
-            $free_plan = null;
-            foreach ($plans_response['data']['plans'] as $plan) {
-                $is_free = (isset($plan['tier']) && $plan['tier'] === 'free') ||
+            $freeplan = null;
+            foreach ($plansresponse['data']['plans'] as $plan) {
+                $isfree = (isset($plan['tier']) && $plan['tier'] === 'free') ||
                            (isset($plan['is_free']) && $plan['is_free']);
-                $is_insights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
+                $isinsights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
 
-                if ($is_free && $is_insights) {
-                    $free_plan = $plan;
+                if ($isfree && $isinsights) {
+                    $freeplan = $plan;
                     break;
                 }
             }
 
-            if (!$free_plan) {
+            if (!$freeplan) {
                 return;
             }
 
             // Activate free plan via backend
-            $subscription_response = $this->make_api_request('subscription/activate-free', [
-                'plan_id' => $free_plan['id'],
+            $subscriptionresponse = $this->make_api_request('subscription/activate-free', [
+                'plan_id' => $freeplan['id'],
                 'billing_email' => $email,
             ]);
 
-            if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
+            if ($subscriptionresponse && isset($subscriptionresponse['success']) && $subscriptionresponse['success']) {
                 // Update local subscription status
                 $this->update_subscription_status([
-                    'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
-                    'stripe_subscription_id' => $subscription_response['data']['subscription_id'] ?? null,
-                    'plan_name' => $free_plan['name'],
-                    'plan_id' => $free_plan['id'],
-                    'status' => $subscription_response['data']['status'] ?? 'active',
-                    'current_period_start' => $subscription_response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
-                    'ai_credits_remaining' => $subscription_response['data']['ai_credits_remaining'] ?? $free_plan['ai_credits'],
-                    'ai_credits_pro_remaining' => $subscription_response['data']['ai_credits_pro_remaining'] ?? ($free_plan['ai_credits_pro'] ?? 0),
-                    'ai_credits_basic_remaining' => $subscription_response['data']['ai_credits_basic_remaining'] ?? ($free_plan['ai_credits_basic'] ?? 0),
-                    'exports_remaining' => $subscription_response['data']['exports_remaining'] ?? $free_plan['exports'],
+                    'stripe_customer_id' => $subscriptionresponse['data']['customer_id'] ?? null,
+                    'stripe_subscription_id' => $subscriptionresponse['data']['subscription_id'] ?? null,
+                    'plan_name' => $freeplan['name'],
+                    'plan_id' => $freeplan['id'],
+                    'status' => $subscriptionresponse['data']['status'] ?? 'active',
+                    'current_period_start' => $subscriptionresponse['data']['current_period_start'] ?? time(),
+                    'current_period_end' => $subscriptionresponse['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
+                    'ai_credits_remaining' => $subscriptionresponse['data']['ai_credits_remaining'] ?? $freeplan['ai_credits'],
+                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining'] ?? ($freeplan['ai_credits_pro'] ?? 0),
+                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining'] ?? ($freeplan['ai_credits_basic'] ?? 0),
+                    'exports_remaining' => $subscriptionresponse['data']['exports_remaining'] ?? $freeplan['exports'],
                     'billing_email' => $email,
                 ]);
             }
@@ -323,19 +323,19 @@ class installation_manager {
         global $CFG, $DB;
 
         try {
-            $site_url = $CFG->wwwroot;
-            $site_name = $CFG->fullname ?? $CFG->shortname ?? 'Moodle Site';
+            $siteurl = $CFG->wwwroot;
+            $sitename = $CFG->fullname ?? $CFG->shortname ?? 'Moodle Site';
 
             // Try to get site name from database if config is not available
-            if (empty($site_name) || $site_name === 'Moodle Site') {
+            if (empty($sitename) || $sitename === 'Moodle Site') {
                 try {
-                    $config_record = $DB->get_record('config', ['name' => 'fullname']);
-                    if ($config_record && !empty($config_record->value)) {
-                        $site_name = $config_record->value;
+                    $configrecord = $DB->get_record('config', ['name' => 'fullname']);
+                    if ($configrecord && !empty($configrecord->value)) {
+                        $sitename = $configrecord->value;
                     } else {
-                        $config_record = $DB->get_record('config', ['name' => 'shortname']);
-                        if ($config_record && !empty($config_record->value)) {
-                            $site_name = $config_record->value;
+                        $configrecord = $DB->get_record('config', ['name' => 'shortname']);
+                        if ($configrecord && !empty($configrecord->value)) {
+                            $sitename = $configrecord->value;
                         }
                     }
                 } catch (\Exception $e) {
@@ -344,8 +344,8 @@ class installation_manager {
             }
 
             $data = [
-                'site_url' => $site_url,
-                'site_name' => $site_name,
+                'site_url' => $siteurl,
+                'site_name' => $sitename,
                 ];
 
             $response = $this->make_api_request('installation/status-by-site', $data);
@@ -533,7 +533,7 @@ class installation_manager {
         }
     }
 
-    public function create_subscription($plan_id, $payment_method_id, $billing_email) {
+    public function create_subscription($planid, $paymentmethodid, $billingemail) {
         if (!$this->is_registered) {
             return [
                 'success' => false,
@@ -542,21 +542,21 @@ class installation_manager {
         }
 
         try {
-            $request_data = [
-                'payment_method_id' => $payment_method_id,
-                'billing_email' => $billing_email,
-                'plan_id' => $plan_id,
+            $requestdata = [
+                'payment_method_id' => $paymentmethodid,
+                'billing_email' => $billingemail,
+                'plan_id' => $planid,
             ];
 
-            $response = $this->make_api_request('subscription/create', $request_data);
+            $response = $this->make_api_request('subscription/create', $requestdata);
 
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
-                $subscription_data = [
+                $subscriptiondata = [
                     'stripe_customer_id' => $response['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $response['data']['subscription_id'] ?? null,
                     'plan_name' => $response['data']['plan_name'] ?? 'Unknown Plan',
-                    'plan_id' => $response['data']['plan_id'] ?? $plan_id,
+                    'plan_id' => $response['data']['plan_id'] ?? $planid,
                     'status' => $response['data']['status'] ?? 'active',
                     'current_period_start' => $response['data']['current_period_start'] ?? time(),
                     'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
@@ -564,10 +564,10 @@ class installation_manager {
                     'ai_credits_pro_remaining' => $response['data']['ai_credits_pro_remaining'] ?? 0,
                     'ai_credits_basic_remaining' => $response['data']['ai_credits_basic_remaining'] ?? 0,
                     'exports_remaining' => $response['data']['exports_remaining'] ?? 0,
-                    'billing_email' => $billing_email,
+                    'billing_email' => $billingemail,
                 ];
 
-                $this->update_subscription_status($subscription_data);
+                $this->update_subscription_status($subscriptiondata);
 
                 return [
                     'success' => true,
@@ -575,10 +575,10 @@ class installation_manager {
                     'data' => $response['data'],
                 ];
             } else {
-                $error_message = isset($response['message']) ? $response['message'] : 'Unknown error';
+                $errormessage = isset($response['message']) ? $response['message'] : 'Unknown error';
                 return [
                     'success' => false,
-                    'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $error_message,
+                    'message' => get_string('subscription_error', 'report_adeptus_insights') . ': ' . $errormessage,
                 ];
             }
         } catch (\Exception $e) {
@@ -591,16 +591,16 @@ class installation_manager {
 
     public function get_subscription_details() {
         // Get the API key from the local database
-        $api_key = $this->get_api_key();
-        if (!$api_key) {
+        $apikey = $this->get_api_key();
+        if (!$apikey) {
             return null;
         }
 
         // Try primary subscription endpoint first
         try {
-            $subscription_data = $this->get_backend_subscription_details($api_key);
-            if ($subscription_data) {
-                return $subscription_data;
+            $subscriptiondata = $this->get_backend_subscription_details($apikey);
+            if ($subscriptiondata) {
+                return $subscriptiondata;
             }
         } catch (\Exception $e) {
             // Primary endpoint failed - try fallback.
@@ -608,9 +608,9 @@ class installation_manager {
 
         // Fallback: Try to get subscription data from installation/status endpoint.
         try {
-            $subscription_data = $this->get_subscription_from_installation_status();
-            if ($subscription_data) {
-                return $subscription_data;
+            $subscriptiondata = $this->get_subscription_from_installation_status();
+            if ($subscriptiondata) {
+                return $subscriptiondata;
             }
         } catch (\Exception $e) {
             // Fallback also failed - return null below.
@@ -645,15 +645,15 @@ class installation_manager {
             $tier = $data['tier'] ?? 'free';
 
             // Get token data from backend response.
-            $tokens_used = $data['tokens_used'] ?? 0;
-            $tokens_remaining = $data['tokens_remaining'] ?? -1;
-            $tokens_limit = $data['tokens_limit'] ?? -1;
-            $exports_remaining = $data['exports_remaining'] ?? 0;
+            $tokensused = $data['tokens_used'] ?? 0;
+            $tokensremaining = $data['tokens_remaining'] ?? -1;
+            $tokenslimit = $data['tokens_limit'] ?? -1;
+            $exportsremaining = $data['exports_remaining'] ?? 0;
 
             // Calculate usage percentage.
-            $tokens_usage_percent = 0;
-            if ($tokens_limit > 0 && $tokens_remaining !== -1) {
-                $tokens_usage_percent = min(100, round(($tokens_used / $tokens_limit) * 100));
+            $tokensusagepercent = 0;
+            if ($tokenslimit > 0 && $tokensremaining !== -1) {
+                $tokensusagepercent = min(100, round(($tokensused / $tokenslimit) * 100));
             }
 
             // Build subscription data structure matching expected format.
@@ -661,7 +661,7 @@ class installation_manager {
                 'plan_name' => ucfirst($tier) . ' Plan',
                 'billing_cycle' => 'monthly',
                 'status' => $subscription['status'] ?? $data['license_status'] ?? 'active',
-                'exports_remaining' => $exports_remaining,
+                'exports_remaining' => $exportsremaining,
                 'current_period_start' => null,
                 'current_period_end' => $subscription['current_period_end'] ?? null,
                 'next_billing' => $subscription['current_period_end'] ?? null,
@@ -686,13 +686,13 @@ class installation_manager {
                 'payment_info' => json_encode([]),
                 'tier' => $tier,
                 // Token-based usage metrics from backend.
-                'tokens_used' => $tokens_used,
-                'tokens_remaining' => $tokens_remaining,
-                'tokens_limit' => $tokens_limit,
-                'tokens_used_formatted' => $this->format_token_count($tokens_used),
-                'tokens_remaining_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_remaining),
-                'tokens_limit_formatted' => $tokens_limit === -1 ? 'Unlimited' : $this->format_token_count($tokens_limit),
-                'tokens_usage_percent' => $tokens_usage_percent,
+                'tokens_used' => $tokensused,
+                'tokens_remaining' => $tokensremaining,
+                'tokens_limit' => $tokenslimit,
+                'tokens_used_formatted' => $this->format_token_count($tokensused),
+                'tokens_remaining_formatted' => $tokensremaining === -1 ? 'Unlimited' : $this->format_token_count($tokensremaining),
+                'tokens_limit_formatted' => $tokenslimit === -1 ? 'Unlimited' : $this->format_token_count($tokenslimit),
+                'tokens_usage_percent' => $tokensusagepercent,
             ];
         } catch (\Exception $e) {
             return null;
@@ -709,7 +709,7 @@ class installation_manager {
     /**
      * Get subscription details from the backend API
      */
-    private function get_backend_subscription_details($api_key) {
+    private function get_backend_subscription_details($apikey) {
         $endpoint = 'subscriptions/status';
 
         $response = $this->make_api_request($endpoint, [], 'GET');
@@ -726,21 +726,21 @@ class installation_manager {
         $usage = $data['usage'] ?? [];
 
         // Ensure plan_id is always included, with fallback
-        $plan_id = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
+        $planid = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
 
         // Token usage data from API (flattened fields first, then nested as fallback).
-        $tokens_used = $data['tokens_used'] ?? $usage['token_usage']['total_tokens_used'] ?? 0;
-        $tokens_remaining = $data['tokens_remaining'] ?? $usage['token_usage']['tokens_remaining'] ?? -1;
-        $tokens_limit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? -1;
+        $tokensused = $data['tokens_used'] ?? $usage['token_usage']['total_tokens_used'] ?? 0;
+        $tokensremaining = $data['tokens_remaining'] ?? $usage['token_usage']['tokens_remaining'] ?? -1;
+        $tokenslimit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? -1;
 
         // Calculate usage percentage
-        $tokens_usage_percent = 0;
-        if ($tokens_limit > 0 && $tokens_remaining !== -1) {
-            $tokens_usage_percent = min(100, round(($tokens_used / $tokens_limit) * 100));
+        $tokensusagepercent = 0;
+        if ($tokenslimit > 0 && $tokensremaining !== -1) {
+            $tokensusagepercent = min(100, round(($tokensused / $tokenslimit) * 100));
         }
 
         return [
-            'plan_id' => $plan_id,
+            'plan_id' => $planid,
             'plan_name' => $plan['name'],
             'price' => $plan['price'],
             'billing_cycle' => $plan['billing_cycle'],
@@ -776,13 +776,13 @@ class installation_manager {
             'plan_ai_credits_limit' => $plan['ai_credits'],
             'plan_exports_limit' => $plan['exports'],
             // Token-based usage metrics
-            'tokens_used' => $tokens_used,
-            'tokens_remaining' => $tokens_remaining,
-            'tokens_limit' => $tokens_limit,
-            'tokens_used_formatted' => $this->format_token_count($tokens_used),
-            'tokens_remaining_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_remaining),
-            'tokens_limit_formatted' => $tokens_remaining === -1 ? 'Unlimited' : $this->format_token_count($tokens_limit),
-            'tokens_usage_percent' => $tokens_usage_percent,
+            'tokens_used' => $tokensused,
+            'tokens_remaining' => $tokensremaining,
+            'tokens_limit' => $tokenslimit,
+            'tokens_used_formatted' => $this->format_token_count($tokensused),
+            'tokens_remaining_formatted' => $tokensremaining === -1 ? 'Unlimited' : $this->format_token_count($tokensremaining),
+            'tokens_limit_formatted' => $tokensremaining === -1 ? 'Unlimited' : $this->format_token_count($tokenslimit),
+            'tokens_usage_percent' => $tokensusagepercent,
         ];
     }
 
@@ -847,10 +847,10 @@ class installation_manager {
         }
     }
 
-    public function update_subscription_plan($plan_id) {
+    public function update_subscription_plan($planid) {
         try {
             $response = $this->make_api_request('subscription/update', [
-                'plan_id' => $plan_id,
+                'plan_id' => $planid,
             ]);
 
             if ($response['success']) {
@@ -914,8 +914,8 @@ class installation_manager {
      */
     public function get_usage_stats() {
         try {
-            $api_key = $this->get_api_key();
-            if (!$api_key) {
+            $apikey = $this->get_api_key();
+            if (!$apikey) {
                 return null;
             }
 
@@ -977,10 +977,10 @@ class installation_manager {
 
     /**
      * Activate free plan
-     * @param int $plan_id Plan ID
+     * @param int $planid Plan ID
      * @return array Activation result
      */
-    public function activate_free_plan($plan_id) {
+    public function activate_free_plan($planid) {
         if (!$this->is_registered) {
             return [
                 'success' => false,
@@ -990,16 +990,16 @@ class installation_manager {
 
         try {
             $response = $this->make_api_request('subscription/activate-free', [
-                'plan_id' => $plan_id,
+                'plan_id' => $planid,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
                 // Update local subscription status
-                $subscription_data = [
+                $subscriptiondata = [
                     'stripe_customer_id' => $response['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $response['data']['subscription_id'] ?? null,
                     'plan_name' => $response['data']['plan_name'] ?? 'Free Plan',
-                    'plan_id' => $response['data']['plan_id'] ?? $plan_id,
+                    'plan_id' => $response['data']['plan_id'] ?? $planid,
                     'status' => $response['data']['status'] ?? 'active',
                     'current_period_start' => $response['data']['current_period_start'] ?? time(),
                     'current_period_end' => $response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
@@ -1010,17 +1010,17 @@ class installation_manager {
                     'billing_email' => $response['data']['billing_email'] ?? '',
                 ];
 
-                $this->update_subscription_status($subscription_data);
+                $this->update_subscription_status($subscriptiondata);
 
                 return [
                     'success' => true,
                     'message' => 'Free plan activated successfully',
                 ];
             } else {
-                $error_message = isset($response['message']) ? $response['message'] : 'Unknown error';
+                $errormessage = isset($response['message']) ? $response['message'] : 'Unknown error';
                 return [
                     'success' => false,
-                    'message' => 'Failed to activate free plan: ' . $error_message,
+                    'message' => 'Failed to activate free plan: ' . $errormessage,
                 ];
             }
         } catch (\Exception $e) {
@@ -1060,12 +1060,12 @@ class installation_manager {
         curl_setopt($ch, CURLOPT_STDERR, $verbose);
 
         $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
 
         // Get verbose output
         rewind($verbose);
-        $verbose_log = stream_get_contents($verbose);
+        $verboselog = stream_get_contents($verbose);
         fclose($verbose);
 
         curl_close($ch);
@@ -1075,8 +1075,8 @@ class installation_manager {
         }
 
         // Accept both 200 OK and 201 Created as success responses
-        if ($http_code !== 200 && $http_code !== 201) {
-            throw new \Exception('API request failed: HTTP ' . $http_code . ' - Response: ' . $response . ' (URL: ' . $url . ')');
+        if ($httpcode !== 200 && $httpcode !== 201) {
+            throw new \Exception('API request failed: HTTP ' . $httpcode . ' - Response: ' . $response . ' (URL: ' . $url . ')');
         }
 
         $decoded = json_decode($response, true);
@@ -1140,8 +1140,8 @@ class installation_manager {
     /**
      * Convert technical error messages to user-friendly messages.
      */
-    private function get_user_friendly_error_message($technical_message) {
-        $message = strtolower($technical_message);
+    private function get_user_friendly_error_message($technicalmessage) {
+        $message = strtolower($technicalmessage);
 
         if (strpos($message, 'api key is required') !== false || strpos($message, '401') !== false) {
             return get_string('http_401_error', 'report_adeptus_insights') . '. ' . get_string('please_register_plugin', 'report_adeptus_insights');
@@ -1166,7 +1166,7 @@ class installation_manager {
         return get_string('unknown_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
     }
 
-    private function update_subscription_status($subscription_data) {
+    private function update_subscription_status($subscriptiondata) {
         global $DB;
 
         try {
@@ -1176,18 +1176,18 @@ class installation_manager {
             }
 
             $record = (object)[
-                'stripe_customer_id' => $subscription_data['stripe_customer_id'] ?? null,
-                'stripe_subscription_id' => $subscription_data['stripe_subscription_id'] ?? null,
-                'plan_name' => $subscription_data['plan_name'] ?? 'Unknown',
-                'plan_id' => $subscription_data['plan_id'] ?? null,
-                'status' => $subscription_data['status'] ?? 'unknown',
-                'current_period_start' => $subscription_data['current_period_start'] ?? null,
-                'current_period_end' => $subscription_data['current_period_end'] ?? null,
-                'ai_credits_remaining' => $subscription_data['ai_credits_remaining'] ?? 0,
-                'ai_credits_pro_remaining' => $subscription_data['ai_credits_pro_remaining'] ?? 0,
-                'ai_credits_basic_remaining' => $subscription_data['ai_credits_basic_remaining'] ?? 0,
-                'exports_remaining' => $subscription_data['exports_remaining'] ?? 0,
-                'billing_email' => $subscription_data['billing_email'] ?? null,
+                'stripe_customer_id' => $subscriptiondata['stripe_customer_id'] ?? null,
+                'stripe_subscription_id' => $subscriptiondata['stripe_subscription_id'] ?? null,
+                'plan_name' => $subscriptiondata['plan_name'] ?? 'Unknown',
+                'plan_id' => $subscriptiondata['plan_id'] ?? null,
+                'status' => $subscriptiondata['status'] ?? 'unknown',
+                'current_period_start' => $subscriptiondata['current_period_start'] ?? null,
+                'current_period_end' => $subscriptiondata['current_period_end'] ?? null,
+                'ai_credits_remaining' => $subscriptiondata['ai_credits_remaining'] ?? 0,
+                'ai_credits_pro_remaining' => $subscriptiondata['ai_credits_pro_remaining'] ?? 0,
+                'ai_credits_basic_remaining' => $subscriptiondata['ai_credits_basic_remaining'] ?? 0,
+                'exports_remaining' => $subscriptiondata['exports_remaining'] ?? 0,
+                'billing_email' => $subscriptiondata['billing_email'] ?? null,
                 'last_updated' => time(),
             ];
 
@@ -1210,49 +1210,49 @@ class installation_manager {
     public function activate_free_plan_manually() {
         try {
             // Get available plans from backend
-            $plans_response = $this->make_api_request('subscription/plans', [], 'GET');
+            $plansresponse = $this->make_api_request('subscription/plans', [], 'GET');
 
-            if (!$plans_response || !isset($plans_response['success']) || !$plans_response['success']) {
+            if (!$plansresponse || !isset($plansresponse['success']) || !$plansresponse['success']) {
                 return false;
             }
 
             // Find free plan for Insights product
-            $free_plan = null;
-            foreach ($plans_response['data']['plans'] as $plan) {
-                $is_free = (isset($plan['tier']) && $plan['tier'] === 'free') ||
+            $freeplan = null;
+            foreach ($plansresponse['data']['plans'] as $plan) {
+                $isfree = (isset($plan['tier']) && $plan['tier'] === 'free') ||
                            (isset($plan['is_free']) && $plan['is_free']);
-                $is_insights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
+                $isinsights = (isset($plan['product_key']) && $plan['product_key'] === 'insights');
 
-                if ($is_free && $is_insights) {
-                    $free_plan = $plan;
+                if ($isfree && $isinsights) {
+                    $freeplan = $plan;
                     break;
                 }
             }
 
-            if (!$free_plan) {
+            if (!$freeplan) {
                 return false;
             }
 
             // Activate free plan via backend
-            $subscription_response = $this->make_api_request('subscription/activate-free', [
-                'plan_id' => $free_plan['id'],
+            $subscriptionresponse = $this->make_api_request('subscription/activate-free', [
+                'plan_id' => $freeplan['id'],
                 'billing_email' => $this->get_admin_email(),
             ]);
 
-            if ($subscription_response && isset($subscription_response['success']) && $subscription_response['success']) {
+            if ($subscriptionresponse && isset($subscriptionresponse['success']) && $subscriptionresponse['success']) {
                 // Update local subscription status
                 $this->update_subscription_status([
-                    'stripe_customer_id' => $subscription_response['data']['customer_id'] ?? null,
-                    'stripe_subscription_id' => $subscription_response['data']['subscription_id'] ?? null,
-                    'plan_name' => $free_plan['name'],
-                    'plan_id' => $free_plan['id'],
-                    'status' => $subscription_response['data']['status'] ?? 'active',
-                    'current_period_start' => $subscription_response['data']['current_period_start'] ?? time(),
-                    'current_period_end' => $subscription_response['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
-                    'ai_credits_remaining' => $subscription_response['data']['ai_credits_remaining'] ?? $free_plan['ai_credits'],
-                    'ai_credits_pro_remaining' => $subscription_response['data']['ai_credits_pro_remaining'] ?? ($free_plan['ai_credits_pro'] ?? 0),
-                    'ai_credits_basic_remaining' => $subscription_response['data']['ai_credits_basic_remaining'] ?? ($free_plan['ai_credits_basic'] ?? 0),
-                    'exports_remaining' => $subscription_response['data']['exports_remaining'] ?? $free_plan['exports'],
+                    'stripe_customer_id' => $subscriptionresponse['data']['customer_id'] ?? null,
+                    'stripe_subscription_id' => $subscriptionresponse['data']['subscription_id'] ?? null,
+                    'plan_name' => $freeplan['name'],
+                    'plan_id' => $freeplan['id'],
+                    'status' => $subscriptionresponse['data']['status'] ?? 'active',
+                    'current_period_start' => $subscriptionresponse['data']['current_period_start'] ?? time(),
+                    'current_period_end' => $subscriptionresponse['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
+                    'ai_credits_remaining' => $subscriptionresponse['data']['ai_credits_remaining'] ?? $freeplan['ai_credits'],
+                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining'] ?? ($freeplan['ai_credits_pro'] ?? 0),
+                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining'] ?? ($freeplan['ai_credits_basic'] ?? 0),
+                    'exports_remaining' => $subscriptionresponse['data']['exports_remaining'] ?? $freeplan['exports'],
                     'billing_email' => $this->get_admin_email(),
                 ]);
 
@@ -1268,14 +1268,14 @@ class installation_manager {
     /**
      * Create billing portal session for upgrades
      */
-    public function create_billing_portal_session($return_url = null, $plan_id = null, $action = null) {
+    public function create_billing_portal_session($returnurl = null, $planid = null, $action = null) {
         try {
             $data = [
-                'return_url' => $return_url ?: $this->get_site_url(),
+                'return_url' => $returnurl ?: $this->get_site_url(),
             ];
 
-            if ($plan_id) {
-                $data['plan_id'] = $plan_id;
+            if ($planid) {
+                $data['plan_id'] = $planid;
             }
 
             if ($action) {
@@ -1284,8 +1284,8 @@ class installation_manager {
 
             // Check if user has a Stripe customer - if not, request customer creation
             $subscription = $this->get_subscription_details();
-            $stripe_customer_id = $subscription['stripe_customer_id'] ?? null;
-            if (!$stripe_customer_id) {
+            $stripecustomerid = $subscription['stripe_customer_id'] ?? null;
+            if (!$stripecustomerid) {
                 $data['create_customer'] = true;
             }
 
@@ -1319,41 +1319,41 @@ class installation_manager {
     /**
      * Create Stripe Checkout session for new subscriptions
      *
-     * @param int $plan_id The plan ID to subscribe to
-     * @param string $stripe_price_id Optional Stripe price ID
-     * @param string $return_url URL to return to after checkout
+     * @param int $planid The plan ID to subscribe to
+     * @param string $stripepriceid Optional Stripe price ID
+     * @param string $returnurl URL to return to after checkout
      * @return array Response with checkout_url on success
      */
-    public function create_checkout_session($plan_id, $stripe_price_id = null, $return_url = null) {
+    public function create_checkout_session($planid, $stripepriceid = null, $returnurl = null) {
         try {
             $data = [
-                'plan_id' => $plan_id,
-                'success_url' => $return_url ?: $this->get_site_url(),
-                'cancel_url' => $return_url ?: $this->get_site_url(),
+                'plan_id' => $planid,
+                'success_url' => $returnurl ?: $this->get_site_url(),
+                'cancel_url' => $returnurl ?: $this->get_site_url(),
             ];
 
-            if ($stripe_price_id) {
-                $data['stripe_price_id'] = $stripe_price_id;
+            if ($stripepriceid) {
+                $data['stripe_price_id'] = $stripepriceid;
             }
 
             $response = $this->make_api_request('subscription/checkout', $data);
 
             if ($response && isset($response['success']) && $response['success']) {
-                $checkout_url = $response['data']['checkout_url'] ?? null;
+                $checkouturl = $response['data']['checkout_url'] ?? null;
 
                 return [
                     'success' => true,
-                    'checkout_url' => $checkout_url,
+                    'checkout_url' => $checkouturl,
                     'session_id' => $response['data']['session_id'] ?? null,
                 ];
             } else {
-                $error_code = $response['error']['code'] ?? '';
-                $error_message = $response['error']['message'] ?? ($response['message'] ?? 'Failed to create checkout session');
+                $errorcode = $response['error']['code'] ?? '';
+                $errormessage = $response['error']['message'] ?? ($response['message'] ?? 'Failed to create checkout session');
 
                 return [
                     'success' => false,
-                    'error_code' => $error_code,
-                    'message' => $error_message,
+                    'error_code' => $errorcode,
+                    'message' => $errormessage,
                 ];
             }
         } catch (\Exception $e) {
@@ -1367,13 +1367,13 @@ class installation_manager {
     /**
      * Verify a completed checkout session and update subscription
      *
-     * @param string $session_id Stripe checkout session ID
+     * @param string $sessionid Stripe checkout session ID
      * @return array Response with subscription details on success
      */
-    public function verify_checkout_session($session_id) {
+    public function verify_checkout_session($sessionid) {
         try {
             $response = $this->make_api_request('subscription/verify-checkout', [
-                'session_id' => $session_id,
+                'session_id' => $sessionid,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -1388,13 +1388,13 @@ class installation_manager {
                     'plan_name' => $response['data']['plan_name'] ?? 'Pro',
                 ];
             } else {
-                $error_code = $response['error']['code'] ?? '';
-                $error_message = $response['error']['message'] ?? ($response['message'] ?? 'Failed to verify checkout');
+                $errorcode = $response['error']['code'] ?? '';
+                $errormessage = $response['error']['message'] ?? ($response['message'] ?? 'Failed to verify checkout');
 
                 return [
                     'success' => false,
-                    'error_code' => $error_code,
-                    'message' => $error_message,
+                    'error_code' => $errorcode,
+                    'message' => $errormessage,
                 ];
             }
         } catch (\Exception $e) {
@@ -1421,7 +1421,7 @@ class installation_manager {
     /**
      * Create billing portal session for specific product upgrade/downgrade
      */
-    public function create_product_portal_session($product_id, $return_url) {
+    public function create_product_portal_session($productid, $returnurl) {
         try {
             // Check if installation is registered
             if (!$this->is_registered()) {
@@ -1435,31 +1435,31 @@ class installation_manager {
             }
 
             // Get the target plan from the product ID
-            $plan = $this->get_plan_by_stripe_product_id($product_id);
+            $plan = $this->get_plan_by_stripe_product_id($productid);
             if (!$plan) {
                 return ['success' => false, 'message' => 'Target plan not found'];
             }
 
             // Create or get Stripe customer
-            $stripe_customer_id = $subscription['stripe_customer_id'] ?? null;
-            if (!$stripe_customer_id) {
+            $stripecustomerid = $subscription['stripe_customer_id'] ?? null;
+            if (!$stripecustomerid) {
                 // Create customer and subscription if they don't exist
-                $customer_result = $this->create_stripe_customer_and_subscription($subscription, $plan);
-                if (!$customer_result['success']) {
-                    return $customer_result;
+                $customerresult = $this->create_stripe_customer_and_subscription($subscription, $plan);
+                if (!$customerresult['success']) {
+                    return $customerresult;
                 }
-                $stripe_customer_id = $customer_result['stripe_customer_id'];
+                $stripecustomerid = $customerresult['stripe_customer_id'];
             }
 
             // Create billing portal session with return URL
-            $portal_result = $this->create_stripe_portal_session($stripe_customer_id, $return_url);
-            if (!$portal_result['success']) {
-                return $portal_result;
+            $portalresult = $this->create_stripe_portal_session($stripecustomerid, $returnurl);
+            if (!$portalresult['success']) {
+                return $portalresult;
             }
 
             return [
                 'success' => true,
-                'portal_url' => $portal_result['portal_url'],
+                'portal_url' => $portalresult['portal_url'],
             ];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Error creating portal session: ' . $e->getMessage()];
@@ -1469,7 +1469,7 @@ class installation_manager {
     /**
      * Get plan by Stripe product ID
      */
-    private function get_plan_by_stripe_product_id($stripe_product_id) {
+    private function get_plan_by_stripe_product_id($stripeproductid) {
         // Get available plans from backend API
         $response = $this->get_available_plans();
 
@@ -1482,7 +1482,7 @@ class installation_manager {
         $plans = $response['plans'] ?? [];
 
         foreach ($plans as $plan) {
-            if (isset($plan['stripe_product_id']) && $plan['stripe_product_id'] === $stripe_product_id) {
+            if (isset($plan['stripe_product_id']) && $plan['stripe_product_id'] === $stripeproductid) {
                 return $plan;
             }
         }
@@ -1540,12 +1540,12 @@ class installation_manager {
     /**
      * Create Stripe portal session
      */
-    private function create_stripe_portal_session($stripe_customer_id, $return_url) {
+    private function create_stripe_portal_session($stripecustomerid, $returnurl) {
         try {
             // Call backend API to create portal session
             $response = $this->make_api_request('subscription/billing-portal', [
-                'return_url' => $return_url,
-                'stripe_customer_id' => $stripe_customer_id,
+                'return_url' => $returnurl,
+                'stripe_customer_id' => $stripecustomerid,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -1663,10 +1663,10 @@ class installation_manager {
     /**
      * Check if user can generate a specific report
      *
-     * @param string $report_key The report key to check
+     * @param string $reportkey The report key to check
      * @return array Result with 'allowed', 'reason', 'message' keys
      */
-    public function check_report_access($report_key) {
+    public function check_report_access($reportkey) {
         try {
             if (!$this->is_registered()) {
                 // For unregistered installations, allow free tier reports only
@@ -1680,7 +1680,7 @@ class installation_manager {
 
             // Call backend API to check report access
             $response = $this->make_api_request('reports/check-access', [
-                'report_key' => $report_key,
+                'report_key' => $reportkey,
             ]);
 
             if (!$response || !isset($response['success'])) {
@@ -1721,19 +1721,19 @@ class installation_manager {
     /**
      * Track report generation after successful execution
      *
-     * @param string $report_key The report key that was generated
-     * @param bool $is_ai_generated Whether this is an AI-generated report
+     * @param string $reportkey The report key that was generated
+     * @param bool $isaigenerated Whether this is an AI-generated report
      * @return bool Success status
      */
-    public function track_report_generation($report_key, $is_ai_generated = false) {
+    public function track_report_generation($reportkey, $isaigenerated = false) {
         try {
             if (!$this->is_registered()) {
                 return false;
             }
 
             $response = $this->make_api_request('usage/track-report', [
-                'report_key' => $report_key,
-                'is_ai_generated' => $is_ai_generated,
+                'report_key' => $reportkey,
+                'is_ai_generated' => $isaigenerated,
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -1749,19 +1749,19 @@ class installation_manager {
     /**
      * Track report deletion (decrements usage count)
      *
-     * @param string $report_key The report key that was deleted
-     * @param bool $is_ai_generated Whether this was an AI-generated report
+     * @param string $reportkey The report key that was deleted
+     * @param bool $isaigenerated Whether this was an AI-generated report
      * @return bool Success status
      */
-    public function track_report_deletion($report_key, $is_ai_generated = false) {
+    public function track_report_deletion($reportkey, $isaigenerated = false) {
         try {
             if (!$this->is_registered()) {
                 return false;
             }
 
             $response = $this->make_api_request('usage/track-report-deletion', [
-                'report_key' => $report_key,
-                'is_ai_generated' => $is_ai_generated,
+                'report_key' => $reportkey,
+                'is_ai_generated' => $isaigenerated,
             ]);
 
             return $response && isset($response['success']) && $response['success'];
@@ -1781,20 +1781,20 @@ class installation_manager {
             $subscription = $this->get_subscription_with_usage();
 
             // Check format access
-            $allowed_formats = $subscription['export_formats'] ?? ['pdf'];
-            if (!in_array(strtolower($format), array_map('strtolower', $allowed_formats))) {
+            $allowedformats = $subscription['export_formats'] ?? ['pdf'];
+            if (!in_array(strtolower($format), array_map('strtolower', $allowedformats))) {
                 return [
                     'allowed' => false,
                     'reason' => 'format_restricted',
                     'message' => "Export to {$format} requires a higher tier plan",
-                    'allowed_formats' => $allowed_formats,
+                    'allowed_formats' => $allowedformats,
                     'upgrade_required' => true,
                 ];
             }
 
             // Check export limit
-            $exports_remaining = $subscription['exports_remaining'] ?? 0;
-            if ($exports_remaining !== -1 && $exports_remaining <= 0) {
+            $exportsremaining = $subscription['exports_remaining'] ?? 0;
+            if ($exportsremaining !== -1 && $exportsremaining <= 0) {
                 return [
                     'allowed' => false,
                     'reason' => 'limit_reached',
@@ -1807,7 +1807,7 @@ class installation_manager {
 
             return [
                 'allowed' => true,
-                'remaining' => $exports_remaining,
+                'remaining' => $exportsremaining,
                 'format' => $format,
             ];
         } catch (\Exception $e) {
@@ -1868,13 +1868,13 @@ class installation_manager {
     /**
      * Check if user is within a specific limit
      *
-     * @param string $limit_type The limit type to check ('reports_total', 'exports', 'ai_credits_basic', 'ai_credits_premium')
+     * @param string $limittype The limit type to check ('reports_total', 'exports', 'ai_credits_basic', 'ai_credits_premium')
      * @return bool True if within limit
      */
-    public function is_within_limit($limit_type) {
+    public function is_within_limit($limittype) {
         $subscription = $this->get_subscription_with_usage();
 
-        switch ($limit_type) {
+        switch ($limittype) {
             case 'reports_total':
                 return !($subscription['is_over_report_limit'] ?? false);
 
@@ -1898,13 +1898,13 @@ class installation_manager {
     /**
      * Get remaining quota for a limit type
      *
-     * @param string $limit_type The limit type
+     * @param string $limittype The limit type
      * @return int Remaining quota (-1 for unlimited)
      */
-    public function get_remaining_quota($limit_type) {
+    public function get_remaining_quota($limittype) {
         $subscription = $this->get_subscription_with_usage();
 
-        switch ($limit_type) {
+        switch ($limittype) {
             case 'reports_total':
                 return $subscription['reports_remaining'] ?? 10;
 
@@ -1927,7 +1927,7 @@ class installation_manager {
      *
      * @var array|null
      */
-    private static $feature_permissions_cache = null;
+    private static $featurepermissionscache = null;
 
     /**
      * Check if a specific feature is enabled for the current subscription.
@@ -1955,13 +1955,13 @@ class installation_manager {
      * If the backend cannot be reached, an empty array is returned
      * (all features disabled - no fallbacks).
      *
-     * @param bool $force_refresh Force a refresh from the backend
+     * @param bool $forcerefresh Force a refresh from the backend
      * @return array Associative array of feature => enabled status
      */
-    public function get_feature_permissions(bool $force_refresh = false): array {
+    public function get_feature_permissions(bool $forcerefresh = false): array {
         // Return cached permissions if available and not forcing refresh.
-        if (!$force_refresh && self::$feature_permissions_cache !== null) {
-            return self::$feature_permissions_cache;
+        if (!$forcerefresh && self::$featurepermissionscache !== null) {
+            return self::$featurepermissionscache;
         }
 
         try {
@@ -1970,16 +1970,16 @@ class installation_manager {
 
             if ($response && isset($response['success']) && $response['success']) {
                 $permissions = $response['data']['permissions'] ?? $response['data'] ?? [];
-                self::$feature_permissions_cache = $permissions;
-                return self::$feature_permissions_cache;
+                self::$featurepermissionscache = $permissions;
+                return self::$featurepermissionscache;
             }
         } catch (\Exception $e) {
             // Backend unreachable - fall through to disable all features.
         }
 
         // Backend unreachable - all features disabled (no fallbacks).
-        self::$feature_permissions_cache = [];
-        return self::$feature_permissions_cache;
+        self::$featurepermissionscache = [];
+        return self::$featurepermissionscache;
     }
 
     /**
@@ -1988,6 +1988,6 @@ class installation_manager {
      * Call this when the subscription changes or is updated.
      */
     public function clear_feature_permissions_cache(): void {
-        self::$feature_permissions_cache = null;
+        self::$featurepermissionscache = null;
     }
 }

@@ -24,7 +24,7 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class notification_manager {
-    private $error_handler;
+    private $errorhandler;
     private $notifications;
 
     public function __construct() {
@@ -35,21 +35,21 @@ class notification_manager {
     /**
      * Display a professional error message
      *
-     * @param string $error_code The error code
-     * @param array $additional_data Additional error data
-     * @param bool $log_error Whether to log the error
+     * @param string $errorcode The error code
+     * @param array $additionaldata Additional error data
+     * @param bool $logerror Whether to log the error
      * @return string HTML for the error message
      */
-    public function displayError($error_code, $additional_data = [], $log_error = true) {
-        if ($log_error) {
-            $this->error_handler->logError($error_code, $additional_data);
+    public function displayError($errorcode, $additionaldata = [], $logerror = true) {
+        if ($logerror) {
+            $this->error_handler->logError($errorcode, $additionaldata);
         }
 
-        $error_message = $this->error_handler->createErrorMessage($error_code, $additional_data);
-        $html = $this->renderErrorMessage($error_message);
+        $errormessage = $this->error_handler->createErrorMessage($errorcode, $additionaldata);
+        $html = $this->renderErrorMessage($errormessage);
 
         // Store notification for potential reuse
-        $this->notifications[] = $error_message;
+        $this->notifications[] = $errormessage;
 
         return $html;
     }
@@ -123,28 +123,28 @@ class notification_manager {
     /**
      * Render an error message with professional styling
      *
-     * @param array $error_message The error message data
+     * @param array $errormessage The error message data
      * @return string HTML for the error message
      */
-    private function renderErrorMessage($error_message) {
-        $severity_class = $this->getSeverityClass($error_message['severity']);
-        $icon_class = $this->getSeverityIcon($error_message['severity']);
+    private function renderErrorMessage($errormessage) {
+        $severityclass = $this->getSeverityClass($errormessage['severity']);
+        $iconclass = $this->getSeverityIcon($errormessage['severity']);
 
-        $html = '<div class="adeptus-error-message ' . $severity_class . '" role="alert">';
+        $html = '<div class="adeptus-error-message ' . $severityclass . '" role="alert">';
         $html .= '<div class="adeptus-error-header">';
-        $html .= '<i class="fa ' . $icon_class . '" aria-hidden="true"></i>';
-        $html .= '<strong>' . htmlspecialchars($error_message['title']) . '</strong>';
+        $html .= '<i class="fa ' . $iconclass . '" aria-hidden="true"></i>';
+        $html .= '<strong>' . htmlspecialchars($errormessage['title']) . '</strong>';
         $html .= '</div>';
 
         $html .= '<div class="adeptus-error-content">';
-        $html .= '<p>' . htmlspecialchars($error_message['user_message']) . '</p>';
+        $html .= '<p>' . htmlspecialchars($errormessage['user_message']) . '</p>';
 
         // Display suggestions if available
-        if (!empty($error_message['suggestions'])) {
+        if (!empty($errormessage['suggestions'])) {
             $html .= '<div class="adeptus-error-suggestions">';
             $html .= '<h4>Suggestions:</h4>';
             $html .= '<ul>';
-            foreach ($error_message['suggestions'] as $suggestion) {
+            foreach ($errormessage['suggestions'] as $suggestion) {
                 $html .= '<li>' . htmlspecialchars($suggestion) . '</li>';
             }
             $html .= '</ul>';
@@ -152,8 +152,8 @@ class notification_manager {
         }
 
         // Display recovery actions
-        if ($error_message['recovery_action']) {
-            $html .= $this->renderRecoveryActions($error_message['recovery_action'], $error_message['admin_contact']);
+        if ($errormessage['recovery_action']) {
+            $html .= $this->renderRecoveryActions($errormessage['recovery_action'], $errormessage['admin_contact']);
         }
 
         $html .= '</div>';
@@ -169,12 +169,12 @@ class notification_manager {
      * @return string HTML for the notification
      */
     private function renderNotification($notification) {
-        $type_class = 'adeptus-notification-' . $notification['type'];
-        $icon_class = $this->getNotificationIcon($notification['type']);
+        $typeclass = 'adeptus-notification-' . $notification['type'];
+        $iconclass = $this->getNotificationIcon($notification['type']);
 
-        $html = '<div class="adeptus-notification ' . $type_class . '" role="alert">';
+        $html = '<div class="adeptus-notification ' . $typeclass . '" role="alert">';
         $html .= '<div class="adeptus-notification-header">';
-        $html .= '<i class="fa ' . $icon_class . '" aria-hidden="true"></i>';
+        $html .= '<i class="fa ' . $iconclass . '" aria-hidden="true"></i>';
         $html .= '<strong>' . htmlspecialchars($notification['title']) . '</strong>';
         $html .= '</div>';
 
@@ -195,22 +195,22 @@ class notification_manager {
     /**
      * Render recovery actions
      *
-     * @param array $recovery_action The recovery action data
-     * @param array $admin_contact Admin contact information
+     * @param array $recoveryaction The recovery action data
+     * @param array $admincontact Admin contact information
      * @return string HTML for recovery actions
      */
-    private function renderRecoveryActions($recovery_action, $admin_contact) {
+    private function renderRecoveryActions($recoveryaction, $admincontact) {
         $html = '<div class="adeptus-recovery-actions">';
         $html .= '<h4>What you can do:</h4>';
 
         // Primary recovery action
         $html .= '<div class="adeptus-primary-action">';
-        $html .= '<button type="button" class="btn ' . $recovery_action['button_class'] . ' btn-sm" ';
-        $html .= 'onclick="this.handleRecoveryAction(\'' . $recovery_action['action'] . '\')">';
-        $html .= '<i class="fa ' . $recovery_action['icon'] . '" aria-hidden="true"></i> ';
-        $html .= htmlspecialchars($recovery_action['label']);
+        $html .= '<button type="button" class="btn ' . $recoveryaction['button_class'] . ' btn-sm" ';
+        $html .= 'onclick="this.handleRecoveryAction(\'' . $recoveryaction['action'] . '\')">';
+        $html .= '<i class="fa ' . $recoveryaction['icon'] . '" aria-hidden="true"></i> ';
+        $html .= htmlspecialchars($recoveryaction['label']);
         $html .= '</button>';
-        $html .= '<small>' . htmlspecialchars($recovery_action['description']) . '</small>';
+        $html .= '<small>' . htmlspecialchars($recoveryaction['description']) . '</small>';
         $html .= '</div>';
 
         // Additional actions
@@ -231,11 +231,11 @@ class notification_manager {
         $html .= '</div>';
 
         // Admin contact information
-        if ($admin_contact['email']) {
+        if ($admincontact['email']) {
             $html .= '<div class="adeptus-admin-contact">';
             $html .= '<small><strong>Need immediate help?</strong> ';
-            $html .= 'Contact: <a href="mailto:' . htmlspecialchars($admin_contact['email']) . '">';
-            $html .= htmlspecialchars($admin_contact['email']) . '</a></small>';
+            $html .= 'Contact: <a href="mailto:' . htmlspecialchars($admincontact['email']) . '">';
+            $html .= htmlspecialchars($admincontact['email']) . '</a></small>';
             $html .= '</div>';
         }
 

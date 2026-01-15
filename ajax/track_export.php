@@ -39,7 +39,7 @@ require_capability('report/adeptus_insights:view', $context);
 
 // Get parameters
 $format = required_param('format', PARAM_ALPHA);
-$report_name = required_param('report_name', PARAM_TEXT);
+$reportname = required_param('report_name', PARAM_TEXT);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
@@ -53,44 +53,44 @@ header('Content-Type: application/json');
 
 try {
     // Get installation manager and API configuration
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
-    $backend_url = \report_adeptus_insights\api_config::get_backend_url();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
+    $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
-    if (empty($api_key)) {
+    if (empty($apikey)) {
         throw new Exception('Installation not configured. Please complete plugin setup.');
     }
 
     // Call backend API to track export
     // The backend is the ONLY authority for export tracking
-    $endpoint = rtrim($backend_url, '/') . '/exports/track';
+    $endpoint = rtrim($backendurl, '/') . '/exports/track';
 
-    $post_data = json_encode([
+    $postdata = json_encode([
         'format' => $format,
-        'report_name' => $report_name,
+        'report_name' => $reportname,
     ]);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $endpoint);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
     $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
     // Handle connection errors - log but don't fail the user experience
-    if ($response === false || !empty($curl_error)) {
-        error_log('[Adeptus Insights] Export tracking failed - curl error: ' . $curl_error);
+    if ($response === false || !empty($curlerror)) {
+        error_log('[Adeptus Insights] Export tracking failed - curl error: ' . $curlerror);
         // Still return success to not disrupt user, but log the issue
         echo json_encode([
             'success' => true,
@@ -101,8 +101,8 @@ try {
     }
 
     // Handle HTTP errors
-    if ($http_code !== 200) {
-        error_log('[Adeptus Insights] Export tracking failed - HTTP ' . $http_code . ': ' . $response);
+    if ($httpcode !== 200) {
+        error_log('[Adeptus Insights] Export tracking failed - HTTP ' . $httpcode . ': ' . $response);
         // Still return success to not disrupt user
         echo json_encode([
             'success' => true,
@@ -113,7 +113,7 @@ try {
     }
 
     // Parse backend response
-    $backend_data = json_decode($response, true);
+    $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log('[Adeptus Insights] Export tracking failed - invalid JSON response');
@@ -127,11 +127,11 @@ try {
 
     // Return backend response
     echo json_encode([
-        'success' => $backend_data['success'] ?? true,
-        'message' => $backend_data['message'] ?? 'Export tracked successfully',
-        'exports_used' => $backend_data['exports_used'] ?? 0,
-        'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
-        'exports_limit' => $backend_data['exports_limit'] ?? 0,
+        'success' => $backenddata['success'] ?? true,
+        'message' => $backenddata['message'] ?? 'Export tracked successfully',
+        'exports_used' => $backenddata['exports_used'] ?? 0,
+        'exports_remaining' => $backenddata['exports_remaining'] ?? 0,
+        'exports_limit' => $backenddata['exports_limit'] ?? 0,
     ]);
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Export tracking exception: ' . $e->getMessage());

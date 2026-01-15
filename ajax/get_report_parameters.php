@@ -60,8 +60,8 @@ try {
 
     // Get API key for authentication
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
 
     // Fetch all reports from backend to find the requested one
     $ch = curl_init();
@@ -72,7 +72,7 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
 
     $response = curl_exec($ch);
@@ -190,7 +190,7 @@ try {
     }
 
     // Convert parameters from associative array to numeric array for JavaScript
-    $param_array = array_values($parameters);
+    $paramarray = array_values($parameters);
 
     // Return success response
     echo json_encode([
@@ -202,7 +202,7 @@ try {
             'description' => $report['description'],
             'charttype' => $report['charttype'],
         ],
-        'parameters' => $param_array,
+        'parameters' => $paramarray,
         'backend_enhanced' => $backendEnabled && !empty($enhancedParam),
     ]);
 } catch (Exception $e) {

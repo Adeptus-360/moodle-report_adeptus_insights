@@ -38,8 +38,8 @@ $PAGE->set_context($context);
 require_capability('report/adeptus_insights:view', $context);
 
 // Get parameters
-$report_name = required_param('report_name', PARAM_TEXT);
-$is_ai_generated = optional_param('is_ai_generated', false, PARAM_BOOL);
+$reportname = required_param('report_name', PARAM_TEXT);
+$isaigenerated = optional_param('is_ai_generated', false, PARAM_BOOL);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
@@ -53,45 +53,45 @@ header('Content-Type: application/json');
 
 try {
     // Get installation manager and API configuration
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
-    $backend_url = \report_adeptus_insights\api_config::get_backend_url();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
+    $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
-    if (empty($api_key)) {
+    if (empty($apikey)) {
         throw new Exception('Installation not configured. Please complete plugin setup.');
     }
 
     // Call backend API to track report creation
     // The backend is the ONLY authority for report tracking
-    $endpoint = rtrim($backend_url, '/') . '/api/v1/report-limits/track-created';
+    $endpoint = rtrim($backendurl, '/') . '/api/v1/report-limits/track-created';
 
-    $post_data = json_encode([
-        'report_name' => $report_name,
-        'is_ai_generated' => $is_ai_generated,
+    $postdata = json_encode([
+        'report_name' => $reportname,
+        'is_ai_generated' => $isaigenerated,
     ]);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $endpoint);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
     $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
     // Handle connection errors - log but don't fail the user experience
     // The report was already created, we just couldn't track it
-    if ($response === false || !empty($curl_error)) {
-        error_log('[Adeptus Insights] Report creation tracking failed - curl error: ' . $curl_error);
+    if ($response === false || !empty($curlerror)) {
+        error_log('[Adeptus Insights] Report creation tracking failed - curl error: ' . $curlerror);
         echo json_encode([
             'success' => true,
             'message' => 'Report created (tracking pending)',
@@ -101,8 +101,8 @@ try {
     }
 
     // Handle HTTP errors - log but don't fail
-    if ($http_code !== 200) {
-        error_log('[Adeptus Insights] Report creation tracking failed - HTTP ' . $http_code . ': ' . $response);
+    if ($httpcode !== 200) {
+        error_log('[Adeptus Insights] Report creation tracking failed - HTTP ' . $httpcode . ': ' . $response);
         echo json_encode([
             'success' => true,
             'message' => 'Report created (tracking pending)',
@@ -112,7 +112,7 @@ try {
     }
 
     // Parse backend response
-    $backend_data = json_decode($response, true);
+    $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log('[Adeptus Insights] Report creation tracking failed - invalid JSON response');
@@ -125,16 +125,16 @@ try {
     }
 
     // Return backend response - handle alternate field names
-    $reports_used = $backend_data['reports_used'] ?? $backend_data['used'] ?? 0;
-    $reports_limit = $backend_data['reports_limit'] ?? $backend_data['limit'] ?? 0;
-    $reports_remaining = $backend_data['reports_remaining'] ?? $backend_data['remaining'] ?? 0;
+    $reportsused = $backenddata['reports_used'] ?? $backenddata['used'] ?? 0;
+    $reportslimit = $backenddata['reports_limit'] ?? $backenddata['limit'] ?? 0;
+    $reportsremaining = $backenddata['reports_remaining'] ?? $backenddata['remaining'] ?? 0;
 
     echo json_encode([
-        'success' => $backend_data['success'] ?? true,
-        'message' => $backend_data['message'] ?? 'Report creation tracked successfully',
-        'reports_used' => $reports_used,
-        'reports_limit' => $reports_limit,
-        'reports_remaining' => $reports_remaining,
+        'success' => $backenddata['success'] ?? true,
+        'message' => $backenddata['message'] ?? 'Report creation tracked successfully',
+        'reports_used' => $reportsused,
+        'reports_limit' => $reportslimit,
+        'reports_remaining' => $reportsremaining,
     ]);
 } catch (Exception $e) {
     error_log('[Adeptus Insights] Report creation tracking exception: ' . $e->getMessage());

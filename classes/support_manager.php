@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 class support_manager {
     /** @var installation_manager */
-    private $installation_manager;
+    private $installationmanager;
 
     /** @var string Product key for changelog lookups */
     private const PRODUCT_KEY = 'insights';
@@ -80,8 +80,8 @@ class support_manager {
      * @param string $category Ticket category
      * @param string $subject Ticket subject
      * @param string $message Ticket message
-     * @param string|null $submitter_name Optional submitter name
-     * @param string|null $submitter_email Optional submitter email
+     * @param string|null $submittername Optional submitter name
+     * @param string|null $submitteremail Optional submitter email
      * @param string $priority Priority level (default: medium)
      * @param array $attachments Array of file attachment info
      * @return array Result with success status and data/error
@@ -90,8 +90,8 @@ class support_manager {
         string $category,
         string $subject,
         string $message,
-        ?string $submitter_name = null,
-        ?string $submitter_email = null,
+        ?string $submittername = null,
+        ?string $submitteremail = null,
         string $priority = 'medium',
         array $attachments = []
     ): array {
@@ -138,30 +138,30 @@ class support_manager {
                 'priority' => $priority,
             ];
 
-            if (!empty($submitter_name)) {
-                $data['submitter_name'] = trim($submitter_name);
+            if (!empty($submittername)) {
+                $data['submitter_name'] = trim($submittername);
             }
 
-            if (!empty($submitter_email)) {
-                $data['submitter_email'] = trim($submitter_email);
+            if (!empty($submitteremail)) {
+                $data['submitter_email'] = trim($submitteremail);
             }
 
             // Check if we have file attachments with actual files
-            $has_valid_files = false;
+            $hasvalidfiles = false;
             if (!empty($attachments) && isset($attachments['tmp_name'])) {
                 if (is_array($attachments['tmp_name'])) {
-                    foreach ($attachments['tmp_name'] as $tmp_name) {
-                        if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
-                            $has_valid_files = true;
+                    foreach ($attachments['tmp_name'] as $tmpname) {
+                        if (!empty($tmpname) && is_uploaded_file($tmpname)) {
+                            $hasvalidfiles = true;
                             break;
                         }
                     }
                 } else if (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
-                    $has_valid_files = true;
+                    $hasvalidfiles = true;
                 }
             }
 
-            if ($has_valid_files) {
+            if ($hasvalidfiles) {
                 // Use multipart form data for file uploads
                 $response = $this->make_multipart_request('support/tickets', $data, $attachments);
             } else {
@@ -199,9 +199,9 @@ class support_manager {
      * @return array|null Response data
      */
     protected function make_multipart_request(string $endpoint, array $data, array $files): ?array {
-        $api_url = $this->installation_manager->get_api_url();
-        $api_key = $this->installation_manager->get_api_key();
-        $url = $api_url . '/' . $endpoint;
+        $apiurl = $this->installation_manager->get_api_url();
+        $apikey = $this->installation_manager->get_api_key();
+        $url = $apiurl . '/' . $endpoint;
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -246,8 +246,8 @@ class support_manager {
 
         // Headers for multipart (don't set Content-Type, let cURL handle it)
         $headers = [];
-        if ($api_key) {
-            $headers[] = 'Authorization: Bearer ' . $api_key;
+        if ($apikey) {
+            $headers[] = 'Authorization: Bearer ' . $apikey;
         }
         if (!empty($headers)) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -335,10 +335,10 @@ class support_manager {
     /**
      * Get a specific ticket with its replies.
      *
-     * @param int $ticket_id The ticket ID
+     * @param int $ticketid The ticket ID
      * @return array Result with success status and ticket data
      */
-    public function get_ticket(int $ticket_id): array {
+    public function get_ticket(int $ticketid): array {
         if (!$this->is_available()) {
             return [
                 'success' => false,
@@ -347,7 +347,7 @@ class support_manager {
         }
 
         try {
-            $response = $this->installation_manager->make_api_request("support/tickets/{$ticket_id}", [], 'GET');
+            $response = $this->installation_manager->make_api_request("support/tickets/{$ticketid}", [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -371,13 +371,13 @@ class support_manager {
     /**
      * Add a reply to an existing ticket.
      *
-     * @param int $ticket_id The ticket ID
+     * @param int $ticketid The ticket ID
      * @param string $message The reply message
-     * @param string|null $sender_name Optional sender name
+     * @param string|null $sendername Optional sender name
      * @param array $attachments Array of file attachment info
      * @return array Result with success status and reply data
      */
-    public function add_reply(int $ticket_id, string $message, ?string $sender_name = null, array $attachments = []): array {
+    public function add_reply(int $ticketid, string $message, ?string $sendername = null, array $attachments = []): array {
         if (!$this->is_available()) {
             return [
                 'success' => false,
@@ -397,31 +397,31 @@ class support_manager {
                 'message' => trim($message),
             ];
 
-            if (!empty($sender_name)) {
-                $data['sender_name'] = trim($sender_name);
+            if (!empty($sendername)) {
+                $data['sender_name'] = trim($sendername);
             }
 
             // Check if we have file attachments with actual files
-            $has_valid_files = false;
+            $hasvalidfiles = false;
             if (!empty($attachments) && isset($attachments['tmp_name'])) {
                 if (is_array($attachments['tmp_name'])) {
-                    foreach ($attachments['tmp_name'] as $tmp_name) {
-                        if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
-                            $has_valid_files = true;
+                    foreach ($attachments['tmp_name'] as $tmpname) {
+                        if (!empty($tmpname) && is_uploaded_file($tmpname)) {
+                            $hasvalidfiles = true;
                             break;
                         }
                     }
                 } else if (!empty($attachments['tmp_name']) && is_uploaded_file($attachments['tmp_name'])) {
-                    $has_valid_files = true;
+                    $hasvalidfiles = true;
                 }
             }
 
-            if ($has_valid_files) {
+            if ($hasvalidfiles) {
                 // Use multipart form data for file uploads
-                $response = $this->make_multipart_request("support/tickets/{$ticket_id}/reply", $data, $attachments);
+                $response = $this->make_multipart_request("support/tickets/{$ticketid}/reply", $data, $attachments);
             } else {
                 // Standard JSON request without files
-                $response = $this->installation_manager->make_api_request("support/tickets/{$ticket_id}/reply", $data);
+                $response = $this->installation_manager->make_api_request("support/tickets/{$ticketid}/reply", $data);
             }
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -448,14 +448,14 @@ class support_manager {
      * Get changelog entries for the plugin.
      *
      * @param int $limit Maximum number of entries to return
-     * @param string|null $since_version Only get changelogs since this version
+     * @param string|null $sinceversion Only get changelogs since this version
      * @return array Result with success status and changelog entries
      */
-    public function get_changelog(int $limit = 20, ?string $since_version = null): array {
+    public function get_changelog(int $limit = 20, ?string $sinceversion = null): array {
         try {
             $params = ['limit' => $limit];
-            if ($since_version) {
-                $params['since_version'] = $since_version;
+            if ($sinceversion) {
+                $params['since_version'] = $sinceversion;
             }
 
             $endpoint = 'changelog/' . self::PRODUCT_KEY;
@@ -491,16 +491,16 @@ class support_manager {
     /**
      * Check if an update is available for the plugin.
      *
-     * @param string|null $current_version Current plugin version (null uses installed version)
+     * @param string|null $currentversion Current plugin version (null uses installed version)
      * @return array Result with update information
      */
-    public function check_for_updates(?string $current_version = null): array {
+    public function check_for_updates(?string $currentversion = null): array {
         try {
-            if ($current_version === null) {
-                $current_version = $this->installation_manager->get_plugin_version();
+            if ($currentversion === null) {
+                $currentversion = $this->installation_manager->get_plugin_version();
             }
 
-            $endpoint = 'updates/check/' . self::PRODUCT_KEY . '?version=' . urlencode($current_version);
+            $endpoint = 'updates/check/' . self::PRODUCT_KEY . '?version=' . urlencode($currentversion);
 
             $response = $this->installation_manager->make_api_request($endpoint, [], 'GET');
 
@@ -508,7 +508,7 @@ class support_manager {
                 return [
                     'success' => true,
                     'update_available' => $response['data']['update_available'] ?? false,
-                    'current_version' => $response['data']['current_version'] ?? $current_version,
+                    'current_version' => $response['data']['current_version'] ?? $currentversion,
                     'latest_version' => $response['data']['latest_version'] ?? null,
                     'versions_behind' => $response['data']['versions_behind'] ?? 0,
                     'latest_changelog' => $response['data']['latest_changelog'] ?? null,

@@ -35,9 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Get the webhook payload
 $payload = file_get_contents('php://input');
-$sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+$sigheader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
 
-if (empty($sig_header)) {
+if (empty($sigheader)) {
     http_response_code(400);
     exit('No signature header');
 }
@@ -45,10 +45,10 @@ if (empty($sig_header)) {
 try {
     // Load the Stripe service
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/stripe_service.php');
-    $stripe_service = new \report_adeptus_insights\stripe_service();
+    $stripeservice = new \report_adeptus_insights\stripe_service();
 
     // Verify the webhook signature
-    $event = $stripe_service->verify_webhook($payload, $sig_header);
+    $event = $stripeservice->verify_webhook($payload, $sigheader);
 
     // Process the event
     $result = process_webhook_event($event);
@@ -73,7 +73,7 @@ function process_webhook_event($event) {
 
     try {
         // Log the event
-        $event_record = [
+        $eventrecord = [
             'stripe_event_id' => $event->id,
             'event_type' => $event->type,
             'stripe_customer_id' => $event->data->object->customer ?? null,
@@ -83,7 +83,7 @@ function process_webhook_event($event) {
             'timecreated' => time(),
         ];
 
-        $DB->insert_record('adeptus_stripe_webhooks', $event_record);
+        $DB->insert_record('adeptus_stripe_webhooks', $eventrecord);
 
         // Process based on event type
         switch ($event->type) {
@@ -119,19 +119,19 @@ function handle_subscription_created($event) {
     global $DB;
 
     $subscription = $event->data->object;
-    $customer_id = $subscription->customer;
+    $customerid = $subscription->customer;
 
     // Get plan details from Stripe
-    $price_id = $subscription->items->data[0]->price->id;
-    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $price_id]);
+    $priceid = $subscription->items->data[0]->price->id;
+    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
         return ['success' => false, 'error' => 'Plan not found'];
     }
 
     // Update subscription status
-    $subscription_data = [
-        'stripe_customer_id' => $customer_id,
+    $subscriptiondata = [
+        'stripe_customer_id' => $customerid,
         'stripe_subscription_id' => $subscription->id,
         'plan_name' => $plan->name,
         'plan_id' => $plan->stripe_product_id,
@@ -147,9 +147,9 @@ function handle_subscription_created($event) {
 
     // Get customer email
     try {
-        $stripe_service = new \report_adeptus_insights\stripe_service();
-        $customer = $stripe_service->stripe->customers->retrieve($customer_id);
-        $subscription_data['billing_email'] = $customer->email;
+        $stripeservice = new \report_adeptus_insights\stripe_service();
+        $customer = $stripeservice->stripe->customers->retrieve($customerid);
+        $subscriptiondata['billing_email'] = $customer->email;
     } catch (\Exception $e) {
         // Ignore Stripe API errors - billing email is optional.
     }
@@ -157,11 +157,11 @@ function handle_subscription_created($event) {
     // Update local subscription status
     $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
     if ($existing) {
-        $subscription_data['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = 1;
+        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
     } else {
-        $subscription_data['id'] = 1;
-        $DB->insert_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = 1;
+        $DB->insert_record('adeptus_subscription_status', $subscriptiondata);
     }
 
     // Mark event as processed
@@ -177,19 +177,19 @@ function handle_subscription_updated($event) {
     global $DB;
 
     $subscription = $event->data->object;
-    $customer_id = $subscription->customer;
+    $customerid = $subscription->customer;
 
     // Get plan details from Stripe
-    $price_id = $subscription->items->data[0]->price->id;
-    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $price_id]);
+    $priceid = $subscription->items->data[0]->price->id;
+    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
         return ['success' => false, 'error' => 'Plan not found'];
     }
 
     // Update subscription status
-    $subscription_data = [
-        'stripe_customer_id' => $customer_id,
+    $subscriptiondata = [
+        'stripe_customer_id' => $customerid,
         'stripe_subscription_id' => $subscription->id,
         'plan_name' => $plan->name,
         'plan_id' => $plan->stripe_product_id,
@@ -206,21 +206,21 @@ function handle_subscription_updated($event) {
     if ($subscription->status === 'active') {
         $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
         if ($existing) {
-            $subscription_data['ai_credits_remaining'] = $existing->ai_credits_remaining;
-            $subscription_data['ai_credits_pro_remaining'] = $existing->ai_credits_pro_remaining;
-            $subscription_data['ai_credits_basic_remaining'] = $existing->ai_credits_basic_remaining;
-            $subscription_data['exports_remaining'] = $existing->exports_remaining;
+            $subscriptiondata['ai_credits_remaining'] = $existing->ai_credits_remaining;
+            $subscriptiondata['ai_credits_pro_remaining'] = $existing->ai_credits_pro_remaining;
+            $subscriptiondata['ai_credits_basic_remaining'] = $existing->ai_credits_basic_remaining;
+            $subscriptiondata['exports_remaining'] = $existing->exports_remaining;
         }
     }
 
     // Update local subscription status
     $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
     if ($existing) {
-        $subscription_data['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = 1;
+        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
     } else {
-        $subscription_data['id'] = 1;
-        $DB->insert_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = 1;
+        $DB->insert_record('adeptus_subscription_status', $subscriptiondata);
     }
 
     // Mark event as processed
@@ -238,15 +238,15 @@ function handle_subscription_deleted($event) {
     $subscription = $event->data->object;
 
     // Update subscription status to cancelled
-    $subscription_data = [
+    $subscriptiondata = [
         'status' => 'cancelled',
         'current_period_end' => $subscription->current_period_end,
     ];
 
     $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
     if ($existing) {
-        $subscription_data['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = 1;
+        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
     }
 
     // Mark event as processed
@@ -262,15 +262,15 @@ function handle_payment_succeeded($event) {
     global $DB;
 
     $invoice = $event->data->object;
-    $subscription_id = $invoice->subscription;
+    $subscriptionid = $invoice->subscription;
 
-    if (!$subscription_id) {
+    if (!$subscriptionid) {
         // One-time payment, not subscription
         return ['success' => true];
     }
 
     // Get subscription details
-    $subscription = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscription_id]);
+    $subscription = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscriptionid]);
     if (!$subscription) {
         return ['success' => false, 'error' => 'Subscription not found'];
     }
@@ -282,7 +282,7 @@ function handle_payment_succeeded($event) {
     }
 
     // Reset credits for new billing period
-    $subscription_data = [
+    $subscriptiondata = [
         'status' => 'active',
         'ai_credits_remaining' => $plan->ai_credits,
         'ai_credits_pro_remaining' => $plan->ai_credits_pro,
@@ -290,8 +290,8 @@ function handle_payment_succeeded($event) {
         'exports_remaining' => $plan->exports,
     ];
 
-    $subscription_data['id'] = $subscription->id;
-    $DB->update_record('adeptus_subscription_status', $subscription_data);
+    $subscriptiondata['id'] = $subscription->id;
+    $DB->update_record('adeptus_subscription_status', $subscriptiondata);
 
     // Mark event as processed
     $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
@@ -306,22 +306,22 @@ function handle_payment_failed($event) {
     global $DB;
 
     $invoice = $event->data->object;
-    $subscription_id = $invoice->subscription;
+    $subscriptionid = $invoice->subscription;
 
-    if (!$subscription_id) {
+    if (!$subscriptionid) {
         // One-time payment, not subscription
         return ['success' => true];
     }
 
     // Update subscription status to past_due
-    $subscription_data = [
+    $subscriptiondata = [
         'status' => 'past_due',
     ];
 
-    $existing = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscription_id]);
+    $existing = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscriptionid]);
     if ($existing) {
-        $subscription_data['id'] = $existing->id;
-        $DB->update_record('adeptus_subscription_status', $subscription_data);
+        $subscriptiondata['id'] = $existing->id;
+        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
     }
 
     // Mark event as processed

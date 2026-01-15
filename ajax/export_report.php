@@ -50,19 +50,19 @@ try {
 
 $view = optional_param('view', 'table', PARAM_ALPHA);
 
-$chart_data = optional_param('chart_data', '', PARAM_RAW);
+$chartdata = optional_param('chart_data', '', PARAM_RAW);
 
-$chart_type = optional_param('chart_type', 'bar', PARAM_ALPHA);
-$chart_image = optional_param('chart_image', '', PARAM_RAW);
+$charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
+$chartimage = optional_param('chart_image', '', PARAM_RAW);
 
 // Validate chart image if provided
-if (!empty($chart_image)) {
-    if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chart_image)) {
-        $chart_image = '';
+if (!empty($chartimage)) {
+    if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chartimage)) {
+        $chartimage = '';
     }
-    $image_size = strlen($chart_image);
-    if ($image_size > 2000000) {
-        $chart_image = '';
+    $imagesize = strlen($chartimage);
+    if ($imagesize > 2000000) {
+        $chartimage = '';
     }
 }
 
@@ -82,47 +82,47 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Check if we have report data from frontend
 
-    $report_data_json = optional_param('report_data', '', PARAM_RAW);
+    $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
 
     // SAFETY CHECK: Refuse to process frontend data if it's too large (>10MB)
     // Large datasets should be regenerated from backend instead
     $MAX_FRONTEND_DATA_SIZE = 10 * 1024 * 1024; // 10MB
-    $data_size = strlen($report_data_json);
+    $datasize = strlen($reportdatajson);
 
-    if ($data_size > $MAX_FRONTEND_DATA_SIZE) {
-        $has_frontend_data = false; // Force backend regeneration
+    if ($datasize > $MAX_FRONTEND_DATA_SIZE) {
+        $hasfrontenddata = false; // Force backend regeneration
     } else {
-        $has_frontend_data = !empty($report_data_json);
+        $hasfrontenddata = !empty($reportdatajson);
     }
 
 
-    $results_array = [];
+    $resultsarray = [];
     $headers = [];
-    $report_params = [];
+    $reportparams = [];
     $report = new stdClass();
 
 
 
     // Try to use frontend data first (preferred for small/medium datasets)
-    if ($has_frontend_data) {
-        $report_data = json_decode($report_data_json, true);
+    if ($hasfrontenddata) {
+        $reportdata = json_decode($reportdatajson, true);
 
-        if ($report_data && isset($report_data['results']) && isset($report_data['headers'])) {
-            $results_array = $report_data['results'];
-            $headers = $report_data['headers'];
+        if ($reportdata && isset($reportdata['results']) && isset($reportdata['headers'])) {
+            $resultsarray = $reportdata['results'];
+            $headers = $reportdata['headers'];
 
             // Create report object with metadata from frontend
-            $report->name = $report_data['report_name'] ?? $reportid;
-            $report->category = $report_data['report_category'] ?? '';
-            $report->charttype = $report_data['chart_type'] ?? 'bar';
+            $report->name = $reportdata['report_name'] ?? $reportid;
+            $report->category = $reportdata['report_category'] ?? '';
+            $report->charttype = $reportdata['chart_type'] ?? 'bar';
         } else {
-            $has_frontend_data = false; // Force regeneration
+            $hasfrontenddata = false; // Force regeneration
         }
     }
 
     // If no frontend data or frontend data invalid, regenerate from backend
-    if (!$has_frontend_data || empty($results_array)) {
+    if (!$hasfrontenddata || empty($resultsarray)) {
         // Fetch report definition from Laravel backend (same as generate_report.php)
         require_once(__DIR__ . '/../classes/api_config.php');
         require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
@@ -136,8 +136,8 @@ try {
         }
 
         // Get API key
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-        $api_key = $installation_manager->get_api_key();
+        $installationmanager = new \report_adeptus_insights\installation_manager();
+        $apikey = $installationmanager->get_api_key();
 
         // Fetch report definition
         $ch = curl_init();
@@ -148,7 +148,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json',
-            'X-API-Key: ' . $api_key,
+            'X-API-Key: ' . $apikey,
         ]);
 
         $response = curl_exec($ch);
@@ -186,22 +186,22 @@ try {
 
         // Collect parameters from request (same logic as generate_report.php)
         if (!empty($backendReport['parameters'])) {
-            foreach ($backendReport['parameters'] as $param_def) {
-                if (isset($param_def['name'])) {
-                    $param_value = optional_param($param_def['name'], '', PARAM_RAW);
-                    if (!empty($param_value)) {
-                        $report_params[$param_def['name']] = $param_value;
+            foreach ($backendReport['parameters'] as $paramdef) {
+                if (isset($paramdef['name'])) {
+                    $paramvalue = optional_param($paramdef['name'], '', PARAM_RAW);
+                    if (!empty($paramvalue)) {
+                        $reportparams[$paramdef['name']] = $paramvalue;
                     }
                 }
             }
         }
 
         // Collect common parameters
-        $common_params = ['courseid', 'minimum_grade', 'categoryid', 'userid', 'roleid', 'startdate', 'enddate'];
-        foreach ($common_params as $param_name) {
-            $param_value = optional_param($param_name, '', PARAM_RAW);
-            if (!empty($param_value) && !isset($report_params[$param_name])) {
-                $report_params[$param_name] = $param_value;
+        $commonparams = ['courseid', 'minimum_grade', 'categoryid', 'userid', 'roleid', 'startdate', 'enddate'];
+        foreach ($commonparams as $paramname) {
+            $paramvalue = optional_param($paramname, '', PARAM_RAW);
+            if (!empty($paramvalue) && !isset($reportparams[$paramname])) {
+                $reportparams[$paramname] = $paramvalue;
             }
         }
 
@@ -210,48 +210,48 @@ try {
 
         // Add safety limit
         $SAFETY_LIMIT = 100000;
-        $has_limit = preg_match('/\bLIMIT\s+\d+/i', $sql);
-        if (!$has_limit) {
+        $haslimit = preg_match('/\bLIMIT\s+\d+/i', $sql);
+        if (!$haslimit) {
             $sql = rtrim(rtrim($sql), ';') . " LIMIT $SAFETY_LIMIT";
         }
 
         // Extract parameter names and build parameter array
-        $required_params = [];
+        $requiredparams = [];
         preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $sql, $matches);
         if (!empty($matches[1])) {
-            $required_params = array_unique($matches[1]);
+            $requiredparams = array_unique($matches[1]);
         }
 
         // Convert named to positional parameters
-        $positional_sql = $sql;
-        $sql_params_ordered = [];
-        foreach ($required_params as $param_name) {
-            if (!isset($report_params[$param_name])) {
-                throw new Exception('Missing required parameter: ' . $param_name);
+        $positionalsql = $sql;
+        $sqlparamsordered = [];
+        foreach ($requiredparams as $paramname) {
+            if (!isset($reportparams[$paramname])) {
+                throw new Exception('Missing required parameter: ' . $paramname);
             }
-            $positional_sql = preg_replace('/:' . $param_name . '\b/', '?', $positional_sql, 1);
-            $sql_params_ordered[] = $report_params[$param_name];
+            $positionalsql = preg_replace('/:' . $paramname . '\b/', '?', $positionalsql, 1);
+            $sqlparamsordered[] = $reportparams[$paramname];
         }
 
         // Execute query
-        $results = $DB->get_records_sql($positional_sql, $sql_params_ordered);
+        $results = $DB->get_records_sql($positionalsql, $sqlparamsordered);
 
         // Convert to array
         foreach ($results as $row) {
-            $results_array[] = (array)$row;
+            $resultsarray[] = (array)$row;
         }
 
         // Get headers
-        if (!empty($results_array)) {
-            $headers = array_keys($results_array[0]);
+        if (!empty($resultsarray)) {
+            $headers = array_keys($resultsarray[0]);
         }
     }
 
     // PDF-specific row limit check
     // PDFs cannot realistically render massive datasets due to memory and file size constraints
     $PDF_MAX_ROWS = 5000;
-    if ($format === 'pdf' && count($results_array) > $PDF_MAX_ROWS) {
-        $row_count = count($results_array);
+    if ($format === 'pdf' && count($resultsarray) > $PDF_MAX_ROWS) {
+        $rowcount = count($resultsarray);
 
         // Return user-friendly error
         header('Content-Type: application/json');
@@ -271,120 +271,120 @@ try {
     }
 
     // Prepare table data for export
-    $table_data = [];
-    if (!empty($results_array)) {
+    $tabledata = [];
+    if (!empty($resultsarray)) {
         // Add headers as first row with title case
-        $formatted_headers = array_map('format_header', $headers);
-        $table_data[] = $formatted_headers;
+        $formattedheaders = array_map('format_header', $headers);
+        $tabledata[] = $formattedheaders;
 
         // Add data rows
-        foreach ($results_array as $row) {
-            $table_data[] = array_values($row);
+        foreach ($resultsarray as $row) {
+            $tabledata[] = array_values($row);
         }
     } else {
-        $table_data[] = ['No data found'];
+        $tabledata[] = ['No data found'];
     }
 
     // Generate chart data using the same logic as generate_report.php
-    $chart_export_data = null;
-    if (!empty($results_array) && !empty($headers)) {
+    $chartexportdata = null;
+    if (!empty($resultsarray) && !empty($headers)) {
         // Find the best columns for labels and values
-        $label_column = $headers[0] ?? 'id';
-        $value_column = null;
+        $labelcolumn = $headers[0] ?? 'id';
+        $valuecolumn = null;
 
         // Analyze all columns to find numeric ones and their value ranges
-        $numeric_columns = [];
-        $column_stats = [];
-        $mb_column = null; // For (mb) column priority
+        $numericcolumns = [];
+        $columnstats = [];
+        $mbcolumn = null; // For (mb) column priority
 
         foreach ($headers as $header) {
-            $column_values = array_column($results_array, $header);
-            $numeric_values = [];
-            $is_numeric_column = true;
+            $columnvalues = array_column($resultsarray, $header);
+            $numericvalues = [];
+            $isnumericcolumn = true;
 
             // Check if all values in this column are numeric
-            foreach ($column_values as $value) {
+            foreach ($columnvalues as $value) {
                 if (is_numeric($value)) {
-                    $numeric_values[] = (float)$value;
+                    $numericvalues[] = (float)$value;
                 } else if (is_string($value) && is_numeric(trim($value))) {
-                    $numeric_values[] = (float)trim($value);
+                    $numericvalues[] = (float)trim($value);
                 } else {
-                    $is_numeric_column = false;
+                    $isnumericcolumn = false;
                     break;
                 }
             }
 
             // If column is numeric, calculate its statistics
-            if ($is_numeric_column && !empty($numeric_values)) {
-                $numeric_columns[] = $header;
-                $column_stats[$header] = [
-                    'max' => max($numeric_values),
-                    'min' => min($numeric_values),
-                    'sum' => array_sum($numeric_values),
-                    'count' => count($numeric_values),
-                    'avg' => array_sum($numeric_values) / count($numeric_values),
+            if ($isnumericcolumn && !empty($numericvalues)) {
+                $numericcolumns[] = $header;
+                $columnstats[$header] = [
+                    'max' => max($numericvalues),
+                    'min' => min($numericvalues),
+                    'sum' => array_sum($numericvalues),
+                    'count' => count($numericvalues),
+                    'avg' => array_sum($numericvalues) / count($numericvalues),
                 ];
 
                 // Special case: Check if column name contains "(mb)"
                 if (strpos($header, '(mb)') !== false) {
-                    $mb_column = $header;
+                    $mbcolumn = $header;
                 }
             }
         }
 
         // Select the column with priority: (mb) column first, then highest maximum value
-        if (!empty($mb_column)) {
-            $value_column = $mb_column;
-        } else if (!empty($numeric_columns)) {
-            $max_value = 0;
-            foreach ($numeric_columns as $column) {
-                if ($column_stats[$column]['max'] > $max_value) {
-                    $max_value = $column_stats[$column]['max'];
-                    $value_column = $column;
+        if (!empty($mbcolumn)) {
+            $valuecolumn = $mbcolumn;
+        } else if (!empty($numericcolumns)) {
+            $maxvalue = 0;
+            foreach ($numericcolumns as $column) {
+                if ($columnstats[$column]['max'] > $maxvalue) {
+                    $maxvalue = $columnstats[$column]['max'];
+                    $valuecolumn = $column;
                 }
             }
         } else {
             // Fallback to second column if no numeric columns found
-            $value_column = $headers[1] ?? 'value';
+            $valuecolumn = $headers[1] ?? 'value';
         }
 
         // Convert values to numbers if they're strings
-        $chart_values = array_column($results_array, $value_column);
-        $chart_values = array_map(function ($value) {
+        $chartvalues = array_column($resultsarray, $valuecolumn);
+        $chartvalues = array_map(function ($value) {
             return is_numeric($value) ? (float)$value : (is_string($value) && is_numeric(trim($value)) ? (float)trim($value) : 0);
-        }, $chart_values);
+        }, $chartvalues);
 
         // Generate colors based on chart type
-        $colors = generateChartColors(count($chart_values), $report->charttype);
+        $colors = generateChartColors(count($chartvalues), $report->charttype);
 
         // Create chart data structure
-        $chart_data_structure = [
-            'labels' => array_column($results_array, $label_column),
+        $chartdatastructure = [
+            'labels' => array_column($resultsarray, $labelcolumn),
             'datasets' => [
                 [
                     'label' => $report->name,
-                    'data' => $chart_values,
+                    'data' => $chartvalues,
                     'backgroundColor' => $colors,
                     'borderColor' => adjustColors($colors, -20),
                     'borderWidth' => 2,
                 ],
             ],
             'axis_labels' => [
-                'x_axis' => $label_column,
-                'y_axis' => $value_column,
+                'x_axis' => $labelcolumn,
+                'y_axis' => $valuecolumn,
             ],
         ];
 
         // Convert chart data to exportable format
-        $chart_export_data = [];
-        $chart_export_headers = ['Label', 'Value'];
-        $chart_export_data[] = $chart_export_headers;
+        $chartexportdata = [];
+        $chartexportheaders = ['Label', 'Value'];
+        $chartexportdata[] = $chartexportheaders;
 
-        $labels = $chart_data_structure['labels'];
-        $values = $chart_data_structure['datasets'][0]['data'] ?? [];
+        $labels = $chartdatastructure['labels'];
+        $values = $chartdatastructure['datasets'][0]['data'] ?? [];
 
         for ($i = 0; $i < count($labels); $i++) {
-            $chart_export_data[] = [
+            $chartexportdata[] = [
                 $labels[$i] ?? '',
                 $values[$i] ?? '',
             ];
@@ -392,9 +392,9 @@ try {
     }
 
     // Generate filename
-    $clean_report_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $report->name);
+    $cleanreportname = preg_replace('/[^a-zA-Z0-9_-]/', '_', $report->name);
     $timestamp = date('Y-m-d_H-i-s');
-    $filename = $clean_report_name . '_' . $timestamp;
+    $filename = $cleanreportname . '_' . $timestamp;
 
     // Handle different export formats
     switch ($format) {
@@ -405,7 +405,7 @@ try {
             header('Cache-Control: max-age=0');
 
             $output = fopen('php://output', 'w');
-            foreach ($table_data as $row) {
+            foreach ($tabledata as $row) {
                 fputcsv($output, $row);
             }
             fclose($output);
@@ -418,7 +418,7 @@ try {
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
 
-            echo generateExcelCSV($reportid, $table_data, $chart_export_data, $report_params);
+            echo generateExcelCSV($reportid, $tabledata, $chartexportdata, $reportparams);
             break;
 
         case 'json':
@@ -426,26 +426,26 @@ try {
             header('Content-Type: application/json');
             header('Content-Disposition: attachment; filename="' . $filename . '.json"');
 
-            $json_data = [
+            $jsondata = [
                 'report_name' => $report->name,
                 'report_category' => $report->category,
                 'generated_at' => date('Y-m-d H:i:s'),
-                'parameters' => $report_params,
+                'parameters' => $reportparams,
                 'headers' => $headers,
-                'table_data' => array_slice($table_data, 1), // Remove header row for JSON
-                'chart_data' => $chart_export_data ? array_slice($chart_export_data, 1) : null,
+                'table_data' => array_slice($tabledata, 1), // Remove header row for JSON
+                'chart_data' => $chartexportdata ? array_slice($chartexportdata, 1) : null,
             ];
 
-            echo json_encode($json_data, JSON_PRETTY_PRINT);
+            echo json_encode($jsondata, JSON_PRETTY_PRINT);
             break;
 
         case 'pdf':
             // PDF: table on page 1, chart on page 2
             // Generate actual PDF using TCPDF
             try {
-                $pdf_content = generatePDF($reportid, $table_data, $chart_export_data, $report_params, $chart_image);
+                $pdfcontent = generatePDF($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
 
-                if ($pdf_content === false || empty($pdf_content)) {
+                if ($pdfcontent === false || empty($pdfcontent)) {
                     throw new Exception('Failed to generate PDF content');
                 }
 
@@ -453,15 +453,15 @@ try {
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="' . $filename . '.pdf"');
                 header('Cache-Control: max-age=0');
-                header('Content-Length: ' . strlen($pdf_content));
+                header('Content-Length: ' . strlen($pdfcontent));
 
-                echo $pdf_content;
-            } catch (Exception $pdf_error) {
+                echo $pdfcontent;
+            } catch (Exception $pdferror) {
                 // Return JSON error instead of corrupted PDF.
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,
-                    'message' => 'PDF generation failed: ' . $pdf_error->getMessage(),
+                    'message' => 'PDF generation failed: ' . $pdferror->getMessage(),
                 ]);
             }
             break;
@@ -483,7 +483,7 @@ try {
 /**
  * Generate Excel HTML format with multiple sheets
  */
-function generateExcelHTML($sheets_data, $report_name) {
+function generateExcelHTML($sheetsdata, $reportname) {
     $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">';
     $html .= '<head><meta charset="UTF-8">';
     $html .= '<style>';
@@ -494,11 +494,11 @@ function generateExcelHTML($sheets_data, $report_name) {
     $html .= '</style>';
     $html .= '</head><body>';
 
-    $html .= '<h1>' . htmlspecialchars($report_name) . '</h1>';
+    $html .= '<h1>' . htmlspecialchars($reportname) . '</h1>';
     $html .= '<p>Generated on: ' . date('Y-m-d H:i:s') . '</p>';
 
-    foreach ($sheets_data as $sheet_name => $data) {
-        $html .= '<h2>' . htmlspecialchars($sheet_name) . '</h2>';
+    foreach ($sheetsdata as $sheetname => $data) {
+        $html .= '<h2>' . htmlspecialchars($sheetname) . '</h2>';
         $html .= '<table>';
         foreach ($data as $row) {
             $html .= '<tr>';
@@ -522,53 +522,53 @@ function generateExcelHTML($sheets_data, $report_name) {
  * The branding (logo, footer) cannot be tampered with locally as it is
  * retrieved server-side on each export.
  *
- * @param string $report_name Report title.
- * @param array $table_data Table data with headers as first row.
- * @param array $chart_data Chart data (unused, kept for compatibility).
- * @param array $report_params Report parameters.
- * @param string $chart_image Base64 encoded chart image.
+ * @param string $reportname Report title.
+ * @param array $tabledata Table data with headers as first row.
+ * @param array $chartdata Chart data (unused, kept for compatibility).
+ * @param array $reportparams Report parameters.
+ * @param string $chartimage Base64 encoded chart image.
  * @return string PDF content.
  * @throws Exception If branding is unavailable or PDF generation fails.
  */
-function generatePDF($report_name, $table_data, $chart_data, $report_params, $chart_image = '') {
+function generatePDF($reportname, $tabledata, $chartdata, $reportparams, $chartimage = '') {
     global $CFG;
 
     // Load branding manager and get branding configuration.
     require_once(__DIR__ . '/../classes/branding_manager.php');
     require_once(__DIR__ . '/../classes/branded_pdf.php');
 
-    $branding_manager = new \report_adeptus_insights\branding_manager();
+    $brandingmanager = new \report_adeptus_insights\branding_manager();
 
     // SECURITY: Branding is REQUIRED - fail if backend is unreachable.
     // This prevents PDF exports without proper Adeptus 360 branding.
-    if (!$branding_manager->is_branding_available()) {
+    if (!$brandingmanager->is_branding_available()) {
         throw new Exception(get_string('export_branding_required', 'report_adeptus_insights'));
     }
 
     // Get branding configuration from backend.
-    $branding_config = $branding_manager->get_pdf_branding_config();
+    $brandingconfig = $brandingmanager->get_pdf_branding_config();
 
     try {
         // Create branded PDF instance.
-        $pdf = new \report_adeptus_insights\branded_pdf($branding_config, 'P', 'mm', 'A4');
-        $pdf->set_report_title($report_name);
-        $pdf->SetTitle($report_name);
+        $pdf = new \report_adeptus_insights\branded_pdf($brandingconfig, 'P', 'mm', 'A4');
+        $pdf->set_report_title($reportname);
+        $pdf->SetTitle($reportname);
 
         // Add first page for table data.
         $pdf->AddPage();
 
         // Add parameters section if present.
-        if (!empty($report_params)) {
-            $pdf->add_parameters_section($report_params);
+        if (!empty($reportparams)) {
+            $pdf->add_parameters_section($reportparams);
         }
 
         // Add table data section.
         $pdf->add_section_title(get_string('pdf_table_data', 'report_adeptus_insights'));
 
-        if (!empty($table_data) && count($table_data) > 1) {
+        if (!empty($tabledata) && count($tabledata) > 1) {
             // First row is headers, rest is data.
-            $headers = $table_data[0];
-            $data = array_slice($table_data, 1);
+            $headers = $tabledata[0];
+            $data = array_slice($tabledata, 1);
             $pdf->add_data_table($headers, $data);
         } else {
             $pdf->add_no_data_message(get_string('pdf_no_data', 'report_adeptus_insights'));
@@ -578,9 +578,9 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         $pdf->AddPage();
         $pdf->add_section_title(get_string('pdf_chart_visualization', 'report_adeptus_insights'));
 
-        if (!empty($chart_image)) {
-            $chart_added = $pdf->add_chart_image($chart_image);
-            if (!$chart_added) {
+        if (!empty($chartimage)) {
+            $chartadded = $pdf->add_chart_image($chartimage);
+            if (!$chartadded) {
                 $pdf->add_no_data_message(get_string('pdf_no_chart', 'report_adeptus_insights'));
             }
         } else {
@@ -588,13 +588,13 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
         }
 
         // Generate PDF content.
-        $pdf_output = $pdf->get_pdf_content();
+        $pdfoutput = $pdf->get_pdf_content();
 
-        if (empty($pdf_output)) {
+        if (empty($pdfoutput)) {
             throw new Exception('PDF generation returned empty content');
         }
 
-        return $pdf_output;
+        return $pdfoutput;
     } catch (Exception $e) {
         throw new Exception('PDF generation failed: ' . $e->getMessage());
     }
@@ -603,17 +603,17 @@ function generatePDF($report_name, $table_data, $chart_data, $report_params, $ch
 /**
  * Generate Excel-compatible CSV file with report data
  */
-function generateExcelCSV($report_name, $table_data, $chart_data, $report_params) {
+function generateExcelCSV($reportname, $tabledata, $chartdata, $reportparams) {
     $output = '';
 
     // Add report header
-    $output .= '"' . str_replace('"', '""', $report_name) . '"' . "\n";
+    $output .= '"' . str_replace('"', '""', $reportname) . '"' . "\n";
     $output .= '"Generated on: ' . date('Y-m-d H:i:s') . '"' . "\n";
 
     // Add parameters
-    if (!empty($report_params)) {
+    if (!empty($reportparams)) {
         $output .= '"Parameters:"' . "\n";
-        foreach ($report_params as $key => $value) {
+        foreach ($reportparams as $key => $value) {
             $output .= '"' . str_replace('"', '""', $key . ': ' . $value) . '"' . "\n";
         }
         $output .= "\n"; // Empty line for spacing
@@ -621,13 +621,13 @@ function generateExcelCSV($report_name, $table_data, $chart_data, $report_params
 
     // Add table data
     $output .= '"Table Data:"' . "\n";
-    if (!empty($table_data)) {
-        foreach ($table_data as $row) {
-            $csv_row = [];
+    if (!empty($tabledata)) {
+        foreach ($tabledata as $row) {
+            $csvrow = [];
             foreach ($row as $cell) {
-                $csv_row[] = '"' . str_replace('"', '""', $cell) . '"';
+                $csvrow[] = '"' . str_replace('"', '""', $cell) . '"';
             }
-            $output .= implode(',', $csv_row) . "\n";
+            $output .= implode(',', $csvrow) . "\n";
         }
     } else {
         $output .= '"No table data available"' . "\n";
@@ -638,13 +638,13 @@ function generateExcelCSV($report_name, $table_data, $chart_data, $report_params
     $output .= '"Chart Data:"' . "\n";
 
     // Add chart data
-    if (!empty($chart_data)) {
-        foreach ($chart_data as $row) {
-            $csv_row = [];
+    if (!empty($chartdata)) {
+        foreach ($chartdata as $row) {
+            $csvrow = [];
             foreach ($row as $cell) {
-                $csv_row[] = '"' . str_replace('"', '""', $cell) . '"';
+                $csvrow[] = '"' . str_replace('"', '""', $cell) . '"';
             }
-            $output .= implode(',', $csv_row) . "\n";
+            $output .= implode(',', $csvrow) . "\n";
         }
     } else {
         $output .= '"No chart data available"' . "\n";

@@ -41,7 +41,7 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 header('Content-Type: application/json');
 
 // Get parameters
-$reportids_json = required_param('reportids', PARAM_RAW);
+$reportidsjson = required_param('reportids', PARAM_RAW);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
@@ -51,7 +51,7 @@ if (!confirm_sesskey($sesskey)) {
 }
 
 // Parse report IDs
-$reportids = json_decode($reportids_json, true);
+$reportids = json_decode($reportidsjson, true);
 if (!is_array($reportids) || empty($reportids)) {
     echo json_encode(['success' => false, 'message' => 'Invalid report IDs']);
     exit;
@@ -60,7 +60,7 @@ if (!is_array($reportids) || empty($reportids)) {
 // Limit to max 10 reports per batch
 $reportids = array_slice($reportids, 0, 10);
 
-$start_time = microtime(true);
+$starttime = microtime(true);
 
 try {
     // Get backend API configuration
@@ -75,13 +75,13 @@ try {
 
     // Get API key
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
 
     // SINGLE API call to fetch ALL report definitions (cached for this request)
-    static $all_reports_cache = null;
+    static $allreportscache = null;
 
-    if ($all_reports_cache === null) {
+    if ($allreportscache === null) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $backendApiUrl . '/reports/definitions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -90,7 +90,7 @@ try {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Accept: application/json',
-            'X-API-Key: ' . $api_key,
+            'X-API-Key: ' . $apikey,
         ]);
 
         $response = curl_exec($ch);
@@ -109,10 +109,10 @@ try {
         }
 
         // Index reports by name for fast lookup
-        $all_reports_cache = [];
+        $allreportscache = [];
         foreach ($backendData['data'] as $report) {
             $name = trim($report['name']);
-            $all_reports_cache[$name] = $report;
+            $allreportscache[$name] = $report;
         }
     }
 
@@ -123,11 +123,11 @@ try {
     $results = [];
 
     foreach ($reportids as $reportid) {
-        $report_start = microtime(true);
+        $reportstart = microtime(true);
         $reportid = trim($reportid);
 
         // Find report in cached definitions
-        $report = $all_reports_cache[$reportid] ?? null;
+        $report = $allreportscache[$reportid] ?? null;
 
         if (!$report) {
             $results[$reportid] = [
@@ -159,21 +159,21 @@ try {
 
             // For KPI, we just need the count or aggregated value
             // Execute query with no parameters for now (KPI cards typically don't need params)
-            $query_results = $DB->get_records_sql($sql, []);
+            $queryresults = $DB->get_records_sql($sql, []);
 
             // Convert to array
-            $results_array = [];
-            foreach ($query_results as $row) {
-                $results_array[] = (array)$row;
+            $resultsarray = [];
+            foreach ($queryresults as $row) {
+                $resultsarray[] = (array)$row;
             }
 
-            $report_time = round((microtime(true) - $report_start) * 1000);
+            $reporttime = round((microtime(true) - $reportstart) * 1000);
 
             $results[$reportid] = [
                 'success' => true,
-                'results' => $results_array,
-                'count' => count($results_array),
-                'time_ms' => $report_time,
+                'results' => $resultsarray,
+                'count' => count($resultsarray),
+                'time_ms' => $reporttime,
             ];
         } catch (Exception $e) {
             $results[$reportid] = [
@@ -183,12 +183,12 @@ try {
         }
     }
 
-    $total_time = round((microtime(true) - $start_time) * 1000);
+    $totaltime = round((microtime(true) - $starttime) * 1000);
 
     echo json_encode([
         'success' => true,
         'reports' => $results,
-        'total_time_ms' => $total_time,
+        'total_time_ms' => $totaltime,
         'report_count' => count($reportids),
     ]);
 } catch (Exception $e) {

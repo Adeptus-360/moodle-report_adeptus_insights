@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/filelib.php');
 class stripe_service {
     private $stripe;
     private $config;
-    private $is_test_mode;
+    private $istestmode;
 
     public function __construct() {
         global $DB;
@@ -44,14 +44,14 @@ class stripe_service {
         // Initialize Stripe SDK
         if (!class_exists('\Stripe\Stripe')) {
             // Try to autoload Stripe
-            $stripe_path = $CFG->dirroot . '/report/adeptus_insights/vendor/stripe/stripe-php/init.php';
-            if (file_exists($stripe_path)) {
-                require_once($stripe_path);
+            $stripepath = $CFG->dirroot . '/report/adeptus_insights/vendor/stripe/stripe-php/init.php';
+            if (file_exists($stripepath)) {
+                require_once($stripepath);
             } else {
                 // Fallback to Composer autoload
-                $composer_autoload = $CFG->dirroot . '/report/adeptus_insights/vendor/autoload.php';
-                if (file_exists($composer_autoload)) {
-                    require_once($composer_autoload);
+                $composerautoload = $CFG->dirroot . '/report/adeptus_insights/vendor/autoload.php';
+                if (file_exists($composerautoload)) {
+                    require_once($composerautoload);
                 }
             }
         }
@@ -169,16 +169,16 @@ class stripe_service {
             }
 
             // Create new customer
-            $customer_data = [
+            $customerdata = [
                 'email' => $email,
                 'metadata' => $metadata,
             ];
 
             if ($name) {
-                $customer_data['name'] = $name;
+                $customerdata['name'] = $name;
             }
 
-            return $this->stripe->customers->create($customer_data);
+            return $this->stripe->customers->create($customerdata);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -187,19 +187,19 @@ class stripe_service {
     /**
      * Create subscription
      */
-    public function create_subscription($customer_id, $price_id, $metadata = []) {
+    public function create_subscription($customerid, $priceid, $metadata = []) {
         try {
-            $subscription_data = [
-                'customer' => $customer_id,
+            $subscriptiondata = [
+                'customer' => $customerid,
                 'items' => [
-                    ['price' => $price_id],
+                    ['price' => $priceid],
                 ],
                 'metadata' => $metadata,
                 'payment_behavior' => 'default_incomplete',
                 'expand' => ['latest_invoice.payment_intent'],
             ];
 
-            return $this->stripe->subscriptions->create($subscription_data);
+            return $this->stripe->subscriptions->create($subscriptiondata);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -208,9 +208,9 @@ class stripe_service {
     /**
      * Get subscription details
      */
-    public function get_subscription($subscription_id) {
+    public function get_subscription($subscriptionid) {
         try {
-            return $this->stripe->subscriptions->retrieve($subscription_id);
+            return $this->stripe->subscriptions->retrieve($subscriptionid);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -219,16 +219,16 @@ class stripe_service {
     /**
      * Cancel subscription
      */
-    public function cancel_subscription($subscription_id, $at_period_end = true) {
+    public function cancel_subscription($subscriptionid, $atperiodend = true) {
         try {
             $params = [];
-            if ($at_period_end) {
+            if ($atperiodend) {
                 $params['cancel_at_period_end'] = true;
             } else {
                 $params['cancel_at_period_end'] = false;
             }
 
-            return $this->stripe->subscriptions->update($subscription_id, $params);
+            return $this->stripe->subscriptions->update($subscriptionid, $params);
         } catch (\Exception $e) {
             throw $e;
         }
@@ -237,15 +237,15 @@ class stripe_service {
     /**
      * Update subscription
      */
-    public function update_subscription($subscription_id, $price_id) {
+    public function update_subscription($subscriptionid, $priceid) {
         try {
-            $subscription = $this->stripe->subscriptions->retrieve($subscription_id);
+            $subscription = $this->stripe->subscriptions->retrieve($subscriptionid);
 
-            return $this->stripe->subscriptions->update($subscription_id, [
+            return $this->stripe->subscriptions->update($subscriptionid, [
                 'items' => [
                     [
                         'id' => $subscription->items->data[0]->id,
-                        'price' => $price_id,
+                        'price' => $priceid,
                     ],
                 ],
                 'proration_behavior' => 'create_prorations',
@@ -258,12 +258,12 @@ class stripe_service {
     /**
      * Create payment intent for one-time payments
      */
-    public function create_payment_intent($amount, $currency, $customer_id, $metadata = []) {
+    public function create_payment_intent($amount, $currency, $customerid, $metadata = []) {
         try {
             return $this->stripe->paymentIntents->create([
                 'amount' => $amount,
                 'currency' => $currency,
-                'customer' => $customer_id,
+                'customer' => $customerid,
                 'metadata' => $metadata,
                 'automatic_payment_methods' => [
                     'enabled' => true,
@@ -300,23 +300,23 @@ class stripe_service {
             ]);
 
             // Create price
-            $price_data = [
+            $pricedata = [
                 'product' => $product->id,
                 'unit_amount' => $price * 100, // Convert to cents
                 'currency' => $currency,
             ];
 
             if ($price > 0) {
-                $price_data['recurring'] = [
+                $pricedata['recurring'] = [
                     'interval' => $interval,
                 ];
             }
 
-            $price_obj = $this->stripe->prices->create($price_data);
+            $priceobj = $this->stripe->prices->create($pricedata);
 
             return [
                 'product' => $product,
-                'price' => $price_obj,
+                'price' => $priceobj,
             ];
         } catch (\Exception $e) {
             throw $e;
@@ -341,11 +341,11 @@ class stripe_service {
     /**
      * Get customer portal URL
      */
-    public function create_portal_session($customer_id, $return_url) {
+    public function create_portal_session($customerid, $returnurl) {
         try {
             return $this->stripe->billingPortal->sessions->create([
-                'customer' => $customer_id,
-                'return_url' => $return_url,
+                'customer' => $customerid,
+                'return_url' => $returnurl,
             ]);
         } catch (\Exception $e) {
             throw $e;

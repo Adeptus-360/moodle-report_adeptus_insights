@@ -53,14 +53,14 @@ class branding_manager {
      *
      * @var installation_manager
      */
-    private $installation_manager;
+    private $installationmanager;
 
     /**
      * Cached branding data.
      *
      * @var array|null
      */
-    private static $branding_cache = null;
+    private static $brandingcache = null;
 
     /**
      * Constructor.
@@ -75,13 +75,13 @@ class branding_manager {
      * Fetches logo and branding configuration from the backend server.
      * Returns null if the backend is unreachable (strict security mode).
      *
-     * @param bool $force_refresh Force a refresh from the backend, bypassing cache.
+     * @param bool $forcerefresh Force a refresh from the backend, bypassing cache.
      * @return array|null Branding data array or null on failure.
      */
-    public function get_branding_data(bool $force_refresh = false): ?array {
+    public function get_branding_data(bool $forcerefresh = false): ?array {
         // Return cached data if available and not forcing refresh.
-        if (!$force_refresh && self::$branding_cache !== null) {
-            return self::$branding_cache;
+        if (!$forcerefresh && self::$brandingcache !== null) {
+            return self::$brandingcache;
         }
 
         // Check if plugin is registered.
@@ -106,7 +106,7 @@ class branding_manager {
                 }
 
                 // Build branding data structure.
-                $branding_data = [
+                $brandingdata = [
                     'logo' => $data['logo'],
                     'logo_hash' => $data['hash'] ?? null,
                     'logo_width' => $data['dimensions']['width'] ?? 200,
@@ -117,9 +117,9 @@ class branding_manager {
                 ];
 
                 // Cache the branding data.
-                self::$branding_cache = $branding_data;
+                self::$brandingcache = $brandingdata;
 
-                return $branding_data;
+                return $brandingdata;
             }
         } catch (\Exception $e) {
             // Log error but don't expose details.
@@ -252,8 +252,8 @@ class branding_manager {
         }
 
         // Extract and validate base64 data.
-        $base64_data = preg_replace('/^data:image\/[a-z]+;base64,/', '', $logo);
-        $decoded = base64_decode($base64_data, true);
+        $base64data = preg_replace('/^data:image\/[a-z]+;base64,/', '', $logo);
+        $decoded = base64_decode($base64data, true);
 
         if ($decoded === false) {
             return false;
@@ -278,7 +278,7 @@ class branding_manager {
      * Call this when branding may have been updated on the backend.
      */
     public function clear_cache(): void {
-        self::$branding_cache = null;
+        self::$brandingcache = null;
     }
 
     /**
@@ -287,16 +287,16 @@ class branding_manager {
      * Converts a data URI to raw binary image data suitable for
      * embedding in PDFs via TCPDF.
      *
-     * @param string $data_uri Base64 data URI.
+     * @param string $datauri Base64 data URI.
      * @return string|null Raw binary image data or null on failure.
      */
-    public function extract_image_data(string $data_uri): ?string {
-        if (!$this->validate_logo_format($data_uri)) {
+    public function extract_image_data(string $datauri): ?string {
+        if (!$this->validate_logo_format($datauri)) {
             return null;
         }
 
-        $base64_data = preg_replace('/^data:image\/[a-z]+;base64,/', '', $data_uri);
-        $decoded = base64_decode($base64_data, true);
+        $base64data = preg_replace('/^data:image\/[a-z]+;base64,/', '', $datauri);
+        $decoded = base64_decode($base64data, true);
 
         if ($decoded === false) {
             return null;
@@ -308,11 +308,11 @@ class branding_manager {
     /**
      * Get MIME type from data URI.
      *
-     * @param string $data_uri Base64 data URI.
+     * @param string $datauri Base64 data URI.
      * @return string|null MIME type or null if invalid.
      */
-    public function get_mime_type(string $data_uri): ?string {
-        if (preg_match('/^data:(image\/[a-z]+);base64,/', $data_uri, $matches)) {
+    public function get_mime_type(string $datauri): ?string {
+        if (preg_match('/^data:(image\/[a-z]+);base64,/', $datauri, $matches)) {
             return $matches[1];
         }
         return null;
@@ -321,11 +321,11 @@ class branding_manager {
     /**
      * Get image extension from data URI.
      *
-     * @param string $data_uri Base64 data URI.
+     * @param string $datauri Base64 data URI.
      * @return string Image extension (png, jpg, gif) or 'png' as default.
      */
-    public function get_image_extension(string $data_uri): string {
-        if (preg_match('/^data:image\/(png|jpeg|jpg|gif);base64,/', $data_uri, $matches)) {
+    public function get_image_extension(string $datauri): string {
+        if (preg_match('/^data:image\/(png|jpeg|jpg|gif);base64,/', $datauri, $matches)) {
             $ext = $matches[1];
             // Normalize jpeg to jpg.
             return $ext === 'jpeg' ? 'jpg' : $ext;

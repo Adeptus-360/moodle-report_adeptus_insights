@@ -669,11 +669,11 @@ $s should be the id of the top level category you are interested in.
 
 require_once(\'./config.php\');
 
-$parent_id = $s;
+$parentid = $s;
 
 $categories= array();
 
-$categories = get_categories($parent_id);
+$categories = get_categories($parentid);
 
 echo \'<ol>\';
 foreach ($categories as $category)

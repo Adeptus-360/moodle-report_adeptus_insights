@@ -39,10 +39,10 @@ $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
 
 // Check authentication using the new token-based system
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
-$auth_manager = new \report_adeptus_insights\token_auth_manager();
+$authmanager = new \report_adeptus_insights\token_auth_manager();
 
 // Try to check auth without redirecting first
-if (!$auth_manager->check_auth(false)) {
+if (!$authmanager->check_auth(false)) {
     // If not authenticated, show a login message instead of redirecting
     $PAGE->set_context(context_system::instance());
     $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
@@ -60,15 +60,15 @@ if (!$auth_manager->check_auth(false)) {
 
 // Load installation manager
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-$installation_manager = new \report_adeptus_insights\installation_manager();
+$installationmanager = new \report_adeptus_insights\installation_manager();
 
 // Get authentication status for JavaScript
-$auth_status = $auth_manager->get_auth_status();
+$authstatus = $authmanager->get_auth_status();
 
 // Debug: Log the auth status
 
 // Load required AMD modules and CSS BEFORE header
-$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$auth_status]);
+$PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authstatus]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly-mode', 'init');
 $PAGE->requires->js_call_amd('report_adeptus_insights/lottie_loader', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
@@ -80,7 +80,7 @@ $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
 echo $OUTPUT->header();
 
 // Get subscription details for template
-$subscription = $installation_manager->get_subscription_details();
+$subscription = $installationmanager->get_subscription_details();
 
 // Debug: Log the subscription data
 

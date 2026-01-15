@@ -218,19 +218,19 @@ class external extends \external_api {
     /**
      * Register installation
      * @param string $action Action type
-     * @param string $admin_name Administrator name
-     * @param string $admin_email Administrator email
+     * @param string $adminname Administrator name
+     * @param string $adminemail Administrator email
      * @param bool $ajax Is AJAX request
      * @param string $sesskey Session key
      * @return array Registration result
      */
-    public static function register_installation($action, $admin_name, $admin_email, $ajax = true, $sesskey = '') {
+    public static function register_installation($action, $adminname, $adminemail, $ajax = true, $sesskey = '') {
         global $USER;
 
         // Parameter validation
         $params = self::validate_parameters(
             self::register_installation_parameters(),
-            ['action' => $action, 'admin_name' => $admin_name, 'admin_email' => $admin_email, 'ajax' => $ajax, 'sesskey' => $sesskey]
+            ['action' => $action, 'admin_name' => $adminname, 'admin_email' => $adminemail, 'ajax' => $ajax, 'sesskey' => $sesskey]
         );
 
         // Context validation
@@ -246,8 +246,8 @@ class external extends \external_api {
         }
 
         // Call the installation manager
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-        $result = $installation_manager->register_installation($admin_email, $admin_name);
+        $installationmanager = new \report_adeptus_insights\installation_manager();
+        $result = $installationmanager->register_installation($adminemail, $adminname);
 
         return $result;
     }
@@ -306,8 +306,8 @@ class external extends \external_api {
         }
 
         // Call the installation manager
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-        $result = $installation_manager->cancel_subscription();
+        $installationmanager = new \report_adeptus_insights\installation_manager();
+        $result = $installationmanager->cancel_subscription();
 
         return $result;
     }
@@ -342,17 +342,17 @@ class external extends \external_api {
     /**
      * Activate free plan
      * @param string $action Action type
-     * @param int $plan_id Plan ID
+     * @param int $planid Plan ID
      * @param string $sesskey Session key
      * @return array Activation result
      */
-    public static function activate_free_plan($action, $plan_id, $sesskey) {
+    public static function activate_free_plan($action, $planid, $sesskey) {
         global $USER;
 
         // Parameter validation
         $params = self::validate_parameters(
             self::activate_free_plan_parameters(),
-            ['action' => $action, 'plan_id' => $plan_id, 'sesskey' => $sesskey]
+            ['action' => $action, 'plan_id' => $planid, 'sesskey' => $sesskey]
         );
 
         // Context validation
@@ -368,8 +368,8 @@ class external extends \external_api {
         }
 
         // Call the installation manager
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-        $result = $installation_manager->activate_free_plan($plan_id);
+        $installationmanager = new \report_adeptus_insights\installation_manager();
+        $result = $installationmanager->activate_free_plan($planid);
 
         return $result;
     }
@@ -411,16 +411,16 @@ class external extends \external_api {
 
     /**
      * Create billing portal session for subscription management
-     * @param string $return_url Return URL after billing portal session
+     * @param string $returnurl Return URL after billing portal session
      * @param string $sesskey Session key for security
      * @return array Billing portal session data
      */
-    public static function create_billing_portal($return_url, $sesskey) {
+    public static function create_billing_portal($returnurl, $sesskey) {
         global $USER;
 
         // Parameter validation
         $params = self::validate_parameters(self::create_billing_portal_parameters(), [
-            'return_url' => $return_url,
+            'return_url' => $returnurl,
             'sesskey' => $sesskey,
         ]);
 
@@ -438,10 +438,10 @@ class external extends \external_api {
 
         try {
             // Get installation manager
-            $installation_manager = new \report_adeptus_insights\installation_manager();
+            $installationmanager = new \report_adeptus_insights\installation_manager();
 
             // Check if plugin is registered
-            if (!$installation_manager->is_registered()) {
+            if (!$installationmanager->is_registered()) {
                 return [
                     'success' => false,
                     'message' => 'Plugin not registered. Please register first.',
@@ -449,7 +449,7 @@ class external extends \external_api {
             }
 
             // Create billing portal session
-            $result = $installation_manager->create_billing_portal_session();
+            $result = $installationmanager->create_billing_portal_session();
 
             if ($result['success']) {
                 return [
@@ -492,7 +492,7 @@ class external extends \external_api {
         ]);
     }
 
-    public static function create_product_portal_session($product_id, $return_url, $sesskey) {
+    public static function create_product_portal_session($productid, $returnurl, $sesskey) {
         global $USER, $DB;
 
         // Validate session key
@@ -507,8 +507,8 @@ class external extends \external_api {
         }
 
         try {
-            $installation_manager = new \report_adeptus_insights\installation_manager();
-            $result = $installation_manager->create_product_portal_session($product_id, $return_url);
+            $installationmanager = new \report_adeptus_insights\installation_manager();
+            $result = $installationmanager->create_product_portal_session($productid, $returnurl);
 
             if ($result['success']) {
                 return [
@@ -606,8 +606,8 @@ class external extends \external_api {
         }
 
         try {
-            $installation_manager = new \report_adeptus_insights\installation_manager();
-            $subscription = $installation_manager->get_subscription_details();
+            $installationmanager = new \report_adeptus_insights\installation_manager();
+            $subscription = $installationmanager->get_subscription_details();
 
             if ($subscription) {
                 return [
@@ -649,7 +649,7 @@ class external extends \external_api {
         ]);
     }
 
-    public static function create_billing_portal_session($return_url, $sesskey, $plan_id = null, $action = null) {
+    public static function create_billing_portal_session($returnurl, $sesskey, $planid = null, $action = null) {
         global $USER;
 
         // Validate session key
@@ -664,17 +664,17 @@ class external extends \external_api {
         }
 
         try {
-            $installation_manager = new \report_adeptus_insights\installation_manager();
-            $result = $installation_manager->create_billing_portal_session($return_url, $plan_id, $action);
+            $installationmanager = new \report_adeptus_insights\installation_manager();
+            $result = $installationmanager->create_billing_portal_session($returnurl, $planid, $action);
 
             // Log to file for debugging
 
             if ($result['success']) {
-                $portal_url = $result['data']['url'] ?? $result['portal_url'] ?? null;
+                $portalurl = $result['data']['url'] ?? $result['portal_url'] ?? null;
 
                 return [
                     'success' => true,
-                    'portal_url' => $portal_url,
+                    'portal_url' => $portalurl,
                 ];
             } else {
                 return [
@@ -698,12 +698,12 @@ class external extends \external_api {
     private static function call_laravel_backend($message) {
         global $CFG;
 
-        $backend_url = get_config('report_adeptus_insights', 'backend_url');
-        if (empty($backend_url)) {
+        $backendurl = get_config('report_adeptus_insights', 'backend_url');
+        if (empty($backendurl)) {
             throw new \moodle_exception('Backend URL not configured');
         }
 
-        $ch = curl_init($backend_url . '/chat');
+        $ch = curl_init($backendurl . '/chat');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
@@ -717,10 +717,10 @@ class external extends \external_api {
         ]);
 
         $response = curl_exec($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        if ($http_code !== 200) {
+        if ($httpcode !== 200) {
             throw new \moodle_exception('Failed to communicate with backend: ' . $response);
         }
 

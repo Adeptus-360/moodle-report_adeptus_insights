@@ -63,11 +63,11 @@ $deleteafter = $options['delete-after'];
 cli_heading('Wizard Reports Migration');
 
 // Get API configuration
-$installation_manager = new \report_adeptus_insights\installation_manager();
-$api_key = $installation_manager->get_api_key();
+$installationmanager = new \report_adeptus_insights\installation_manager();
+$apikey = $installationmanager->get_api_key();
 $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
 
-if (empty($api_key)) {
+if (empty($apikey)) {
     cli_error('API key not configured. Please complete plugin registration first.');
 }
 
@@ -76,8 +76,8 @@ cli_writeln("Dry run: " . ($dryrun ? 'Yes' : 'No'));
 cli_writeln("");
 
 // Fetch all local wizard reports
-$local_reports = $DB->get_records('adeptus_generated_reports', null, 'generatedat DESC');
-$total = count($local_reports);
+$localreports = $DB->get_records('adeptus_generated_reports', null, 'generatedat DESC');
+$total = count($localreports);
 
 cli_writeln("Found {$total} local wizard reports to migrate.");
 cli_writeln("");
@@ -91,7 +91,7 @@ $migrated = 0;
 $failed = 0;
 $skipped = 0;
 
-foreach ($local_reports as $report) {
+foreach ($localreports as $report) {
     $reportName = $report->reportid;
     $userId = $report->userid;
 
@@ -107,7 +107,7 @@ foreach ($local_reports as $report) {
     }
 
     // Prepare data for backend
-    $wizard_report_data = [
+    $wizardreportdata = [
         'user_id' => $userId,
         'report_template_id' => $reportName,
         'name' => $reportName,
@@ -127,11 +127,11 @@ foreach ($local_reports as $report) {
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizard_report_data));
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizardreportdata));
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'Authorization: Bearer ' . $api_key,
+        'Authorization: Bearer ' . $apikey,
     ]);
 
     $response = curl_exec($ch);

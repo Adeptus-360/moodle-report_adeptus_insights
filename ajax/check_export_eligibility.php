@@ -55,57 +55,57 @@ header('Content-Type: application/json');
 
 try {
     // Get installation manager and API configuration
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
-    $backend_url = \report_adeptus_insights\api_config::get_backend_url();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
+    $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
-    if (empty($api_key)) {
+    if (empty($apikey)) {
         throw new Exception('Installation not configured. Please complete plugin setup.');
     }
 
     // Call backend API to check export eligibility
     // The backend is the ONLY authority for export limits
-    $endpoint = rtrim($backend_url, '/') . '/exports/check-eligibility';
+    $endpoint = rtrim($backendurl, '/') . '/exports/check-eligibility';
 
-    $post_data = json_encode([
+    $postdata = json_encode([
         'format' => $format,
     ]);
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $endpoint);
     curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
     $response = curl_exec($ch);
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curl_error = curl_error($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlerror = curl_error($ch);
     curl_close($ch);
 
     // Handle connection/timeout errors - FAIL CLOSED
-    if ($response === false || !empty($curl_error)) {
-        error_log('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curl_error);
+    if ($response === false || !empty($curlerror)) {
+        error_log('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curlerror);
         throw new Exception('Unable to verify export eligibility. Please try again later.');
     }
 
     // Handle HTTP errors - FAIL CLOSED
-    if ($http_code !== 200) {
-        error_log('[Adeptus Insights] Export eligibility check failed - HTTP ' . $http_code . ': ' . $response);
+    if ($httpcode !== 200) {
+        error_log('[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response);
 
-        if ($http_code === 401) {
+        if ($httpcode === 401) {
             throw new Exception('Authentication failed. Please check your plugin configuration.');
-        } else if ($http_code === 403) {
+        } else if ($httpcode === 403) {
             throw new Exception('Access denied. Your subscription may have expired.');
-        } else if ($http_code === 404) {
+        } else if ($httpcode === 404) {
             throw new Exception('Export verification service unavailable. Please contact support.');
-        } else if ($http_code >= 500) {
+        } else if ($httpcode >= 500) {
             throw new Exception('Server error. Please try again later.');
         } else {
             throw new Exception('Unable to verify export eligibility. Please try again later.');
@@ -113,28 +113,28 @@ try {
     }
 
     // Parse backend response
-    $backend_data = json_decode($response, true);
+    $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         error_log('[Adeptus Insights] Export eligibility check failed - invalid JSON response');
         throw new Exception('Invalid response from server. Please try again later.');
     }
 
-    if (!isset($backend_data['success'])) {
+    if (!isset($backenddata['success'])) {
         error_log('[Adeptus Insights] Export eligibility check failed - missing success field');
         throw new Exception('Invalid response from server. Please try again later.');
     }
 
     // Return backend response - the backend is authoritative
     echo json_encode([
-        'success' => $backend_data['success'],
-        'eligible' => $backend_data['eligible'] ?? false,
-        'message' => $backend_data['message'] ?? 'Unknown status',
-        'reason' => $backend_data['reason'] ?? null,
-        'exports_used' => $backend_data['exports_used'] ?? 0,
-        'exports_limit' => $backend_data['exports_limit'] ?? 0,
-        'exports_remaining' => $backend_data['exports_remaining'] ?? 0,
-        'allowed_formats' => $backend_data['allowed_formats'] ?? [],
+        'success' => $backenddata['success'],
+        'eligible' => $backenddata['eligible'] ?? false,
+        'message' => $backenddata['message'] ?? 'Unknown status',
+        'reason' => $backenddata['reason'] ?? null,
+        'exports_used' => $backenddata['exports_used'] ?? 0,
+        'exports_limit' => $backenddata['exports_limit'] ?? 0,
+        'exports_remaining' => $backenddata['exports_remaining'] ?? 0,
+        'allowed_formats' => $backenddata['allowed_formats'] ?? [],
     ]);
 } catch (Exception $e) {
     // FAIL CLOSED - deny export if we cannot verify eligibility with backend

@@ -45,11 +45,11 @@ try {
 
     // Get API key and backend URL
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
     $backendApiUrl = \report_adeptus_insights\api_config::get_backend_url();
 
-    if (empty($api_key)) {
+    if (empty($apikey)) {
         echo json_encode([
             'success' => false,
             'message' => 'API key not configured',
@@ -71,7 +71,7 @@ try {
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer ' . $api_key,
+                'Authorization: Bearer ' . $apikey,
             ]);
 
             $response = curl_exec($ch);
@@ -99,7 +99,7 @@ try {
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Accept: application/json',
-                'Authorization: Bearer ' . $api_key,
+                'Authorization: Bearer ' . $apikey,
             ]);
 
             $response = curl_exec($ch);

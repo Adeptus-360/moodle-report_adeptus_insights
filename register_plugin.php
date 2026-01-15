@@ -38,62 +38,62 @@ $PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights') . ' - Reg
 
 // Load installation manager
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-$installation_manager = new \report_adeptus_insights\installation_manager();
+$installationmanager = new \report_adeptus_insights\installation_manager();
 
 // Check if already registered
-$is_registered = $installation_manager->is_registered();
-$installation_id = $installation_manager->get_installation_id();
-$api_key = $installation_manager->get_api_key();
+$isregistered = $installationmanager->is_registered();
+$installationid = $installationmanager->get_installation_id();
+$apikey = $installationmanager->get_api_key();
 
 // Get current user info
 $user = $USER;
-$admin_email = $user->email ?? '';
-$admin_name = fullname($user) ?? '';
+$adminemail = $user->email ?? '';
+$adminname = fullname($user) ?? '';
 
 // Get site information - use $SITE which contains the frontpage course with site name
 global $SITE;
-$site_url = $CFG->wwwroot ?? '';
-$site_name = $SITE->fullname ?? $SITE->shortname ?? 'Moodle Site';
-$moodle_version = $CFG->version ?? '';
-$php_version = PHP_VERSION ?? '';
-$plugin_version = $installation_manager->get_plugin_version() ?? '';
+$siteurl = $CFG->wwwroot ?? '';
+$sitename = $SITE->fullname ?? $SITE->shortname ?? 'Moodle Site';
+$moodleversion = $CFG->version ?? '';
+$phpversion = PHP_VERSION ?? '';
+$pluginversion = $installationmanager->get_plugin_version() ?? '';
 
 // Validate required fields
-$missing_fields = [];
-if (empty($site_name)) {
-    $missing_fields[] = 'Site Name';
+$missingfields = [];
+if (empty($sitename)) {
+    $missingfields[] = 'Site Name';
 }
-if (empty($site_url)) {
-    $missing_fields[] = 'Site URL';
+if (empty($siteurl)) {
+    $missingfields[] = 'Site URL';
 }
-if (empty($admin_name)) {
-    $missing_fields[] = 'Administrator Name';
+if (empty($adminname)) {
+    $missingfields[] = 'Administrator Name';
 }
-if (empty($admin_email)) {
-    $missing_fields[] = 'Administrator Email';
+if (empty($adminemail)) {
+    $missingfields[] = 'Administrator Email';
 }
-if (empty($moodle_version)) {
-    $missing_fields[] = 'Moodle Version';
+if (empty($moodleversion)) {
+    $missingfields[] = 'Moodle Version';
 }
-if (empty($php_version)) {
-    $missing_fields[] = 'PHP Version';
+if (empty($phpversion)) {
+    $missingfields[] = 'PHP Version';
 }
-if (empty($plugin_version)) {
-    $missing_fields[] = 'Plugin Version';
+if (empty($pluginversion)) {
+    $missingfields[] = 'Plugin Version';
 }
 
-if (!empty($missing_fields)) {
-    $error_message = 'Missing required Moodle configuration: ' . implode(', ', $missing_fields) . '. Please ensure these values are properly set in your Moodle configuration.';
+if (!empty($missingfields)) {
+    $errormessage = 'Missing required Moodle configuration: ' . implode(', ', $missingfields) . '. Please ensure these values are properly set in your Moodle configuration.';
 }
 
 // Handle form submission
 if (optional_param('action', '', PARAM_ALPHA) === 'register' && confirm_sesskey()) {
     // Check if we have missing fields
-    if (!empty($missing_fields)) {
-        $error_message = 'Cannot register plugin due to missing required information: ' . implode(', ', $missing_fields) . '. Please ensure these values are properly set in your Moodle configuration.';
+    if (!empty($missingfields)) {
+        $errormessage = 'Cannot register plugin due to missing required information: ' . implode(', ', $missingfields) . '. Please ensure these values are properly set in your Moodle configuration.';
     } else {
         try {
-            $result = $installation_manager->register_installation($admin_email, $admin_name, $site_url, $site_name);
+            $result = $installationmanager->register_installation($adminemail, $adminname, $siteurl, $sitename);
 
             if ($result['success']) {
                 redirect(
@@ -113,29 +113,29 @@ if (optional_param('action', '', PARAM_ALPHA) === 'register' && confirm_sesskey(
                     );
                 }
 
-                $error_message = $result['message'];
+                $errormessage = $result['message'];
             }
         } catch (Exception $e) {
-            $error_message = $e->getMessage();
+            $errormessage = $e->getMessage();
         }
     }
 }
 
 // Prepare template context
 $templatecontext = [
-    'is_registered' => $is_registered,
-    'installation_id' => $installation_id,
-    'api_key' => $api_key,
-    'admin_email' => $admin_email,
-    'admin_name' => $admin_name,
-    'site_url' => $site_url,
-    'site_name' => $site_name,
-    'moodle_version' => $moodle_version,
-    'php_version' => $php_version,
-    'plugin_version' => $plugin_version,
+    'is_registered' => $isregistered,
+    'installation_id' => $installationid,
+    'api_key' => $apikey,
+    'admin_email' => $adminemail,
+    'admin_name' => $adminname,
+    'site_url' => $siteurl,
+    'site_name' => $sitename,
+    'moodle_version' => $moodleversion,
+    'php_version' => $phpversion,
+    'plugin_version' => $pluginversion,
     'sesskey' => sesskey(),
-    'error_message' => $error_message ?? null,
-    'site_already_exists' => isset($error_message) && strpos($error_message, 'Site already exists') !== false,
+    'error_message' => $errormessage ?? null,
+    'site_already_exists' => isset($errormessage) && strpos($errormessage, 'Site already exists') !== false,
     'debug' => debugging(), // Show debug info if debugging is enabled
 ];
 

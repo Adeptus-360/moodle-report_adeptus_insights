@@ -50,8 +50,8 @@ if (!$input) {
 
 
 // Validate required fields
-$required_fields = ['plan_id', 'payment_method_id', 'billing_email'];
-foreach ($required_fields as $field) {
+$requiredfields = ['plan_id', 'payment_method_id', 'billing_email'];
+foreach ($requiredfields as $field) {
     if (empty($input[$field])) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => 'Missing required field: ' . $field]);
@@ -68,11 +68,11 @@ if (!filter_var($input['billing_email'], FILTER_VALIDATE_EMAIL)) {
 
 try {
     // Get installation manager
-    $installation_manager = new \report_adeptus_insights\installation_manager();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
 
 
     // Check if installation is registered
-    if (!$installation_manager->is_registered()) {
+    if (!$installationmanager->is_registered()) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => get_string('not_registered', 'report_adeptus_insights')]);
         exit;
@@ -80,7 +80,7 @@ try {
 
 
     // Create subscription
-    $result = $installation_manager->create_subscription(
+    $result = $installationmanager->create_subscription(
         $input['plan_id'],
         $input['payment_method_id'],
         $input['billing_email']

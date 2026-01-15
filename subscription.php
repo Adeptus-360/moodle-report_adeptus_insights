@@ -41,25 +41,25 @@ $PAGE->set_title(get_string('subscription_management', 'report_adeptus_insights'
 $PAGE->set_pagelayout('standard');
 
 // Get installation manager
-$installation_manager = new \report_adeptus_insights\installation_manager();
+$installationmanager = new \report_adeptus_insights\installation_manager();
 
 // Check if plugin is registered, if not redirect to registration
-if (!$installation_manager->is_registered()) {
+if (!$installationmanager->is_registered()) {
     redirect(new moodle_url('/report/adeptus_insights/register_plugin.php'));
 }
 
 // Check if installation is completed - if not, redirect to installation step
-$installation_completed = get_config('report_adeptus_insights', 'installation_completed');
-if (!$installation_completed) {
+$installationcompleted = get_config('report_adeptus_insights', 'installation_completed');
+if (!$installationcompleted) {
     redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
 }
 
 // Handle form submissions
 $action = optional_param('action', '', PARAM_ALPHA);
-$plan_id = optional_param('plan_id', 0, PARAM_INT);
+$planid = optional_param('plan_id', 0, PARAM_INT);
 
 if ($action === 'cancel_subscription' && confirm_sesskey()) {
-    $result = $installation_manager->cancel_subscription();
+    $result = $installationmanager->cancel_subscription();
 
     if ($result['success']) {
         redirect(
@@ -78,8 +78,8 @@ if ($action === 'cancel_subscription' && confirm_sesskey()) {
     }
 }
 
-if ($action === 'update_plan' && confirm_sesskey() && $plan_id) {
-    $result = $installation_manager->update_subscription_plan($plan_id);
+if ($action === 'update_plan' && confirm_sesskey() && $planid) {
+    $result = $installationmanager->update_subscription_plan($planid);
 
     if ($result['success']) {
         redirect(
@@ -99,28 +99,28 @@ if ($action === 'update_plan' && confirm_sesskey() && $plan_id) {
 }
 
 // Get current subscription details and available plans
-$subscription = $installation_manager->get_subscription_details();
+$subscription = $installationmanager->get_subscription_details();
 
 // If no subscription found, try to sync from backend or create one
 if (!$subscription) {
     // Try to sync subscription from backend
-    $backend_sync_result = $installation_manager->check_subscription_status();
+    $backendsyncresult = $installationmanager->check_subscription_status();
 
-    if ($backend_sync_result) {
+    if ($backendsyncresult) {
         // Refresh subscription data
-        $subscription = $installation_manager->get_subscription_details();
+        $subscription = $installationmanager->get_subscription_details();
     } else {
         // Create a free subscription if none exists
         try {
-            $result = $installation_manager->setup_starter_subscription($USER->email, fullname($USER));
+            $result = $installationmanager->setup_starter_subscription($USER->email, fullname($USER));
 
             if (!$result) {
-                $result = $installation_manager->activate_free_plan_manually();
+                $result = $installationmanager->activate_free_plan_manually();
             }
 
             if ($result) {
                 // Refresh subscription data
-                $subscription = $installation_manager->get_subscription_details();
+                $subscription = $installationmanager->get_subscription_details();
             }
         } catch (\Exception $e) {
             // Silently ignore validation errors - subscription refresh is optional.
@@ -128,37 +128,37 @@ if (!$subscription) {
     }
 }
 
-$available_plans = $installation_manager->get_available_plans();
-$payment_config = $installation_manager->get_payment_config();
+$availableplans = $installationmanager->get_available_plans();
+$paymentconfig = $installationmanager->get_payment_config();
 
 // Check for any errors from installation manager
-$last_error = $installation_manager->get_last_error();
-if ($last_error) {
-    \core\notification::error($last_error['message']);
-    $installation_manager->clear_last_error();
+$lasterror = $installationmanager->get_last_error();
+if ($lasterror) {
+    \core\notification::error($lasterror['message']);
+    $installationmanager->clear_last_error();
 }
 
 // Start output
 echo $OUTPUT->header();
 
 // Get current plan price for comparison
-$current_plan_price = 0;
+$currentplanprice = 0;
 if ($subscription && isset($subscription['price'])) {
-    $current_plan_price = floatval(str_replace(['£', ','], '', $subscription['price']));
+    $currentplanprice = floatval(str_replace(['£', ','], '', $subscription['price']));
 }
 
 // Prepare template context
 $templatecontext = [
     'user_fullname' => $USER->firstname . ' ' . $USER->lastname,
     'user_email' => $USER->email,
-    'is_registered' => $installation_manager->is_registered(),
+    'is_registered' => $installationmanager->is_registered(),
     'sesskey' => sesskey(),
-    'current_plan_price' => $current_plan_price,
+    'current_plan_price' => $currentplanprice,
 ];
 
 // Add payment config safely
-if ($payment_config && isset($payment_config['success']) && $payment_config['success']) {
-    $templatecontext['payment_config'] = json_encode($payment_config['data'], JSON_HEX_APOS | JSON_HEX_QUOT);
+if ($paymentconfig && isset($paymentconfig['success']) && $paymentconfig['success']) {
+    $templatecontext['payment_config'] = json_encode($paymentconfig['data'], JSON_HEX_APOS | JSON_HEX_QUOT);
 } else {
     $templatecontext['payment_config'] = 'null';
 }
@@ -236,12 +236,12 @@ if ($subscription) {
 
 // Add available plans with upgrade/downgrade logic
 // Only include plans for Adeptus Insights (product_key = 'insights')
-if (!empty($available_plans['plans'])) {
+if (!empty($availableplans['plans'])) {
     $plans = [];
-    foreach ($available_plans['plans'] as $plan) {
+    foreach ($availableplans['plans'] as $plan) {
         // Filter to only show Insights plans
-        $product_key = $plan['product_key'] ?? '';
-        if ($product_key !== 'insights') {
+        $productkey = $plan['product_key'] ?? '';
+        if ($productkey !== 'insights') {
             continue;
         }
 
@@ -254,20 +254,20 @@ if (!empty($available_plans['plans'])) {
         // Handle limits
         $limits = $plan['limits'] ?? [];
 
-        $is_current = false;
+        $iscurrent = false;
         if ($subscription && isset($subscription['plan_name'])) {
-            $is_current = (strtolower($plan['name']) === strtolower($subscription['plan_name']));
+            $iscurrent = (strtolower($plan['name']) === strtolower($subscription['plan_name']));
         }
 
         // Determine if this is an upgrade or downgrade
-        $plan_price = 0;
+        $planprice = 0;
         if (is_array($plan['price'])) {
-            $plan_price = ($plan['price']['cents'] ?? 0) / 100;
+            $planprice = ($plan['price']['cents'] ?? 0) / 100;
         } else {
-            $plan_price = floatval(str_replace(['$', '£', ',', '/mo'], '', $plan['price']));
+            $planprice = floatval(str_replace(['$', '£', ',', '/mo'], '', $plan['price']));
         }
-        $is_upgrade = $plan_price > $current_plan_price;
-        $is_downgrade = $plan_price < $current_plan_price;
+        $isupgrade = $planprice > $currentplanprice;
+        $isdowngrade = $planprice < $currentplanprice;
 
         $plans[] = [
             'id' => $plan['id'],
@@ -280,9 +280,9 @@ if (!empty($available_plans['plans'])) {
             'ai_credits_basic' => $limits['ai_credits_basic'] ?? $plan['ai_credits_basic'] ?? 0,
             'exports' => $limits['exports'] ?? $limits['exports_per_month'] ?? $plan['exports'] ?? 0,
             'is_free' => ($plan['tier'] ?? '') === 'free',
-            'is_current' => $is_current,
-            'is_upgrade' => $is_upgrade,
-            'is_downgrade' => $is_downgrade,
+            'is_current' => $iscurrent,
+            'is_upgrade' => $isupgrade,
+            'is_downgrade' => $isdowngrade,
             'features' => $plan['features'] ?? [],
             'stripe_product_id' => $plan['stripe_product_id'] ?? null,
         ];
@@ -293,9 +293,9 @@ if (!empty($available_plans['plans'])) {
 }
 
 // Add usage statistics - this will be used by the analytics cards
-$usage_stats = $installation_manager->get_usage_stats();
-if ($usage_stats) {
-    $templatecontext['usage'] = $usage_stats;
+$usagestats = $installationmanager->get_usage_stats();
+if ($usagestats) {
+    $templatecontext['usage'] = $usagestats;
 } else {
     $templatecontext['usage'] = [
         'ai_credits_used_this_month' => 0,
@@ -311,9 +311,9 @@ if ($usage_stats) {
 // echo '<h4>Subscription Data:</h4>';
 // echo '<pre>' . print_r($subscription, true) . '</pre>';
 // echo '<h4>Available Plans:</h4>';
-// echo '<pre>' . print_r($available_plans, true) . '</pre>';
+// echo '<pre>' . print_r($availableplans, true) . '</pre>';
 // echo '<h4>Usage Stats:</h4>';
-// echo '<pre>' . print_r($usage_stats, true) . '</pre>';
+// echo '<pre>' . print_r($usagestats, true) . '</pre>';
 // echo '<h4>Template Context:</h4>';
 // echo '<pre>' . print_r($templatecontext, true) . '</pre>';
 // echo '</div>';

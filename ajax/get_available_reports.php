@@ -48,8 +48,8 @@ try {
 
     // Get API key for authentication
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-    $installation_manager = new \report_adeptus_insights\installation_manager();
-    $api_key = $installation_manager->get_api_key();
+    $installationmanager = new \report_adeptus_insights\installation_manager();
+    $apikey = $installationmanager->get_api_key();
 
     // Fetch all reports from backend
     $ch = curl_init();
@@ -60,7 +60,7 @@ try {
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/json',
         'Accept: application/json',
-        'X-API-Key: ' . $api_key,
+        'X-API-Key: ' . $apikey,
     ]);
 
     $response = curl_exec($ch);
@@ -79,27 +79,27 @@ try {
     }
 
     // Filter reports using validator
-    $filtered_reports = \report_adeptus_insights\report_validator::filter_reports($backendData['data']);
+    $filteredreports = \report_adeptus_insights\report_validator::filter_reports($backendData['data']);
 
     // Optionally, remove unavailable reports entirely or mark them
-    $show_unavailable = optional_param('show_unavailable', false, PARAM_BOOL);
+    $showunavailable = optional_param('show_unavailable', false, PARAM_BOOL);
 
-    if (!$show_unavailable) {
+    if (!$showunavailable) {
         // Remove incompatible reports
-        $filtered_reports = array_filter($filtered_reports, function ($report) {
+        $filteredreports = array_filter($filteredreports, function ($report) {
             return $report['is_available'];
         });
 
         // Re-index array
-        $filtered_reports = array_values($filtered_reports);
+        $filteredreports = array_values($filteredreports);
     }
 
     echo json_encode([
         'success' => true,
-        'data' => $filtered_reports,
+        'data' => $filteredreports,
         'total' => count($backendData['data']),
-        'available' => count($filtered_reports),
-        'filtered' => count($backendData['data']) - count($filtered_reports),
+        'available' => count($filteredreports),
+        'filtered' => count($backendData['data']) - count($filteredreports),
     ]);
 } catch (Exception $e) {
     echo json_encode([

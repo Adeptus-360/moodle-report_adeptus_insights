@@ -24,9 +24,9 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class error_handler {
-    private $error_codes;
-    private $recovery_actions;
-    private $admin_contact;
+    private $errorcodes;
+    private $recoveryactions;
+    private $admincontact;
 
     public function __construct() {
         $this->initializeErrorCodes();
@@ -185,21 +185,21 @@ class error_handler {
     /**
      * Get error information by error code
      *
-     * @param string $error_code The error code
+     * @param string $errorcode The error code
      * @return array|null Error information or null if not found
      */
-    public function getErrorInfo($error_code) {
-        return $this->error_codes[$error_code] ?? $this->error_codes['UNKNOWN_ERROR'];
+    public function getErrorInfo($errorcode) {
+        return $this->error_codes[$errorcode] ?? $this->error_codes['UNKNOWN_ERROR'];
     }
 
     /**
      * Get recovery action information
      *
-     * @param string $action_key The recovery action key
+     * @param string $actionkey The recovery action key
      * @return array|null Recovery action information or null if not found
      */
-    public function getRecoveryAction($action_key) {
-        return $this->recovery_actions[$action_key] ?? null;
+    public function getRecoveryAction($actionkey) {
+        return $this->recovery_actions[$actionkey] ?? null;
     }
 
     /**
@@ -214,41 +214,41 @@ class error_handler {
     /**
      * Create a professional error message
      *
-     * @param string $error_code The error code
-     * @param array $additional_data Additional error data
+     * @param string $errorcode The error code
+     * @param array $additionaldata Additional error data
      * @return array Formatted error message
      */
-    public function createErrorMessage($error_code, $additional_data = []) {
-        $error_info = $this->getErrorInfo($error_code);
-        $recovery_action = $this->getRecoveryAction($error_info['recovery']);
+    public function createErrorMessage($errorcode, $additionaldata = []) {
+        $errorinfo = $this->getErrorInfo($errorcode);
+        $recoveryaction = $this->getRecoveryAction($errorinfo['recovery']);
 
-        $error_message = [
-            'error_code' => $error_code,
-            'title' => $error_info['title'],
-            'message' => $error_info['message'],
-            'user_message' => $error_info['user_message'],
-            'severity' => $error_info['severity'],
-            'recovery_action' => $recovery_action,
+        $errormessage = [
+            'error_code' => $errorcode,
+            'title' => $errorinfo['title'],
+            'message' => $errorinfo['message'],
+            'user_message' => $errorinfo['user_message'],
+            'severity' => $errorinfo['severity'],
+            'recovery_action' => $recoveryaction,
             'admin_contact' => $this->admin_contact,
             'timestamp' => time(),
-            'additional_data' => $additional_data,
-            'suggestions' => $this->getSuggestions($error_code, $additional_data),
+            'additional_data' => $additionaldata,
+            'suggestions' => $this->getSuggestions($errorcode, $additionaldata),
         ];
 
-        return $error_message;
+        return $errormessage;
     }
 
     /**
      * Get suggestions for resolving the error
      *
-     * @param string $error_code The error code
-     * @param array $additional_data Additional error data
+     * @param string $errorcode The error code
+     * @param array $additionaldata Additional error data
      * @return array Array of suggestions
      */
-    private function getSuggestions($error_code, $additional_data = []) {
+    private function getSuggestions($errorcode, $additionaldata = []) {
         $suggestions = [];
 
-        switch ($error_code) {
+        switch ($errorcode) {
             case 'MISSING_HEADERS':
                 $suggestions = [
                     'Check if the plugin is properly configured',
@@ -320,23 +320,23 @@ class error_handler {
     /**
      * Log error for debugging purposes
      *
-     * @param string $error_code The error code
-     * @param array $additional_data Additional error data
-     * @param string $user_context User context information
+     * @param string $errorcode The error code
+     * @param array $additionaldata Additional error data
+     * @param string $usercontext User context information
      */
-    public function logError($error_code, $additional_data = [], $user_context = '') {
+    public function logError($errorcode, $additionaldata = [], $usercontext = '') {
         global $USER;
 
-        $error_info = $this->getErrorInfo($error_code);
+        $errorinfo = $this->getErrorInfo($errorcode);
 
-        $log_data = [
-            'error_code' => $error_code,
-            'error_title' => $error_info['title'],
-            'error_message' => $error_info['message'],
+        $logdata = [
+            'error_code' => $errorcode,
+            'error_title' => $errorinfo['title'],
+            'error_message' => $errorinfo['message'],
             'user_id' => $USER->id ?? 0,
             'user_email' => $USER->email ?? '',
-            'user_context' => $user_context,
-            'additional_data' => $additional_data,
+            'user_context' => $usercontext,
+            'additional_data' => $additionaldata,
             'timestamp' => time(),
             'ip_address' => getremoteaddr(),
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
@@ -346,31 +346,31 @@ class error_handler {
 
         // Log to plugin-specific log if enabled
         if (get_config('report_adeptus_insights', 'enable_error_logging')) {
-            $this->writeToPluginLog($log_data);
+            $this->writeToPluginLog($logdata);
         }
     }
 
     /**
      * Write error to plugin-specific log file
      *
-     * @param array $log_data Log data to write
+     * @param array $logdata Log data to write
      */
-    private function writeToPluginLog($log_data) {
+    private function writeToPluginLog($logdata) {
         global $CFG;
 
-        $log_dir = $CFG->dataroot . '/adeptus_insights/logs';
-        $log_file = $log_dir . '/errors.log';
+        $logdir = $CFG->dataroot . '/adeptus_insights/logs';
+        $logfile = $logdir . '/errors.log';
 
         // Create log directory if it doesn't exist
-        if (!is_dir($log_dir)) {
+        if (!is_dir($logdir)) {
             make_upload_directory('adeptus_insights/logs');
         }
 
         // Format log entry
-        $log_entry = date('Y-m-d H:i:s') . ' - ' . json_encode($log_data) . PHP_EOL;
+        $logentry = date('Y-m-d H:i:s') . ' - ' . json_encode($logdata) . PHP_EOL;
 
         // Write to log file
-        file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
+        file_put_contents($logfile, $logentry, FILE_APPEND | LOCK_EX);
     }
 
     /**
@@ -382,9 +382,9 @@ class error_handler {
     public function getErrorStatistics($days = 7) {
         global $CFG;
 
-        $log_file = $CFG->dataroot . '/adeptus_insights/logs/errors.log';
+        $logfile = $CFG->dataroot . '/adeptus_insights/logs/errors.log';
 
-        if (!file_exists($log_file)) {
+        if (!file_exists($logfile)) {
             return [
                 'total_errors' => 0,
                 'errors_by_code' => [],
@@ -393,47 +393,47 @@ class error_handler {
             ];
         }
 
-        $log_content = file_get_contents($log_file);
-        $log_lines = explode(PHP_EOL, $log_content);
+        $logcontent = file_get_contents($logfile);
+        $loglines = explode(PHP_EOL, $logcontent);
 
-        $errors_by_code = [];
-        $errors_by_user = [];
-        $recent_errors = [];
-        $total_errors = 0;
+        $errorsbycode = [];
+        $errorsbyuser = [];
+        $recenterrors = [];
+        $totalerrors = 0;
 
-        $cutoff_time = time() - ($days * 24 * 60 * 60);
+        $cutofftime = time() - ($days * 24 * 60 * 60);
 
-        foreach ($log_lines as $line) {
+        foreach ($loglines as $line) {
             if (empty(trim($line))) {
                 continue;
             }
 
-            $log_data = json_decode(substr($line, strpos($line, ' - ') + 3), true);
-            if (!$log_data) {
+            $logdata = json_decode(substr($line, strpos($line, ' - ') + 3), true);
+            if (!$logdata) {
                 continue;
             }
 
-            $total_errors++;
+            $totalerrors++;
 
             // Count by error code
-            $error_code = $log_data['error_code'] ?? 'UNKNOWN';
-            $errors_by_code[$error_code] = ($errors_by_code[$error_code] ?? 0) + 1;
+            $errorcode = $logdata['error_code'] ?? 'UNKNOWN';
+            $errorsbycode[$errorcode] = ($errorsbycode[$errorcode] ?? 0) + 1;
 
             // Count by user
-            $user_email = $log_data['user_email'] ?? 'unknown';
-            $errors_by_user[$user_email] = ($errors_by_user[$user_email] ?? 0) + 1;
+            $useremail = $logdata['user_email'] ?? 'unknown';
+            $errorsbyuser[$useremail] = ($errorsbyuser[$useremail] ?? 0) + 1;
 
             // Recent errors
-            if ($log_data['timestamp'] >= $cutoff_time) {
-                $recent_errors[] = $log_data;
+            if ($logdata['timestamp'] >= $cutofftime) {
+                $recenterrors[] = $logdata;
             }
         }
 
         return [
-            'total_errors' => $total_errors,
-            'errors_by_code' => $errors_by_code,
-            'errors_by_user' => $errors_by_user,
-            'recent_errors' => array_slice($recent_errors, -10), // Last 10 errors
+            'total_errors' => $totalerrors,
+            'errors_by_code' => $errorsbycode,
+            'errors_by_user' => $errorsbyuser,
+            'recent_errors' => array_slice($recenterrors, -10), // Last 10 errors
         ];
     }
 
@@ -445,10 +445,10 @@ class error_handler {
     public function clearErrorLogs() {
         global $CFG;
 
-        $log_file = $CFG->dataroot . '/adeptus_insights/logs/errors.log';
+        $logfile = $CFG->dataroot . '/adeptus_insights/logs/errors.log';
 
-        if (file_exists($log_file)) {
-            return unlink($log_file);
+        if (file_exists($logfile)) {
+            return unlink($logfile);
         }
 
         return true;

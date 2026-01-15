@@ -27,8 +27,8 @@ namespace report_adeptus_insights;
 defined('MOODLE_INTERNAL') || die();
 
 class token_auth_manager {
-    private $installation_manager;
-    private $current_user;
+    private $installationmanager;
+    private $currentuser;
 
     public function __construct() {
         global $CFG, $USER;
@@ -76,8 +76,8 @@ class token_auth_manager {
             return false;
         }
 
-        $api_key = $this->installation_manager->get_api_key();
-        if (empty($api_key)) {
+        $apikey = $this->installation_manager->get_api_key();
+        if (empty($apikey)) {
             if ($redirect) {
                 redirect(new \moodle_url('/report/adeptus_insights/register_plugin.php'));
             }
@@ -99,7 +99,7 @@ class token_auth_manager {
     public function get_auth_status() {
         global $CFG;
 
-        $auth_status = [
+        $authstatus = [
             'is_registered' => false,
             'has_api_key' => false,
             'api_key' => '',
@@ -117,29 +117,29 @@ class token_auth_manager {
         ];
 
         if ($this->installation_manager->is_registered()) {
-            $auth_status['is_registered'] = true;
-            $api_key = $this->installation_manager->get_api_key();
-            $installation_id = $this->installation_manager->get_installation_id();
+            $authstatus['is_registered'] = true;
+            $apikey = $this->installation_manager->get_api_key();
+            $installationid = $this->installation_manager->get_installation_id();
 
-            if (!empty($api_key)) {
-                $auth_status['has_api_key'] = true;
-                $auth_status['api_key'] = $api_key;
-                $auth_status['installation_id'] = $installation_id;
+            if (!empty($apikey)) {
+                $authstatus['has_api_key'] = true;
+                $authstatus['api_key'] = $apikey;
+                $authstatus['installation_id'] = $installationid;
 
                 // Skip email validation - any admin can use the plugin
-                $auth_status['user_authorized'] = true;
+                $authstatus['user_authorized'] = true;
 
                 // Get subscription details directly from Laravel backend
-                $backend_data = $this->get_backend_subscription_data($api_key);
-                if ($backend_data && $backend_data['success']) {
-                    $data = $backend_data['data'];
+                $backenddata = $this->get_backend_subscription_data($apikey);
+                if ($backenddata && $backenddata['success']) {
+                    $data = $backenddata['data'];
 
                     // Structure to match Laravel backend subscription/show response
                     if (isset($data['subscription']) && isset($data['plan'])) {
                         $subscription = $data['subscription'];
                         $plan = $data['plan'];
 
-                        $auth_status['subscription'] = [
+                        $authstatus['subscription'] = [
                             'plan_name' => $subscription['plan_name'] ?? 'Unknown',
                             'status' => $subscription['status'] ?? 'unknown',
                             'ai_credits_remaining' => $subscription['ai_credits_remaining'] ?? 0,
@@ -151,14 +151,14 @@ class token_auth_manager {
                         ];
 
                         // Add plan details to match Laravel structure
-                        $auth_status['plan'] = [
+                        $authstatus['plan'] = [
                             'name' => $plan['name'] ?? 'Unknown',
                             'ai_credits' => $plan['ai_credits'] ?? 0,
                             'exports' => $plan['exports'] ?? 0,
                         ];
 
                         // Add usage data for JavaScript compatibility
-                        $auth_status['usage'] = [
+                        $authstatus['usage'] = [
                             'ai_credits_used_this_month' => $subscription['ai_credits_used'] ?? 0,
                             'reports_generated_this_month' => $subscription['exports_used'] ?? 0,
                         ];
@@ -167,7 +167,7 @@ class token_auth_manager {
                     // Fallback to local data if backend fails
                     $subscription = $this->installation_manager->get_subscription_details();
                     if ($subscription) {
-                        $auth_status['subscription'] = [
+                        $authstatus['subscription'] = [
                             'plan_name' => $subscription->plan_name ?? 'Unknown',
                             'status' => $subscription->status ?? 'unknown',
                             'ai_credits_remaining' => $subscription->ai_credits_remaining ?? 0,
@@ -178,29 +178,29 @@ class token_auth_manager {
                             'plan_exports_limit' => $subscription->plan_exports_limit ?? 0,
                         ];
 
-                        $auth_status['plan'] = [
+                        $authstatus['plan'] = [
                             'name' => $subscription->plan_name ?? 'Unknown',
                             'ai_credits' => $subscription->plan_ai_credits_limit ?? 0,
                             'exports' => $subscription->plan_exports_limit ?? 0,
                         ];
                     }
 
-                    $auth_status['usage'] = $this->get_usage_data();
+                    $authstatus['usage'] = $this->get_usage_data();
                 }
             }
         }
 
-        return $auth_status;
+        return $authstatus;
     }
 
     /**
      * Validate user email against backend admin email
      * DISABLED: Email validation removed - any admin can use the plugin
      *
-     * @param bool $show_error Whether to show error messages
+     * @param bool $showerror Whether to show error messages
      * @return array Validation result
      */
-    private function validate_user_email($show_error = true) {
+    private function validate_user_email($showerror = true) {
         // Email validation disabled - always return valid
         return [
             'valid' => true,
@@ -212,12 +212,12 @@ class token_auth_manager {
      * Validate authentication with backend
      * DISABLED: Email validation removed - any admin can use the plugin
      *
-     * @param string $api_key
-     * @param string $site_url
-     * @param string $user_email
+     * @param string $apikey
+     * @param string $siteurl
+     * @param string $useremail
      * @return array Validation result
      */
-    private function validate_with_backend($api_key, $site_url, $user_email) {
+    private function validate_with_backend($apikey, $siteurl, $useremail) {
         // Email validation disabled - always return valid
         return [
             'valid' => true,
@@ -229,9 +229,9 @@ class token_auth_manager {
     /**
      * Cache API key for performance (simplified - no external cache dependency)
      *
-     * @param string $api_key
+     * @param string $apikey
      */
-    private function cache_api_key($api_key) {
+    private function cache_api_key($apikey) {
         // For now, we'll skip caching to avoid dependency issues
         // The API key is already available from installation_manager
     }
@@ -249,13 +249,13 @@ class token_auth_manager {
     /**
      * Get subscription data directly from Laravel backend
      *
-     * @param string $api_key
+     * @param string $apikey
      * @return array|null
      */
-    private function get_backend_subscription_data($api_key) {
+    private function get_backend_subscription_data($apikey) {
         try {
-            $backend_url = $this->installation_manager->get_api_url();
-            $status_endpoint = $backend_url . '/installation/status';
+            $backendurl = $this->installation_manager->get_api_url();
+            $statusendpoint = $backendurl . '/installation/status';
 
             $headers = [
                 'Content-Type: application/json',
@@ -263,11 +263,11 @@ class token_auth_manager {
             ];
 
             $data = [
-                'api_key' => $api_key,
+                'api_key' => $apikey,
             ];
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $status_endpoint);
+            curl_setopt($ch, CURLOPT_URL, $statusendpoint);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -276,7 +276,7 @@ class token_auth_manager {
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
             $response = curl_exec($ch);
-            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $error = curl_error($ch);
             curl_close($ch);
 
@@ -284,7 +284,7 @@ class token_auth_manager {
                 return null;
             }
 
-            if ($http_code !== 200) {
+            if ($httpcode !== 200) {
                 return null;
             }
 
@@ -336,9 +336,9 @@ class token_auth_manager {
     /**
      * Log validation errors for debugging
      *
-     * @param array $validation_result
+     * @param array $validationresult
      */
-    private function log_validation_error($validation_result) {
+    private function log_validation_error($validationresult) {
     }
 
     /**
@@ -352,10 +352,10 @@ class token_auth_manager {
 
         echo $OUTPUT->header();
 
-        $error_message = get_string('user_not_authorized', 'report_adeptus_insights');
-        $contact_admin = get_string('contact_admin_for_access', 'report_adeptus_insights');
+        $errormessage = get_string('user_not_authorized', 'report_adeptus_insights');
+        $contactadmin = get_string('contact_admin_for_access', 'report_adeptus_insights');
 
-        echo $OUTPUT->notification($error_message . ' ' . $contact_admin, 'error');
+        echo $OUTPUT->notification($errormessage . ' ' . $contactadmin, 'error');
 
         echo $OUTPUT->footer();
         exit;
@@ -369,12 +369,12 @@ class token_auth_manager {
     public function get_auth_headers() {
         global $CFG;
 
-        $api_key = $this->get_cached_api_key() ?: $this->installation_manager->get_api_key();
-        $site_url = $CFG->wwwroot;
+        $apikey = $this->get_cached_api_key() ?: $this->installation_manager->get_api_key();
+        $siteurl = $CFG->wwwroot;
 
         return [
-            'X-API-Key: ' . $api_key,
-            'X-Site-URL: ' . $site_url,
+            'X-API-Key: ' . $apikey,
+            'X-Site-URL: ' . $siteurl,
         ];
     }
 
@@ -384,9 +384,9 @@ class token_auth_manager {
      * @return bool True if read-only mode should be enabled
      */
     public function should_enable_readonly_mode() {
-        $auth_status = $this->get_auth_status();
+        $authstatus = $this->get_auth_status();
 
         // Only check API key availability - email validation removed
-        return !$auth_status['has_api_key'];
+        return !$authstatus['has_api_key'];
     }
 }

@@ -41,43 +41,43 @@ $PAGE->set_pagelayout('report');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/support_manager.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
-$support_manager = new \report_adeptus_insights\support_manager();
-$installation_manager = new \report_adeptus_insights\installation_manager();
+$supportmanager = new \report_adeptus_insights\support_manager();
+$installationmanager = new \report_adeptus_insights\installation_manager();
 
 // Get current action and view
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $view = optional_param('view', 'tickets', PARAM_ALPHA);
-$ticket_id = optional_param('ticket_id', 0, PARAM_INT);
+$ticketid = optional_param('ticket_id', 0, PARAM_INT);
 
 // Process form submissions
 $message = '';
-$message_type = '';
+$messagetype = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
     // Use PARAM_ALPHANUMEXT to allow underscores in action names
-    $post_action = required_param('action', PARAM_ALPHANUMEXT);
+    $postaction = required_param('action', PARAM_ALPHANUMEXT);
 
-    if ($post_action === 'create_ticket') {
+    if ($postaction === 'create_ticket') {
         $category = required_param('category', PARAM_ALPHA);
         $subject = required_param('subject', PARAM_TEXT);
-        $ticket_message = required_param('message', PARAM_RAW);
+        $ticketmessage = required_param('message', PARAM_RAW);
         $priority = optional_param('priority', 'medium', PARAM_ALPHA);
-        $submitter_name = optional_param('submitter_name', '', PARAM_TEXT);
-        $submitter_email = optional_param('submitter_email', '', PARAM_EMAIL);
+        $submittername = optional_param('submitter_name', '', PARAM_TEXT);
+        $submitteremail = optional_param('submitter_email', '', PARAM_EMAIL);
 
         // Get uploaded files if any - check if actual files were uploaded
         $attachments = [];
         if (isset($_FILES['attachments']) && isset($_FILES['attachments']['tmp_name'])) {
             // Handle array of files (multiple upload)
             if (is_array($_FILES['attachments']['tmp_name'])) {
-                $has_files = false;
-                foreach ($_FILES['attachments']['tmp_name'] as $tmp_name) {
-                    if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
-                        $has_files = true;
+                $hasfiles = false;
+                foreach ($_FILES['attachments']['tmp_name'] as $tmpname) {
+                    if (!empty($tmpname) && is_uploaded_file($tmpname)) {
+                        $hasfiles = true;
                         break;
                     }
                 }
-                if ($has_files) {
+                if ($hasfiles) {
                     $attachments = $_FILES['attachments'];
                 }
             } else {
@@ -88,63 +88,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
             }
         }
 
-        $result = $support_manager->create_ticket(
+        $result = $supportmanager->create_ticket(
             $category,
             $subject,
-            $ticket_message,
-            $submitter_name ?: null,
-            $submitter_email ?: null,
+            $ticketmessage,
+            $submittername ?: null,
+            $submitteremail ?: null,
             $priority,
             $attachments
         );
 
         if ($result['success']) {
             $message = $result['message'];
-            $message_type = 'success';
+            $messagetype = 'success';
             $action = 'list';
         } else {
             $message = $result['message'];
-            $message_type = 'error';
+            $messagetype = 'error';
             $action = 'new';
         }
-    } else if ($post_action === 'reply') {
-        $reply_ticket_id = required_param('ticket_id', PARAM_INT);
-        $reply_message = required_param('reply_message', PARAM_RAW);
-        $sender_name = optional_param('sender_name', '', PARAM_TEXT);
+    } else if ($postaction === 'reply') {
+        $replyticketid = required_param('ticket_id', PARAM_INT);
+        $replymessage = required_param('reply_message', PARAM_RAW);
+        $sendername = optional_param('sender_name', '', PARAM_TEXT);
 
         // Get uploaded files if any - check if actual files were uploaded
-        $reply_attachments = [];
+        $replyattachments = [];
         if (isset($_FILES['reply_attachments']) && isset($_FILES['reply_attachments']['tmp_name'])) {
             if (is_array($_FILES['reply_attachments']['tmp_name'])) {
-                $has_files = false;
-                foreach ($_FILES['reply_attachments']['tmp_name'] as $tmp_name) {
-                    if (!empty($tmp_name) && is_uploaded_file($tmp_name)) {
-                        $has_files = true;
+                $hasfiles = false;
+                foreach ($_FILES['reply_attachments']['tmp_name'] as $tmpname) {
+                    if (!empty($tmpname) && is_uploaded_file($tmpname)) {
+                        $hasfiles = true;
                         break;
                     }
                 }
-                if ($has_files) {
-                    $reply_attachments = $_FILES['reply_attachments'];
+                if ($hasfiles) {
+                    $replyattachments = $_FILES['reply_attachments'];
                 }
             } else {
                 if (!empty($_FILES['reply_attachments']['tmp_name']) && is_uploaded_file($_FILES['reply_attachments']['tmp_name'])) {
-                    $reply_attachments = $_FILES['reply_attachments'];
+                    $replyattachments = $_FILES['reply_attachments'];
                 }
             }
         }
 
-        $result = $support_manager->add_reply($reply_ticket_id, $reply_message, $sender_name ?: null, $reply_attachments);
+        $result = $supportmanager->add_reply($replyticketid, $replymessage, $sendername ?: null, $replyattachments);
 
         if ($result['success']) {
             $message = $result['message'];
-            $message_type = 'success';
+            $messagetype = 'success';
         } else {
             $message = $result['message'];
-            $message_type = 'error';
+            $messagetype = 'error';
         }
 
         $action = 'view';
-        $ticket_id = $reply_ticket_id;
+        $ticketid = $replyticketid;
     }
 }
 
@@ -155,15 +155,15 @@ $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
 echo $OUTPUT->header();
 
 // Check if registered
-$is_registered = $installation_manager->is_registered();
+$isregistered = $installationmanager->is_registered();
 
 // Prepare common template context
 $basecontext = [
     'wwwroot' => $CFG->wwwroot,
     'sesskey' => sesskey(),
-    'is_registered' => $is_registered,
+    'is_registered' => $isregistered,
     'message' => $message,
-    'message_type' => $message_type,
+    'message_type' => $messagetype,
     'show_message' => !empty($message),
     'current_view' => $view,
     'view_tickets' => $view === 'tickets',
@@ -173,12 +173,12 @@ $basecontext = [
 // Build the page content based on action
 if ($view === 'changelog') {
     // Changelog view
-    $changelog_result = $support_manager->get_changelog(50);
-    $update_result = $support_manager->check_for_updates();
+    $changelogresult = $supportmanager->get_changelog(50);
+    $updateresult = $supportmanager->check_for_updates();
 
     $changelogs = [];
-    if ($changelog_result['success'] && !empty($changelog_result['changelogs'])) {
-        foreach ($changelog_result['changelogs'] as $entry) {
+    if ($changelogresult['success'] && !empty($changelogresult['changelogs'])) {
+        foreach ($changelogresult['changelogs'] as $entry) {
             $changelogs[] = [
                 'version' => $entry['version'],
                 'title' => $entry['title'],
@@ -192,11 +192,11 @@ if ($view === 'changelog') {
     $templatecontext = array_merge($basecontext, [
         'changelogs' => $changelogs,
         'has_changelogs' => !empty($changelogs),
-        'update_available' => $update_result['update_available'] ?? false,
-        'current_version' => $update_result['current_version'] ?? $installation_manager->get_plugin_version(),
-        'latest_version' => $update_result['latest_version'] ?? null,
-        'versions_behind' => $update_result['versions_behind'] ?? 0,
-        'latest_changelog' => $update_result['latest_changelog'] ?? null,
+        'update_available' => $updateresult['update_available'] ?? false,
+        'current_version' => $updateresult['current_version'] ?? $installationmanager->get_plugin_version(),
+        'latest_version' => $updateresult['latest_version'] ?? null,
+        'versions_behind' => $updateresult['versions_behind'] ?? 0,
+        'latest_changelog' => $updateresult['latest_changelog'] ?? null,
     ]);
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_changelog', $templatecontext);
@@ -220,18 +220,18 @@ if ($view === 'changelog') {
     ]);
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_new_ticket', $templatecontext);
-} else if ($action === 'view' && $ticket_id > 0) {
+} else if ($action === 'view' && $ticketid > 0) {
     // View ticket detail
-    $ticket_result = $support_manager->get_ticket($ticket_id);
+    $ticketresult = $supportmanager->get_ticket($ticketid);
 
-    if ($ticket_result['success']) {
-        $ticket = $ticket_result['ticket'];
+    if ($ticketresult['success']) {
+        $ticket = $ticketresult['ticket'];
 
         // Format attachments for ticket
-        $ticket_attachments = [];
+        $ticketattachments = [];
         if (!empty($ticket['attachments'])) {
             foreach ($ticket['attachments'] as $attachment) {
-                $ticket_attachments[] = [
+                $ticketattachments[] = [
                     'id' => $attachment['id'],
                     'filename' => $attachment['original_filename'],
                     'file_size' => $attachment['file_size_formatted'] ?? $attachment['file_size'],
@@ -250,10 +250,10 @@ if ($view === 'changelog') {
         if (!empty($ticket['replies'])) {
             foreach ($ticket['replies'] as $reply) {
                 // Format reply attachments
-                $reply_attachments = [];
+                $replyattachments = [];
                 if (!empty($reply['attachments'])) {
                     foreach ($reply['attachments'] as $attachment) {
-                        $reply_attachments[] = [
+                        $replyattachments[] = [
                             'id' => $attachment['id'],
                             'filename' => $attachment['original_filename'],
                             'file_size' => $attachment['file_size_formatted'] ?? $attachment['file_size'],
@@ -276,8 +276,8 @@ if ($view === 'changelog') {
                     'message' => nl2br(htmlspecialchars($reply['message'])),
                     'created_at' => $reply['created_at'],
                     'is_internal' => $reply['is_internal_note'] ?? false,
-                    'attachments' => $reply_attachments,
-                    'has_attachments' => !empty($reply_attachments),
+                    'attachments' => $replyattachments,
+                    'has_attachments' => !empty($replyattachments),
                 ];
             }
         }
@@ -300,8 +300,8 @@ if ($view === 'changelog') {
                 'submitter_email' => $ticket['submitter_email'] ?? '',
                 'created_at' => $ticket['created_at'],
                 'is_closed' => $ticket['status'] === 'closed',
-                'attachments' => $ticket_attachments,
-                'has_attachments' => !empty($ticket_attachments),
+                'attachments' => $ticketattachments,
+                'has_attachments' => !empty($ticketattachments),
             ],
             'replies' => $replies,
             'has_replies' => !empty($replies),
@@ -312,23 +312,23 @@ if ($view === 'changelog') {
         echo $OUTPUT->render_from_template('report_adeptus_insights/support_ticket_detail', $templatecontext);
     } else {
         $templatecontext = array_merge($basecontext, [
-            'error_message' => $ticket_result['message'],
+            'error_message' => $ticketresult['message'],
         ]);
         echo $OUTPUT->render_from_template('report_adeptus_insights/support_error', $templatecontext);
     }
 } else {
     // List tickets (default view)
-    $status_filter = optional_param('status', '', PARAM_ALPHA);
-    $category_filter = optional_param('category', '', PARAM_ALPHA);
+    $statusfilter = optional_param('status', '', PARAM_ALPHA);
+    $categoryfilter = optional_param('category', '', PARAM_ALPHA);
 
-    $tickets_result = $support_manager->get_tickets(
-        $status_filter ?: null,
-        $category_filter ?: null
+    $ticketsresult = $supportmanager->get_tickets(
+        $statusfilter ?: null,
+        $categoryfilter ?: null
     );
 
     $tickets = [];
-    if ($tickets_result['success'] && !empty($tickets_result['tickets'])) {
-        foreach ($tickets_result['tickets'] as $ticket) {
+    if ($ticketsresult['success'] && !empty($ticketsresult['tickets'])) {
+        foreach ($ticketsresult['tickets'] as $ticket) {
             $tickets[] = [
                 'id' => $ticket['id'],
                 'ticket_number' => $ticket['ticket_number'],
@@ -349,27 +349,27 @@ if ($view === 'changelog') {
     }
 
     // Build filter options
-    $status_options = [
-        ['value' => '', 'label' => get_string('all'), 'selected' => empty($status_filter)],
-        ['value' => 'open', 'label' => get_string('status_open', 'report_adeptus_insights'), 'selected' => $status_filter === 'open'],
-        ['value' => 'in_progress', 'label' => get_string('status_in_progress', 'report_adeptus_insights'), 'selected' => $status_filter === 'in_progress'],
-        ['value' => 'resolved', 'label' => get_string('status_resolved', 'report_adeptus_insights'), 'selected' => $status_filter === 'resolved'],
-        ['value' => 'closed', 'label' => get_string('status_closed', 'report_adeptus_insights'), 'selected' => $status_filter === 'closed'],
+    $statusoptions = [
+        ['value' => '', 'label' => get_string('all'), 'selected' => empty($statusfilter)],
+        ['value' => 'open', 'label' => get_string('status_open', 'report_adeptus_insights'), 'selected' => $statusfilter === 'open'],
+        ['value' => 'in_progress', 'label' => get_string('status_in_progress', 'report_adeptus_insights'), 'selected' => $statusfilter === 'in_progress'],
+        ['value' => 'resolved', 'label' => get_string('status_resolved', 'report_adeptus_insights'), 'selected' => $statusfilter === 'resolved'],
+        ['value' => 'closed', 'label' => get_string('status_closed', 'report_adeptus_insights'), 'selected' => $statusfilter === 'closed'],
     ];
 
-    $category_options = [
-        ['value' => '', 'label' => get_string('all'), 'selected' => empty($category_filter)],
+    $categoryoptions = [
+        ['value' => '', 'label' => get_string('all'), 'selected' => empty($categoryfilter)],
     ];
     foreach (\report_adeptus_insights\support_manager::TICKET_CATEGORIES as $key => $label) {
-        $category_options[] = ['value' => $key, 'label' => $label, 'selected' => $category_filter === $key];
+        $categoryoptions[] = ['value' => $key, 'label' => $label, 'selected' => $categoryfilter === $key];
     }
 
     $templatecontext = array_merge($basecontext, [
         'tickets' => $tickets,
         'has_tickets' => !empty($tickets),
         'total_tickets' => count($tickets),
-        'status_options' => $status_options,
-        'category_options' => $category_options,
+        'status_options' => $statusoptions,
+        'category_options' => $categoryoptions,
         'new_ticket_url' => (new moodle_url('/report/adeptus_insights/support.php', ['action' => 'new']))->out(false),
     ]);
 

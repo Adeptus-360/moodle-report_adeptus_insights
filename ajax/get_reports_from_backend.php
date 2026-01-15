@@ -48,8 +48,8 @@ if (!confirm_sesskey($sesskey)) {
 
 try {
     // Get current Moodle version for compatibility filtering
-    $moodle_version = $CFG->version;
-    $moodle_version_string = '4.2'; // Hardcoded for now
+    $moodleversion = $CFG->version;
+    $moodleversionstring = '4.2'; // Hardcoded for now
 
     // Backend API configuration using centralized API config
     $backendEnabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
@@ -63,11 +63,11 @@ try {
     }
 
     // Get API key for authentication (optional since API works without it)
-    $api_key = '';
+    $apikey = '';
     try {
         require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-        $installation_manager = new \report_adeptus_insights\installation_manager();
-        $api_key = $installation_manager->get_api_key();
+        $installationmanager = new \report_adeptus_insights\installation_manager();
+        $apikey = $installationmanager->get_api_key();
     } catch (Exception $e) {
         // Silently continue - API key is optional.
     }
@@ -79,8 +79,8 @@ try {
     ];
 
     // Add API key header only if we have one
-    if (!empty($api_key)) {
-        $headers[] = 'X-API-Key: ' . $api_key;
+    if (!empty($apikey)) {
+        $headers[] = 'X-API-Key: ' . $apikey;
     }
 
     // Fetch reports from backend API
@@ -123,52 +123,52 @@ try {
         throw new Exception('Invalid response from backend API');
     }
 
-    $all_reports = $backendData['data'];
+    $allreports = $backendData['data'];
 
     // Load report validator for table/module compatibility checking
     require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
 
     // Filter reports for Moodle version AND table/module compatibility
-    $compatible_reports = [];
-    $filtered_count = 0;
+    $compatiblereports = [];
+    $filteredcount = 0;
 
-    foreach ($all_reports as $report) {
-        $is_compatible = true;
-        $filter_reason = '';
+    foreach ($allreports as $report) {
+        $iscompatible = true;
+        $filterreason = '';
 
         // Check minimum version
         if (!empty($report['min_moodle_version'])) {
-            if (version_compare($moodle_version_string, $report['min_moodle_version'], '<')) {
-                $is_compatible = false;
-                $filter_reason = 'moodle_version_min';
+            if (version_compare($moodleversionstring, $report['min_moodle_version'], '<')) {
+                $iscompatible = false;
+                $filterreason = 'moodle_version_min';
             }
         }
 
         // Check maximum version
         if (!empty($report['max_moodle_version'])) {
-            if (version_compare($moodle_version_string, $report['max_moodle_version'], '>')) {
-                $is_compatible = false;
-                $filter_reason = 'moodle_version_max';
+            if (version_compare($moodleversionstring, $report['max_moodle_version'], '>')) {
+                $iscompatible = false;
+                $filterreason = 'moodle_version_max';
             }
         }
 
         // Check table/module compatibility (NEW)
-        if ($is_compatible) {
+        if ($iscompatible) {
             $validation = \report_adeptus_insights\report_validator::validate_report($report);
             if (!$validation['valid']) {
-                $is_compatible = false;
-                $filter_reason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
+                $iscompatible = false;
+                $filterreason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
 
                 if ($debugMode) {
                 }
             }
         }
 
-        if ($is_compatible && $report['isactive']) {
-            $compatible_reports[] = $report;
+        if ($iscompatible && $report['isactive']) {
+            $compatiblereports[] = $report;
         } else {
-            $filtered_count++;
-            if ($debugMode && !empty($filter_reason)) {
+            $filteredcount++;
+            if ($debugMode && !empty($filterreason)) {
             }
         }
     }
@@ -178,16 +178,16 @@ try {
 
     // Organize reports by category
     $categories = [];
-    foreach ($compatible_reports as $report) {
-        $category_name = $report['category'];
+    foreach ($compatiblereports as $report) {
+        $categoryname = $report['category'];
 
-        if (!isset($categories[$category_name])) {
+        if (!isset($categories[$categoryname])) {
             // Remove "Reports" from category name for display
-            $display_name = str_replace(' Reports', '', $category_name);
+            $displayname = str_replace(' Reports', '', $categoryname);
 
-            $categories[$category_name] = [
-                'name' => $display_name,
-                'original_name' => $category_name,
+            $categories[$categoryname] = [
+                'name' => $displayname,
+                'original_name' => $categoryname,
                 'icon' => 'fa-folder-o', // Default fallback icon
                 'reports' => [],
                 'report_count' => 0,
@@ -196,7 +196,7 @@ try {
         }
 
         // Add report to category
-        $categories[$category_name]['reports'][] = [
+        $categories[$categoryname]['reports'][] = [
             'id' => $report['name'], // Use name as ID since no local ID
             'name' => $report['name'],
             'description' => $report['description'],
@@ -205,32 +205,32 @@ try {
             'parameters' => $report['parameters'],
             'is_free_tier' => false, // Will be set below
         ];
-        $categories[$category_name]['report_count']++;
+        $categories[$categoryname]['report_count']++;
     }
 
     // Apply free tier restrictions (same logic as before)
-    $priority_keywords = [
+    $prioritykeywords = [
         'high' => ['overview', 'summary', 'total', 'count', 'basic', 'simple', 'main', 'general', 'all', 'complete'],
         'medium' => ['detailed', 'advanced', 'specific', 'custom', 'filtered', 'selected'],
         'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis'],
     ];
 
-    function calculate_report_priority($report, $priority_keywords) {
+    function calculate_report_priority($report, $prioritykeywords) {
         $text = strtolower($report['name'] . ' ' . ($report['description'] ?? ''));
 
-        foreach ($priority_keywords['high'] as $keyword) {
+        foreach ($prioritykeywords['high'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 1; // High priority
             }
         }
 
-        foreach ($priority_keywords['medium'] as $keyword) {
+        foreach ($prioritykeywords['medium'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 2; // Medium priority
             }
         }
 
-        foreach ($priority_keywords['low'] as $keyword) {
+        foreach ($prioritykeywords['low'] as $keyword) {
             if (strpos($text, $keyword) !== false) {
                 return 3; // Low priority
             }
@@ -239,40 +239,40 @@ try {
         return 2; // Default to medium priority
     }
 
-    foreach ($categories as $cat_key => $category) {
-        $total_reports = count($category['reports']);
+    foreach ($categories as $catkey => $category) {
+        $totalreports = count($category['reports']);
 
         // Determine how many reports to allow for free tier
         // 1-4 reports = 1 free, 5-10 reports = 2 free, 10+ reports = 3 free (cap)
-        if ($total_reports >= 1 && $total_reports <= 4) {
-            $free_count = 1;
-        } else if ($total_reports >= 5 && $total_reports <= 10) {
-            $free_count = 2;
+        if ($totalreports >= 1 && $totalreports <= 4) {
+            $freecount = 1;
+        } else if ($totalreports >= 5 && $totalreports <= 10) {
+            $freecount = 2;
         } else {
-            $free_count = 3; // Cap at 3 for categories with 10+ reports
+            $freecount = 3; // Cap at 3 for categories with 10+ reports
         }
 
         // Sort reports by priority (1 = highest priority)
-        usort($categories[$cat_key]['reports'], function ($a, $b) use ($priority_keywords) {
-            $priority_a = calculate_report_priority($a, $priority_keywords);
-            $priority_b = calculate_report_priority($b, $priority_keywords);
-            return $priority_a <=> $priority_b;
+        usort($categories[$catkey]['reports'], function ($a, $b) use ($prioritykeywords) {
+            $prioritya = calculate_report_priority($a, $prioritykeywords);
+            $priorityb = calculate_report_priority($b, $prioritykeywords);
+            return $prioritya <=> $priorityb;
         });
 
         // Mark free tier reports
-        for ($i = 0; $i < count($categories[$cat_key]['reports']); $i++) {
-            $categories[$cat_key]['reports'][$i]['is_free_tier'] = ($i < $free_count);
+        for ($i = 0; $i < count($categories[$catkey]['reports']); $i++) {
+            $categories[$catkey]['reports'][$i]['is_free_tier'] = ($i < $freecount);
         }
 
-        $categories[$cat_key]['free_reports_count'] = $free_count;
+        $categories[$catkey]['free_reports_count'] = $freecount;
     }
 
     // Return success response
     echo json_encode([
         'success' => true,
         'categories' => array_values($categories),
-        'total_reports' => count($compatible_reports),
-        'moodle_version' => $moodle_version_string,
+        'total_reports' => count($compatiblereports),
+        'moodle_version' => $moodleversionstring,
     ]);
 } catch (Exception $e) {
     // Provide user-friendly error messages.
