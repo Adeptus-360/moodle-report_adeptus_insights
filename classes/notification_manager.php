@@ -15,18 +15,34 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Notification Manager for Adeptus Insights
- * Handles display of professional error messages and user notifications
+ * Notification Manager for Adeptus Insights.
+ *
+ * Handles display of professional error messages and user notifications.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Notification manager class for displaying user notifications.
+ *
+ * Handles display of professional error messages and user notifications.
+ */
 class notification_manager {
+    /** @var error_handler Error handler instance. */
     private $errorhandler;
+
+    /** @var array Array of notification messages. */
     private $notifications;
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
         $this->error_handler = new \report_adeptus_insights\error_handler();
         $this->notifications = [];
@@ -40,13 +56,13 @@ class notification_manager {
      * @param bool $logerror Whether to log the error
      * @return string HTML for the error message
      */
-    public function displayError($errorcode, $additionaldata = [], $logerror = true) {
+    public function display_error($errorcode, $additionaldata = [], $logerror = true) {
         if ($logerror) {
             $this->error_handler->logError($errorcode, $additionaldata);
         }
 
         $errormessage = $this->error_handler->createErrorMessage($errorcode, $additionaldata);
-        $html = $this->renderErrorMessage($errormessage);
+        $html = $this->render_error_message($errormessage);
 
         // Store notification for potential reuse
         $this->notifications[] = $errormessage;
@@ -62,7 +78,7 @@ class notification_manager {
      * @param array $actions Optional actions to display
      * @return string HTML for the success message
      */
-    public function displaySuccess($title, $message, $actions = []) {
+    public function display_success($title, $message, $actions = []) {
         $notification = [
             'type' => 'success',
             'title' => $title,
@@ -73,7 +89,7 @@ class notification_manager {
 
         $this->notifications[] = $notification;
 
-        return $this->renderNotification($notification);
+        return $this->render_notification($notification);
     }
 
     /**
@@ -84,7 +100,7 @@ class notification_manager {
      * @param array $actions Optional actions to display
      * @return string HTML for the warning message
      */
-    public function displayWarning($title, $message, $actions = []) {
+    public function display_warning($title, $message, $actions = []) {
         $notification = [
             'type' => 'warning',
             'title' => $title,
@@ -95,7 +111,7 @@ class notification_manager {
 
         $this->notifications[] = $notification;
 
-        return $this->renderNotification($notification);
+        return $this->render_notification($notification);
     }
 
     /**
@@ -106,7 +122,7 @@ class notification_manager {
      * @param array $actions Optional actions to display
      * @return string HTML for the info message
      */
-    public function displayInfo($title, $message, $actions = []) {
+    public function display_info($title, $message, $actions = []) {
         $notification = [
             'type' => 'info',
             'title' => $title,
@@ -117,7 +133,7 @@ class notification_manager {
 
         $this->notifications[] = $notification;
 
-        return $this->renderNotification($notification);
+        return $this->render_notification($notification);
     }
 
     /**
@@ -126,9 +142,9 @@ class notification_manager {
      * @param array $errormessage The error message data
      * @return string HTML for the error message
      */
-    private function renderErrorMessage($errormessage) {
-        $severityclass = $this->getSeverityClass($errormessage['severity']);
-        $iconclass = $this->getSeverityIcon($errormessage['severity']);
+    private function render_error_message($errormessage) {
+        $severityclass = $this->get_severity_class($errormessage['severity']);
+        $iconclass = $this->get_severity_icon($errormessage['severity']);
 
         $html = '<div class="adeptus-error-message ' . $severityclass . '" role="alert">';
         $html .= '<div class="adeptus-error-header">';
@@ -153,7 +169,7 @@ class notification_manager {
 
         // Display recovery actions
         if ($errormessage['recovery_action']) {
-            $html .= $this->renderRecoveryActions($errormessage['recovery_action'], $errormessage['admin_contact']);
+            $html .= $this->render_recovery_actions($errormessage['recovery_action'], $errormessage['admin_contact']);
         }
 
         $html .= '</div>';
@@ -168,9 +184,9 @@ class notification_manager {
      * @param array $notification The notification data
      * @return string HTML for the notification
      */
-    private function renderNotification($notification) {
+    private function render_notification($notification) {
         $typeclass = 'adeptus-notification-' . $notification['type'];
-        $iconclass = $this->getNotificationIcon($notification['type']);
+        $iconclass = $this->get_notification_icon($notification['type']);
 
         $html = '<div class="adeptus-notification ' . $typeclass . '" role="alert">';
         $html .= '<div class="adeptus-notification-header">';
@@ -183,7 +199,7 @@ class notification_manager {
 
         // Display actions if available
         if (!empty($notification['actions'])) {
-            $html .= $this->renderNotificationActions($notification['actions']);
+            $html .= $this->render_notification_actions($notification['actions']);
         }
 
         $html .= '</div>';
@@ -199,7 +215,7 @@ class notification_manager {
      * @param array $admincontact Admin contact information
      * @return string HTML for recovery actions
      */
-    private function renderRecoveryActions($recoveryaction, $admincontact) {
+    private function render_recovery_actions($recoveryaction, $admincontact) {
         $html = '<div class="adeptus-recovery-actions">';
         $html .= '<h4>What you can do:</h4>';
 
@@ -250,7 +266,7 @@ class notification_manager {
      * @param array $actions The actions to display
      * @return string HTML for notification actions
      */
-    private function renderNotificationActions($actions) {
+    private function render_notification_actions($actions) {
         if (empty($actions)) {
             return '';
         }
@@ -279,7 +295,7 @@ class notification_manager {
      * @param string $severity The severity level
      * @return string CSS class
      */
-    private function getSeverityClass($severity) {
+    private function get_severity_class($severity) {
         switch ($severity) {
             case 'error':
                 return 'adeptus-error-severity-error';
@@ -298,7 +314,7 @@ class notification_manager {
      * @param string $severity The severity level
      * @return string Icon class
      */
-    private function getSeverityIcon($severity) {
+    private function get_severity_icon($severity) {
         switch ($severity) {
             case 'error':
                 return 'fa-exclamation-circle';
@@ -317,7 +333,7 @@ class notification_manager {
      * @param string $type The notification type
      * @return string Icon class
      */
-    private function getNotificationIcon($type) {
+    private function get_notification_icon($type) {
         switch ($type) {
             case 'success':
                 return 'fa-check-circle';
@@ -337,7 +353,7 @@ class notification_manager {
      *
      * @return string HTML for all notifications
      */
-    public function displayAllNotifications() {
+    public function display_all_notifications() {
         if (empty($this->notifications)) {
             return '';
         }
@@ -345,9 +361,9 @@ class notification_manager {
         $html = '<div class="adeptus-notifications-container">';
         foreach ($this->notifications as $notification) {
             if (isset($notification['error_code'])) {
-                $html .= $this->renderErrorMessage($notification);
+                $html .= $this->render_error_message($notification);
             } else {
-                $html .= $this->renderNotification($notification);
+                $html .= $this->render_notification($notification);
             }
         }
         $html .= '</div>';
@@ -358,7 +374,7 @@ class notification_manager {
     /**
      * Clear all stored notifications
      */
-    public function clearNotifications() {
+    public function clear_notifications() {
         $this->notifications = [];
     }
 
@@ -367,7 +383,7 @@ class notification_manager {
      *
      * @return int Number of notifications
      */
-    public function getNotificationCount() {
+    public function get_notification_count() {
         return count($this->notifications);
     }
 
@@ -376,7 +392,7 @@ class notification_manager {
      *
      * @return bool True if there are error notifications
      */
-    public function hasErrors() {
+    public function has_errors() {
         foreach ($this->notifications as $notification) {
             if (
                 isset($notification['error_code']) ||
@@ -393,7 +409,7 @@ class notification_manager {
      *
      * @return string JSON string of notifications
      */
-    public function getNotificationsAsJson() {
+    public function get_notifications_as_json() {
         return json_encode($this->notifications);
     }
 
@@ -406,7 +422,7 @@ class notification_manager {
      * @param int $duration Duration in milliseconds (0 for manual close)
      * @return string JavaScript code for toast notification
      */
-    public function displayToast($type, $title, $message, $duration = 5000) {
+    public function display_toast($type, $title, $message, $duration = 5000) {
         $notification = [
             'type' => $type,
             'title' => $title,

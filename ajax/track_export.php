@@ -90,7 +90,7 @@ try {
 
     // Handle connection errors - log but don't fail the user experience
     if ($response === false || !empty($curlerror)) {
-        error_log('[Adeptus Insights] Export tracking failed - curl error: ' . $curlerror);
+        debugging('[Adeptus Insights] Export tracking failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         // Still return success to not disrupt user, but log the issue
         echo json_encode([
             'success' => true,
@@ -102,7 +102,7 @@ try {
 
     // Handle HTTP errors
     if ($httpcode !== 200) {
-        error_log('[Adeptus Insights] Export tracking failed - HTTP ' . $httpcode . ': ' . $response);
+        debugging('[Adeptus Insights] Export tracking failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
         // Still return success to not disrupt user
         echo json_encode([
             'success' => true,
@@ -116,7 +116,7 @@ try {
     $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('[Adeptus Insights] Export tracking failed - invalid JSON response');
+        debugging('[Adeptus Insights] Export tracking failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
             'message' => 'Export completed (tracking pending)',
@@ -134,7 +134,7 @@ try {
         'exports_limit' => $backenddata['exports_limit'] ?? 0,
     ]);
 } catch (Exception $e) {
-    error_log('[Adeptus Insights] Export tracking exception: ' . $e->getMessage());
+    debugging('[Adeptus Insights] Export tracking exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
     // Don't fail the user experience for tracking errors
     echo json_encode([
         'success' => true,

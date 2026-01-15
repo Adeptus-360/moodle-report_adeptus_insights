@@ -166,7 +166,7 @@ try {
 
         // FAIL CLOSED: If we can't verify limits, deny the request
         if ($limitsresponse === false || !empty($limitscurlerror)) {
-            error_log('[Adeptus Insights] Report limits check failed - curl error: ' . $limitscurlerror);
+            debugging('[Adeptus Insights] Report limits check failed - curl error: ' . $limitscurlerror, DEBUG_DEVELOPER);
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
@@ -176,7 +176,7 @@ try {
         }
 
         if ($limitshttpcode !== 200) {
-            error_log('[Adeptus Insights] Report limits check failed - HTTP ' . $limitshttpcode);
+            debugging('[Adeptus Insights] Report limits check failed - HTTP ' . $limitshttpcode, DEBUG_DEVELOPER);
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
@@ -187,7 +187,7 @@ try {
 
         $limitsdata = json_decode($limitsresponse, true);
         if (json_last_error() !== JSON_ERROR_NONE || !isset($limitsdata['eligible'])) {
-            error_log('[Adeptus Insights] Report limits check failed - invalid response');
+            debugging('[Adeptus Insights] Report limits check failed - invalid response', DEBUG_DEVELOPER);
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
@@ -303,7 +303,7 @@ try {
     $sql = $report['sqlquery'];
 
     // SAFETY CHECK: Add safety limit if no LIMIT clause exists
-    $SAFETY_LIMIT = 100000; // Maximum 100K records to prevent browser freeze
+    $safetylimit = 100000; // Maximum 100K records to prevent browser freeze
     // Match LIMIT with number OR named parameter (e.g., LIMIT 100 or LIMIT :limit)
     $haslimit = preg_match('/\bLIMIT\s+(\d+|:\w+|\?)/i', $sql);
 
@@ -314,7 +314,7 @@ try {
         // Handle queries that may end with semicolon
         $sql = rtrim($sql);
         $sql = rtrim($sql, ';');
-        $sql .= " LIMIT $SAFETY_LIMIT";
+        $sql .= " LIMIT $safetylimit";
     }
 
     // Handle :limit parameter specially - MySQL LIMIT doesn't support bound parameters
@@ -442,11 +442,13 @@ try {
             if (!empty($savedata['success'])) {
                 $isnewgeneration = true;
             } else {
+                debugging('Backend save response missing success flag', DEBUG_DEVELOPER);
             }
         } else {
+            debugging('Backend save failed with HTTP: ' . $savehttpcode, DEBUG_DEVELOPER);
         }
     } else {
-        $isnewgeneration = false; // Ensure variable is defined
+        $isnewgeneration = false; // Ensure variable is defined.
     }
 
     // Update subscription usage in backend if report was generated (only count new generations, not updates)
@@ -456,12 +458,17 @@ try {
             $trackingresult = $installationmanager->track_report_generation($reportkey, $isaigenerated);
 
             if ($trackingresult) {
+                debugging('Report generation tracked successfully', DEBUG_DEVELOPER);
             } else {
+                debugging('Report generation tracking returned false', DEBUG_DEVELOPER);
             }
         } catch (Exception $e) {
             // Silently continue - tracking failure shouldn't break report generation.
+            debugging('Report tracking failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     } else {
+        // Skip tracking for duplicates or re-executions.
+        debugging('Skipping tracking: duplicate=' . ($isduplicate ? '1' : '0') . ' isnew=' . ($isnewgeneration ? '1' : '0'), DEBUG_DEVELOPER);
     }
 
     // Prepare chart data if chart type is specified
@@ -534,7 +541,7 @@ try {
         }, $chartvalues);
 
         // Generate colors based on chart type
-        $colors = generateChartColors(count($chartvalues), $report->charttype);
+        $colors = generate_chart_colors(count($chartvalues), $report->charttype);
 
         $chartdata = [
             'labels' => array_column($resultsarray, $labelcolumn),
@@ -543,7 +550,7 @@ try {
                     'label' => $report->name,
                     'data' => $chartvalues,
                     'backgroundColor' => $colors,
-                    'borderColor' => adjustColors($colors, -20),
+                    'borderColor' => adjust_colors($colors, -20),
                     'borderWidth' => 2,
                 ],
             ],
@@ -588,7 +595,7 @@ try {
 /**
  * Generate colors for charts based on chart type and data count
  */
-function generateChartColors($count, $charttype) {
+function generate_chart_colors($count, $charttype) {
     $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
@@ -613,20 +620,20 @@ function generateChartColors($count, $charttype) {
 /**
  * Adjust colors (lighten or darken) for border colors
  */
-function adjustColors($colors, $amount) {
+function adjust_colors($colors, $amount) {
     if (is_array($colors)) {
         return array_map(function ($color) use ($amount) {
-            return adjustColor($color, $amount);
+            return adjust_color($color, $amount);
         }, $colors);
     } else {
-        return adjustColor($colors, $amount);
+        return adjust_color($colors, $amount);
     }
 }
 
 /**
  * Adjust a single color by lightening or darkening it
  */
-function adjustColor($color, $amount) {
+function adjust_color($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
 

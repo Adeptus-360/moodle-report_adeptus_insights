@@ -28,6 +28,11 @@ namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * API configuration class for Adeptus Insights.
+ *
+ * Provides centralized API URL management for backend communications.
+ */
 class api_config {
     /**
      * Production backend URL.
@@ -75,24 +80,46 @@ class api_config {
     }
 
     /**
-     * Get API endpoint URLs.
+     * Get the reports endpoint URL.
+     *
+     * @return string The reports definitions endpoint URL.
      */
     public static function get_reports_endpoint() {
         return self::get_backend_url() . '/reports/definitions';
     }
 
+    /**
+     * Get the installation endpoint URL.
+     *
+     * @return string The installation endpoint URL.
+     */
     public static function get_installation_endpoint() {
         return self::get_backend_url() . '/installation';
     }
 
+    /**
+     * Get the features endpoint URL.
+     *
+     * @return string The features endpoint URL.
+     */
     public static function get_features_endpoint() {
         return self::get_backend_url() . '/features';
     }
 
+    /**
+     * Get the chat endpoint URL.
+     *
+     * @return string The chat endpoint URL.
+     */
     public static function get_chat_endpoint() {
         return self::get_backend_url() . '/chat';
     }
 
+    /**
+     * Get the subscriptions endpoint URL.
+     *
+     * @return string The subscriptions endpoint URL.
+     */
     public static function get_subscriptions_endpoint() {
         return self::get_backend_url() . '/subscriptions';
     }

@@ -15,29 +15,47 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Error Handler for Adeptus Insights
- * Provides professional error messages and user-friendly error handling
+ * Error Handler for Adeptus Insights.
+ *
+ * Provides professional error messages and user-friendly error handling.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Error handler class for professional error management.
+ *
+ * Provides user-friendly error messages and recovery suggestions.
+ */
 class error_handler {
+    /** @var array Error code definitions. */
     private $errorcodes;
+
+    /** @var array Recovery action suggestions. */
     private $recoveryactions;
+
+    /** @var string Admin contact information. */
     private $admincontact;
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
-        $this->initializeErrorCodes();
-        $this->initializeRecoveryActions();
-        $this->initializeAdminContact();
+        $this->initialize_error_codes();
+        $this->initialize_recovery_actions();
+        $this->initialize_admin_contact();
     }
 
     /**
      * Initialize error codes and their user-friendly messages
      */
-    private function initializeErrorCodes() {
+    private function initialize_error_codes() {
         $this->error_codes = [
             'MISSING_HEADERS' => [
                 'title' => 'Missing Authentication Information',
@@ -132,7 +150,7 @@ class error_handler {
     /**
      * Initialize recovery actions
      */
-    private function initializeRecoveryActions() {
+    private function initialize_recovery_actions() {
         $this->recovery_actions = [
             'refresh_page' => [
                 'action' => 'refresh_page',
@@ -171,7 +189,7 @@ class error_handler {
     /**
      * Initialize admin contact information
      */
-    private function initializeAdminContact() {
+    private function initialize_admin_contact() {
         global $CFG;
 
         $this->admin_contact = [
@@ -188,7 +206,7 @@ class error_handler {
      * @param string $errorcode The error code
      * @return array|null Error information or null if not found
      */
-    public function getErrorInfo($errorcode) {
+    public function get_error_info($errorcode) {
         return $this->error_codes[$errorcode] ?? $this->error_codes['UNKNOWN_ERROR'];
     }
 
@@ -198,7 +216,7 @@ class error_handler {
      * @param string $actionkey The recovery action key
      * @return array|null Recovery action information or null if not found
      */
-    public function getRecoveryAction($actionkey) {
+    public function get_recovery_action($actionkey) {
         return $this->recovery_actions[$actionkey] ?? null;
     }
 
@@ -207,7 +225,7 @@ class error_handler {
      *
      * @return array Admin contact information
      */
-    public function getAdminContact() {
+    public function get_admin_contact() {
         return $this->admin_contact;
     }
 
@@ -218,9 +236,9 @@ class error_handler {
      * @param array $additionaldata Additional error data
      * @return array Formatted error message
      */
-    public function createErrorMessage($errorcode, $additionaldata = []) {
-        $errorinfo = $this->getErrorInfo($errorcode);
-        $recoveryaction = $this->getRecoveryAction($errorinfo['recovery']);
+    public function create_error_message($errorcode, $additionaldata = []) {
+        $errorinfo = $this->get_error_info($errorcode);
+        $recoveryaction = $this->get_recovery_action($errorinfo['recovery']);
 
         $errormessage = [
             'error_code' => $errorcode,
@@ -232,7 +250,7 @@ class error_handler {
             'admin_contact' => $this->admin_contact,
             'timestamp' => time(),
             'additional_data' => $additionaldata,
-            'suggestions' => $this->getSuggestions($errorcode, $additionaldata),
+            'suggestions' => $this->get_suggestions($errorcode, $additionaldata),
         ];
 
         return $errormessage;
@@ -245,7 +263,7 @@ class error_handler {
      * @param array $additionaldata Additional error data
      * @return array Array of suggestions
      */
-    private function getSuggestions($errorcode, $additionaldata = []) {
+    private function get_suggestions($errorcode, $additionaldata = []) {
         $suggestions = [];
 
         switch ($errorcode) {
@@ -324,10 +342,10 @@ class error_handler {
      * @param array $additionaldata Additional error data
      * @param string $usercontext User context information
      */
-    public function logError($errorcode, $additionaldata = [], $usercontext = '') {
+    public function log_error($errorcode, $additionaldata = [], $usercontext = '') {
         global $USER;
 
-        $errorinfo = $this->getErrorInfo($errorcode);
+        $errorinfo = $this->get_error_info($errorcode);
 
         $logdata = [
             'error_code' => $errorcode,
@@ -346,7 +364,7 @@ class error_handler {
 
         // Log to plugin-specific log if enabled
         if (get_config('report_adeptus_insights', 'enable_error_logging')) {
-            $this->writeToPluginLog($logdata);
+            $this->write_to_plugin_log($logdata);
         }
     }
 
@@ -355,7 +373,7 @@ class error_handler {
      *
      * @param array $logdata Log data to write
      */
-    private function writeToPluginLog($logdata) {
+    private function write_to_plugin_log($logdata) {
         global $CFG;
 
         $logdir = $CFG->dataroot . '/adeptus_insights/logs';
@@ -379,7 +397,7 @@ class error_handler {
      * @param int $days Number of days to look back
      * @return array Error statistics
      */
-    public function getErrorStatistics($days = 7) {
+    public function get_error_statistics($days = 7) {
         global $CFG;
 
         $logfile = $CFG->dataroot . '/adeptus_insights/logs/errors.log';
@@ -442,7 +460,7 @@ class error_handler {
      *
      * @return bool True if successful
      */
-    public function clearErrorLogs() {
+    public function clear_error_logs() {
         global $CFG;
 
         $logfile = $CFG->dataroot . '/adeptus_insights/logs/errors.log';

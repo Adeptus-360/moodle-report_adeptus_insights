@@ -153,15 +153,15 @@ $categories = []; // Will be populated by JavaScript
 $userid = $USER->id;
 $recentreports = $DB->get_records_sql("
     SELECT h.*
-    FROM {adeptus_report_history} h 
-    WHERE h.userid = ? 
+    FROM {adeptus_report_history} h
+    WHERE h.userid = ?
     AND h.id IN (
-        SELECT MAX(h2.id) 
-        FROM {adeptus_report_history} h2 
-        WHERE h2.userid = ? 
+        SELECT MAX(h2.id)
+        FROM {adeptus_report_history} h2
+        WHERE h2.userid = ?
         GROUP BY h2.reportid
     )
-    ORDER BY h.generatedat DESC 
+    ORDER BY h.generatedat DESC
 ", [$userid, $userid]);
 
 // Parse parameters for recent reports
@@ -187,9 +187,9 @@ foreach ($recentreports as $key => $recentreport) {
 // Get generated reports (for Generated Reports section)
 $generatedreports = $DB->get_records_sql("
     SELECT g.*
-    FROM {adeptus_generated_reports} g 
-    WHERE g.userid = ? 
-    ORDER BY g.generatedat DESC 
+    FROM {adeptus_generated_reports} g
+    WHERE g.userid = ?
+    ORDER BY g.generatedat DESC
 ", [$userid]);
 
 // Parse parameters for generated reports
@@ -215,8 +215,8 @@ foreach ($generatedreports as $key => $generatedreport) {
 
 $bookmarks = $DB->get_records_sql("
     SELECT b.*
-    FROM {adeptus_report_bookmarks} b 
-    WHERE b.userid = ? 
+    FROM {adeptus_report_bookmarks} b
+    WHERE b.userid = ?
     ORDER BY b.createdat DESC
 ", [$userid]);
 

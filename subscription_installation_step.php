@@ -15,10 +15,14 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Adeptus Insights - Subscription Installation Step
+ * Adeptus Insights - Subscription Installation Step.
  *
- * This page handles the subscription setup during plugin installation
- * It automatically creates a free subscription and shows upgrade options
+ * This page handles the subscription setup during plugin installation.
+ * It automatically creates a free subscription and shows upgrade options.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');

@@ -60,7 +60,8 @@ function xmldb_report_adeptus_insights_uninstall() {
             curl_close($ch);
         }
     } catch (Exception $e) {
-        // Silently fail - don't prevent uninstall if backend notification fails
+        // Silently fail - don't prevent uninstall if backend notification fails.
+        debugging('Backend uninstall notification failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 
     // Remove ALL custom user menu entries pointing to this plugin

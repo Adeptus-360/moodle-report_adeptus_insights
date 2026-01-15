@@ -91,13 +91,13 @@ try {
 
     // Handle connection/timeout errors - FAIL CLOSED
     if ($response === false || !empty($curlerror)) {
-        error_log('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curlerror);
+        debugging('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         throw new Exception('Unable to verify export eligibility. Please try again later.');
     }
 
     // Handle HTTP errors - FAIL CLOSED
     if ($httpcode !== 200) {
-        error_log('[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response);
+        debugging('[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
 
         if ($httpcode === 401) {
             throw new Exception('Authentication failed. Please check your plugin configuration.');
@@ -116,12 +116,12 @@ try {
     $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('[Adeptus Insights] Export eligibility check failed - invalid JSON response');
+        debugging('[Adeptus Insights] Export eligibility check failed - invalid JSON response', DEBUG_DEVELOPER);
         throw new Exception('Invalid response from server. Please try again later.');
     }
 
     if (!isset($backenddata['success'])) {
-        error_log('[Adeptus Insights] Export eligibility check failed - missing success field');
+        debugging('[Adeptus Insights] Export eligibility check failed - missing success field', DEBUG_DEVELOPER);
         throw new Exception('Invalid response from server. Please try again later.');
     }
 

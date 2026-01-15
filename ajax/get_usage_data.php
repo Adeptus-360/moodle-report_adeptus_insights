@@ -45,14 +45,14 @@ try {
 
     // Get reports generated this month
     $reportsthismonth = $DB->count_records_sql(
-        "SELECT COUNT(*) FROM {adeptus_report_history} 
+        "SELECT COUNT(*) FROM {adeptus_report_history}
          WHERE generatedat >= ? AND generatedat <= ?",
         [$currentmonthstart, $currentmonthend]
     );
 
     // Get AI credits used this month
     $aicreditsthismonth = $DB->get_field_sql(
-        "SELECT COALESCE(SUM(credits_used), 0) FROM {adeptus_usage_tracking} 
+        "SELECT COALESCE(SUM(credits_used), 0) FROM {adeptus_usage_tracking}
          WHERE usage_type = 'ai_chat' AND timecreated >= ? AND timecreated <= ?",
         [$currentmonthstart, $currentmonthend]
     );

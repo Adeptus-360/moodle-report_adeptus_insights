@@ -90,7 +90,9 @@ if (!empty($missingfields)) {
 if (optional_param('action', '', PARAM_ALPHA) === 'register' && confirm_sesskey()) {
     // Check if we have missing fields
     if (!empty($missingfields)) {
-        $errormessage = 'Cannot register plugin due to missing required information: ' . implode(', ', $missingfields) . '. Please ensure these values are properly set in your Moodle configuration.';
+        $errormessage = 'Cannot register plugin due to missing required information: ' .
+            implode(', ', $missingfields) .
+            '. Please ensure these values are properly set in your Moodle configuration.';
     } else {
         try {
             $result = $installationmanager->register_installation($adminemail, $adminname, $siteurl, $sitename);

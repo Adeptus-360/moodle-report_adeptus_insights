@@ -85,7 +85,7 @@ try {
 
     // Handle connection errors - FAIL CLOSED (deny if backend unreachable)
     if ($response === false || !empty($curlerror)) {
-        error_log('[Adeptus Insights] Report eligibility check failed - curl error: ' . $curlerror);
+        debugging('[Adeptus Insights] Report eligibility check failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
             'eligible' => false,
@@ -97,7 +97,7 @@ try {
 
     // Handle HTTP errors - FAIL CLOSED
     if ($httpcode !== 200) {
-        error_log('[Adeptus Insights] Report eligibility check failed - HTTP ' . $httpcode . ': ' . $response);
+        debugging('[Adeptus Insights] Report eligibility check failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
             'eligible' => false,
@@ -111,7 +111,7 @@ try {
     $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('[Adeptus Insights] Report eligibility check failed - invalid JSON response');
+        debugging('[Adeptus Insights] Report eligibility check failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
             'eligible' => false,
@@ -136,7 +136,7 @@ try {
         'reports_remaining' => $reportsremaining,
     ]);
 } catch (Exception $e) {
-    error_log('[Adeptus Insights] Report eligibility check exception: ' . $e->getMessage());
+    debugging('[Adeptus Insights] Report eligibility check exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
     // FAIL CLOSED - deny on any error
     echo json_encode([
         'success' => false,

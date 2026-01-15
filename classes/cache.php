@@ -15,7 +15,11 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Cache definitions for Adeptus Insights plugin
+ * Cache definitions for Adeptus Insights plugin.
+ *
+ * @package     report_adeptus_insights
+ * @copyright   2026 Adeptus 360 <info@adeptus360.com>
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();

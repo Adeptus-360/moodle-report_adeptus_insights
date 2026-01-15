@@ -92,40 +92,40 @@ if (!in_array($endpoint, $publicendpoints)) {
 }
 
 // Backend API URL - using legacy URL for backward compatibility.
-$BACKEND_URL = \report_adeptus_insights\api_config::get_legacy_api_url();
+$backendurl = \report_adeptus_insights\api_config::get_legacy_api_url();
 
 // Note: $endpoint and $pathparts are already defined above during authentication check.
 
 // Handle different endpoints
 switch ($endpoint) {
     case 'register':
-        handleRegistration();
+        handle_registration();
         break;
     case 'plans':
-        handlePlans();
+        handle_plans();
         break;
     case 'stripe-config':
-        handleStripeConfig();
+        handle_stripe_config();
         break;
     case 'config':
-        handleStripeConfig();
+        handle_stripe_config();
         break;
     case 'create':
-        handleCreateSubscription();
+        handle_create_subscription();
         break;
     case 'show':
-        handleShowSubscription();
+        handle_show_subscription();
         break;
     case 'cancel':
-        handleCancelSubscription();
+        handle_cancel_subscription();
         break;
     case 'update':
-        handleUpdateSubscription();
+        handle_update_subscription();
         break;
     default:
         // Check if this is an installation endpoint
         if (in_array('installation', $pathparts)) {
-            handleRegistration();
+            handle_registration();
         } else {
             http_response_code(404);
             echo json_encode([
@@ -137,12 +137,18 @@ switch ($endpoint) {
 }
 
 /**
- * Forward request to Laravel backend
+ * Forward request to Laravel backend.
+ *
+ * @param string $endpoint The API endpoint.
+ * @param array $data Request data.
+ * @param string $method HTTP method.
+ * @return array Decoded response.
+ * @throws Exception On connection or response errors.
  */
-function forwardToBackend($endpoint, $data = [], $method = 'POST') {
-    global $BACKEND_URL;
+function forward_to_backend($endpoint, $data = [], $method = 'POST') {
+    global $backendurl;
 
-    $url = $BACKEND_URL . '/' . $endpoint;
+    $url = $backendurl . '/' . $endpoint;
 
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -186,7 +192,10 @@ function forwardToBackend($endpoint, $data = [], $method = 'POST') {
     return $decoded;
 }
 
-function handleRegistration() {
+/**
+ * Handle plugin registration endpoint.
+ */
+function handle_registration() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -240,7 +249,7 @@ function handleRegistration() {
 
     try {
         // Forward to Laravel backend
-        $response = forwardToBackend('installation/register', $input);
+        $response = forward_to_backend('installation/register', $input);
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -251,7 +260,10 @@ function handleRegistration() {
     }
 }
 
-function handlePlans() {
+/**
+ * Handle subscription plans endpoint.
+ */
+function handle_plans() {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -263,7 +275,7 @@ function handlePlans() {
 
     try {
         // Forward to Laravel backend
-        $response = forwardToBackend('subscription/plans', [], 'GET');
+        $response = forward_to_backend('subscription/plans', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -275,9 +287,12 @@ function handlePlans() {
 }
 
 /**
- * Get features for a plan based on its configuration
+ * Get features for a plan based on its configuration.
+ *
+ * @param object $plan The plan object.
+ * @return array List of feature descriptions.
  */
-function getPlanFeatures($plan) {
+function get_plan_features($plan) {
     $features = [];
 
     if ($plan->is_free) {
@@ -307,7 +322,10 @@ function getPlanFeatures($plan) {
     return $features;
 }
 
-function handleStripeConfig() {
+/**
+ * Handle Stripe configuration endpoint.
+ */
+function handle_stripe_config() {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -319,7 +337,7 @@ function handleStripeConfig() {
 
     try {
         // Forward to Laravel backend
-        $response = forwardToBackend('subscription/config', [], 'GET');
+        $response = forward_to_backend('subscription/config', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -330,7 +348,10 @@ function handleStripeConfig() {
     }
 }
 
-function handleCreateSubscription() {
+/**
+ * Handle create subscription endpoint.
+ */
+function handle_create_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -348,7 +369,7 @@ function handleCreateSubscription() {
         }
 
         // Forward to Laravel backend
-        $response = forwardToBackend('subscription/create', $input);
+        $response = forward_to_backend('subscription/create', $input);
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -359,7 +380,10 @@ function handleCreateSubscription() {
     }
 }
 
-function handleShowSubscription() {
+/**
+ * Handle show subscription details endpoint.
+ */
+function handle_show_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -393,7 +417,10 @@ function handleShowSubscription() {
     ]);
 }
 
-function handleCancelSubscription() {
+/**
+ * Handle cancel subscription endpoint.
+ */
+function handle_cancel_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -409,7 +436,10 @@ function handleCancelSubscription() {
     ]);
 }
 
-function handleUpdateSubscription() {
+/**
+ * Handle update subscription endpoint.
+ */
+function handle_update_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([

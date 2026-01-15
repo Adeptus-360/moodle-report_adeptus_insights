@@ -162,6 +162,7 @@ try {
                 curl_close($ch);
 
                 if ($debugmode) {
+                    debugging('Backend parameter fetch HTTP: ' . $httpcode, DEBUG_DEVELOPER);
                 }
 
                 if ($response && $httpcode === 200 && empty($curlerror)) {
@@ -169,14 +170,17 @@ try {
                     if ($backenddata && $backenddata['success']) {
                         $enhancedparam = $backenddata['data'];
                         if ($debugmode) {
+                            debugging('Backend enhancement successful', DEBUG_DEVELOPER);
                         }
                     }
                 } else {
                     if ($debugmode) {
+                        debugging('Backend enhancement request failed: HTTP ' . $httpcode, DEBUG_DEVELOPER);
                     }
                 }
             } catch (Exception $e) {
                 // Silently continue - backend enhancement is optional.
+                debugging('Backend enhancement failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
             }
         }
 
@@ -186,7 +190,7 @@ try {
         }
 
         // Local fallback parameter processing (always available as backup)
-        processParameterLocally($param);
+        process_parameter_locally($param);
     }
 
     // Convert parameters from associative array to numeric array for JavaScript
@@ -210,9 +214,11 @@ try {
 }
 
 /**
- * Process parameter locally as fallback
+ * Process parameter locally as fallback.
+ *
+ * @param array $param The parameter to process (passed by reference).
  */
-function processParameterLocally(&$param) {
+function process_parameter_locally(&$param) {
     global $DB;
 
     switch ($param['type']) {
@@ -231,9 +237,9 @@ function processParameterLocally(&$param) {
             $param['type'] = 'select';
             $users = $DB->get_records_sql("
                 SELECT id, firstname, lastname, username
-                FROM {user} 
-                WHERE deleted = 0 AND confirmed = 1 
-                ORDER BY lastname, firstname 
+                FROM {user}
+                WHERE deleted = 0 AND confirmed = 1
+                ORDER BY lastname, firstname
                 LIMIT 200
             ");
             $param['options'] = [];
@@ -305,7 +311,7 @@ function processParameterLocally(&$param) {
             $param['type'] = 'select';
             // Get recent activities across all courses
             $activities = $DB->get_records_sql("
-                SELECT cm.id, cm.course, m.name as modulename, 
+                SELECT cm.id, cm.course, m.name as modulename,
                        COALESCE(a.name, r.name, f.name, q.name, p.name) as activityname,
                        c.fullname as coursename
                 FROM {course_modules} cm

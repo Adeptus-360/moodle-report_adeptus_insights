@@ -118,7 +118,9 @@ class branded_pdf extends \TCPDF {
      *
      * Renders the logo on the left, report title centered, and timestamp on right.
      */
+    // @codingStandardsIgnoreStart
     public function Header() {
+    // @codingStandardsIgnoreEnd
         // Save current position.
         $origx = $this->GetX();
         $origy = $this->GetY();
@@ -183,7 +185,9 @@ class branded_pdf extends \TCPDF {
      *
      * Renders branding text on left and page numbers on right.
      */
+    // @codingStandardsIgnoreStart
     public function Footer() {
+    // @codingStandardsIgnoreEnd
         // Position footer 15mm from bottom.
         $this->SetY(-15);
 

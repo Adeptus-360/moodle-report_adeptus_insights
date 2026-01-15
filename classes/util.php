@@ -26,6 +26,11 @@ namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Utility class for Adeptus Insights.
+ *
+ * Provides helper methods for session management and redirects.
+ */
 class util {
     /** Session key for redirect flag. */
     private const SESSION_KEY = 'report_adeptus_insights_redirect_subscription';

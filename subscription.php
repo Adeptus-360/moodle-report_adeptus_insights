@@ -124,6 +124,7 @@ if (!$subscription) {
             }
         } catch (\Exception $e) {
             // Silently ignore validation errors - subscription refresh is optional.
+            debugging('Subscription refresh failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 }

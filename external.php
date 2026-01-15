@@ -29,6 +29,11 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/external.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
 
+/**
+ * External API class for Adeptus Insights report plugin.
+ *
+ * Provides external web service functions for subscription and billing operations.
+ */
 class external extends \external_api {
     /**
      * Returns description of method parameters
@@ -474,7 +479,9 @@ class external extends \external_api {
     }
 
     /**
-     * Create billing portal session for specific product upgrade/downgrade
+     * Returns description of method parameters for create product portal session.
+     *
+     * @return external_function_parameters
      */
     public static function create_product_portal_session_parameters() {
         return new \external_function_parameters([
@@ -484,6 +491,11 @@ class external extends \external_api {
         ]);
     }
 
+    /**
+     * Returns description of method result value for create product portal session.
+     *
+     * @return external_description
+     */
     public static function create_product_portal_session_returns() {
         return new \external_single_structure([
             'success' => new \external_value(PARAM_BOOL, 'Whether the operation was successful'),
@@ -492,6 +504,14 @@ class external extends \external_api {
         ]);
     }
 
+    /**
+     * Create product portal session for upgrades/downgrades.
+     *
+     * @param string $productid Stripe product ID.
+     * @param string $returnurl Return URL after portal session.
+     * @param string $sesskey Session key for security.
+     * @return array Portal session result.
+     */
     public static function create_product_portal_session($productid, $returnurl, $sesskey) {
         global $USER, $DB;
 
@@ -530,13 +550,19 @@ class external extends \external_api {
     }
 
     /**
-     * Get subscription details
-     * @return array Subscription details
+     * Returns description of method parameters for get subscription details.
+     *
+     * @return external_function_parameters
      */
     public static function get_subscription_details_parameters() {
         return new \external_function_parameters([]);
     }
 
+    /**
+     * Returns description of method result value for get subscription details.
+     *
+     * @return external_description
+     */
     public static function get_subscription_details_returns() {
         return new \external_single_structure([
             'success' => new \external_value(PARAM_BOOL, 'Whether the operation was successful'),
@@ -596,6 +622,11 @@ class external extends \external_api {
         ]);
     }
 
+    /**
+     * Get subscription details.
+     *
+     * @return array Subscription details.
+     */
     public static function get_subscription_details() {
         global $USER;
 
@@ -629,8 +660,9 @@ class external extends \external_api {
     }
 
     /**
-     * Create billing portal session
-     * @return array Billing portal session details
+     * Returns description of method parameters for create billing portal session.
+     *
+     * @return external_function_parameters
      */
     public static function create_billing_portal_session_parameters() {
         return new \external_function_parameters([
@@ -641,6 +673,11 @@ class external extends \external_api {
         ]);
     }
 
+    /**
+     * Returns description of method result value for create billing portal session.
+     *
+     * @return external_description
+     */
     public static function create_billing_portal_session_returns() {
         return new \external_single_structure([
             'success' => new \external_value(PARAM_BOOL, 'Whether the operation was successful'),
@@ -649,6 +686,15 @@ class external extends \external_api {
         ]);
     }
 
+    /**
+     * Create billing portal session.
+     *
+     * @param string $returnurl Return URL after portal session.
+     * @param string $sesskey Session key for security.
+     * @param string|null $planid Optional plan ID for upgrade/downgrade.
+     * @param string|null $action Optional action to perform.
+     * @return array Portal session result.
+     */
     public static function create_billing_portal_session($returnurl, $sesskey, $planid = null, $action = null) {
         global $USER;
 

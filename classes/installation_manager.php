@@ -30,13 +30,30 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/filelib.php');
 
+/**
+ * Installation manager class for plugin registration and subscription management.
+ *
+ * Handles plugin registration, API key management, and subscription operations.
+ */
 class installation_manager {
+    /** @var string API key for backend authentication. */
     private $apikey;
+
+    /** @var string Base URL for API requests. */
     private $apiurl;
+
+    /** @var string Installation ID for this Moodle instance. */
     private $installationid;
+
+    /** @var bool Whether the installation is registered. */
     private $isregistered;
+
+    /** @var string Last error message from API operations. */
     private $lasterror;
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
         global $DB;
 
@@ -65,6 +82,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Check if the installation is registered.
+     *
+     * @return bool True if registered, false otherwise.
+     */
     public function is_registered() {
         global $DB;
 
@@ -88,31 +110,60 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Silently fail - registration check will return false.
+            debugging('Registration check failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         return false;
     }
 
+    /**
+     * Get the API key for backend authentication.
+     *
+     * @return string The API key.
+     */
     public function get_api_key() {
         return $this->api_key;
     }
 
+    /**
+     * Get the installation ID.
+     *
+     * @return string|null The installation ID or null if not set.
+     */
     public function get_installation_id() {
         return $this->installation_id;
     }
 
+    /**
+     * Get the API URL for backend requests.
+     *
+     * @return string The API URL.
+     */
     public function get_api_url() {
         return $this->api_url;
     }
 
+    /**
+     * Get the last error that occurred.
+     *
+     * @return array|null The last error details or null if no error.
+     */
     public function get_last_error() {
         return $this->last_error;
     }
 
+    /**
+     * Clear the last error.
+     */
     public function clear_last_error() {
         $this->last_error = null;
     }
 
+    /**
+     * Get the plugin version from the Moodle plugin manager.
+     *
+     * @return string The plugin version.
+     */
     public function get_plugin_version() {
         $plugin = \core_plugin_manager::instance()->get_plugin_info('report_adeptus_insights');
         return $plugin ? $plugin->versiondb : '1.0.0';
@@ -273,9 +324,13 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Silently fail - subscription sync is not critical.
+            debugging('Subscription sync failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
+    /**
+     * Set post-install notification for the admin.
+     */
     private function set_post_install_notification() {
         global $DB;
 
@@ -295,6 +350,11 @@ class installation_manager {
         set_config('adeptus_insights_notification', json_encode($notification), 'report_adeptus_insights');
     }
 
+    /**
+     * Check registration status with backend API.
+     *
+     * @return bool True if registration is valid, false otherwise.
+     */
     public function check_registration_status() {
         if (!$this->is_registered || !$this->api_key) {
             $this->set_registration_required_notification();
@@ -340,6 +400,7 @@ class installation_manager {
                     }
                 } catch (\Exception $e) {
                     // Ignore database errors - site name lookup is optional.
+                    debugging('Site name lookup failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
                 }
             }
 
@@ -379,6 +440,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Ignore table creation errors - tables may already exist.
+            debugging('Table creation check failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
@@ -411,6 +473,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Ignore table creation errors - table may already exist.
+            debugging('Subscription status table creation failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
@@ -447,10 +510,16 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Ignore table creation errors - table may already exist.
+            debugging('Install settings table creation failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
 
+    /**
+     * Verify API key with backend.
+     *
+     * @return bool True if API key is valid, false otherwise.
+     */
     private function verify_api_key() {
         if (!$this->api_key) {
             return false;
@@ -464,6 +533,9 @@ class installation_manager {
         }
     }
 
+    /**
+     * Set notification that registration is required.
+     */
     private function set_registration_required_notification() {
         $notification = [
             'type' => 'warning',
@@ -479,6 +551,11 @@ class installation_manager {
         set_config('adeptus_insights_notification', json_encode($notification), 'report_adeptus_insights');
     }
 
+    /**
+     * Sync reports from the backend API.
+     *
+     * @return array Result with success status and message.
+     */
     public function sync_reports_from_backend() {
         if (!$this->is_registered) {
             return [
@@ -511,6 +588,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Check subscription status with backend API.
+     *
+     * @return bool True if subscription status was updated, false otherwise.
+     */
     public function check_subscription_status() {
         if (!$this->is_registered) {
             return [
@@ -533,6 +615,14 @@ class installation_manager {
         }
     }
 
+    /**
+     * Create a new subscription.
+     *
+     * @param int $planid The plan ID to subscribe to.
+     * @param string $paymentmethodid The Stripe payment method ID.
+     * @param string $billingemail The billing email address.
+     * @return array Result with success status and message.
+     */
     public function create_subscription($planid, $paymentmethodid, $billingemail) {
         if (!$this->is_registered) {
             return [
@@ -589,6 +679,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Get subscription details from backend or local cache.
+     *
+     * @return array|null Subscription details or null if not found.
+     */
     public function get_subscription_details() {
         // Get the API key from the local database
         $apikey = $this->get_api_key();
@@ -604,6 +699,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Primary endpoint failed - try fallback.
+            debugging('Primary subscription endpoint failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         // Fallback: Try to get subscription data from installation/status endpoint.
@@ -614,6 +710,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Fallback also failed - return null below.
+            debugging('Fallback subscription endpoint failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         return null;
@@ -801,6 +898,11 @@ class installation_manager {
 
 
 
+    /**
+     * Get payment configuration from backend.
+     *
+     * @return array Result with success status and payment config data.
+     */
     public function get_payment_config() {
         try {
             $response = $this->make_api_request('subscription/config', [], 'GET');
@@ -824,6 +926,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Cancel the current subscription.
+     *
+     * @return array Result with success status and message.
+     */
     public function cancel_subscription() {
         try {
             $response = $this->make_api_request('subscription/cancel', []);
@@ -847,6 +954,12 @@ class installation_manager {
         }
     }
 
+    /**
+     * Update the subscription plan.
+     *
+     * @param int $planid The new plan ID.
+     * @return array Result with success status and message.
+     */
     public function update_subscription_plan($planid) {
         try {
             $response = $this->make_api_request('subscription/update', [
@@ -872,6 +985,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Get available subscription plans from backend.
+     *
+     * @return array Result with success status and plans array.
+     */
     public function get_available_plans() {
         try {
             // Check if plugin is registered first
@@ -951,6 +1069,13 @@ class installation_manager {
         }
     }
 
+    /**
+     * Check if user can use AI credits.
+     *
+     * @param int $amount Amount of credits to use.
+     * @param string $type Credit type ('pro' or 'basic').
+     * @return bool True if user has enough credits, false otherwise.
+     */
     public function can_use_ai_credits($amount = 1, $type = 'pro') {
         $subscription = $this->get_subscription_details();
         if (!$subscription) {
@@ -964,6 +1089,11 @@ class installation_manager {
         }
     }
 
+    /**
+     * Check if user can export reports.
+     *
+     * @return bool True if user has exports remaining, false otherwise.
+     */
     public function can_export() {
         $subscription = $this->get_subscription_details();
         if (!$subscription) {
@@ -1031,6 +1161,15 @@ class installation_manager {
         }
     }
 
+    /**
+     * Make an API request to the backend.
+     *
+     * @param string $endpoint The API endpoint.
+     * @param array $data Request data.
+     * @param string $method HTTP method (POST, GET, etc.).
+     * @return array|null Decoded response or null on failure.
+     * @throws \Exception On connection or response errors.
+     */
     public function make_api_request($endpoint, $data = [], $method = 'POST') {
         $url = $this->api_url . '/' . $endpoint;
 
@@ -1087,6 +1226,9 @@ class installation_manager {
         return $decoded;
     }
 
+    /**
+     * Save installation settings to the database.
+     */
     private function save_installation_settings() {
         global $DB;
 
@@ -1119,10 +1261,14 @@ class installation_manager {
                 $newid = $DB->insert_record('adeptus_install_settings', $record);
             }
         } catch (\Exception $e) {
-            // Log the error but don't fail the registration
+            // Log the error but don't fail the registration.
+            debugging('Installation settings save failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
+    /**
+     * Update the last sync timestamp in the database.
+     */
     private function update_last_sync() {
         global $DB;
 
@@ -1134,6 +1280,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Ignore sync timestamp update errors - non-critical.
+            debugging('Last sync update failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
@@ -1166,6 +1313,11 @@ class installation_manager {
         return get_string('unknown_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
     }
 
+    /**
+     * Update subscription status in the database.
+     *
+     * @param array $subscriptiondata Subscription data to save.
+     */
     private function update_subscription_status($subscriptiondata) {
         global $DB;
 
@@ -1200,7 +1352,8 @@ class installation_manager {
                 $newid = $DB->insert_record('adeptus_subscription_status', $record);
             }
         } catch (\Exception $e) {
-            // Log the error but don't fail the operation
+            // Log the error but don't fail the operation.
+            debugging('Subscription status update failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
@@ -1414,7 +1567,8 @@ class installation_manager {
             $cache = \cache::make('report_adeptus_insights', 'subscription_data');
             $cache->delete('subscription_details');
         } catch (\Exception $e) {
-            // Cache definition may not exist - this is OK, subscription data will refresh naturally
+            // Cache definition may not exist - this is OK, subscription data will refresh naturally.
+            debugging('Cache clear failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 
@@ -1467,7 +1621,10 @@ class installation_manager {
     }
 
     /**
-     * Get plan by Stripe product ID
+     * Get plan by Stripe product ID.
+     *
+     * @param string $stripeproductid The Stripe product ID.
+     * @return array|null The plan data or null if not found.
      */
     private function get_plan_by_stripe_product_id($stripeproductid) {
         // Get available plans from backend API
@@ -1491,7 +1648,9 @@ class installation_manager {
     }
 
     /**
-     * Get admin email for subscription creation
+     * Get admin email for subscription creation.
+     *
+     * @return string The admin email address.
      */
     private function get_admin_email() {
         global $USER;
@@ -1499,7 +1658,9 @@ class installation_manager {
     }
 
     /**
-     * Get site URL for return redirects
+     * Get site URL for return redirects.
+     *
+     * @return string The site URL.
      */
     private function get_site_url() {
         global $CFG;
@@ -1507,7 +1668,11 @@ class installation_manager {
     }
 
     /**
-     * Create Stripe customer and subscription
+     * Create Stripe customer and subscription.
+     *
+     * @param array $subscription Current subscription data.
+     * @param array $plan Target plan data.
+     * @return array Result with success status and customer ID.
      */
     private function create_stripe_customer_and_subscription($subscription, $plan) {
         try {
@@ -1538,7 +1703,11 @@ class installation_manager {
     }
 
     /**
-     * Create Stripe portal session
+     * Create Stripe portal session.
+     *
+     * @param string $stripecustomerid The Stripe customer ID.
+     * @param string $returnurl URL to return to after portal.
+     * @return array Result with success status and portal URL.
      */
     private function create_stripe_portal_session($stripecustomerid, $returnurl) {
         try {
@@ -1975,6 +2144,7 @@ class installation_manager {
             }
         } catch (\Exception $e) {
             // Backend unreachable - fall through to disable all features.
+            debugging('Feature permissions fetch failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
 
         // Backend unreachable - all features disabled (no fallbacks).

@@ -70,6 +70,7 @@ try {
         $apikey = $installationmanager->get_api_key();
     } catch (Exception $e) {
         // Silently continue - API key is optional.
+        debugging('API key retrieval failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 
     // Prepare headers
@@ -101,6 +102,7 @@ try {
     curl_close($ch);
 
     if ($debugmode) {
+        debugging('Backend reports fetch completed, HTTP: ' . $httpcode, DEBUG_DEVELOPER);
     }
 
     if ($response === false) {
@@ -160,6 +162,7 @@ try {
                 $filterreason = 'missing_tables: ' . implode(', ', $validation['missing_tables']);
 
                 if ($debugmode) {
+                    debugging('Report filtered due to: ' . $filterreason, DEBUG_DEVELOPER);
                 }
             }
         }
@@ -169,11 +172,13 @@ try {
         } else {
             $filteredcount++;
             if ($debugmode && !empty($filterreason)) {
+                debugging('Filtered report: ' . ($report['name'] ?? 'unknown') . ' - ' . $filterreason, DEBUG_DEVELOPER);
             }
         }
     }
 
     if ($debugmode) {
+        debugging('Total reports filtered: ' . $filteredcount, DEBUG_DEVELOPER);
     }
 
     // Organize reports by category
@@ -215,6 +220,13 @@ try {
         'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis'],
     ];
 
+    /**
+     * Calculate the priority of a report based on keywords.
+     *
+     * @param array $report The report data.
+     * @param array $prioritykeywords Priority keyword configuration.
+     * @return int Priority value (1=high, 2=medium, 3=low).
+     */
     function calculate_report_priority($report, $prioritykeywords) {
         $text = strtolower($report['name'] . ' ' . ($report['description'] ?? ''));
 

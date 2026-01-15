@@ -24,6 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Callback executed before HTTP headers are sent.
+ *
+ * Configures RequireJS for SweetAlert2 library.
+ */
 function report_adeptus_insights_before_http_headers() {
     global $PAGE;
 

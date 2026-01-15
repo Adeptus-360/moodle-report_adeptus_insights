@@ -26,6 +26,11 @@ namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Report validator for checking report compatibility.
+ *
+ * Validates report definitions against available database tables and modules.
+ */
 class report_validator {
     /** @var array Cache of table existence checks */
     private static $tablecache = [];

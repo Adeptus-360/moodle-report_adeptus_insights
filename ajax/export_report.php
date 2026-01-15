@@ -24,28 +24,19 @@
 
 define('AJAX_SCRIPT', true);
 
+require_once(__DIR__ . '/../../../config.php');
 
-try {
-    require_once(__DIR__ . '/../../../config.php');
+// Require login and capability.
+require_login();
 
-    // Note: dataformatlib.php no longer exists in Moodle 4.x+, export functions are defined below
+$context = context_system::instance();
+$PAGE->set_context($context);
+require_capability('report/adeptus_insights:view', $context);
 
-    // Require login and capability
-    require_login();
-
-    $context = context_system::instance();
-    $PAGE->set_context($context);
-    require_capability('report/adeptus_insights:view', $context);
-
-    // Get parameters
-    $reportid = required_param('reportid', PARAM_TEXT);
-
-    $format = required_param('format', PARAM_ALPHA);
-
-    $sesskey = required_param('sesskey', PARAM_ALPHANUM);
-} catch (Exception $e) {
-    throw $e;
-}
+// Get parameters.
+$reportid = required_param('reportid', PARAM_TEXT);
+$format = required_param('format', PARAM_ALPHA);
+$sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 
 $view = optional_param('view', 'table', PARAM_ALPHA);
@@ -87,10 +78,10 @@ try {
 
     // SAFETY CHECK: Refuse to process frontend data if it's too large (>10MB)
     // Large datasets should be regenerated from backend instead
-    $MAX_FRONTEND_DATA_SIZE = 10 * 1024 * 1024; // 10MB
+    $maxfrontenddatasize = 10 * 1024 * 1024; // 10MB
     $datasize = strlen($reportdatajson);
 
-    if ($datasize > $MAX_FRONTEND_DATA_SIZE) {
+    if ($datasize > $maxfrontenddatasize) {
         $hasfrontenddata = false; // Force backend regeneration
     } else {
         $hasfrontenddata = !empty($reportdatajson);
@@ -209,10 +200,10 @@ try {
         $sql = $report->sqlquery;
 
         // Add safety limit
-        $SAFETY_LIMIT = 100000;
+        $safetylimit = 100000;
         $haslimit = preg_match('/\bLIMIT\s+\d+/i', $sql);
         if (!$haslimit) {
-            $sql = rtrim(rtrim($sql), ';') . " LIMIT $SAFETY_LIMIT";
+            $sql = rtrim(rtrim($sql), ';') . " LIMIT $safetylimit";
         }
 
         // Extract parameter names and build parameter array
@@ -249,8 +240,8 @@ try {
 
     // PDF-specific row limit check
     // PDFs cannot realistically render massive datasets due to memory and file size constraints
-    $PDF_MAX_ROWS = 5000;
-    if ($format === 'pdf' && count($resultsarray) > $PDF_MAX_ROWS) {
+    $pdfmaxrows = 5000;
+    if ($format === 'pdf' && count($resultsarray) > $pdfmaxrows) {
         $rowcount = count($resultsarray);
 
         // Return user-friendly error
@@ -259,12 +250,19 @@ try {
             'success' => false,
             'error' => 'dataset_too_large',
             'title' => 'Export Restriction',
-            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of $PDF_MAX_ROWS rows. Please use CSV, Excel, or JSON export for large datasets, or add filters to reduce the result set.",
+            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of " .
+                "$pdfmaxrows rows. Please use CSV, Excel, or JSON export for large datasets, " .
+                "or add filters to reduce the result set.",
         ]);
         exit;
     }
 
-    // Helper function to convert headers to title case
+    /**
+     * Convert header to title case format.
+     *
+     * @param string $header The header to format.
+     * @return string Formatted header in title case.
+     */
     function format_header($header) {
         // Convert to title case: capitalize first letter of each word
         return ucwords(str_replace('_', ' ', strtolower($header)));
@@ -355,7 +353,7 @@ try {
         }, $chartvalues);
 
         // Generate colors based on chart type
-        $colors = generateChartColors(count($chartvalues), $report->charttype);
+        $colors = generate_chart_colors(count($chartvalues), $report->charttype);
 
         // Create chart data structure
         $chartdatastructure = [
@@ -365,7 +363,7 @@ try {
                     'label' => $report->name,
                     'data' => $chartvalues,
                     'backgroundColor' => $colors,
-                    'borderColor' => adjustColors($colors, -20),
+                    'borderColor' => adjust_colors($colors, -20),
                     'borderWidth' => 2,
                 ],
             ],
@@ -418,7 +416,7 @@ try {
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
 
-            echo generateExcelCSV($reportid, $tabledata, $chartexportdata, $reportparams);
+            echo generate_excel_csv($reportid, $tabledata, $chartexportdata, $reportparams);
             break;
 
         case 'json':
@@ -443,7 +441,7 @@ try {
             // PDF: table on page 1, chart on page 2
             // Generate actual PDF using TCPDF
             try {
-                $pdfcontent = generatePDF($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
+                $pdfcontent = generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
 
                 if ($pdfcontent === false || empty($pdfcontent)) {
                     throw new Exception('Failed to generate PDF content');
@@ -483,7 +481,7 @@ try {
 /**
  * Generate Excel HTML format with multiple sheets
  */
-function generateExcelHTML($sheetsdata, $reportname) {
+function generate_excel_html($sheetsdata, $reportname) {
     $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">';
     $html .= '<head><meta charset="UTF-8">';
     $html .= '<style>';
@@ -530,7 +528,7 @@ function generateExcelHTML($sheetsdata, $reportname) {
  * @return string PDF content.
  * @throws Exception If branding is unavailable or PDF generation fails.
  */
-function generatePDF($reportname, $tabledata, $chartdata, $reportparams, $chartimage = '') {
+function generate_pdf($reportname, $tabledata, $chartdata, $reportparams, $chartimage = '') {
     global $CFG;
 
     // Load branding manager and get branding configuration.
@@ -603,7 +601,7 @@ function generatePDF($reportname, $tabledata, $chartdata, $reportparams, $charti
 /**
  * Generate Excel-compatible CSV file with report data
  */
-function generateExcelCSV($reportname, $tabledata, $chartdata, $reportparams) {
+function generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) {
     $output = '';
 
     // Add report header
@@ -658,7 +656,7 @@ function generateExcelCSV($reportname, $tabledata, $chartdata, $reportparams) {
 /**
  * Generate colors for charts based on chart type and data count
  */
-function generateChartColors($count, $charttype) {
+function generate_chart_colors($count, $charttype) {
     $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
@@ -683,20 +681,20 @@ function generateChartColors($count, $charttype) {
 /**
  * Adjust colors (lighten or darken) for border colors
  */
-function adjustColors($colors, $amount) {
+function adjust_colors($colors, $amount) {
     if (is_array($colors)) {
         return array_map(function ($color) use ($amount) {
-            return adjustColor($color, $amount);
+            return adjust_color($color, $amount);
         }, $colors);
     } else {
-        return adjustColor($colors, $amount);
+        return adjust_color($colors, $amount);
     }
 }
 
 /**
  * Adjust a single color by lightening or darkening it
  */
-function adjustColor($color, $amount) {
+function adjust_color($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
 

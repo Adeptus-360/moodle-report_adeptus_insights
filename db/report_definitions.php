@@ -56,7 +56,7 @@ Including (optional) filter by: year (if included in course fullname).',
     'name' => '-- Seleciona as colunas que serão exibidas no resultado do relatório',
     'category' => '',
     'description' => '',
-    'sqlquery' => 'SELECT 
+    'sqlquery' => 'SELECT
     CONCAT(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\', course.id, \'">\', course.fullname, \'</a>\') AS Course,
     CONCAT(\'<a target="_new" href="%%WWWROOT%%/user/index.php?id=\', course.id, \'">Show users</a>\') AS Users,
     COUNT(DISTINCT user.id) AS Students
@@ -203,7 +203,10 @@ WHERE prefix_user.deleted    = 0
 Log in and Log out history complete for a specific user
 Contributed by: Randy Thornton
 
-This query uses the logs to show the complete login and logout history for a particular user. You can use it as the basis for further refining the report. Replace the ## in the WHERE clause below with the id number of the user you wish to see. Warning: as always with queries from the logs, this can take a long time to run and may return more data that the maximum limit allowed.
+This query uses the logs to show the complete login and logout history for a particular user. ' .
+        'You can use it as the basis for further refining the report. Replace the ## in the WHERE clause below ' .
+        'with the id number of the user you wish to see. Warning: as always with queries from the logs, this can ' .
+        'take a long time to run and may return more data that the maximum limit allowed.
 
 SELECT
 l.id AS "Log_event_id",
@@ -255,7 +258,9 @@ JOIN prefix_context          AS ctx ON ctx.id = ra.contextid   AND ctx.contextle
 JOIN prefix_course           AS c   ON c.id   = ctx.instanceid AND c.id             = %%COURSEID%%
 JOIN prefix_user             AS u   ON u.id   = ra.userid
 List Students with enrollment and completion dates in current course
-This is meant to be a "global" report in Configurable Reports containing the following: firstname, lastname, idnumber, institution, department, email, student enrolment date, student completion date Note: for PGSQL, use to_timestamp() instead of FROM_UNIXTIME() Contributed by Elizabeth Dalton, Moodle HQ
+This is meant to be a "global" report in Configurable Reports containing the following: firstname, lastname, ' .
+        'idnumber, institution, department, email, student enrolment date, student completion date Note: for ' .
+        'PGSQL, use to_timestamp() instead of FROM_UNIXTIME() Contributed by Elizabeth Dalton, Moodle HQ
 
 SELECT
 u.firstname
@@ -343,10 +348,11 @@ WHERE en.courseid = 1234567
 All users individual timezone settings
 Contributed by: Randy Thornton
 
-If you allow users to set their own time zones, this can sometimes lead to confusion about due dates and times for assignments. This shows all active users with their personal time zone settings if any.
+If you allow users to set their own time zones, this can sometimes lead to confusion about due dates and ' .
+        'times for assignments. This shows all active users with their personal time zone settings if any.
 
-SELECT 
-u.username, 
+SELECT
+u.username,
 IF(u.timezone=99,"-Site Default-",u.timezone) AS "User Timezone"
 FROM prefix_user u
 WHERE u.deleted = 0
@@ -445,12 +451,16 @@ AND `contextlevel` =40
 All Role Assignments with contexts
 Contributed by: Randy Thornton
 
-This lists all the roles that have been assigned in the site, along with the role shortname and the type of context where it is assigned, e.g. System, Course, User, etc. The last column, the context instance id, is the id number of the particular object where the assignment has been made. So, if the context is course, then the context instance id means the course id; if a category, then the category id, and so forth. So you can then use that number to locate the particular place where the role is assigned.
+This lists all the roles that have been assigned in the site, along with the role shortname and the type ' .
+        'of context where it is assigned, e.g. System, Course, User, etc. The last column, the context instance ' .
+        'id, is the id number of the particular object where the assignment has been made. So, if the context is ' .
+        'course, then the context instance id means the course id; if a category, then the category id, and so ' .
+        'forth. So you can then use that number to locate the particular place where the role is assigned.
 
 SELECT
 u.username,
 r.shortname AS "Role",
-CASE ctx.contextlevel 
+CASE ctx.contextlevel
   WHEN 10 THEN \'System\'
   WHEN 20 THEN \'Personal\'
   WHEN 30 THEN \'User\'
@@ -505,7 +515,7 @@ Contributed by: Randy Thornton
 
 This shows all users and their last access time to courses.
 
-SELECT 
+SELECT
 u.username,
 c.shortname,
 #la.timeaccess,
@@ -516,7 +526,15 @@ JOIN prefix_course          c  ON c.id = la.courseid
 Least active or probably empty courses
 Contributed by: Randy Thornton
 
-It is difficult to know sometimes when a course is actually empty or was never really in use. Other than the simple case where the course was created and never touched again, in which case the course timecreated and timemodified will be the same, many courses created as shells for teachers or other users may be used once or a few times and have few or no test users enrollments in them. This query helps you see the range of such courses, showing you how many days if any it was used after initial creation, and how many user are enrolled. It denotes a course never ever modified by "-1" instead of "0" so you can sort those to the top. By default it limits this to courses used within 60 days of creation, and to courses with 3 or less enrollments (for example, teacher and assistant and test student account only.) You can easily adjust these numbers. The query includes a link to the course as well.
+It is difficult to know sometimes when a course is actually empty or was never really in use. Other than ' .
+        'the simple case where the course was created and never touched again, in which case the course ' .
+        'timecreated and timemodified will be the same, many courses created as shells for teachers or other ' .
+        'users may be used once or a few times and have few or no test users enrollments in them. This query ' .
+        'helps you see the range of such courses, showing you how many days if any it was used after initial ' .
+        'creation, and how many user are enrolled. It denotes a course never ever modified by "-1" instead of ' .
+        '"0" so you can sort those to the top. By default it limits this to courses used within 60 days of ' .
+        'creation, and to courses with 3 or less enrollments (for example, teacher and assistant and test ' .
+        'student account only.) You can easily adjust these numbers. The query includes a link to the course.
 
 SELECT
 c.fullname,
@@ -696,10 +714,10 @@ Contributed by François Parlant',
     'name' => 'not taking into account the END DATE',
     'category' => '',
     'description' => '',
-    'sqlquery' => 'SELECT 
-c.id, c.shortname,  
-CONCAT(\'<a href="%%WWWROOT%%/course/view.php?id=\', c.id, \'">\',c.fullname,\'</a>\') AS \'Course link\', 
-u.id as \'prof id\', 
+    'sqlquery' => 'SELECT
+c.id, c.shortname,
+CONCAT(\'<a href="%%WWWROOT%%/course/view.php?id=\', c.id, \'">\',c.fullname,\'</a>\') AS \'Course link\',
+u.id as \'prof id\',
 u.username, u.firstname, u.lastname, r.shortname as \'role\'
 From prefix_user as u
 join prefix_user_enrolments ue on ue.userid=u.id
@@ -810,7 +828,8 @@ IF(cm.visible=0,"masqué","visible") AS \'Visibility\',
 # notice that the path is in the column "contenthash" and NOT in the column pathhash
 # if the contenthash starts with 9af3... then the file is stored in moodledata/filedir/9a/f3/contenthash
 # I try to get the path to moodledata from the value of the geoip variable in the mdl_config table... maybe a bad idea
-CONCAT(\'"\',(Select left(value, length(value)-25) from prefix_config where name ="geoip2file"),\'/filedir/\', left(f.contenthash,2), "/",substring(f.contenthash,3,2),\'/\', f.contenthash, \'"\') AS \'link\'
+CONCAT(\'"\',(Select left(value, length(value)-25) from prefix_config where name ="geoip2file"),\'/filedir/\', ' .
+        'left(f.contenthash,2), "/",substring(f.contenthash,3,2),\'/\', f.contenthash, \'"\') AS \'link\'
 
 FROM prefix_resource AS r
 INNER JOIN prefix_course_modules AS cm ON cm.instance = r.id
@@ -860,7 +879,7 @@ WHERE r.course NOT IN (
   Select r.course
   from prefix_resource AS r
   WHERE LOWER( r.name) LIKE \'syllabus%\'
-  GROUP BY r.course) 
+  GROUP BY r.course)
 %%FILTER_SUBCATEGORIES:cc.path%%
 %%FILTER_STARTTIME:c.startdate:>%% %%FILTER_ENDTIME:c.enddate:<%%
 List of courses have MULTIPLE resource with a name like "Syllabus%"
@@ -925,10 +944,12 @@ JOIN mdl_course AS c ON c.id = (
   WHERE id = SUBSTRING_INDEX( SUBSTRING_INDEX( context.path, \'/\' , -2 ) , \'/\', 1 ) )
 WHERE filesize >0
 GROUP BY c.id
-With this report, you will have to define "alias" report property to "coursefiles" for it to be able to be called from the above report. And also setup (add) a FILTER_COURSES filter.
+With this report, you will have to define "alias" report property to "coursefiles" for it to be able to ' .
+        'be called from the above report. And also setup (add) a FILTER_COURSES filter.
 
 SELECT
-id ,CONCAT(\'<a target="_new" href="%%WWWROOT%%/pluginfile.php/\', contextid, \'/\', component, \'/\', filearea, \'/\', itemid, \'/\', filename, \'">\', filename,\'</a>\') AS "File"
+id ,CONCAT(\'<a target="_new" href="%%WWWROOT%%/pluginfile.php/\', contextid, \'/\', component, \'/\', ' .
+        'filearea, \'/\', itemid, \'/\', filename, \'">\', filename,\'</a>\') AS "File"
 ,filesize, mimetype ,author, license, timecreated, component, filearea, filepath
 
 FROM mdl_files AS f
@@ -946,9 +967,12 @@ WHERE filesize >0
                            )
                 )
 Which courses has redundant topics
-This report list several "active topics" calculations, per course. which should give an administrator some indications for which topics/sections/weeks are filled with resources and activities and which ones are empty and not used (usually, at the end of the course).
+This report list several "active topics" calculations, per course. which should give an administrator ' .
+        'some indications for which topics/sections/weeks are filled with resources and activities and which ' .
+        'ones are empty and not used (usually, at the end of the course).
 
-The following, second SQL query, could be used to "trim" down those redundant course topics/sections/weeks by updating the course format\'s numsection (Number of sections) setting. (It\'s a per course format setting!)
+The following, second SQL query, could be used to "trim" down those redundant course topics/sections/weeks ' .
+        'by updating the course format\'s numsection (Number of sections) setting. (It\'s a per course format setting!)
 
 SELECT id, format,
 concat(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\',c.id,\'">\', c.fullname,\'</a>\') AS Course
@@ -961,7 +985,8 @@ concat(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\',c.id,\'">\', c
  ,(SELECT COUNT(*) FROM mdl_course_modules cm WHERE cm.course = c.id) "Modules count"
 
 FROM mdl_course AS c
-The following SQL REPLACE query is used for "fixing" (updating) the "numsections" of a specific course format "onetopics" (you can always change it, or discard it to use this SQL REPLACE on all course formats)',
+The following SQL REPLACE query is used for "fixing" (updating) the "numsections" of a specific course ' .
+        'format "onetopics" (you can always change it, or discard it to use this SQL REPLACE on all course formats)',
     'parameters' =>
      [
     ],
@@ -978,7 +1003,9 @@ FROM `mdl_course` c where format = \'onetopic\'
 Hidden Courses with Students Enrolled
 Contributed by Eric Strom
 
-This query identifies courses with student enrollment that are currently hidden from students. Includes the defined course start date, count of students and instructors, and a clickable email link of instructor (first found record if more than one).
+This query identifies courses with student enrollment that are currently hidden from students. Includes ' .
+        'the defined course start date, count of students and instructors, and a clickable email link of ' .
+        'instructor (first found record if more than one).
 
 SELECT c.visible AS Visible,
 DATE(FROM_UNIXTIME(c.startdate)) AS StartDate,
@@ -1002,7 +1029,8 @@ WHERE ra.roleid = 3 AND ctx.instanceid = c.id) AS Instructors,
 now() AS Report_Timestamp
 
 FROM prefix_course AS c
-WHERE c.visible = 0 AND (SELECT COUNT( ra.userid ) FROM prefix_role_assignments AS ra JOIN prefix_context AS ctx ON ra.contextid = ctx.id WHERE ra.roleid = 5 AND ctx.instanceid = c.id) > 0
+WHERE c.visible = 0 AND (SELECT COUNT( ra.userid ) FROM prefix_role_assignments AS ra ' .
+        'JOIN prefix_context AS ctx ON ra.contextid = ctx.id WHERE ra.roleid = 5 AND ctx.instanceid = c.id) > 0
 ORDER BY StartDate, Instructor_Email, Course_ID',
     'parameters' =>
      [
@@ -1036,25 +1064,29 @@ ORDER BY startdate
 
 
 Enrolment methods used in all courses
-List of all the enrolment methods attached to all courses with their type, enabled status, sort order, and custom name if any. Includes a link directly the each course\'s enrolment methods settings page. Known to work in 3.11 (should work in most earlier version.) This report could serve as the basis and be easily expanded to show the various settings details for the methods if you want.
+List of all the enrolment methods attached to all courses with their type, enabled status, sort order, ' .
+        'and custom name if any. Includes a link directly the each course\'s enrolment methods settings page. ' .
+        'Known to work in 3.11 (should work in most earlier version.) This report could serve as the basis and ' .
+        'be easily expanded to show the various settings details for the methods if you want.
 
 Contributed by: Randy Thornton
 
 SELECT
 CONCAT(\'<a target="_new" href="%%WWWROOT%%/enrol/instances.php?id=\',c.id,\'">\',c.shortname,\'</a>\') AS "Course",
 e.enrol AS "Method",
-CASE e.status 
-   WHEN 0 THEN \'Enabled\' 
-   WHEN 1 THEN \'-\' 
-   ELSE e.status 
+CASE e.status
+   WHEN 0 THEN \'Enabled\'
+   WHEN 1 THEN \'-\'
+   ELSE e.status
 END AS "Status",
 IF(e.name IS NOT NULL,e.name,\'-\') AS "Custom name"
 
-FROM prefix_enrol e 
+FROM prefix_enrol e
 JOIN prefix_course c ON c.id = e.courseid
 ORDER BY c.shortname,e.sortorder
 List of all courses with a specific topic
-List of all courses with link, shortname and name which contains a specific named topic. E.g: if there are topics in a course which are named "Introduction to programming" you can find these courses.
+List of all courses with link, shortname and name which contains a specific named topic. E.g: if there ' .
+        'are topics in a course which are named "Introduction to programming" you can find these courses.
 
 SELECT concat(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\',cs.course,\'">\',cs.course,\'</a>\') AS courseid,
 c.fullname as coursename, c.shortname as shortname

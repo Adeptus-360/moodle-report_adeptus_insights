@@ -30,11 +30,24 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/filelib.php');
 
+/**
+ * Stripe payment service for subscription management.
+ *
+ * Handles Stripe payment processing, subscription creation, and billing operations.
+ */
 class stripe_service {
+    /** @var object Stripe client instance. */
     private $stripe;
+
+    /** @var object Stripe configuration object. */
     private $config;
+
+    /** @var bool Whether test mode is enabled. */
     private $istestmode;
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
         global $DB;
 
@@ -118,6 +131,7 @@ class stripe_service {
             $this->config = (object)$record;
         } catch (\Exception $e) {
             // Ignore config creation errors - Stripe may not be configured yet.
+            debugging('Stripe config creation failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
         }
     }
 

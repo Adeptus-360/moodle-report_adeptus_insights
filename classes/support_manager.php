@@ -28,6 +28,11 @@ namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Support manager class for handling support tickets and changelogs.
+ *
+ * Provides functionality for support ticket submission and product changelog retrieval.
+ */
 class support_manager {
     /** @var installation_manager */
     private $installationmanager;
@@ -61,6 +66,9 @@ class support_manager {
         'zip',
     ];
 
+    /**
+     * Constructor.
+     */
     public function __construct() {
         $this->installation_manager = new installation_manager();
     }
@@ -265,8 +273,10 @@ class support_manager {
             return null;
         }
 
-        // Check for HTTP error codes
+        // Check for HTTP error codes.
         if ($httpcode >= 400) {
+            debugging('Support manager HTTP error: ' . $httpcode, DEBUG_DEVELOPER);
+            return null;
         }
 
         $decoded = json_decode($response, true);

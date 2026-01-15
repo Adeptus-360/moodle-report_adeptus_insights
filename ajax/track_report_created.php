@@ -91,7 +91,7 @@ try {
     // Handle connection errors - log but don't fail the user experience
     // The report was already created, we just couldn't track it
     if ($response === false || !empty($curlerror)) {
-        error_log('[Adeptus Insights] Report creation tracking failed - curl error: ' . $curlerror);
+        debugging('[Adeptus Insights] Report creation tracking failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
             'message' => 'Report created (tracking pending)',
@@ -102,7 +102,7 @@ try {
 
     // Handle HTTP errors - log but don't fail
     if ($httpcode !== 200) {
-        error_log('[Adeptus Insights] Report creation tracking failed - HTTP ' . $httpcode . ': ' . $response);
+        debugging('[Adeptus Insights] Report creation tracking failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
             'message' => 'Report created (tracking pending)',
@@ -115,7 +115,7 @@ try {
     $backenddata = json_decode($response, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) {
-        error_log('[Adeptus Insights] Report creation tracking failed - invalid JSON response');
+        debugging('[Adeptus Insights] Report creation tracking failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
             'message' => 'Report created (tracking pending)',
@@ -137,7 +137,7 @@ try {
         'reports_remaining' => $reportsremaining,
     ]);
 } catch (Exception $e) {
-    error_log('[Adeptus Insights] Report creation tracking exception: ' . $e->getMessage());
+    debugging('[Adeptus Insights] Report creation tracking exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
     // Don't fail the user experience for tracking errors
     echo json_encode([
         'success' => true,
