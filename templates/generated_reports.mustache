@@ -90,6 +90,9 @@
                                     <!-- Categories will be injected here -->
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-report-header-btn" id="delete-report-header-btn" title="Delete Report">
+                                <i class="fa fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="card-body p-4 report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
@@ -782,6 +785,160 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         },
 
         /**
+         * Show delete confirmation dialog for a report
+         */
+        confirmDeleteReport: function(report) {
+            var self = this;
+
+            if (!report) {
+                report = self.currentReport;
+            }
+
+            if (!report || !report.slug) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Report Selected',
+                    text: 'Please select a report to delete.'
+                });
+                return;
+            }
+
+            var reportName = report.description || report.name || 'this report';
+            var source = (report.source || 'assistant').toLowerCase();
+            var sourceLabel = source === 'wizard' ? 'Wizard' : 'AI';
+
+            Swal.fire({
+                title: 'Delete Report?',
+                html: '<p>Are you sure you want to delete <strong>' + reportName + '</strong>?</p>' +
+                      '<p class="text-muted small">This action cannot be undone.</p>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: '<i class="fa fa-trash"></i> Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    self.deleteReport(report.slug, source, reportName);
+                }
+            });
+        },
+
+        /**
+         * Delete a report
+         * @param {string} slug - The report slug/identifier
+         * @param {string} source - The report source ('assistant' or 'wizard')
+         * @param {string} reportName - The report name for display
+         */
+        deleteReport: function(slug, source, reportName) {
+            var self = this;
+
+            // Show loading state
+            Swal.fire({
+                title: 'Deleting Report...',
+                text: 'Please wait while we remove the report.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            // Use PHP proxy for both wizard and AI reports to avoid CORS issues
+            var deletePromise = $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_generated_reports.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'remove_single',
+                    slug: slug,
+                    source: source,
+                    sesskey: M.cfg.sesskey
+                }
+            });
+
+            deletePromise.then(function(response) {
+                // Check if deletion was successful
+                if (!response.success) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: response.message || 'Failed to delete report'
+                    });
+                    return;
+                }
+
+                // Track the deletion to update quota
+                self.trackReportDeleted(reportName, source === 'assistant');
+
+                // Remove from cached reports
+                self.cachedReports = self.cachedReports.filter(function(r) {
+                    return r.slug !== slug;
+                });
+
+                // Clear current report if it was the deleted one
+                if (self.currentReport && self.currentReport.slug === slug) {
+                    self.currentReport = null;
+                    self.currentReportData = null;
+                }
+
+                // Refresh the reports list
+                self.renderReportsList(self.cachedReports);
+                self.updateReportCount(self.cachedReports.length);
+
+                // Reset the report view
+                $('#report-content').addClass('d-none');
+                $('#report-placeholder').removeClass('d-none');
+                $('#report-category-selector').addClass('d-none');
+                $('.report-view-title').text('Select a Report');
+
+                Swal.close();
+
+                // Show success toast
+                self.showToast('Report deleted successfully!', 'success');
+
+            }).catch(function(xhr) {
+                Swal.close();
+                var errorMsg = 'Failed to delete report';
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    errorMsg = response.message || errorMsg;
+                } catch (e) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Failed',
+                    text: errorMsg
+                });
+            });
+        },
+
+        /**
+         * Track report deletion to update quota
+         * @param {string} reportName - The name of the deleted report
+         * @param {boolean} isAiGenerated - Whether the report was AI-generated
+         */
+        trackReportDeleted: function(reportName, isAiGenerated) {
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_report_deleted.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    report_name: reportName,
+                    is_ai_generated: isAiGenerated ? 1 : 0,
+                    sesskey: M.cfg.sesskey
+                }
+            }).done(function(response) {
+                console.log('[GeneratedReports] Report deletion tracked:', response);
+            }).fail(function(error) {
+                console.warn('[GeneratedReports] Failed to track report deletion:', error);
+            });
+        },
+
+        /**
          * Show the category selector for the current report
          */
         showReportCategorySelector: function(report) {
@@ -1091,6 +1248,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         renderReportsList: function(reports) {
             var self = this;
+
+            // Destroy existing DataTable BEFORE modifying the DOM
+            if (this.reportsDataTable) {
+                this.reportsDataTable.destroy();
+                this.reportsDataTable = null;
+            }
+
             var tbody = $('#reports-tbody');
             tbody.empty();
 
@@ -1146,11 +1310,6 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             });
 
             // Initialize DataTable
-            if (this.reportsDataTable) {
-                this.reportsDataTable.destroy();
-                this.reportsDataTable = null;
-            }
-
             setTimeout(function() {
                 try {
                     self.reportsDataTable = new simpleDatatables.DataTable("#reports-table", {
@@ -1578,6 +1737,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     return;
                 }
                 self.exportReport(report.slug, 'json');
+            });
+
+            // Delete button handler (header)
+            $('#delete-report-header-btn').off('click').on('click', function() {
+                self.confirmDeleteReport(report);
             });
         },
 
@@ -2961,6 +3125,48 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 /* Report Category Selector in Header */
 .report-category-selector {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Delete button in header */
+.delete-report-header-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #fff;
+    transition: all 0.15s ease;
+}
+
+.delete-report-header-btn:hover {
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 1);
+    color: #fff;
+}
+
+.delete-report-header-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+/* Action separator in action bar */
+.action-separator {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    margin: 0 8px;
+}
+
+/* Delete button in action bar */
+.delete-report-btn {
+    transition: all 0.15s ease;
+}
+
+.delete-report-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
 .category-dropdown-wrapper {

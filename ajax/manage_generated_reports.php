@@ -60,30 +60,61 @@ try {
     switch ($action) {
         case 'remove_single':
             $slug = required_param('slug', PARAM_TEXT);
+            $source = optional_param('source', 'wizard', PARAM_TEXT);
 
-            // Delete the specific wizard report from backend
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer ' . $apikey,
-            ]);
+            if ($source === 'assistant') {
+                // Delete AI/assistant report from backend using DELETE method
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/ai-reports/' . urlencode($slug));
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Bearer ' . $apikey,
+                ]);
 
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+                $response = curl_exec($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlerror = curl_error($ch);
+                curl_close($ch);
 
-            if ($httpcode === 200) {
-                $data = json_decode($response, true);
-                echo json_encode(['success' => true, 'message' => $data['message'] ?? 'Report removed successfully']);
+                if ($curlerror) {
+                    echo json_encode(['success' => false, 'message' => 'Connection error: ' . $curlerror]);
+                } else if ($httpcode === 200 || $httpcode === 204) {
+                    $data = json_decode($response, true);
+                    echo json_encode(['success' => true, 'message' => $data['message'] ?? 'AI report deleted successfully']);
+                } else {
+                    $data = json_decode($response, true);
+                    echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to delete AI report (HTTP ' . $httpcode . ')']);
+                }
             } else {
-                $data = json_decode($response, true);
-                echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to remove report']);
+                // Delete wizard report from backend
+                $ch = curl_init();
+                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'Authorization: Bearer ' . $apikey,
+                ]);
+
+                $response = curl_exec($ch);
+                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
+
+                if ($httpcode === 200) {
+                    $data = json_decode($response, true);
+                    echo json_encode(['success' => true, 'message' => $data['message'] ?? 'Report removed successfully']);
+                } else {
+                    $data = json_decode($response, true);
+                    echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to remove report']);
+                }
             }
             break;
 
