@@ -193,30 +193,22 @@ When authentication fails, the plugin enters read-only mode:
 
 ## Version Information
 
-- **Current Version**: v1.5.0
-- **Last Updated**: December 19, 2024
-- **Compatibility**: Moodle 3.9+
+- **Current Version**: v1.0.0
+- **Last Updated**: January 2026
+- **Compatibility**: Moodle 4.1+
 - **PHP Version**: 7.4+
 
 ## Changelog
 
-### **v1.5.0 (Latest)**
-- ✅ Comprehensive testing and optimization
-- ✅ Performance benchmarks achieved
-- ✅ Security testing completed
-- ✅ Load testing for 1000+ users
-
-### **v1.4.0**
-- ✅ Professional error handling system
-- ✅ User-friendly notification system
-- ✅ Recovery action system
-- ✅ Accessibility improvements
-
-### **v1.3.0**
-- ✅ Token-based authentication
-- ✅ Site URL validation
-- ✅ User email verification
-- ✅ Read-only mode implementation
+### **v1.0.0 (Initial Release)**
+- ✅ AI-powered report generation assistant
+- ✅ Report wizard for guided report creation
+- ✅ Token-based authentication system
+- ✅ Subscription management with Stripe integration
+- ✅ Multiple export formats (PDF, CSV, Excel, JSON)
+- ✅ Dashboard block for quick report access
+- ✅ Professional error handling and recovery
+- ✅ Comprehensive admin and user documentation
 
 ## Need More Help?
 

@@ -20,7 +20,7 @@ Moodle Plugin → API Key + Site URL + User Email → Backend Validation → Dat
 ## Installation & Setup
 
 ### **Prerequisites**
-- Moodle 3.9 or higher
+- Moodle 4.1 or higher
 - PHP 7.4 or higher
 - HTTPS enabled (required for security)
 - Plugin installation permissions
