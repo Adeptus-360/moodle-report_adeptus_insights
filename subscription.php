@@ -23,6 +23,10 @@
  */
 
 require_once('../../config.php');
+
+// Force Boost theme for consistent plugin UI
+$CFG->theme = 'boost';
+
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
