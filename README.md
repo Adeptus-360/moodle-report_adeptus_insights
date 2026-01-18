@@ -41,20 +41,18 @@ Adeptus Insights is a Moodle report plugin that provides AI-powered analytics an
 
 ## Configuration
 
-After installation, configure the plugin at:
+After installation, access the plugin at:
 
 **Site administration > Reports > Adeptus Insights**
 
-### Required Settings
+### Getting Started
 
-1. **API Key**: Enter your Adeptus 360 API key to enable AI features
-2. **Site Registration**: Register your site to activate the subscription
+1. Navigate to the plugin and click **Register Site**
+2. Complete the registration form with your details
+3. Choose your subscription plan
+4. Your site will be automatically configured and ready to use
 
-### Optional Settings
-
-- Customize report categories
-- Configure export options
-- Set up user permissions
+The registration process handles all API configuration automatically - no manual API key entry required.
 
 ## Usage
 
@@ -136,9 +134,9 @@ See the Privacy API implementation in `classes/privacy/provider.php` for technic
 ### Common Issues
 
 **AI Assistant not responding**
-- Verify your API key is correctly configured
 - Check that your site is properly registered
 - Ensure you have an active subscription
+- Verify your internet connection to the Adeptus 360 service
 
 **Reports not generating**
 - Check user has the required capability (`report/adeptus_insights:view`)
