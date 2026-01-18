@@ -19,12 +19,14 @@
  *
  * This script handles API requests for the Moodle plugin and routes them
  * to the Laravel backend. It acts as a CORS-enabled proxy layer.
+ * Authentication is handled internally based on endpoint type (public vs protected).
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Files.RequireLogin.Missing
 // Load Moodle configuration.
 require_once(__DIR__ . '/../../config.php');
 

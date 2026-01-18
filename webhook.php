@@ -18,12 +18,15 @@
  * Stripe Webhook Handler for Adeptus Insights.
  *
  * Processes Stripe webhook events for subscription management.
+ * This endpoint receives external webhooks from Stripe and uses
+ * signature verification instead of Moodle session authentication.
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Files.RequireLogin.Missing
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
