@@ -268,7 +268,13 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     </div>
                     {{/next_billing}}
                 </div>
-                
+
+                <!-- Report limit policy notice -->
+                <div class="report-policy-notice">
+                    <i class="fa fa-info-circle"></i>
+                    <span><strong>Report Policy:</strong> If you downgrade or cancel your subscription, any reports exceeding your new plan's limit will be automatically deleted (oldest first) when the change takes effect.</span>
+                </div>
+
                 <!-- Access restrictions notice -->
                 {{#should_disable_api_access}}
                 <div class="access-restriction-notice">
@@ -534,6 +540,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
 .cancellation-info,
 .payment-issue-info,
 .access-restriction-notice,
+.report-policy-notice,
 .renewal-prompt {
     background: #f8f9fa;
     border-radius: 10px;
@@ -555,6 +562,21 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
 .access-restriction-notice {
     border-left-color: #dc3545;
     background: #f8d7da;
+}
+
+.report-policy-notice {
+    border-left-color: #17a2b8;
+    background: #e8f4f8;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #0c5460;
+}
+
+.report-policy-notice i {
+    color: #17a2b8;
+    margin-top: 2px;
 }
 
 .renewal-prompt {
