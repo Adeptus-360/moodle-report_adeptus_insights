@@ -49,4 +49,11 @@
         <license>MIT</license>
         <licenseversion></licenseversion>
     </library>
+    <library>
+        <location>amd/src/vendor/lottie_light_min.js</location>
+        <name>Lottie Web Light</name>
+        <version>5.12.2</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
 </libraries>
