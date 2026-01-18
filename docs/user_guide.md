@@ -1,224 +1,252 @@
-# Adeptus Insights Authentication System - User Guide
+# Adeptus Insights - User Guide
 
-## Overview
+## Getting Started
 
-The Adeptus Insights plugin now uses a modern, secure token-based authentication system that replaces the previous global authentication method. This system provides enhanced security, better performance, and improved user experience.
+### Accessing the Plugin
+1. Log in to your Moodle site
+2. Navigate to **Site administration > Reports > Adeptus Insights**
+   - Or find it in your user menu under **Adeptus Insights**
 
-## What's New
-
-### ✅ **Enhanced Security**
-- Token-based authentication instead of global credentials
-- Site URL validation to prevent unauthorized access
-- User email verification against registered administrators
-- Comprehensive error handling and logging
-
-### ✅ **Improved Performance**
-- Caching system for faster authentication
-- Optimized validation processes
-- Reduced database queries through intelligent caching
-
-### ✅ **Better User Experience**
-- Professional error messages with recovery suggestions
-- Read-only mode for authentication issues
-- Clear guidance on resolving problems
-- Integrated admin contact information
-
-## How It Works
-
-### 1. **Authentication Flow**
-```
-User Login → Plugin Check → API Key Validation → Site URL Verification → User Email Check → Access Granted
-```
-
-### 2. **Token System**
-- Each Moodle installation has a unique API key
-- API keys are automatically generated during plugin installation
-- Keys are stored securely and cannot be manually edited
-- Validation occurs on every plugin access
-
-### 3. **Security Measures**
-- API keys are 64 characters long and cryptographically secure
-- Site URLs are validated against registered installations
-- User emails must match registered admin emails
-- All authentication attempts are logged for security
-
-## User Experience
-
-### **Normal Operation**
-When everything is working correctly, you'll see the plugin interface normally with full functionality.
-
-### **Authentication Issues**
-If there are authentication problems, the plugin will enter "Read-Only Mode" with clear error messages and recovery options.
-
-## Error Messages & Solutions
-
-### **Common Error Types**
-
-#### 🔴 **Invalid API Key**
-- **What it means**: Your plugin's API key is no longer valid
-- **Possible causes**: Key corruption, system updates, or configuration changes
-- **Solution**: Contact your plugin administrator
-
-#### ⚠️ **Site URL Mismatch**
-- **What it means**: Your site URL doesn't match what's registered
-- **Possible causes**: Site migration, URL changes, or configuration updates
-- **Solution**: Contact your plugin administrator to update registration
-
-#### ⚠️ **User Not Authorized**
-- **What it means**: Your user account doesn't have permission
-- **Possible causes**: Role changes or permission updates
-- **Solution**: Contact your administrator to grant access
-
-#### ⚠️ **Subscription Inactive**
-- **What it means**: Your plugin subscription has expired
-- **Possible causes**: Payment issues or subscription expiration
-- **Solution**: Contact your administrator to renew subscription
-
-#### ⚠️ **Insufficient Tokens**
-- **What it means**: You don't have enough tokens for operations
-- **Possible causes**: Token depletion or usage limits
-- **Solution**: Contact your administrator to purchase more tokens
-
-### **Recovery Actions**
-
-Each error message includes specific recovery actions:
-
-1. **🔄 Refresh Page**: For temporary issues
-2. **📧 Contact Administrator**: For configuration problems
-3. **⏰ Try Again Later**: For service availability issues
-4. **📖 View Documentation**: For self-help solutions
-
-## Read-Only Mode
-
-### **What Happens**
-When authentication fails, the plugin enters read-only mode:
-- Interactive elements are disabled
-- Clear error messages are displayed
-- Recovery options are provided
-- Visual indicators show the current state
-
-### **How to Exit Read-Only Mode**
-1. **Resolve the underlying issue** (usually requires admin action)
-2. **Refresh the page** to re-attempt authentication
-3. **Contact your administrator** if the issue persists
-
-## Getting Help
-
-### **Immediate Assistance**
-- **Error Messages**: Always include specific guidance
-- **Recovery Actions**: Step-by-step solutions provided
-- **Admin Contact**: Direct contact information displayed
-
-### **Administrator Contact**
-- **Email**: Shown in error messages
-- **Support URL**: Available in plugin settings
-- **Documentation**: Comprehensive guides available
-
-### **Self-Service Options**
-- **Troubleshooting Guides**: Available in plugin documentation
-- **FAQ Section**: Common questions and answers
-- **Video Tutorials**: Step-by-step visual guides
-
-## Best Practices
-
-### **For Users**
-1. **Keep your Moodle session active** while using the plugin
-2. **Report authentication issues** to your administrator promptly
-3. **Follow recovery instructions** provided in error messages
-4. **Check plugin status** if you experience unusual behavior
-
-### **For Administrators**
-1. **Monitor error logs** for authentication issues
-2. **Keep contact information** up to date
-3. **Review subscription status** regularly
-4. **Update site URLs** if your site is moved
-
-## Troubleshooting
-
-### **Plugin Won't Load**
-1. Check if you're logged into Moodle
-2. Verify you have the required permissions
-3. Check for authentication error messages
-4. Contact your administrator if issues persist
-
-### **Getting Error Messages**
-1. Read the error message carefully
-2. Follow the provided recovery steps
-3. Check the suggestions section
-4. Contact your administrator if needed
-
-### **Slow Performance**
-1. Check your internet connection
-2. Verify the plugin service is accessible
-3. Clear your browser cache
-4. Contact support if performance issues persist
-
-## Security Features
-
-### **What's Protected**
-- **API Key Security**: Keys are encrypted and cannot be viewed
-- **Site Validation**: Only registered sites can access the service
-- **User Verification**: Email addresses are validated against admin records
-- **Request Logging**: All authentication attempts are logged
-
-### **What's Not Protected**
-- **Moodle Session**: Plugin relies on Moodle's authentication
-- **Browser Security**: Local storage is used for performance
-- **Network Security**: HTTPS is required for secure communication
-
-## Performance Optimization
-
-### **Caching System**
-- **API Key Caching**: Reduces validation overhead
-- **Local Storage**: Improves frontend performance
-- **Database Optimization**: Minimizes query impact
-- **Response Time**: Target <100ms for all operations
-
-### **Load Handling**
-- **Concurrent Users**: Supports 1000+ simultaneous users
-- **Memory Usage**: Optimized for minimal resource consumption
-- **Scalability**: Designed for enterprise-level usage
-
-## Support Information
-
-### **Technical Support**
-- **Email**: Available in plugin settings
-- **Documentation**: Comprehensive guides and tutorials
-- **Community**: User forums and discussion groups
-
-### **Emergency Contact**
-- **Critical Issues**: Immediate response required
-- **Service Outages**: Status updates and notifications
-- **Security Issues**: Priority handling and resolution
-
-## Version Information
-
-- **Current Version**: v1.0.0
-- **Last Updated**: January 2026
-- **Compatibility**: Moodle 4.1+
-- **PHP Version**: 7.4+
-
-## Changelog
-
-### **v1.0.0 (Initial Release)**
-- ✅ AI-powered report generation assistant
-- ✅ Report wizard for guided report creation
-- ✅ Token-based authentication system
-- ✅ Subscription management with Stripe integration
-- ✅ Multiple export formats (PDF, CSV, Excel, JSON)
-- ✅ Dashboard block for quick report access
-- ✅ Professional error handling and recovery
-- ✅ Comprehensive admin and user documentation
-
-## Need More Help?
-
-If you need additional assistance:
-1. **Check the error messages** for specific guidance
-2. **Follow recovery actions** provided in the interface
-3. **Contact your administrator** for configuration issues
-4. **Review documentation** for detailed information
-5. **Use support channels** for technical assistance
+### Main Features
+- **AI Assistant**: Ask questions in plain English to generate reports
+- **Report Wizard**: Create reports using pre-built templates
+- **Generated Reports**: View and manage your saved reports
+- **Subscription**: View your plan and usage
 
 ---
 
-*This guide is part of the Adeptus Insights plugin documentation. For the latest updates, check your plugin's documentation section.*
+## AI Assistant
+
+The AI Assistant lets you create reports by typing questions in natural language.
+
+### How to Use
+
+1. Click the **AI Assistant** tab
+2. Type your question in the chat box
+3. Press Enter or click Send
+4. Review the generated report
+5. Save or export as needed
+
+### Example Questions
+
+```
+"Show me all users who logged in this week"
+"List courses with less than 50% completion rate"
+"Find students who haven't submitted assignment X"
+"Show the most active users by login count"
+"List all courses without any teachers assigned"
+```
+
+### Tips for Better Results
+
+- Be specific: "users in Course ABC" instead of just "users"
+- Include timeframes: "in the last 30 days"
+- Specify what you want to see: "show name, email, and last login"
+
+### Understanding Results
+
+After your query runs:
+- **Table View**: Interactive table with sorting and search
+- **Chart View**: Visual representation (if applicable)
+- **Save**: Store for later access
+- **Export**: Download in your preferred format
+
+---
+
+## Report Wizard
+
+The Report Wizard guides you through creating reports step-by-step.
+
+### Step 1: Choose Category
+
+Select a report category:
+- User & Enrollment
+- Course Reports
+- Grades & Assessment
+- System Usage
+- Completion
+- And many more...
+
+### Step 2: Select Report
+
+Browse available reports in your chosen category. Each shows:
+- Report name and description
+- Premium badge (if upgrade required)
+
+### Step 3: Configure
+
+Set parameters for your report:
+- **Date ranges**: Start and end dates
+- **Courses**: Select specific courses
+- **Users**: Filter by user type
+- **Thresholds**: Set minimum/maximum values
+
+### Step 4: View Results
+
+Your report displays with:
+- Interactive data table
+- Chart visualisation (toggle view)
+- Export options
+- Save button
+
+---
+
+## Generated Reports
+
+Manage all your saved reports in one place.
+
+### Viewing Reports
+
+1. Click **Generated Reports** tab
+2. Select a report from the list
+3. View in table or chart format
+
+### Actions
+
+| Action | Description |
+|--------|-------------|
+| **Preview** | View report data |
+| **Re-run** | Refresh with latest data |
+| **Export** | Download to file |
+| **Delete** | Remove report |
+
+### Categories
+
+Organise reports with colour-coded categories:
+1. Click the category dropdown on a report
+2. Select existing or create new category
+3. Reports group by category for easy finding
+
+---
+
+## Exporting Reports
+
+### Available Formats
+
+| Format | Best For | Availability |
+|--------|----------|--------------|
+| **PDF** | Printing, presentations | All plans |
+| **CSV** | Spreadsheet analysis | Pro+ |
+| **Excel** | Advanced spreadsheets | Pro+ |
+| **JSON** | Technical/API use | Pro+ |
+
+### How to Export
+
+1. Generate or open a report
+2. Click **Export** dropdown
+3. Select format
+4. File downloads automatically
+
+### Export Tips
+
+- PDF limited to 5,000 rows - use CSV for larger data
+- Charts included in PDF exports
+- Filename includes report name and date
+
+---
+
+## Understanding Limits
+
+### AI Credits
+
+- Used each time you ask the AI a question
+- Reset monthly (based on plan)
+- When exhausted: Wait for reset or upgrade
+
+### Report Limits
+
+- Maximum saved reports varies by plan
+- Free plan: 10 reports
+- Delete old reports to free space
+
+### Export Limits
+
+- Monthly export allowance
+- Varies by subscription plan
+- PDF available on all plans
+
+---
+
+## Troubleshooting
+
+### "Credit limit reached"
+
+**Cause**: Monthly AI credits used up
+
+**Solutions**:
+- Wait for monthly reset (1st of month or billing date)
+- Upgrade your plan
+
+### "Report limit reached"
+
+**Cause**: Maximum saved reports reached
+
+**Solutions**:
+- Delete unused reports
+- Upgrade for higher limit
+
+### Report won't generate
+
+**Try**:
+1. Simplify your question
+2. Add specific filters (date range, course)
+3. Refresh the page
+4. Contact your administrator
+
+### Export not working
+
+**Check**:
+- Format available on your plan (CSV/Excel/JSON need Pro+)
+- Report size under 5,000 rows for PDF
+- Browser popup blocker disabled
+
+---
+
+## Tips & Best Practices
+
+### For Better AI Results
+- Start simple, then add detail
+- Use specific course/user names
+- Include date ranges when relevant
+- Ask follow-up questions to refine
+
+### For Organisation
+- Use categories to group related reports
+- Delete reports you no longer need
+- Save frequently-used reports
+
+### For Performance
+- Filter by specific courses rather than site-wide
+- Use date ranges to limit data
+- Export large reports to CSV rather than PDF
+
+---
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| Enter | Send message (AI Assistant) |
+| Shift+Enter | New line in message |
+
+---
+
+## Getting Help
+
+### Self-Service
+- Check this user guide
+- Review error messages for specific guidance
+- Try the suggested recovery actions
+
+### Contact Support
+- Email: support@adeptus360.com
+- Include: Error message, what you were trying to do
+
+### Contact Your Administrator
+- For permission issues
+- For subscription questions
+- For plugin configuration
+
+---
+
+*Adeptus Insights v1.0.0 | Need help? support@adeptus360.com*
