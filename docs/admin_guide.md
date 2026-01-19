@@ -125,9 +125,17 @@ The plugin implements Moodle's Privacy API for GDPR compliance:
 
 ## Support
 
+### Built-in Support System
+The plugin includes a dedicated support ticket system accessible at **Reports > Adeptus Insights > Support** or directly at `/report/adeptus_insights/support.php`.
+
+Features:
+- Create and track support tickets
+- View ticket history and responses
+- Access changelog and updates
+
+### Contact
 - **Email:** support@adeptus360.com
 - **Website:** www.adeptus360.com
-- **Documentation:** docs.adeptus360.com
 
 ---
 
