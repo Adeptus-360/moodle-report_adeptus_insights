@@ -1,0 +1,278 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Registration Wizard Template - Modern, Beautiful, Multi-step Interface
+    Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+
+
+{{#js}}
+require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/registration'], function($, Ajax, Notification, Registration) {
+    // Initialize the registration wizard
+    Registration.init();
+});
+{{/js}}
+
+<div class="adeptus-wizard-container" id="registration-container">
+    <!-- Header Section -->
+    <div class="wizard-header">
+        <div class="wizard-header-content">
+            <h1 class="wizard-title">
+                <i class="fa fa-rocket wizard-icon"></i>
+                {{registration_title}}
+            </h1>
+            <p class="wizard-subtitle">Set up your Adeptus Insights installation in just a few steps</p>
+        </div>
+        <div class="wizard-user-info">
+            <span class="user-welcome">Welcome, {{user_fullname}}</span>
+        </div>
+    </div>
+
+    <!-- Main Registration Steps -->
+    <div class="wizard-steps-container">
+        
+        <!-- Step 1: Welcome & Overview -->
+        <div class="wizard-step active" id="step-welcome">
+            <div class="step-header">
+                <h2><span class="step-number">1</span> Welcome to Adeptus Insights</h2>
+                <p>Let's get your installation configured for powerful analytics</p>
+            </div>
+            
+            <div class="welcome-content">
+                <div class="welcome-grid">
+                    <div class="welcome-card">
+                        <div class="welcome-icon">
+                            <i class="fa fa-bar-chart"></i>
+                        </div>
+                        <h3>Advanced Analytics</h3>
+                        <p>Get deep insights into your Moodle data with AI-powered analysis</p>
+                    </div>
+                    
+                    <div class="welcome-card">
+                        <div class="welcome-icon">
+                            <i class="fa fa-magic"></i>
+                        </div>
+                        <h3>Smart Reports</h3>
+                        <p>Generate beautiful reports with our intuitive wizard interface</p>
+                    </div>
+                    
+                    <div class="welcome-card">
+                        <div class="welcome-icon">
+                            <i class="fa fa-cloud"></i>
+                        </div>
+                        <h3>Cloud Integration</h3>
+                        <p>Seamless integration with our cloud-based analytics platform</p>
+                    </div>
+                </div>
+                
+                <div class="welcome-actions">
+                    <button class="btn-primary btn-next-step" data-step="admin-info">
+                        <i class="fa fa-arrow-right"></i> Get Started
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Admin Information -->
+        <div class="wizard-step" id="step-admin-info">
+            <div class="step-header">
+                <button class="btn-back" id="back-to-welcome">
+                    <i class="fa fa-arrow-left"></i> Back
+                </button>
+                <h2><span class="step-number">2</span> Administrator Information</h2>
+                <p>Tell us about yourself and your installation</p>
+            </div>
+            
+            <div class="admin-form-container">
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="admin_name" class="form-label">Full Name *</label>
+                            <input type="text" id="admin_name" name="admin_name" class="form-control" required>
+                            <small class="form-help">Your full name as the administrator</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="admin_email" class="form-label">Email Address *</label>
+                            <input type="email" id="admin_email" name="admin_email" class="form-control" required>
+                            <small class="form-help">We'll use this for important notifications</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Installation Details</h3>
+                    <div class="installation-info">
+                        <div class="info-item">
+                            <span class="info-label">Site URL:</span>
+                            <span class="info-value">{{site_url}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Site Name:</span>
+                            <span class="info-value">{{site_name}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Moodle Version:</span>
+                            <span class="info-value">{{moodle_version}}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">PHP Version:</span>
+                            <span class="info-value">{{php_version}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="btn-secondary btn-prev-step" data-step="welcome">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn-primary btn-next-step" data-step="verification">
+                        <i class="fa fa-arrow-right"></i> Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Verification -->
+        <div class="wizard-step" id="step-verification">
+            <div class="step-header">
+                <button class="btn-back" id="back-to-admin-info">
+                    <i class="fa fa-arrow-left"></i> Back
+                </button>
+                <h2><span class="step-number">3</span> Verify Information</h2>
+                <p>Please review your information before we register your installation</p>
+            </div>
+            
+            <div class="verification-container">
+                <div class="verification-summary">
+                    <h3>Registration Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <span class="summary-label">Administrator Name:</span>
+                            <span class="summary-value" id="summary-admin-name">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Email Address:</span>
+                            <span class="summary-value" id="summary-admin-email">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Site URL:</span>
+                            <span class="summary-value">{{site_url}}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Site Name:</span>
+                            <span class="summary-value">{{site_name}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="verification-notice">
+                    <div class="notice-icon">
+                        <i class="fa fa-info-circle"></i>
+                    </div>
+                    <div class="notice-content">
+                        <h4>What happens next?</h4>
+                        <ul>
+                            <li>Your installation will be registered with our secure backend</li>
+                            <li>You'll receive a unique API key for secure communication</li>
+                            <li>You'll be redirected to choose a subscription plan</li>
+                            <li>Your data will be protected with enterprise-grade security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="step-actions">
+                    <button class="btn-secondary btn-prev-step" data-step="admin-info">
+                        <i class="fa fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn-primary btn-register-installation" id="register-installation">
+                        <i class="fa fa-check"></i> Register Installation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Success -->
+        <div class="wizard-step" id="step-success">
+            <div class="step-header">
+                <h2><span class="step-number">4</span> Registration Complete!</h2>
+                <p>Your installation has been successfully registered</p>
+            </div>
+            
+            <div class="success-container">
+                <div class="success-icon">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                
+                <div class="success-content">
+                    <h3>Welcome to Adeptus Insights!</h3>
+                    <p>Your installation has been successfully registered and is ready to use.</p>
+                    
+                    <div class="success-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Installation ID:</span>
+                            <span class="detail-value" id="success-installation-id">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">API Key:</span>
+                            <span class="detail-value" id="success-api-key">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="success-actions">
+                        <button class="btn-primary btn-continue-to-subscription" id="continue-to-subscription">
+                            <i class="fa fa-credit-card"></i> Choose Subscription Plan
+                        </button>
+                        <button class="btn-secondary btn-go-to-dashboard" id="go-to-dashboard">
+                            <i class="fa fa-dashboard"></i> Go to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Registering Installation...</h3>
+            <p>Please wait while we set up your account</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="popup-overlay" id="error-overlay">
+        <div class="popup-content error" id="error-content">
+            <h3 id="error-title">Registration Error</h3>
+            <p id="error-message">An error occurred during registration.</p>
+            <button class="btn-close" id="error-close">OK</button>
+        </div>
+    </div>
+
+    <!-- Hidden Form for Submission -->
+    <form id="registration-form" method="post" class="hidden-form">
+        <input type="hidden" name="action" value="register">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        <input type="hidden" name="admin_name" id="form-admin-name">
+        <input type="hidden" name="admin_email" id="form-admin-email">
+    </form>
+</div>
+
+{{#js}}
+require(['report_adeptus_insights/registration'], function(Registration) {
+    if (Registration && typeof Registration.init === 'function') {
+        Registration.init();
+    }
+});
+{{/js}} 
+
+<style>
+@media (min-width: 768px) {
+    .pagelayout-standard #page.drawers .main-inner, body.limitedwidth #page.drawers .main-inner {
+        max-width: 100% !important;
+    }
+}
+</style>

@@ -1,0 +1,51 @@
+/* Notifications Styles */
+.adeptus-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem;
+    border-radius: 4px;
+    z-index: 10000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.adeptus-notification.success {
+    background: #4caf50;
+    color: white;
+}
+
+.mr-auto {
+    width: 100%;
+}
+
+.page-header-headings {
+    width: 100%;
+}
+
+.adeptus-notification.error {
+    background: #f44336;
+    color: white;
+}
+
+.adeptus-notification.warning {
+    background: #ff9800;
+    color: white;
+}
+
+.adeptus-notification.info {
+    background: #2196f3;
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

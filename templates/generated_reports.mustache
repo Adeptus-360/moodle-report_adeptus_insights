@@ -1,0 +1,3328 @@
+{{! report/adeptus_insights/templates/generated_reports.mustache
+    Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{config.wwwroot}}/report/adeptus_insights/styles/assistant.css">
+
+<div class="generated-reports-container">
+    <!-- Toast Container for notifications -->
+    <div id="adeptus-toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000;"></div>
+
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-chart-bar page-header-icon"></i>
+                {{#str}}generated_reports_title, report_adeptus_insights{{/str}}
+            </h1>
+            <p class="page-header-subtitle">{{#str}}generated_reports_desc, report_adeptus_insights{{/str}}</p>
+        </div>
+        <div class="page-header-actions">
+            <button type="button" class="btn btn-outline-light" id="manage-categories-btn">
+                <i class="fa fa-tags"></i> Manage Categories
+            </button>
+            <a href="{{config.wwwroot}}/report/adeptus_insights/assistant.php" class="btn btn-outline-light">
+                <i class="fa fa-plus"></i> Generate New Report
+            </a>
+            <a href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <!-- Main Content -->
+        <div class="row">
+            <!-- Reports List -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0"><i class="fa fa-list"></i> All Reports</h5>
+                    </div>
+                    <div class="card-body p-0 position-relative" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
+                        <div id="reports-loader" class="p-4 d-flex justify-content-center align-items-center" style="min-height: 200px;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="d-none" id="reports-table-wrapper">
+                            <table id="reports-table" class="table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Report Name</th>
+                                        <th>Date</th>
+                                        <th>From</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reports-tbody">
+                                    <!-- Report rows will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="no-reports-message" class="text-center py-5 d-none">
+                            <i class="fa fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">{{#str}}no_reports_yet, report_adeptus_insights{{/str}}</h5>
+                            <p class="text-muted">{{#str}}no_reports_yet_desc, report_adeptus_insights{{/str}}</p>
+                            <a href="{{config.wwwroot}}/report/adeptus_insights/assistant.php" class="btn btn-outline-primary mt-2">
+                                <i class="fa fa-robot"></i> Go to AI Assistant
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Preview -->
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 report-view-title">Select a Report</h5>
+                        <div class="report-category-selector d-none" id="report-category-selector">
+                            <div class="category-dropdown-wrapper">
+                                <button type="button" class="category-current-btn" id="category-current-btn">
+                                    <span class="category-dot" id="category-dot"></span>
+                                    <span class="category-name" id="category-name">General</span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </button>
+                                <div class="category-dropdown-menu" id="category-dropdown-menu">
+                                    <!-- Categories will be injected here -->
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger delete-report-header-btn" id="delete-report-header-btn" title="Delete Report">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4 report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
+                        <div id="report-placeholder" class="text-center py-5">
+                            <i class="fa fa-file-alt fa-4x text-muted mb-3"></i>
+                            <h5 class="text-muted">Select a report to view details</h5>
+                            <p class="text-muted">Click on any report from the list to see its data here.</p>
+                        </div>
+                        <div id="report-loading" class="text-center py-5 d-none">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading report...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Loading report data...</p>
+                        </div>
+                        <div id="report-content" class="d-none">
+                            <!-- Report content will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{#js}}
+require(['jquery', 'core/chartjs'], function($, Chart) {
+    'use strict';
+
+    var GeneratedReports = {
+        backendUrl: '{{backendUrl}}',
+        cachedReports: [],
+        cachedCategories: [],
+        currentReport: null,
+        currentReportData: null,
+        reportsDataTable: null,
+        retryCount: 0,
+        maxRetries: 3,
+        currentView: 'table',
+        chartInstance: null,
+        Chart: Chart,
+        isFreePlan: {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}},
+
+        init: function() {
+            this.loadReports();
+            this.loadCategories();
+            this.bindViewToggle();
+            this.bindCategoryManagement();
+        },
+
+        /**
+         * Show upgrade prompt for premium export formats
+         */
+        showExportUpgradePrompt: function(format) {
+            var subscriptionUrl = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
+            var formatNames = {
+                'csv': 'CSV',
+                'excel': 'Excel',
+                'json': 'JSON'
+            };
+            var formatName = formatNames[format] || format.toUpperCase();
+
+            Swal.fire({
+                title: 'Premium Export Format',
+                html: '<div style="text-align: center; padding: 20px;">' +
+                    '<div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">' +
+                    '<i class="fa fa-crown"></i></div>' +
+                    '<h3 style="color: #2c3e50; margin-bottom: 15px;">' + formatName + ' Export is a Premium Feature</h3>' +
+                    '<p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">' +
+                    'Export to ' + formatName + ' format is only available with a paid subscription plan. ' +
+                    'Upgrade now to unlock all export formats and advanced features.</p>' +
+                    '<div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">' +
+                    '<p style="margin: 0; font-size: 14px; color: #34495e;">' +
+                    '<strong>Free Plan:</strong> PDF exports only<br>' +
+                    '<strong>Paid Plans:</strong> CSV, Excel, JSON, and PDF exports</p></div></div>',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
+                cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+                confirmButtonColor: '#3498db',
+                cancelButtonColor: '#95a5a6',
+                width: 500
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    window.open(subscriptionUrl, '_blank');
+                }
+            });
+        },
+
+        /**
+         * Check export eligibility before exporting
+         */
+        checkExportEligibility: async function(format) {
+            try {
+                var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/check_export_eligibility.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'format=' + encodeURIComponent(format) + '&sesskey=' + M.cfg.sesskey
+                });
+                var data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error checking export eligibility:', error);
+                return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
+            }
+        },
+
+        /**
+         * Capture chart as image for PDF export
+         * Uses native toDataURL with html2canvas fallback
+         */
+        captureChartImage: async function() {
+            var self = this;
+
+            // Wait for chart animation to complete
+            await new Promise(function(resolve) { setTimeout(resolve, 300); });
+
+            var chartCanvas = document.getElementById('report-chart');
+            if (!chartCanvas) {
+                console.warn('[GeneratedReports] Chart canvas not found');
+                return null;
+            }
+
+            // Method 1: Native canvas toDataURL (fastest, most reliable)
+            try {
+                var dataUrl = chartCanvas.toDataURL('image/png', 0.8);
+                if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                    console.log('[GeneratedReports] Chart captured via toDataURL, size:', dataUrl.length);
+                    return dataUrl;
+                }
+            } catch (e) {
+                console.warn('[GeneratedReports] Native canvas capture failed:', e);
+            }
+
+            // Method 2: html2canvas fallback (handles CORS/tainted canvas)
+            try {
+                if (!window.html2canvas) {
+                    await self.loadHtml2Canvas();
+                }
+
+                if (window.html2canvas) {
+                    var capturedCanvas = await window.html2canvas(chartCanvas, {
+                        backgroundColor: '#ffffff',
+                        scale: 1.5,
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false
+                    });
+                    var dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
+                    if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
+                        console.log('[GeneratedReports] Chart captured via html2canvas, size:', dataUrl.length);
+                        return dataUrl;
+                    }
+                }
+            } catch (e) {
+                console.warn('[GeneratedReports] html2canvas capture failed:', e);
+            }
+
+            return null;
+        },
+
+        /**
+         * Load html2canvas library from CDN
+         */
+        loadHtml2Canvas: function() {
+            return new Promise(function(resolve, reject) {
+                if (window.html2canvas) {
+                    resolve();
+                    return;
+                }
+                var script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.onload = function() { resolve(); };
+                script.onerror = function() { reject(new Error('Failed to load html2canvas')); };
+                document.head.appendChild(script);
+            });
+        },
+
+        /**
+         * Show toast notification
+         */
+        showToast: function(message, type) {
+            type = type || 'success';
+            var toastContainer = document.getElementById('adeptus-toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'adeptus-toast-container';
+                toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000;';
+                document.body.appendChild(toastContainer);
+            }
+
+            var iconMap = {
+                'success': 'fa-check-circle',
+                'error': 'fa-times-circle',
+                'warning': 'fa-exclamation-triangle',
+                'info': 'fa-info-circle'
+            };
+            var bgColorMap = {
+                'success': '#28a745',
+                'error': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#17a2b8'
+            };
+            var textColorMap = {
+                'success': 'white',
+                'error': 'white',
+                'warning': '#212529',
+                'info': 'white'
+            };
+
+            var toast = document.createElement('div');
+            toast.style.cssText = 'background: ' + bgColorMap[type] + '; color: ' + textColorMap[type] + '; padding: 12px 20px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; min-width: 280px;';
+            toast.innerHTML = '<i class="fa ' + iconMap[type] + '"></i><span>' + message + '</span>';
+            toastContainer.appendChild(toast);
+
+            setTimeout(function() {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(function() {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        },
+
+        /**
+         * Track export for usage monitoring
+         */
+        trackExport: function(format, reportName) {
+            var self = this;
+            fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_export.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'format=' + encodeURIComponent(format) + '&report_name=' + encodeURIComponent(reportName) + '&sesskey=' + M.cfg.sesskey
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                console.log('[GeneratedReports] Export tracked:', data);
+            })
+            .catch(function(error) {
+                console.error('[GeneratedReports] Error tracking export:', error);
+            });
+        },
+
+        bindViewToggle: function() {
+            var self = this;
+            $(document).on('click', '.view-toggle-btn', function() {
+                var view = $(this).data('view');
+                self.switchView(view);
+            });
+            $(document).on('change', '#chart-type-select, #chart-x-axis, #chart-y-axis', function() {
+                self.renderChart();
+            });
+        },
+
+        bindCategoryManagement: function() {
+            var self = this;
+            $('#manage-categories-btn').on('click', function() {
+                self.showCategoryManagementModal();
+            });
+        },
+
+        loadCategories: function() {
+            var self = this;
+
+            // Use PHP proxy to avoid CORS issues
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'list',
+                    sesskey: M.cfg.sesskey
+                },
+                success: function(response) {
+                    if (response.success && response.data) {
+                        self.cachedCategories = response.data;
+                    }
+                },
+                error: function() {
+                    self.cachedCategories = [];
+                }
+            });
+        },
+
+        showCategoryManagementModal: function() {
+            var self = this;
+
+            // Separate system and custom categories
+            var systemCategories = self.cachedCategories.filter(function(c) { return c.is_system; });
+            var customCategories = self.cachedCategories.filter(function(c) { return !c.is_system; });
+
+            // Preset colors for quick selection
+            var presetColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+            // Build custom categories HTML
+            var customCategoriesHtml = customCategories.length > 0 ?
+                customCategories.map(function(cat) {
+                    return '<div class="cat-card" data-id="' + cat.id + '">' +
+                        '<div class="cat-card-color" style="background: ' + (cat.color || '#6c757d') + ';"></div>' +
+                        '<div class="cat-card-content">' +
+                            '<div class="cat-card-name">' + cat.name + '</div>' +
+                            '<div class="cat-card-meta">' + (cat.report_count || 0) + ' report' + (cat.report_count !== 1 ? 's' : '') + '</div>' +
+                        '</div>' +
+                        '<div class="cat-card-actions">' +
+                            '<button class="cat-action-btn edit-cat-btn" data-id="' + cat.id + '" title="Edit">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
+                            '</button>' +
+                            '<button class="cat-action-btn cat-action-btn-danger delete-cat-btn" data-id="' + cat.id + '" title="Delete">' +
+                                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>';
+                }).join('') :
+                '<div class="cat-empty-state">' +
+                    '<div class="cat-empty-icon">' +
+                        '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>' +
+                    '</div>' +
+                    '<div class="cat-empty-text">No custom categories yet</div>' +
+                    '<div class="cat-empty-hint">Create your first category above</div>' +
+                '</div>';
+
+            // Build system categories HTML
+            var systemCategoriesHtml = systemCategories.map(function(cat) {
+                return '<div class="cat-system-item">' +
+                    '<span class="cat-system-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                    '<span class="cat-system-name">' + cat.name + '</span>' +
+                    '<span class="cat-system-count">' + (cat.report_count || 0) + '</span>' +
+                '</div>';
+            }).join('');
+
+            // Build color swatches HTML
+            var colorSwatchesHtml = presetColors.map(function(color) {
+                return '<button type="button" class="cat-color-swatch" data-color="' + color + '" style="background: ' + color + ';"></button>';
+            }).join('');
+
+            Swal.fire({
+                title: 'Categories',
+                html: '<div class="cat-modal">' +
+                    // Add new category section
+                    '<div class="cat-add-section">' +
+                        '<div class="cat-add-header">Create new category</div>' +
+                        '<div class="cat-add-form">' +
+                            '<div class="cat-add-input-wrapper">' +
+                                '<input type="text" id="new-category-name" class="cat-add-input" placeholder="Category name">' +
+                                '<div class="cat-add-color-wrapper">' +
+                                    '<button type="button" class="cat-add-color-btn" id="color-picker-toggle">' +
+                                        '<span class="cat-add-color-preview" id="selected-color-preview" style="background: #3b82f6;"></span>' +
+                                        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+                                    '</button>' +
+                                    '<div class="cat-color-dropdown" id="color-dropdown">' +
+                                        '<div class="cat-color-swatches">' + colorSwatchesHtml + '</div>' +
+                                        '<div class="cat-color-custom">' +
+                                            '<input type="color" id="new-category-color" value="#3b82f6">' +
+                                            '<span>Custom color</span>' +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<button type="button" class="cat-add-btn" id="add-category-btn">' +
+                                '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
+                                'Add' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                    // Custom categories section
+                    '<div class="cat-section">' +
+                        '<div class="cat-section-header">' +
+                            '<span class="cat-section-title">Your Categories</span>' +
+                            '<span class="cat-section-count">' + customCategories.length + '</span>' +
+                        '</div>' +
+                        '<div class="cat-cards-list">' + customCategoriesHtml + '</div>' +
+                    '</div>' +
+                    // System categories section
+                    '<div class="cat-section cat-section-system">' +
+                        '<div class="cat-section-header">' +
+                            '<span class="cat-section-title">Default Categories</span>' +
+                            '<span class="cat-section-badge">Read-only</span>' +
+                        '</div>' +
+                        '<div class="cat-system-list">' + systemCategoriesHtml + '</div>' +
+                    '</div>' +
+                '</div>',
+                showConfirmButton: false,
+                showCloseButton: true,
+                width: '480px',
+                customClass: {
+                    popup: 'cat-modal-popup',
+                    title: 'cat-modal-title',
+                    closeButton: 'cat-modal-close',
+                    htmlContainer: 'cat-modal-container'
+                },
+                didOpen: function() {
+                    var selectedColor = '#3b82f6';
+
+                    // Color picker toggle
+                    $('#color-picker-toggle').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var dropdown = $('#color-dropdown');
+                        dropdown.toggleClass('show');
+                    });
+
+                    // Prevent dropdown from closing when clicking inside it
+                    $('#color-dropdown').on('click', function(e) {
+                        e.stopPropagation();
+                    });
+
+                    // Close dropdown when clicking outside
+                    $(document).on('click.colorDropdown', function(e) {
+                        if (!$(e.target).closest('.cat-add-color-wrapper').length) {
+                            $('#color-dropdown').removeClass('show');
+                        }
+                    });
+
+                    // Color swatch selection
+                    $('.cat-color-swatch').on('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        selectedColor = $(this).data('color');
+                        $('#selected-color-preview').css('background', selectedColor);
+                        $('#new-category-color').val(selectedColor);
+                        $('#color-dropdown').removeClass('show');
+                    });
+
+                    // Custom color picker
+                    $('#new-category-color').on('input change', function(e) {
+                        e.stopPropagation();
+                        selectedColor = $(this).val();
+                        $('#selected-color-preview').css('background', selectedColor);
+                    });
+
+                    // Add category button handler
+                    $('#add-category-btn').on('click', function() {
+                        var name = $('#new-category-name').val().trim();
+                        if (name) {
+                            self.createCategory(name, selectedColor);
+                        } else {
+                            $('#new-category-name').addClass('error').focus();
+                            setTimeout(function() { $('#new-category-name').removeClass('error'); }, 500);
+                        }
+                    });
+
+                    // Enter key in input
+                    $('#new-category-name').on('keypress', function(e) {
+                        if (e.which === 13) {
+                            $('#add-category-btn').click();
+                        }
+                    });
+
+                    // Edit button handlers
+                    $('.edit-cat-btn').on('click', function(e) {
+                        e.stopPropagation();
+                        var catId = $(this).data('id');
+                        var cat = self.cachedCategories.find(function(c) { return c.id == catId; });
+                        if (cat) {
+                            $(document).off('click.colorDropdown');
+                            self.showEditCategoryDialog(cat);
+                        }
+                    });
+
+                    // Delete button handlers
+                    $('.delete-cat-btn').on('click', function(e) {
+                        e.stopPropagation();
+                        var catId = $(this).data('id');
+                        var cat = self.cachedCategories.find(function(c) { return c.id == catId; });
+                        if (cat) {
+                            $(document).off('click.colorDropdown');
+                            self.confirmDeleteCategory(cat);
+                        }
+                    });
+                },
+                willClose: function() {
+                    $(document).off('click.colorDropdown');
+                }
+            });
+        },
+
+        createCategory: function(name, color) {
+            var self = this;
+
+            // Use PHP proxy to avoid CORS issues
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'create',
+                    name: name,
+                    color: color,
+                    sesskey: M.cfg.sesskey
+                },
+                success: function(response) {
+                    if (response.success) {
+                        self.cachedCategories.push(response.data);
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Category Created',
+                            text: 'Category "' + name + '" has been created.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function() {
+                            self.showCategoryManagementModal();
+                        });
+                    } else {
+                        Swal.showValidationMessage(response.message || 'Failed to create category');
+                    }
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.message || 'Failed to create category';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            });
+        },
+
+        showEditCategoryDialog: function(category) {
+            var self = this;
+            var presetColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+            var colorSwatchesHtml = presetColors.map(function(color) {
+                var isSelected = color.toLowerCase() === (category.color || '#6c757d').toLowerCase();
+                return '<button type="button" class="edit-color-swatch' + (isSelected ? ' selected' : '') + '" data-color="' + color + '" style="background: ' + color + ';"></button>';
+            }).join('');
+
+            Swal.fire({
+                title: 'Edit Category',
+                html: '<div class="cat-edit-modal">' +
+                    '<div class="cat-edit-preview" id="edit-preview">' +
+                        '<div class="cat-edit-preview-color" id="edit-preview-color" style="background: ' + (category.color || '#6c757d') + ';"></div>' +
+                        '<span class="cat-edit-preview-name" id="edit-preview-name">' + category.name + '</span>' +
+                    '</div>' +
+                    '<div class="cat-edit-field">' +
+                        '<label class="cat-edit-label">Name</label>' +
+                        '<input type="text" id="edit-cat-name" class="cat-edit-input" value="' + category.name.replace(/"/g, '&quot;') + '">' +
+                    '</div>' +
+                    '<div class="cat-edit-field">' +
+                        '<label class="cat-edit-label">Color</label>' +
+                        '<div class="cat-edit-colors">' +
+                            '<div class="cat-edit-swatches">' + colorSwatchesHtml + '</div>' +
+                            '<div class="cat-edit-custom">' +
+                                '<input type="color" id="edit-cat-color" value="' + (category.color || '#6c757d') + '">' +
+                                '<span>Custom</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>',
+                showCancelButton: true,
+                confirmButtonText: 'Save Changes',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'cat-edit-popup',
+                    confirmButton: 'cat-edit-confirm-btn',
+                    cancelButton: 'cat-edit-cancel-btn'
+                },
+                didOpen: function() {
+                    var selectedColor = category.color || '#6c757d';
+
+                    // Live preview update
+                    $('#edit-cat-name').on('input', function() {
+                        $('#edit-preview-name').text($(this).val() || 'Category');
+                    });
+
+                    // Color swatch selection
+                    $('.edit-color-swatch').on('click', function() {
+                        selectedColor = $(this).data('color');
+                        $('.edit-color-swatch').removeClass('selected');
+                        $(this).addClass('selected');
+                        $('#edit-preview-color').css('background', selectedColor);
+                        $('#edit-cat-color').val(selectedColor);
+                    });
+
+                    // Custom color picker
+                    $('#edit-cat-color').on('input', function() {
+                        selectedColor = $(this).val();
+                        $('.edit-color-swatch').removeClass('selected');
+                        $('#edit-preview-color').css('background', selectedColor);
+                    });
+                },
+                preConfirm: function() {
+                    var name = document.getElementById('edit-cat-name').value.trim();
+                    var color = document.getElementById('edit-cat-color').value;
+                    if (!name) {
+                        Swal.showValidationMessage('Please enter a category name');
+                        return false;
+                    }
+                    return { name: name, color: color };
+                }
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    self.updateCategory(category.id, result.value.name, result.value.color);
+                }
+            });
+        },
+
+        updateCategory: function(categoryId, name, color) {
+            var self = this;
+
+            // Use PHP proxy to avoid CORS issues
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'update',
+                    category_id: categoryId,
+                    name: name,
+                    color: color,
+                    sesskey: M.cfg.sesskey
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update cached category
+                        var idx = self.cachedCategories.findIndex(function(c) { return c.id == categoryId; });
+                        if (idx !== -1) {
+                            self.cachedCategories[idx] = response.data;
+                        }
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Category Updated',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function() {
+                            self.showCategoryManagementModal();
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to update category' });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.message || 'Failed to update category';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            });
+        },
+
+        confirmDeleteCategory: function(category) {
+            var self = this;
+
+            Swal.fire({
+                title: 'Delete Category?',
+                html: '<p>Are you sure you want to delete <strong>' + category.name + '</strong>?</p>' +
+                      '<p class="text-muted small">Reports in this category will be moved to "General".</p>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: 'Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    self.deleteCategory(category.id);
+                }
+            });
+        },
+
+        deleteCategory: function(categoryId) {
+            var self = this;
+
+            // Use PHP proxy to avoid CORS issues
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'delete',
+                    category_id: categoryId,
+                    sesskey: M.cfg.sesskey
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Remove from cache
+                        self.cachedCategories = self.cachedCategories.filter(function(c) { return c.id != categoryId; });
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Category Deleted',
+                            text: response.data?.reports_reassigned ? response.data.reports_reassigned + ' reports moved to General' : 'Category has been deleted',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(function() {
+                            self.showCategoryManagementModal();
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to delete category' });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.message || 'Failed to delete category';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            });
+        },
+
+        /**
+         * Show delete confirmation dialog for a report
+         */
+        confirmDeleteReport: function(report) {
+            var self = this;
+
+            if (!report) {
+                report = self.currentReport;
+            }
+
+            if (!report || !report.slug) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Report Selected',
+                    text: 'Please select a report to delete.'
+                });
+                return;
+            }
+
+            var reportName = report.description || report.name || 'this report';
+            var source = (report.source || 'assistant').toLowerCase();
+            var sourceLabel = source === 'wizard' ? 'Wizard' : 'AI';
+
+            Swal.fire({
+                title: 'Delete Report?',
+                html: '<p>Are you sure you want to delete <strong>' + reportName + '</strong>?</p>' +
+                      '<p class="text-muted small">This action cannot be undone.</p>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                confirmButtonText: '<i class="fa fa-trash"></i> Yes, Delete',
+                cancelButtonText: 'Cancel'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    self.deleteReport(report.slug, source, reportName);
+                }
+            });
+        },
+
+        /**
+         * Delete a report
+         * @param {string} slug - The report slug/identifier
+         * @param {string} source - The report source ('assistant' or 'wizard')
+         * @param {string} reportName - The report name for display
+         */
+        deleteReport: function(slug, source, reportName) {
+            var self = this;
+
+            // Show loading state
+            Swal.fire({
+                title: 'Deleting Report...',
+                text: 'Please wait while we remove the report.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+
+            // Use PHP proxy for both wizard and AI reports to avoid CORS issues
+            var deletePromise = $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_generated_reports.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'remove_single',
+                    slug: slug,
+                    source: source,
+                    sesskey: M.cfg.sesskey
+                }
+            });
+
+            deletePromise.then(function(response) {
+                // Check if deletion was successful
+                if (!response.success) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Delete Failed',
+                        text: response.message || 'Failed to delete report'
+                    });
+                    return;
+                }
+
+                // Track the deletion to update quota
+                self.trackReportDeleted(reportName, source === 'assistant');
+
+                // Remove from cached reports
+                self.cachedReports = self.cachedReports.filter(function(r) {
+                    return r.slug !== slug;
+                });
+
+                // Clear current report if it was the deleted one
+                if (self.currentReport && self.currentReport.slug === slug) {
+                    self.currentReport = null;
+                    self.currentReportData = null;
+                }
+
+                // Refresh the reports list
+                self.renderReportsList(self.cachedReports);
+                self.updateReportCount(self.cachedReports.length);
+
+                // Reset the report view
+                $('#report-content').addClass('d-none');
+                $('#report-placeholder').removeClass('d-none');
+                $('#report-category-selector').addClass('d-none');
+                $('.report-view-title').text('Select a Report');
+
+                Swal.close();
+
+                // Show success toast
+                self.showToast('Report deleted successfully!', 'success');
+
+            }).catch(function(xhr) {
+                Swal.close();
+                var errorMsg = 'Failed to delete report';
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    errorMsg = response.message || errorMsg;
+                } catch (e) {
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Delete Failed',
+                    text: errorMsg
+                });
+            });
+        },
+
+        /**
+         * Track report deletion to update quota
+         * @param {string} reportName - The name of the deleted report
+         * @param {boolean} isAiGenerated - Whether the report was AI-generated
+         */
+        trackReportDeleted: function(reportName, isAiGenerated) {
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_report_deleted.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    report_name: reportName,
+                    is_ai_generated: isAiGenerated ? 1 : 0,
+                    sesskey: M.cfg.sesskey
+                }
+            }).done(function(response) {
+                console.log('[GeneratedReports] Report deletion tracked:', response);
+            }).fail(function(error) {
+                console.warn('[GeneratedReports] Failed to track report deletion:', error);
+            });
+        },
+
+        /**
+         * Show the category selector for the current report
+         */
+        showReportCategorySelector: function(report) {
+            var self = this;
+            var categoryInfo = report.category_info || { name: report.category || 'General', color: '#6c757d' };
+
+            // Store current report for category updates
+            this.currentCategoryReport = report;
+
+            // Update current category display
+            $('#category-dot').css('background', categoryInfo.color || '#6c757d');
+            $('#category-name').text(categoryInfo.name || 'General');
+            $('#report-category-selector').removeClass('d-none');
+
+            // Helper function to build and bind dropdown
+            var buildDropdown = function() {
+                // Build dropdown menu
+                var menuHtml = self.cachedCategories.map(function(cat) {
+                    var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
+                                     (!categoryInfo.id && cat.name.toLowerCase() === (categoryInfo.name || 'general').toLowerCase());
+                    return '<button type="button" class="category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
+                        '<span class="category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                        '<span class="category-menu-name">' + cat.name + '</span>' +
+                        (isSelected ? '<svg class="category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+                    '</button>';
+                }).join('');
+
+                $('#category-dropdown-menu').html(menuHtml);
+
+                // Bind click events for menu items
+                $('.category-menu-item').off('click').on('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var catId = $(this).data('id');
+                    var catName = $(this).data('name');
+                    var catColor = $(this).data('color');
+                    $('#category-dropdown-menu').removeClass('show');
+                    self.updateReportCategory(report.slug, catId, catName, catColor, report);
+                });
+            };
+
+            // If categories not loaded yet, load them first
+            if (!this.cachedCategories || this.cachedCategories.length === 0) {
+                $.ajax({
+                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        action: 'list',
+                        sesskey: M.cfg.sesskey
+                    },
+                    success: function(response) {
+                        if (response.success && response.data) {
+                            self.cachedCategories = response.data;
+                        }
+                        buildDropdown();
+                    },
+                    error: function() {
+                        self.cachedCategories = [];
+                        buildDropdown();
+                    }
+                });
+            } else {
+                buildDropdown();
+            }
+
+            // Bind events for dropdown toggle (remove old ones first)
+            $('#category-current-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                $('#category-dropdown-menu').toggleClass('show');
+            });
+
+            $('#category-dropdown-menu').off('click').on('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Close on outside click
+            $(document).off('click.categoryDropdown').on('click.categoryDropdown', function(e) {
+                if (!$(e.target).closest('.category-dropdown-wrapper').length) {
+                    $('#category-dropdown-menu').removeClass('show');
+                }
+            });
+        },
+
+        /**
+         * Update a report's category
+         */
+        updateReportCategory: function(slug, categoryId, categoryName, categoryColor, report) {
+            var self = this;
+            var source = report ? (report.source || 'assistant') : 'assistant';
+
+            // Optimistic update
+            $('#category-dot').css('background', categoryColor);
+            $('#category-name').text(categoryName);
+
+            // Use PHP proxy to avoid CORS issues (server-to-server call to backend)
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/update_report_category.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    slug: slug,
+                    category_id: categoryId,
+                    source: source,
+                    sesskey: M.cfg.sesskey
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update cached report
+                        var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
+                        if (cacheIndex !== -1) {
+                            self.cachedReports[cacheIndex].category = categoryName;
+                            self.cachedReports[cacheIndex].category_id = categoryId;
+                            self.cachedReports[cacheIndex].category_info = {
+                                id: categoryId,
+                                name: categoryName,
+                                color: categoryColor
+                            };
+                        }
+
+                        // Show subtle success feedback
+                        $('#category-current-btn').addClass('success-flash');
+                        setTimeout(function() {
+                            $('#category-current-btn').removeClass('success-flash');
+                        }, 600);
+                    } else {
+                        // Revert on failure.
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message || 'Failed to update category'
+                        });
+                    }
+                },
+                error: function(xhr) {
+                    var msg = xhr.responseJSON?.message || 'Failed to update category';
+                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                }
+            });
+        },
+
+        detectNumericColumns: function(data, headers) {
+            if (!data || data.length === 0) return [];
+
+            return headers.filter(function(header) {
+                // Check if at least 50% of values are numeric
+                var numericCount = 0;
+                var sampleSize = Math.min(data.length, 20);
+
+                for (var i = 0; i < sampleSize; i++) {
+                    var val = data[i][header];
+                    if (val !== null && val !== undefined && val !== '') {
+                        var num = parseFloat(val);
+                        if (!isNaN(num) && isFinite(num)) {
+                            numericCount++;
+                        }
+                    }
+                }
+
+                return numericCount >= sampleSize * 0.5;
+            });
+        },
+
+        switchView: function(view) {
+            this.currentView = view;
+            $('.view-toggle-btn').removeClass('active');
+            $('.view-toggle-btn[data-view="' + view + '"]').addClass('active');
+
+            if (view === 'table') {
+                $('#report-table-view').removeClass('d-none');
+                $('#report-chart-view').addClass('d-none');
+            } else {
+                $('#report-table-view').addClass('d-none');
+                $('#report-chart-view').removeClass('d-none');
+                this.renderChart();
+            }
+        },
+
+        getAuthToken: function() {
+            var authData = window.adeptusAuthData;
+            if (authData && authData.api_key) {
+                return authData.api_key;
+            }
+            return null;
+        },
+
+        formatDate: function(dateStr) {
+            if (!dateStr) return 'N/A';
+            var date = new Date(dateStr);
+            var now = new Date();
+            var diff = now - date;
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) {
+                return 'Today, ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            } else if (days === 1) {
+                return 'Yesterday, ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            } else if (days < 7) {
+                var weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                return weekdays[date.getDay()] + ', ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            } else {
+                return date.toLocaleDateString() + ', ' + date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+            }
+        },
+
+        loadReports: function() {
+            var self = this;
+            var token = this.getAuthToken();
+
+            if (!token) {
+                if (self.retryCount < self.maxRetries) {
+                    self.retryCount++;
+                    setTimeout(function() {
+                        self.loadReports();
+                    }, 500);
+                    return;
+                } else {
+                    $('#reports-loader').addClass('d-none');
+                    $('#no-reports-message').removeClass('d-none').html(
+                        '<i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>' +
+                        '<h5 class="text-muted">Authentication Required</h5>' +
+                        '<p class="text-muted">Please ensure you are logged in to view reports.</p>'
+                    );
+                    return;
+                }
+            }
+
+            // Fetch from both AI Assistant reports (external API) and Wizard reports (local Moodle)
+            var assistantPromise = $.ajax({
+                url: this.backendUrl + '/ai-reports',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 15000
+            }).catch(function() {
+                return { reports: [], data: [] };
+            });
+
+            // Fetch wizard reports from local Moodle endpoint
+            var wizardPromise = $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/get_wizard_reports.php',
+                method: 'GET',
+                timeout: 15000
+            }).catch(function() {
+                return { success: true, reports: [] };
+            });
+
+            // Wait for both requests
+            $.when(assistantPromise, wizardPromise).then(
+                function(assistantRes, wizardRes) {
+                    // Extract reports from both responses
+                    var aRes = assistantRes[0] || assistantRes || {};
+                    var wRes = wizardRes[0] || wizardRes || {};
+
+                    var assistantReports = aRes.reports || aRes.data || [];
+                    var wizardReports = wRes.reports || [];
+
+                    // Tag each report with its source
+                    assistantReports = (Array.isArray(assistantReports) ? assistantReports : []).map(function(r) {
+                        r.source = r.source || 'assistant';
+                        return r;
+                    });
+                    wizardReports = (Array.isArray(wizardReports) ? wizardReports : []).map(function(r) {
+                        r.source = 'wizard';
+                        return r;
+                    });
+
+                    // Combine all reports
+                    self.cachedReports = assistantReports.concat(wizardReports);
+
+                    // Sort by date (newest first)
+                    self.cachedReports.sort(function(a, b) {
+                        return new Date(b.created_at) - new Date(a.created_at);
+                    });
+
+                    self.renderReportsList(self.cachedReports);
+                    self.updateReportCount(self.cachedReports.length);
+                },
+                function(xhr, status, error) {
+                    $('#reports-loader').addClass('d-none');
+                    if (xhr.status === 401) {
+                        $('#no-reports-message').removeClass('d-none').html(
+                            '<i class="fa fa-lock fa-3x text-warning mb-3"></i>' +
+                            '<h5 class="text-muted">Session Expired</h5>' +
+                            '<p class="text-muted">Please refresh the page to continue.</p>' +
+                            '<button class="btn btn-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> Refresh Page</button>'
+                        );
+                    } else {
+                        $('#no-reports-message').removeClass('d-none').html(
+                            '<i class="fa fa-exclamation-circle fa-3x text-danger mb-3"></i>' +
+                            '<h5 class="text-muted">Failed to Load Reports</h5>' +
+                            '<p class="text-muted">Please try again later.</p>' +
+                            '<button class="btn btn-outline-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> Retry</button>'
+                        );
+                    }
+                }
+            );
+        },
+
+        updateReportCount: function(count) {
+            var countText = count === 1 ? '1 Report' : count + ' Reports';
+            $('.page-header-subtitle').text('You have ' + countText.toLowerCase() + ' saved');
+        },
+
+        renderReportsList: function(reports) {
+            var self = this;
+
+            // Destroy existing DataTable BEFORE modifying the DOM
+            if (this.reportsDataTable) {
+                this.reportsDataTable.destroy();
+                this.reportsDataTable = null;
+            }
+
+            var tbody = $('#reports-tbody');
+            tbody.empty();
+
+            $('#reports-loader').addClass('d-none');
+
+            if (!reports || reports.length === 0) {
+                $('#no-reports-message').removeClass('d-none');
+                $('#reports-table-wrapper').addClass('d-none');
+                return;
+            }
+
+            $('#no-reports-message').addClass('d-none');
+            $('#reports-table-wrapper').removeClass('d-none');
+
+            reports.forEach(function(report, index) {
+                var date = self.formatDate(report.created_at);
+                var rowCount = report.row_count || report.data_count || '';
+                var rowCountBadge = rowCount ? '<span class="badge bg-info ms-1" title="' + rowCount + ' rows"><i class="fa fa-table"></i> ' + rowCount + '</span>' : '';
+                var categoryBadge = report.category ? '<span class="badge bg-secondary ms-1">' + report.category + '</span>' : '';
+
+                // Determine source badge
+                var source = (report.source || 'assistant').toLowerCase();
+                var sourceBadge = '';
+                if (source === 'wizard') {
+                    sourceBadge = '<span class="badge badge-wizard"><i class="fa fa-magic"></i> Wizard</span>';
+                } else {
+                    sourceBadge = '<span class="badge badge-ai"><i class="fa fa-robot"></i> AI</span>';
+                }
+
+                var row = $('<tr class="report-row" data-report-slug="' + report.slug + '" data-report-source="' + source + '"></tr>');
+                row.html(
+                    '<td>' +
+                        '<div class="report-name-cell">' +
+                            '<span class="report-name">' + (report.description || report.name || 'Untitled Report') + '</span>' +
+                            '<div class="report-badges mt-1">' + categoryBadge + rowCountBadge + '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td><small class="text-muted">' + date + '</small></td>' +
+                    '<td>' + sourceBadge + '</td>'
+                );
+
+                tbody.append(row);
+            });
+
+            // Use event delegation for click handlers (survives DataTable re-rendering)
+            $('#reports-table-wrapper').off('click', '.report-row').on('click', '.report-row', function() {
+                var $row = $(this);
+                var slug = $row.data('report-slug');
+
+                $('.report-row').removeClass('table-primary');
+                $row.addClass('table-primary');
+                self.loadReportDetails(slug);
+            });
+
+            // Initialize DataTable
+            setTimeout(function() {
+                try {
+                    self.reportsDataTable = new simpleDatatables.DataTable("#reports-table", {
+                        searchable: true,
+                        fixedHeight: false,
+                        perPage: 15,
+                        loading: false,
+                        labels: {
+                            placeholder: "Search reports...",
+                            noRows: "No reports found",
+                            info: "Showing {start} to {end} of {rows} reports"
+                        }
+                    });
+
+                    // Remove loading class
+                    setTimeout(function() {
+                        $('.datatable-wrapper').removeClass('datatable-loading');
+                    }, 100);
+
+                    // Auto-select first report after DataTable is ready
+                    setTimeout(function() {
+                        var firstRow = $('.report-row').first();
+                        if (firstRow.length && !self.currentReport) {
+                            firstRow.addClass('table-primary');
+                            var firstSlug = firstRow.data('report-slug');
+                            if (firstSlug) {
+                                self.loadReportDetails(firstSlug);
+                            }
+                        }
+                    }, 150);
+                } catch (e) {
+                    console.warn('DataTable initialization failed:', e);
+                }
+            }, 100);
+        },
+
+        loadReportDetails: function(slug) {
+            var self = this;
+            var token = this.getAuthToken();
+
+            $('#report-placeholder').addClass('d-none');
+            $('#report-content').addClass('d-none');
+            $('#report-loading').removeClass('d-none');
+
+            // Find cached report for immediate title update and source detection
+            var cachedReport = this.cachedReports.find(function(r) { return r.slug === slug; });
+            var source = cachedReport ? (cachedReport.source || 'assistant') : 'assistant';
+
+            if (cachedReport) {
+                $('.report-view-title').text(cachedReport.description || cachedReport.name || 'Report Details');
+                // Show category selector for all report types (both assistant and wizard)
+                self.showReportCategorySelector(cachedReport);
+            }
+
+            // Handle wizard reports differently - they need to be executed
+            if (source === 'wizard' && cachedReport) {
+                self.loadWizardReport(cachedReport);
+                return;
+            }
+
+            // For assistant reports, fetch from external API
+            $.ajax({
+                url: this.backendUrl + '/ai-reports/' + slug,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 30000,
+                success: function(response) {
+                    // API returns: response.report (metadata) and response.data (rows)
+                    var report = response.report || response;
+                    var data = response.data || [];
+
+                    // Preserve source
+                    report.source = source;
+
+                    // Check if local execution is required (SaaS model)
+                    // Get SQL from response - check multiple possible locations
+                    var sqlQuery = response.sql || (report && report.sql_query) || (report && report.sql);
+                    var needsLocalExecution = response.execution_required || (!data || data.length === 0) && sqlQuery;
+
+                    if (needsLocalExecution && sqlQuery) {
+                        // Execute SQL locally
+                        self.executeReportLocally(sqlQuery, report.params || {})
+                            .then(function(executionResult) {
+                                var localData = executionResult.data || [];
+
+                                self.currentReport = report;
+                                self.currentReportData = localData;
+
+                                // Update cached report with full data
+                                var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
+                                if (cacheIndex !== -1) {
+                                    self.cachedReports[cacheIndex] = Object.assign({}, report, { data: localData, source: source });
+                                }
+
+                                self.renderReportContent(report, localData);
+                            })
+                            .catch(function(error) {
+                                $('#report-loading').addClass('d-none');
+                                $('#report-content').html(
+                                    '<div class="alert alert-danger">' +
+                                        '<i class="fa fa-exclamation-circle"></i> Failed to execute report: ' + error.message +
+                                        '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                                    '</div>'
+                                ).removeClass('d-none');
+                            });
+                        return;
+                    }
+
+                    self.currentReport = report;
+                    self.currentReportData = data;
+
+                    // Update cached report with full data
+                    var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
+                    if (cacheIndex !== -1) {
+                        self.cachedReports[cacheIndex] = Object.assign({}, report, { data: data, source: source });
+                    }
+
+                    self.renderReportContent(report, data);
+                },
+                error: function(xhr, status, error) {
+                    $('#report-loading').addClass('d-none');
+                    $('#report-content').html(
+                        '<div class="alert alert-danger">' +
+                            '<i class="fa fa-exclamation-circle"></i> Failed to load report details.' +
+                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                        '</div>'
+                    ).removeClass('d-none');
+                }
+            });
+        },
+
+        // Load and execute a wizard report
+        loadWizardReport: function(cachedReport) {
+            var self = this;
+
+            // Build form data for the generate_report.php endpoint
+            // Include reexecution=1 to skip eligibility check (this is a saved report being viewed)
+            var formData = 'reportid=' + encodeURIComponent(cachedReport.name) + '&sesskey=' + M.cfg.sesskey + '&reexecution=1';
+
+            // Add saved parameters if available
+            if (cachedReport.parameters && typeof cachedReport.parameters === 'object') {
+                Object.keys(cachedReport.parameters).forEach(function(key) {
+                    formData += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(cachedReport.parameters[key]);
+                });
+            }
+
+            $.ajax({
+                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/generate_report.php',
+                method: 'POST',
+                data: formData,
+                timeout: 60000, // Longer timeout for report generation
+                success: function(response) {
+                    if (response.success) {
+                        var data = response.results || response.data || [];
+                        var report = {
+                            name: cachedReport.name,
+                            description: cachedReport.description || cachedReport.name,
+                            category: response.report?.category || cachedReport.category || 'Wizard Report',
+                            created_at: cachedReport.created_at,
+                            source: 'wizard',
+                            slug: cachedReport.slug
+                        };
+
+                        self.currentReport = report;
+                        self.currentReportData = data;
+
+                        // Update cached report with full data
+                        var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === cachedReport.slug; });
+                        if (cacheIndex !== -1) {
+                            self.cachedReports[cacheIndex].data = data;
+                            self.cachedReports[cacheIndex].row_count = data.length;
+                        }
+
+                        self.renderReportContent(report, data);
+                    } else {
+                        $('#report-loading').addClass('d-none');
+                        $('#report-content').html(
+                            '<div class="alert alert-warning">' +
+                                '<i class="fa fa-exclamation-triangle"></i> ' + (response.message || 'Failed to generate report.') +
+                                '<button class="btn btn-sm btn-outline-warning ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                            '</div>'
+                        ).removeClass('d-none');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $('#report-loading').addClass('d-none');
+                    $('#report-content').html(
+                        '<div class="alert alert-danger">' +
+                            '<i class="fa fa-exclamation-circle"></i> Failed to execute wizard report.' +
+                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                        '</div>'
+                    ).removeClass('d-none');
+                }
+            });
+        },
+
+        /**
+         * Execute SQL locally for SaaS model
+         * @param {string} sql - The SQL query to execute
+         * @param {object} params - Query parameters
+         * @returns {Promise} - Resolves with execution result
+         */
+        executeReportLocally: function(sql, params) {
+            var self = this;
+            params = params || {};
+
+            return new Promise(function(resolve, reject) {
+                $.ajax({
+                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/execute_ai_report.php',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        sql: sql,
+                        params: params,
+                        sesskey: M.cfg.sesskey
+                    }),
+                    timeout: 60000,
+                    success: function(response) {
+                        if (response.success) {
+                            resolve({
+                                data: response.data || [],
+                                headers: response.headers || [],
+                                row_count: response.row_count || 0,
+                                error: null
+                            });
+                        } else {
+                            resolve({
+                                data: [],
+                                headers: [],
+                                row_count: 0,
+                                error: response.message || 'Query execution failed'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        var errorMessage = 'Failed to execute report';
+                        try {
+                            var response = JSON.parse(xhr.responseText);
+                            errorMessage = response.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = error || errorMessage;
+                        }
+                        reject(new Error(errorMessage));
+                    }
+                });
+            });
+        },
+
+        renderReportContent: function(report, data) {
+            var self = this;
+            $('#report-loading').addClass('d-none');
+
+            var contentHtml = '';
+            var rowCount = data ? data.length : 0;
+
+            // Report header with enhanced styling
+            contentHtml += '<div class="report-detail-header mb-4">';
+            contentHtml += '<h4 class="mb-2">' + (report.description || report.name || 'Report') + '</h4>';
+            contentHtml += '<div class="report-meta d-flex flex-wrap align-items-center gap-2">';
+
+            // Source badge
+            var reportSource = (report.source || 'assistant').toLowerCase();
+            if (reportSource === 'wizard') {
+                contentHtml += '<span class="badge badge-wizard"><i class="fa fa-magic"></i> Wizard</span>';
+            } else {
+                contentHtml += '<span class="badge badge-ai"><i class="fa fa-robot"></i> AI</span>';
+            }
+
+            // Row count badge
+            contentHtml += '<span class="badge badge-rowcount"><i class="fa fa-table"></i> ' + rowCount + ' rows</span>';
+            contentHtml += '</div>';
+            contentHtml += '</div>';
+
+            // Action bar with view toggle and export buttons
+            contentHtml += '<div class="action-bar d-flex justify-content-between align-items-center mb-3">';
+
+            // View toggle buttons
+            contentHtml += '<div class="view-toggle btn-group" role="group">';
+            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn active" data-view="table"><i class="fa fa-table"></i> Table</button>';
+            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> Chart</button>';
+            contentHtml += '</div>';
+
+            // Export buttons - PDF available for all, CSV/JSON premium on free plan
+            var premiumClass = self.isFreePlan ? ' export-premium' : '';
+            contentHtml += '<div class="export-buttons d-flex gap-2">';
+            contentHtml += '<button class="btn btn-outline-danger btn-sm export-pdf-btn"><i class="fa fa-file-pdf-o"></i> Export PDF</button>';
+            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> Export CSV' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> Export JSON' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '</div>';
+            contentHtml += '</div>';
+
+            // Data views container
+            if (data && data.length > 0) {
+                var headers = Object.keys(data[0]);
+                var displayLimit = 100;
+
+                // Table View
+                contentHtml += '<div id="report-table-view" class="report-view">';
+                contentHtml += '<div class="report-data-wrapper">';
+                contentHtml += '<div class="table-responsive report-table-container">';
+                contentHtml += '<table class="table table-striped table-hover table-sm report-data-table">';
+                contentHtml += '<thead class="table-light sticky-header"><tr>';
+                headers.forEach(function(header) {
+                    var formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                    contentHtml += '<th>' + formattedHeader + '</th>';
+                });
+                contentHtml += '</tr></thead>';
+                contentHtml += '<tbody>';
+
+                var displayData = data.slice(0, displayLimit);
+                displayData.forEach(function(row) {
+                    contentHtml += '<tr>';
+                    headers.forEach(function(header) {
+                        var value = row[header];
+                        if (value === null || value === undefined) value = '';
+                        var displayValue = String(value);
+                        if (displayValue.length > 100) {
+                            displayValue = displayValue.substring(0, 100) + '...';
+                        }
+                        contentHtml += '<td title="' + String(value).replace(/"/g, '&quot;') + '">' + displayValue + '</td>';
+                    });
+                    contentHtml += '</tr>';
+                });
+
+                contentHtml += '</tbody></table>';
+                contentHtml += '</div>';
+                contentHtml += '</div>';
+
+                if (data.length > displayLimit) {
+                    contentHtml += '<div class="alert alert-info mt-3 d-flex align-items-center justify-content-between">';
+                    contentHtml += '<span><i class="fa fa-info-circle"></i> Showing first ' + displayLimit + ' rows of ' + data.length + ' total rows.</span>';
+                    contentHtml += '<span class="text-primary">Export to see all data</span>';
+                    contentHtml += '</div>';
+                }
+                contentHtml += '</div>'; // Close table view
+
+                // Chart View
+                contentHtml += '<div id="report-chart-view" class="report-view d-none">';
+                contentHtml += '<div class="chart-controls-wrapper mb-3">';
+                contentHtml += '<div class="chart-controls d-flex flex-wrap align-items-center gap-3">';
+
+                // Chart type selector
+                contentHtml += '<div class="control-group">';
+                contentHtml += '<label for="chart-type-select" class="form-label">Chart Type</label>';
+                contentHtml += '<select id="chart-type-select" class="form-select form-select-sm">';
+                contentHtml += '<option value="bar">Bar Chart</option>';
+                contentHtml += '<option value="line">Line Chart</option>';
+                contentHtml += '<option value="pie">Pie Chart</option>';
+                contentHtml += '<option value="doughnut">Doughnut Chart</option>';
+                contentHtml += '</select>';
+                contentHtml += '</div>';
+
+                // X-Axis selector
+                contentHtml += '<div class="control-group">';
+                contentHtml += '<label for="chart-x-axis" class="form-label">X-Axis (Labels)</label>';
+                contentHtml += '<select id="chart-x-axis" class="form-select form-select-sm">';
+                headers.forEach(function(header, idx) {
+                    var formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                    var selected = idx === 0 ? ' selected' : '';
+                    contentHtml += '<option value="' + header + '"' + selected + '>' + formattedHeader + '</option>';
+                });
+                contentHtml += '</select>';
+                contentHtml += '</div>';
+
+                // Y-Axis selector (only numeric columns)
+                var numericCols = self.detectNumericColumns(data, headers);
+                contentHtml += '<div class="control-group">';
+                contentHtml += '<label for="chart-y-axis" class="form-label">Y-Axis (Values)</label>';
+                contentHtml += '<select id="chart-y-axis" class="form-select form-select-sm">';
+                if (numericCols.length > 0) {
+                    numericCols.forEach(function(col, idx) {
+                        var formattedHeader = col.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                        var selected = idx === numericCols.length - 1 ? ' selected' : '';
+                        contentHtml += '<option value="' + col + '"' + selected + '>' + formattedHeader + '</option>';
+                    });
+                } else {
+                    // Fallback to all columns if no numeric found
+                    headers.forEach(function(header, idx) {
+                        var formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+                        var selected = idx === headers.length - 1 ? ' selected' : '';
+                        contentHtml += '<option value="' + header + '"' + selected + '>' + formattedHeader + '</option>';
+                    });
+                }
+                contentHtml += '</select>';
+                contentHtml += '</div>';
+
+                contentHtml += '</div>'; // End chart-controls
+                contentHtml += '</div>'; // End chart-controls-wrapper
+
+                contentHtml += '<div class="chart-container" style="position: relative; height: 400px;">';
+                contentHtml += '<canvas id="report-chart"></canvas>';
+                contentHtml += '</div>';
+                contentHtml += '</div>';
+
+            } else {
+                contentHtml += '<div class="alert alert-warning text-center py-4">';
+                contentHtml += '<i class="fa fa-inbox fa-2x mb-2 d-block"></i>';
+                contentHtml += '<strong>No data available</strong><br>';
+                contentHtml += '<small class="text-muted">This report has no data rows.</small>';
+                contentHtml += '</div>';
+            }
+
+            $('#report-content').html(contentHtml).removeClass('d-none');
+
+            // Reset view to table
+            self.currentView = 'table';
+
+            // Attach export handlers
+            $('#report-content .export-pdf-btn').on('click', function() {
+                self.exportReport(report.slug, 'pdf');
+            });
+            $('#report-content .export-csv-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('csv');
+                    return;
+                }
+                self.exportReport(report.slug, 'csv');
+            });
+            $('#report-content .export-json-btn').on('click', function() {
+                if ($(this).hasClass('export-premium')) {
+                    self.showExportUpgradePrompt('json');
+                    return;
+                }
+                self.exportReport(report.slug, 'json');
+            });
+
+            // Delete button handler (header)
+            $('#delete-report-header-btn').off('click').on('click', function() {
+                self.confirmDeleteReport(report);
+            });
+        },
+
+        renderChart: function() {
+            var self = this;
+            var data = this.currentReportData;
+
+            if (!data || data.length === 0) return;
+
+            var chartType = $('#chart-type-select').val() || 'bar';
+            var canvas = document.getElementById('report-chart');
+            if (!canvas) return;
+
+            // Destroy existing chart
+            if (this.chartInstance) {
+                this.chartInstance.destroy();
+                this.chartInstance = null;
+            }
+
+            // Get user-selected axis columns
+            var labelKey = $('#chart-x-axis').val();
+            var valueKey = $('#chart-y-axis').val();
+
+            // Fallback if not set
+            if (!labelKey || !valueKey) {
+                var headers = Object.keys(data[0]);
+                labelKey = labelKey || headers[0];
+                valueKey = valueKey || headers[headers.length - 1];
+            }
+
+            // Format the value key for display
+            var valueKeyFormatted = valueKey.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
+
+            // Limit data for chart (max 50 items for readability)
+            var chartData = data.slice(0, 50);
+            var labels = chartData.map(function(r) {
+                var label = r[labelKey];
+                if (label === null || label === undefined) return 'Unknown';
+                // Truncate long labels
+                var labelStr = String(label);
+                return labelStr.length > 30 ? labelStr.substring(0, 30) + '...' : labelStr;
+            });
+            var values = chartData.map(function(r) { return parseFloat(r[valueKey]) || 0; });
+
+            // Generate colors
+            var colors = this.generateChartColors(values.length, chartType);
+
+            // Create chart config
+            var chartConfig = this.createChartConfig(chartType, labels, values, valueKeyFormatted, colors);
+
+            try {
+                this.chartInstance = new this.Chart(canvas.getContext('2d'), chartConfig);
+            } catch (error) {
+                console.error('Error creating chart:', error);
+                $('#report-chart-view .chart-container').html(
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Error rendering chart: ' + error.message + '</div>'
+                );
+            }
+        },
+
+        generateChartColors: function(count, chartType) {
+            var baseColors = [
+                '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1',
+                '#14b8a6', '#a855f7', '#eab308', '#22c55e', '#3b82f6'
+            ];
+
+            var colors = [];
+            for (var i = 0; i < count; i++) {
+                colors.push(baseColors[i % baseColors.length]);
+            }
+            return colors;
+        },
+
+        createChartConfig: function(chartType, labels, values, valueKey, colors) {
+            var self = this;
+            var reportName = this.currentReport?.description || this.currentReport?.name || 'Report';
+
+            var baseConfig = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: reportName,
+                        font: { size: 16, weight: 'bold' },
+                        padding: { top: 10, bottom: 20 }
+                    },
+                    legend: {
+                        display: chartType === 'pie' || chartType === 'doughnut',
+                        position: 'right'
+                    }
+                }
+            };
+
+            if (chartType === 'pie' || chartType === 'doughnut') {
+                return {
+                    type: chartType,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: colors,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: baseConfig
+                };
+            } else if (chartType === 'line') {
+                return {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: valueKey,
+                            data: values,
+                            borderColor: colors[0],
+                            backgroundColor: colors[0] + '40',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        ...baseConfig,
+                        scales: {
+                            y: { beginAtZero: true },
+                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                        }
+                    }
+                };
+            } else {
+                // Bar chart (default)
+                return {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: valueKey,
+                            data: values,
+                            backgroundColor: colors,
+                            borderColor: colors.map(function(c) { return c; }),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        ...baseConfig,
+                        scales: {
+                            y: { beginAtZero: true },
+                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                        }
+                    }
+                };
+            }
+        },
+
+        exportReport: async function(reportSlug, format) {
+            var self = this;
+
+            // Check if we have data to export
+            if (!self.currentReportData || !Array.isArray(self.currentReportData) || self.currentReportData.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No Data',
+                    text: 'No data available to export. Please load the report first.'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Exporting as ' + format.toUpperCase() + '...',
+                allowOutsideClick: false,
+                didOpen: function() { Swal.showLoading(); }
+            });
+
+            try {
+                // Check export eligibility first
+                var eligibility = await self.checkExportEligibility(format);
+                if (!eligibility.success || !eligibility.eligible) {
+                    Swal.close();
+                    if (self.isFreePlan && format !== 'pdf') {
+                        self.showExportUpgradePrompt(format);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Export Not Available',
+                            text: eligibility.message || 'You are not eligible to export in this format.'
+                        });
+                    }
+                    return;
+                }
+
+                // For wizard reports, use the actual report name instead of the slug
+                var reportId = reportSlug;
+                var isWizardReport = self.currentReport && self.currentReport.source === 'wizard';
+                if (isWizardReport && self.currentReport.name) {
+                    reportId = self.currentReport.name;
+                }
+
+                var body = 'reportid=' + encodeURIComponent(reportId) + '&format=' + format + '&sesskey=' + M.cfg.sesskey;
+                body += '&view=' + self.currentView;
+
+                // Always pass the frontend data for export
+                var headers = self.currentReportData.length > 0 ? Object.keys(self.currentReportData[0]) : [];
+                var reportDataPayload = {
+                    results: self.currentReportData,
+                    headers: headers,
+                    report_name: self.currentReport?.description || self.currentReport?.name || 'report',
+                    report_category: self.currentReport?.category || ''
+                };
+                body += '&report_data=' + encodeURIComponent(JSON.stringify(reportDataPayload));
+
+                // For PDF, capture chart image if in chart view
+                if (format === 'pdf' && self.currentView === 'chart') {
+                    try {
+                        // Use robust chart capture with timeout protection
+                        var chartImagePromise = self.captureChartImage();
+                        var timeoutPromise = new Promise(function(_, reject) {
+                            setTimeout(function() { reject(new Error('Chart capture timeout')); }, 10000);
+                        });
+
+                        var chartImage = await Promise.race([chartImagePromise, timeoutPromise]);
+
+                        if (chartImage && chartImage.length > 100) {
+                            body += '&chart_image=' + encodeURIComponent(chartImage);
+                            console.log('[GeneratedReports] Chart image included in export');
+                        } else {
+                            console.warn('[GeneratedReports] Chart capture returned empty or invalid data');
+                        }
+                    } catch (e) {
+                        console.warn('[GeneratedReports] Chart capture failed, continuing without chart:', e.message);
+                    }
+                }
+
+                var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/export_report.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: body
+                });
+
+                var contentType = response.headers.get('content-type');
+                var contentDisposition = response.headers.get('content-disposition');
+
+                if (contentType && contentType.includes('application/json') && !contentDisposition) {
+                    var errorData = await response.json();
+                    throw new Error(errorData.message || 'Export failed');
+                }
+
+                if (!response.ok) {
+                    throw new Error('Export failed with status: ' + response.status);
+                }
+
+                var reportName = self.currentReport?.description || self.currentReport?.name || 'report';
+                var sanitizedName = reportName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_').toLowerCase();
+                var dateSuffix = new Date().toISOString().split('T')[0];
+
+                var blob = await response.blob();
+                var url = window.URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = sanitizedName + '_' + dateSuffix + '.' + format;
+                document.body.appendChild(link);
+                link.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(link);
+
+                Swal.close();
+
+                // Track the export
+                var reportName = self.currentReport?.description || self.currentReport?.name || 'report';
+                self.trackExport(format, reportName);
+
+                // Show toast notification instead of SweetAlert
+                self.showToast(format.toUpperCase() + ' file downloaded successfully!', 'success');
+
+            } catch (error) {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Export Failed',
+                    text: error.message || 'Failed to export report.'
+                });
+            }
+        }
+    };
+
+    // Make available globally for retry buttons
+    window.GeneratedReports = GeneratedReports;
+
+    // Initialize when DOM is ready
+    $(document).ready(function() {
+        // Wait for auth data to be available
+        var checkAuth = setInterval(function() {
+            if (window.adeptusAuthData) {
+                clearInterval(checkAuth);
+                GeneratedReports.init();
+            }
+        }, 100);
+
+        // Timeout after 5 seconds
+        setTimeout(function() {
+            clearInterval(checkAuth);
+            if (!window.adeptusAuthData) {
+                $('#reports-loader').addClass('d-none');
+                $('#no-reports-message').removeClass('d-none').html(
+                    '<i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>' +
+                    '<h5 class="text-muted">Authentication Required</h5>' +
+                    '<p class="text-muted">Please ensure you are logged in to view reports.</p>'
+                );
+            }
+        }, 5000);
+    });
+});
+{{/js}}
+
+<style>
+/* Page Header Banner - Consistent with Wizard/Assistant */
+.page-header-banner {
+    background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 0.75rem;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 100%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Toast notification animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.page-header-content {
+    z-index: 1;
+}
+
+.page-header-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-header-icon {
+    font-size: 1.5rem;
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(5deg); }
+}
+
+.page-header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 10px 0 0 0;
+}
+
+.page-header-actions {
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+}
+
+.page-header-actions .btn-light {
+    background: white;
+    color: #0f6cbf;
+    border: none;
+    font-weight: 500;
+}
+
+.page-header-actions .btn-light:hover {
+    background: #f8f9fa;
+    color: #0a5299;
+}
+
+.page-header-actions .btn-outline-light {
+    border: 2px solid rgba(255,255,255,0.8);
+    color: white;
+    font-weight: 500;
+}
+
+.page-header-actions .btn-outline-light:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+}
+
+@media (max-width: 768px) {
+    .page-header-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .page-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+    }
+}
+
+.generated-reports-container {
+    padding: 0;
+}
+
+.generated-reports-container .card {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.generated-reports-container .card-header {
+    border: none;
+}
+
+.report-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.report-row:hover {
+    background-color: #f8f9fa;
+}
+
+.report-row.table-primary {
+    background-color: #e7f3ff !important;
+}
+
+.report-header h4 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.report-meta {
+    margin-top: 0.5rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+/* DataTable styling */
+.datatable-wrapper .datatable-top,
+.datatable-wrapper .datatable-bottom {
+    padding: 0.75rem 1rem;
+}
+
+.datatable-wrapper .datatable-search input {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Export buttons */
+.export-csv-btn, .export-json-btn {
+    border-radius: 0.5rem;
+}
+
+/* Table styling */
+.table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+}
+
+/* Source badges */
+.badge-ai {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-wizard {
+    background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-ai i,
+.badge-wizard i,
+.badge-rowcount i {
+    font-size: 10px;
+}
+
+.badge-rowcount {
+    background: #6c757d;
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* View toggle buttons */
+.view-toggle .view-toggle-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 0.35rem 0.75rem;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.view-toggle .view-toggle-btn:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.view-toggle .view-toggle-btn:last-child {
+    border-radius: 0 6px 6px 0;
+}
+
+.view-toggle .view-toggle-btn:hover {
+    background: #e9ecef;
+}
+
+.view-toggle .view-toggle-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+.view-toggle .view-toggle-btn i {
+    margin-right: 5px;
+}
+
+/* Chart container */
+.chart-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.chart-controls-wrapper {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.chart-controls .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.chart-controls .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.chart-controls .form-select {
+    font-size: 13px;
+    padding: 0.4rem 2rem 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    min-width: 140px;
+}
+
+.chart-controls .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* Hide loader completely when d-none is applied */
+#reports-loader.d-none {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* DataTable filter layout fix */
+.datatable-wrapper .datatable-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.datatable-wrapper .datatable-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.datatable-wrapper .datatable-dropdown label {
+    margin: 0;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.datatable-wrapper .datatable-dropdown select {
+    padding: 0.25rem 0.5rem;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    min-width: 60px;
+}
+
+.datatable-wrapper .datatable-search {
+    flex: 1;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+.datatable-wrapper .datatable-search input {
+    width: 100%;
+    padding: 0.35rem 0.75rem;
+    font-size: 13px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.datatable-wrapper .datatable-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 13px;
+}
+
+.datatable-wrapper .datatable-info {
+    color: #6c757d;
+}
+
+.datatable-wrapper .datatable-pagination {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.datatable-wrapper .datatable-pagination a {
+    padding: 0.25rem 0.5rem;
+    font-size: 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #495057;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.datatable-wrapper .datatable-pagination a.active,
+.datatable-wrapper .datatable-pagination a:hover {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .generated-reports-container .col-md-4,
+    .generated-reports-container .col-md-8 {
+        margin-bottom: 1rem;
+    }
+
+    .card-body[style*="calc(100vh"] {
+        height: auto !important;
+        max-height: 400px !important;
+        min-height: 250px !important;
+    }
+}
+
+/* Category Management Modal - Modern Design */
+.cat-modal-popup {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.cat-modal-popup .swal2-title {
+    display: none !important;
+}
+
+.cat-modal-popup .swal2-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 24px;
+    transition: all 0.15s ease;
+    z-index: 10;
+}
+
+.cat-modal-popup .swal2-close:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.cat-modal-popup .swal2-html-container {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.cat-modal {
+    text-align: left;
+}
+
+/* Add Section */
+.cat-add-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 24px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cat-add-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.cat-add-form {
+    display: flex;
+    gap: 10px;
+}
+
+.cat-add-input-wrapper {
+    flex: 1;
+    display: flex;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.15s ease;
+}
+
+.cat-add-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cat-add-input {
+    flex: 1;
+    border: none;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    background: transparent;
+}
+
+.cat-add-input::placeholder {
+    color: #94a3b8;
+}
+
+.cat-add-input.error {
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.cat-add-color-wrapper {
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure SweetAlert doesn't clip the dropdown */
+.cat-modal-popup .swal2-html-container {
+    overflow: visible !important;
+}
+
+.cat-add-section {
+    overflow: visible;
+}
+
+.cat-add-form {
+    overflow: visible;
+}
+
+.cat-add-input-wrapper {
+    overflow: visible;
+}
+
+.cat-add-color-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-left: 1px solid #e2e8f0;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.cat-add-color-btn:hover {
+    background: #f1f5f9;
+}
+
+.cat-add-color-btn:focus {
+    background: #f1f5f9;
+    outline: none;
+}
+
+.cat-add-color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-add-color-btn svg {
+    color: #94a3b8;
+}
+
+/* Color Dropdown */
+.cat-color-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 12px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+    min-width: 180px;
+}
+
+.cat-color-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.cat-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cat-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-color-custom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cat-color-custom input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+}
+
+.cat-color-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.cat-color-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+}
+
+.cat-color-custom span {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Add Button */
+.cat-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.cat-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.cat-add-btn:active {
+    transform: translateY(0);
+}
+
+/* Sections */
+.cat-section {
+    padding: 20px 24px;
+}
+
+.cat-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.cat-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.cat-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    background: #e2e8f0;
+    color: #64748b;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.cat-section-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Custom Category Cards */
+.cat-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.cat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+}
+
+.cat-card:hover {
+    background: #f1f5f9;
+}
+
+.cat-card-color {
+    width: 6px;
+    height: 40px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.cat-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.cat-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cat-card-meta {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.cat-card-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.cat-card:hover .cat-card-actions {
+    opacity: 1;
+}
+
+.cat-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.cat-action-btn:hover {
+    background: white;
+    color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.cat-action-btn-danger:hover {
+    color: #ef4444;
+}
+
+/* Empty State */
+.cat-empty-state {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.cat-empty-icon {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.cat-empty-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.cat-empty-hint {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* System Categories */
+.cat-section-system {
+    background: #fafbfc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.cat-system-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cat-system-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.cat-system-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.cat-system-name {
+    color: #475569;
+    font-weight: 500;
+}
+
+.cat-system-count {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* Scrollbar styling */
+.cat-cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cat-cards-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cat-cards-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.cat-cards-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Edit Category Dialog */
+.cat-edit-popup {
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
+
+.cat-edit-popup .swal2-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+}
+
+.cat-edit-modal {
+    text-align: left;
+}
+
+.cat-edit-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.cat-edit-preview-color {
+    width: 8px;
+    height: 36px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.cat-edit-preview-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.cat-edit-field {
+    margin-bottom: 16px;
+}
+
+.cat-edit-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.cat-edit-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.cat-edit-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.cat-edit-colors {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cat-edit-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.edit-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.edit-color-swatch.selected {
+    border-color: #1e293b;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+}
+
+.cat-edit-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 16px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.cat-edit-custom input[type="color"] {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.cat-edit-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.cat-edit-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.cat-edit-custom span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.cat-edit-confirm-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+.cat-edit-confirm-btn:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.cat-edit-cancel-btn {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+}
+
+.cat-edit-cancel-btn:hover {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+/* Report Category Selector in Header */
+.report-category-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Delete button in header */
+.delete-report-header-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #fff;
+    transition: all 0.15s ease;
+}
+
+.delete-report-header-btn:hover {
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 1);
+    color: #fff;
+}
+
+.delete-report-header-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+/* Action separator in action bar */
+.action-separator {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    margin: 0 8px;
+}
+
+/* Delete button in action bar */
+.delete-report-btn {
+    transition: all 0.15s ease;
+}
+
+.delete-report-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.category-dropdown-wrapper {
+    position: relative;
+}
+
+.category-current-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.category-current-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.category-current-btn:focus {
+    background: rgba(255, 255, 255, 0.25);
+    outline: none;
+}
+
+.category-current-btn .category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.category-current-btn .category-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-current-btn svg {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.category-current-btn.success-flash {
+    animation: categorySuccessFlash 0.6s ease;
+}
+
+@keyframes categorySuccessFlash {
+    0%, 100% { background: rgba(255, 255, 255, 0.15); }
+    50% { background: rgba(16, 185, 129, 0.5); }
+}
+
+/* Category Dropdown Menu */
+.category-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    padding: 6px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+
+.category-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.category-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.category-menu-item:hover {
+    background: #f1f5f9;
+}
+
+.category-menu-item.selected {
+    background: #eff6ff;
+}
+
+.category-menu-item.selected .category-menu-name {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.category-menu-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.category-menu-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.category-menu-check {
+    color: #2563eb;
+    flex-shrink: 0;
+}
+
+/* Dropdown scrollbar */
+.category-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.category-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+</style>

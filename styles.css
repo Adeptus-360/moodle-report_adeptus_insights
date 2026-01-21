@@ -1,0 +1,239 @@
+/* Adeptus Insights Plugin Styles */
+
+/* Lottie Animation Styles */
+[data-lottie], [data-lottie-path] {
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Loading state */
+.lottie-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+}
+
+.lottie-loading::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e0e0;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes loading-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Ready state */
+.lottie-ready {
+    background: #ffffff;
+}
+
+/* Credit Limit Disabled State */
+.credit-limit-disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+.credit-limit-disabled:hover {
+    opacity: 0.6 !important;
+}
+
+#message-input:disabled {
+    background-color: #f8d7da !important;
+    border-color: #f5c6cb !important;
+    color: #721c24 !important;
+    cursor: not-allowed !important;
+}
+
+#message-input:disabled::placeholder {
+    color: #721c24 !important;
+    opacity: 0.8;
+}
+
+.credit-limit-alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Hide DataTable loading indicator */
+.dataTable-loading {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Hide loading state from datatable-wrapper */
+.datatable-wrapper.datatable-loading::before,
+.datatable-wrapper.datatable-loading::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Hide the datatable wrapper spinner completely */
+.datatable-wrapper::before,
+.datatable-wrapper::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Ensure datatable-loading class doesn't show any spinner */
+.datatable-loading {
+    background: none !important;
+}
+
+.datatable-loading::before,
+.datatable-loading::after {
+    display: none !important;
+}
+
+/* Specifically target the report history table wrapper */
+#report-history-table-wrapper .datatable-wrapper::before,
+#report-history-table-wrapper .datatable-wrapper::after {
+    display: none !important;
+    content: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Remove any background images that might show a spinner */
+#report-history-table-wrapper .datatable-wrapper {
+    background: none !important;
+    background-image: none !important;
+}
+
+/* Hide any element that might be a spinner in the wrapper */
+#report-history-table-wrapper .spinner,
+#report-history-table-wrapper .spinner-border,
+#report-history-table-wrapper .loading {
+    display: none !important;
+}
+
+/* Override any animation on the wrapper */
+#report-history-table-wrapper .datatable-wrapper {
+    animation: none !important;
+}
+
+/* NUCLEAR OPTION - Hide ALL spinners in the report history section */
+#report-history-table-wrapper *[class*="spinner"],
+#report-history-table-wrapper *[class*="loading"],
+.card-body.p-0.position-relative *[class*="spinner"],
+.card-body.p-0.position-relative *[class*="loading"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Force hide the report-history-loader even if d-none is somehow overridden */
+#report-history-loader {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Hide any processing indicators from simple-datatables */
+.dataTable-sorter::before,
+.dataTable-sorter::after {
+    display: none !important;
+}
+
+/* Ensure the dataTable wrapper doesn't show loading states */
+#reports-history-table_wrapper .dataTable-loading,
+#reports-history-table_wrapper .loading {
+    display: none !important;
+}
+
+/* Hide pseudo elements that might show loading */
+.dataTable-top::before,
+.dataTable-top::after,
+.dataTable-container::before,
+.dataTable-container::after {
+    display: none !important;
+}
+
+/* Ensure DataTable info and pagination don't show loading */
+.dataTable-info::before,
+.dataTable-info::after,
+.dataTable-pagination::before,
+.dataTable-pagination::after {
+    display: none !important;
+}
+
+/* Error state */
+.lottie-error {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+}
+
+/* Fallback message */
+.lottie-fallback {
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem;
+}
+
+.lottie-fallback i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.lottie-fallback small {
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+/* Animation container */
+.lottie-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    [data-lottie], [data-lottie-path] {
+        min-height: 150px;
+    }
+    
+    .lottie-fallback {
+        padding: 1rem;
+    }
+    
+    .lottie-fallback i {
+        font-size: 2rem;
+    }
+}
+

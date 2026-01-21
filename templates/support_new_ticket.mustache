@@ -1,0 +1,447 @@
+{{! report/adeptus_insights/templates/support_new_ticket.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-ticket-alt page-header-icon"></i>
+                {{#str}}new_ticket, report_adeptus_insights{{/str}}
+            </h1>
+            <p class="page-header-subtitle">Submit a new support ticket for assistance.</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        {{^is_registered}}
+        <div class="alert alert-warning">
+            <i class="fa fa-exclamation-triangle"></i>
+            {{#str}}support_not_available, report_adeptus_insights{{/str}}
+            <a href="{{wwwroot}}/report/adeptus_insights/subscription.php" class="alert-link">Register now</a>
+        </div>
+        {{/is_registered}}
+
+        {{#is_registered}}
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa fa-edit"></i> {{#str}}new_ticket, report_adeptus_insights{{/str}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="{{wwwroot}}/report/adeptus_insights/support.php" enctype="multipart/form-data">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="create_ticket">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="category" class="form-label">
+                                            {{#str}}ticket_category, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                        </label>
+                                        <select name="category" id="category" class="form-control" required>
+                                            <option value="">-- Select Category --</option>
+                                            {{#categories}}
+                                            <option value="{{value}}">{{label}}</option>
+                                            {{/categories}}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="priority" class="form-label">
+                                            {{#str}}ticket_priority, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <select name="priority" id="priority" class="form-control">
+                                            {{#priorities}}
+                                            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                                            {{/priorities}}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="subject" class="form-label">
+                                    {{#str}}ticket_subject, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" name="subject" id="subject" class="form-control" maxlength="255" required
+                                       placeholder="Brief description of your issue">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="message" class="form-label">
+                                    {{#str}}ticket_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="message" id="message" class="form-control" rows="8" maxlength="10000" required
+                                          placeholder="Please provide details about your issue, including steps to reproduce if applicable."></textarea>
+                                <small class="text-muted">Maximum 10,000 characters</small>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="text-muted mb-3"><i class="fa fa-user"></i> Contact Information (Optional)</h6>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="submitter_name" class="form-label">
+                                            {{#str}}ticket_submitter_name, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <input type="text" name="submitter_name" id="submitter_name" class="form-control"
+                                               maxlength="100" value="{{default_name}}">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="submitter_email" class="form-label">
+                                            {{#str}}ticket_submitter_email, report_adeptus_insights{{/str}}
+                                        </label>
+                                        <input type="email" name="submitter_email" id="submitter_email" class="form-control"
+                                               maxlength="255" value="{{default_email}}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="text-muted mb-3"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}} (Optional)</h6>
+
+                            <!-- Modern Drag & Drop File Upload -->
+                            <div class="file-upload-container">
+                                <div class="file-dropzone" id="fileDropzone">
+                                    <input type="file" name="attachments[]" id="attachments" class="file-input-hidden"
+                                           multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.log,.csv,.json,.zip">
+                                    <div class="dropzone-content">
+                                        <div class="dropzone-icon">
+                                            <i class="fa fa-cloud-upload-alt"></i>
+                                        </div>
+                                        <div class="dropzone-text">
+                                            <p class="dropzone-title">Drag & drop files here</p>
+                                            <p class="dropzone-subtitle">or <span class="dropzone-browse">browse</span> to choose files</p>
+                                        </div>
+                                        <div class="dropzone-info">
+                                            <span><i class="fa fa-image"></i> Images</span>
+                                            <span><i class="fa fa-file-pdf"></i> PDF</span>
+                                            <span><i class="fa fa-file-alt"></i> Text</span>
+                                            <span><i class="fa fa-file-archive"></i> ZIP</span>
+                                        </div>
+                                    </div>
+                                    <div class="dropzone-overlay">
+                                        <i class="fa fa-download"></i>
+                                        <span>Drop files to upload</span>
+                                    </div>
+                                </div>
+
+                                <!-- File Preview List -->
+                                <div class="file-preview-list" id="filePreviewList"></div>
+
+                                <!-- Upload Info -->
+                                <div class="upload-info">
+                                    <div class="upload-info-item">
+                                        <i class="fa fa-check-circle text-success"></i>
+                                        <span>Max 5 files, 10MB each</span>
+                                    </div>
+                                    <div class="upload-info-item">
+                                        <i class="fa fa-info-circle text-primary"></i>
+                                        <span>JPG, PNG, GIF, PDF, TXT, LOG, CSV, JSON, ZIP</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-secondary">
+                                    <i class="fa fa-times"></i> {{#str}}cancel, report_adeptus_insights{{/str}}
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-paper-plane"></i> {{#str}}submit_ticket_btn, report_adeptus_insights{{/str}}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_registered}}
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    const dropzone = document.getElementById('fileDropzone');
+    const fileInput = document.getElementById('attachments');
+    const previewList = document.getElementById('filePreviewList');
+
+    if (!dropzone || !fileInput || !previewList) return;
+
+    const MAX_FILES = 5;
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = [
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf',
+        'text/plain', 'text/csv', 'application/json',
+        'application/zip', 'application/x-zip-compressed'
+    ];
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'txt', 'log', 'csv', 'json', 'zip'];
+
+    let selectedFiles = [];
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight dropzone on drag
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        dropzone.classList.add('dragover');
+    }
+
+    function unhighlight() {
+        dropzone.classList.remove('dragover');
+    }
+
+    // Handle dropped files
+    dropzone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    // Handle file input change
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+
+    // Click to browse
+    dropzone.addEventListener('click', function(e) {
+        if (e.target.closest('.file-preview-item')) return;
+        fileInput.click();
+    });
+
+    function handleFiles(files) {
+        const filesArray = Array.from(files);
+
+        filesArray.forEach(file => {
+            // Check max files
+            if (selectedFiles.length >= MAX_FILES) {
+                showError('Maximum ' + MAX_FILES + ' files allowed');
+                return;
+            }
+
+            // Check file type
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!ALLOWED_EXTENSIONS.includes(ext)) {
+                showError('File type .' + ext + ' is not allowed');
+                return;
+            }
+
+            // Check file size
+            if (file.size > MAX_SIZE) {
+                showError(file.name + ' is too large (max 10MB)');
+                return;
+            }
+
+            // Check for duplicates
+            if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                showError(file.name + ' is already added');
+                return;
+            }
+
+            selectedFiles.push(file);
+            addFilePreview(file, selectedFiles.length - 1);
+        });
+
+        updateFileInput();
+        updateDropzoneState();
+    }
+
+    function addFilePreview(file, index) {
+        const preview = document.createElement('div');
+        preview.className = 'file-preview-item';
+        preview.dataset.index = index;
+
+        const isImage = file.type.startsWith('image/');
+        const ext = file.name.split('.').pop().toLowerCase();
+        const icon = getFileIcon(ext);
+        const size = formatFileSize(file.size);
+
+        let thumbnailHtml = '';
+        if (isImage) {
+            thumbnailHtml = '<div class="file-thumbnail loading"><i class="fa fa-spinner fa-spin"></i></div>';
+        } else {
+            thumbnailHtml = '<div class="file-thumbnail file-icon"><i class="' + icon + '"></i></div>';
+        }
+
+        preview.innerHTML =
+            thumbnailHtml +
+            '<div class="file-info">' +
+                '<div class="file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(truncateFilename(file.name, 30)) + '</div>' +
+                '<div class="file-meta">' +
+                    '<span class="file-size">' + size + '</span>' +
+                    '<span class="file-ext">.' + ext.toUpperCase() + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<button type="button" class="file-remove" title="Remove file">' +
+                '<i class="fa fa-times"></i>' +
+            '</button>';
+
+        previewList.appendChild(preview);
+
+        // Load image thumbnail
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const thumb = preview.querySelector('.file-thumbnail');
+                thumb.classList.remove('loading');
+                thumb.innerHTML = '<img src="' + e.target.result + '" alt="' + escapeHtml(file.name) + '">';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove button handler
+        preview.querySelector('.file-remove').addEventListener('click', function(e) {
+            e.stopPropagation();
+            removeFile(index);
+        });
+
+        // Animate in
+        requestAnimationFrame(function() {
+            preview.classList.add('visible');
+        });
+    }
+
+    function removeFile(index) {
+        const preview = previewList.querySelector('[data-index="' + index + '"]');
+        if (preview) {
+            preview.classList.add('removing');
+            setTimeout(function() {
+                preview.remove();
+            }, 300);
+        }
+
+        selectedFiles[index] = null;
+        selectedFiles = selectedFiles.filter(f => f !== null);
+
+        // Re-index previews
+        previewList.querySelectorAll('.file-preview-item').forEach((item, i) => {
+            item.dataset.index = i;
+        });
+
+        updateFileInput();
+        updateDropzoneState();
+    }
+
+    function updateFileInput() {
+        // Create new DataTransfer to update file input
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => {
+            dt.items.add(file);
+        });
+        fileInput.files = dt.files;
+    }
+
+    function updateDropzoneState() {
+        if (selectedFiles.length >= MAX_FILES) {
+            dropzone.classList.add('max-files');
+        } else {
+            dropzone.classList.remove('max-files');
+        }
+
+        if (selectedFiles.length > 0) {
+            dropzone.classList.add('has-files');
+        } else {
+            dropzone.classList.remove('has-files');
+        }
+    }
+
+    function getFileIcon(ext) {
+        const icons = {
+            'pdf': 'fa fa-file-pdf',
+            'jpg': 'fa fa-file-image',
+            'jpeg': 'fa fa-file-image',
+            'png': 'fa fa-file-image',
+            'gif': 'fa fa-file-image',
+            'webp': 'fa fa-file-image',
+            'txt': 'fa fa-file-alt',
+            'log': 'fa fa-file-alt',
+            'csv': 'fa fa-file-csv',
+            'json': 'fa fa-file-code',
+            'zip': 'fa fa-file-archive'
+        };
+        return icons[ext] || 'fa fa-file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function truncateFilename(name, maxLength) {
+        if (name.length <= maxLength) return name;
+        const ext = name.split('.').pop();
+        const baseName = name.substring(0, name.length - ext.length - 1);
+        const truncated = baseName.substring(0, maxLength - ext.length - 4) + '...';
+        return truncated + '.' + ext;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showError(message) {
+        // Create toast notification
+        let toast = document.querySelector('.upload-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'upload-toast';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = '<i class="fa fa-exclamation-circle"></i> ' + escapeHtml(message);
+        toast.classList.add('visible');
+
+        setTimeout(function() {
+            toast.classList.remove('visible');
+        }, 3000);
+    }
+})();
+</script>

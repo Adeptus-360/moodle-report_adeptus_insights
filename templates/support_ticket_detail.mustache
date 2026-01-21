@@ -1,0 +1,509 @@
+{{! report/adeptus_insights/templates/support_ticket_detail.mustache }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
+
+<div class="support-container">
+    <!-- Header Banner -->
+    <div class="page-header-banner">
+        <div class="page-header-content">
+            <h1 class="page-header-title">
+                <i class="fa fa-ticket-alt page-header-icon"></i>
+                Ticket {{ticket.ticket_number}}
+            </h1>
+            <p class="page-header-subtitle">{{ticket.subject}}</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
+                <i class="fa fa-arrow-left"></i> Back to Tickets
+            </a>
+        </div>
+    </div>
+
+    <div class="container-fluid mt-4">
+        {{#show_message}}
+        <div class="alert alert-{{message_type}} alert-dismissible fade show" role="alert">
+            {{message}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {{/show_message}}
+
+        <div class="row">
+            <!-- Ticket Details -->
+            <div class="col-md-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fa fa-info-circle"></i> {{#str}}ticket_details, report_adeptus_insights{{/str}}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="ticket-message p-3 bg-light rounded mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong>
+                                    {{#ticket.submitter_name}}{{ticket.submitter_name}}{{/ticket.submitter_name}}
+                                    {{^ticket.submitter_name}}Customer{{/ticket.submitter_name}}
+                                </strong>
+                                <small class="text-muted">{{ticket.created_at}}</small>
+                            </div>
+                            <div class="message-content">
+                                {{{ticket.message}}}
+                            </div>
+                            {{#ticket.has_attachments}}
+                            <div class="ticket-attachments mt-3 pt-3 border-top">
+                                <h6 class="text-muted mb-2"><i class="fa fa-paperclip"></i> Attachments</h6>
+                                <div class="attachment-list">
+                                    {{#ticket.attachments}}
+                                    <a href="{{{download_url}}}" class="attachment-item" target="_blank">
+                                        <span class="attachment-icon">
+                                            {{#is_image}}<i class="fa fa-file-image text-info"></i>{{/is_image}}
+                                            {{^is_image}}<i class="fa fa-file text-secondary"></i>{{/is_image}}
+                                        </span>
+                                        <span class="attachment-info">
+                                            <span class="attachment-name">{{filename}}</span>
+                                            <span class="attachment-size text-muted">{{file_size}}</span>
+                                        </span>
+                                        <span class="attachment-download"><i class="fa fa-download"></i></span>
+                                    </a>
+                                    {{/ticket.attachments}}
+                                </div>
+                            </div>
+                            {{/ticket.has_attachments}}
+                        </div>
+
+                        <!-- Replies -->
+                        <h6 class="mb-3"><i class="fa fa-comments"></i> {{#str}}ticket_replies, report_adeptus_insights{{/str}}</h6>
+
+                        {{#has_replies}}
+                        <div class="replies-list">
+                            {{#replies}}
+                            <div class="reply-item p-3 mb-3 rounded {{#is_support}}bg-info-light border-left-info{{/is_support}}{{#is_customer}}bg-light{{/is_customer}}">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong>
+                                        {{#is_support}}<i class="fa fa-headset text-info"></i>{{/is_support}}
+                                        {{#is_customer}}<i class="fa fa-user text-secondary"></i>{{/is_customer}}
+                                        {{sender_name}}
+                                        <small class="badge {{#is_support}}badge-info{{/is_support}}{{#is_customer}}badge-secondary{{/is_customer}} ml-2">
+                                            {{#is_support}}{{#str}}from_support, report_adeptus_insights{{/str}}{{/is_support}}
+                                            {{#is_customer}}{{#str}}from_customer, report_adeptus_insights{{/str}}{{/is_customer}}
+                                        </small>
+                                    </strong>
+                                    <small class="text-muted">{{created_at}}</small>
+                                </div>
+                                <div class="message-content">
+                                    {{{message}}}
+                                </div>
+                                {{#has_attachments}}
+                                <div class="reply-attachments mt-2 pt-2 border-top">
+                                    <small class="text-muted"><i class="fa fa-paperclip"></i> Attachments:</small>
+                                    <div class="attachment-list attachment-list-compact mt-1">
+                                        {{#attachments}}
+                                        <a href="{{{download_url}}}" class="attachment-item attachment-item-compact" target="_blank">
+                                            <span class="attachment-icon">
+                                                {{#is_image}}<i class="fa fa-file-image text-info"></i>{{/is_image}}
+                                                {{^is_image}}<i class="fa fa-file text-secondary"></i>{{/is_image}}
+                                            </span>
+                                            <span class="attachment-name">{{filename}}</span>
+                                            <span class="attachment-download"><i class="fa fa-download"></i></span>
+                                        </a>
+                                        {{/attachments}}
+                                    </div>
+                                </div>
+                                {{/has_attachments}}
+                            </div>
+                            {{/replies}}
+                        </div>
+                        {{/has_replies}}
+
+                        {{^has_replies}}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa fa-comment-slash fa-2x mb-2"></i>
+                            <p>{{#str}}no_replies, report_adeptus_insights{{/str}}</p>
+                        </div>
+                        {{/has_replies}}
+
+                        <!-- Reply Form -->
+                        {{#can_reply}}
+                        <hr class="my-4">
+                        <h6 class="mb-3"><i class="fa fa-reply"></i> {{#str}}add_reply, report_adeptus_insights{{/str}}</h6>
+                        <form method="post" action="{{wwwroot}}/report/adeptus_insights/support.php" enctype="multipart/form-data">
+                            <input type="hidden" name="sesskey" value="{{sesskey}}">
+                            <input type="hidden" name="action" value="reply">
+                            <input type="hidden" name="ticket_id" value="{{ticket.id}}">
+
+                            <div class="form-group mb-3">
+                                <label for="sender_name" class="form-label">{{#str}}ticket_submitter_name, report_adeptus_insights{{/str}}</label>
+                                <input type="text" name="sender_name" id="sender_name" class="form-control"
+                                       value="{{default_name}}" maxlength="100">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="reply_message" class="form-label">
+                                    {{#str}}reply_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
+                                </label>
+                                <textarea name="reply_message" id="reply_message" class="form-control" rows="5"
+                                          maxlength="10000" required placeholder="Type your reply..."></textarea>
+                            </div>
+
+                            <!-- File Attachments -->
+                            <div class="form-group mb-3">
+                                <label class="form-label">
+                                    <i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}} (Optional)
+                                </label>
+                                <div class="file-upload-container">
+                                    <div class="file-dropzone file-dropzone-compact" id="replyFileDropzone">
+                                        <input type="file" name="reply_attachments[]" id="reply_attachments" class="file-input-hidden"
+                                               multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.log,.csv,.json,.zip">
+                                        <div class="dropzone-content">
+                                            <div class="dropzone-icon">
+                                                <i class="fa fa-cloud-upload-alt"></i>
+                                            </div>
+                                            <div class="dropzone-text">
+                                                <p class="dropzone-title">Drag & drop files or <span class="dropzone-browse">browse</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="dropzone-overlay">
+                                            <i class="fa fa-download"></i>
+                                            <span>Drop files</span>
+                                        </div>
+                                    </div>
+                                    <div class="file-preview-list" id="replyFilePreviewList"></div>
+                                    <div class="upload-info upload-info-compact">
+                                        <span><i class="fa fa-info-circle text-muted"></i> Max 5 files, 10MB each (images, PDF, text, ZIP)</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-paper-plane"></i> {{#str}}add_reply, report_adeptus_insights{{/str}}
+                            </button>
+                        </form>
+                        {{/can_reply}}
+
+                        {{^can_reply}}
+                        <div class="alert alert-secondary mt-4">
+                            <i class="fa fa-lock"></i>
+                            This ticket is closed and cannot receive new replies.
+                        </div>
+                        {{/can_reply}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Sidebar -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0"><i class="fa fa-info"></i> Ticket Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless mb-0">
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_number, report_adeptus_insights{{/str}}</td>
+                                <td><code>{{ticket.ticket_number}}</code></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}status, report_adeptus_insights{{/str}}</td>
+                                <td><span class="badge {{ticket.status_class}}">{{ticket.status_label}}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_category, report_adeptus_insights{{/str}}</td>
+                                <td>{{ticket.category_label}}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">{{#str}}ticket_priority, report_adeptus_insights{{/str}}</td>
+                                <td><span class="badge {{ticket.priority_class}}">{{ticket.priority_label}}</span></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Created</td>
+                                <td>{{ticket.created_at}}</td>
+                            </tr>
+                            {{#ticket.submitter_email}}
+                            <tr>
+                                <td class="text-muted">Email</td>
+                                <td><a href="mailto:{{ticket.submitter_email}}">{{ticket.submitter_email}}</a></td>
+                            </tr>
+                            {{/ticket.submitter_email}}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+.border-left-info {
+    border-left: 4px solid #17a2b8;
+}
+.message-content {
+    line-height: 1.6;
+}
+/* Attachment list styles */
+.attachment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+}
+.attachment-item:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+    text-decoration: none;
+    color: inherit;
+}
+.attachment-icon {
+    font-size: 1.25rem;
+}
+.attachment-info {
+    display: flex;
+    flex-direction: column;
+}
+.attachment-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #333;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.attachment-size {
+    font-size: 0.75rem;
+}
+.attachment-download {
+    color: #6c757d;
+    margin-left: 0.5rem;
+}
+.attachment-item:hover .attachment-download {
+    color: #007bff;
+}
+/* Compact attachment list for replies */
+.attachment-list-compact {
+    gap: 0.25rem;
+}
+.attachment-item-compact {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+.attachment-item-compact .attachment-icon {
+    font-size: 1rem;
+}
+.attachment-item-compact .attachment-name {
+    font-size: 0.8rem;
+    max-width: 150px;
+}
+/* Compact dropzone for reply form */
+.file-dropzone-compact {
+    padding: 1rem;
+}
+.file-dropzone-compact .dropzone-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.file-dropzone-compact .dropzone-title {
+    font-size: 0.875rem;
+    margin: 0;
+}
+.file-dropzone-compact .dropzone-text {
+    margin-bottom: 0;
+}
+.upload-info-compact {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    const dropzone = document.getElementById('replyFileDropzone');
+    const fileInput = document.getElementById('reply_attachments');
+    const previewList = document.getElementById('replyFilePreviewList');
+
+    if (!dropzone || !fileInput || !previewList) return;
+
+    const MAX_FILES = 5;
+    const MAX_SIZE = 10 * 1024 * 1024;
+    const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'txt', 'log', 'csv', 'json', 'zip'];
+
+    let selectedFiles = [];
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function() { dropzone.classList.add('dragover'); }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, function() { dropzone.classList.remove('dragover'); }, false);
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+        handleFiles(e.dataTransfer.files);
+    }, false);
+
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+
+    dropzone.addEventListener('click', function(e) {
+        if (e.target.closest('.file-preview-item')) return;
+        fileInput.click();
+    });
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (selectedFiles.length >= MAX_FILES) {
+                showError('Maximum ' + MAX_FILES + ' files allowed');
+                return;
+            }
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!ALLOWED_EXTENSIONS.includes(ext)) {
+                showError('File type .' + ext + ' is not allowed');
+                return;
+            }
+            if (file.size > MAX_SIZE) {
+                showError(file.name + ' is too large (max 10MB)');
+                return;
+            }
+            if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                showError(file.name + ' is already added');
+                return;
+            }
+            selectedFiles.push(file);
+            addFilePreview(file, selectedFiles.length - 1);
+        });
+        updateFileInput();
+        updateDropzoneState();
+    }
+
+    function addFilePreview(file, index) {
+        const preview = document.createElement('div');
+        preview.className = 'file-preview-item';
+        preview.dataset.index = index;
+
+        const isImage = file.type.startsWith('image/');
+        const ext = file.name.split('.').pop().toLowerCase();
+        const icon = getFileIcon(ext);
+        const size = formatFileSize(file.size);
+
+        let thumbnailHtml = isImage
+            ? '<div class="file-thumbnail loading"><i class="fa fa-spinner fa-spin"></i></div>'
+            : '<div class="file-thumbnail file-icon"><i class="' + icon + '"></i></div>';
+
+        preview.innerHTML = thumbnailHtml +
+            '<div class="file-info">' +
+                '<div class="file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(truncateFilename(file.name, 25)) + '</div>' +
+                '<div class="file-meta"><span class="file-size">' + size + '</span><span class="file-ext">.' + ext.toUpperCase() + '</span></div>' +
+            '</div>' +
+            '<button type="button" class="file-remove" title="Remove"><i class="fa fa-times"></i></button>';
+
+        previewList.appendChild(preview);
+
+        if (isImage) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const thumb = preview.querySelector('.file-thumbnail');
+                thumb.classList.remove('loading');
+                thumb.innerHTML = '<img src="' + e.target.result + '" alt="">';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        preview.querySelector('.file-remove').addEventListener('click', function(e) {
+            e.stopPropagation();
+            removeFile(index);
+        });
+
+        requestAnimationFrame(function() { preview.classList.add('visible'); });
+    }
+
+    function removeFile(index) {
+        const preview = previewList.querySelector('[data-index="' + index + '"]');
+        if (preview) {
+            preview.classList.add('removing');
+            setTimeout(function() { preview.remove(); }, 300);
+        }
+        selectedFiles[index] = null;
+        selectedFiles = selectedFiles.filter(f => f !== null);
+        previewList.querySelectorAll('.file-preview-item').forEach((item, i) => { item.dataset.index = i; });
+        updateFileInput();
+        updateDropzoneState();
+    }
+
+    function updateFileInput() {
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => { dt.items.add(file); });
+        fileInput.files = dt.files;
+    }
+
+    function updateDropzoneState() {
+        dropzone.classList.toggle('max-files', selectedFiles.length >= MAX_FILES);
+        dropzone.classList.toggle('has-files', selectedFiles.length > 0);
+    }
+
+    function getFileIcon(ext) {
+        const icons = {
+            'pdf': 'fa fa-file-pdf', 'jpg': 'fa fa-file-image', 'jpeg': 'fa fa-file-image',
+            'png': 'fa fa-file-image', 'gif': 'fa fa-file-image', 'webp': 'fa fa-file-image',
+            'txt': 'fa fa-file-alt', 'log': 'fa fa-file-alt', 'csv': 'fa fa-file-csv',
+            'json': 'fa fa-file-code', 'zip': 'fa fa-file-archive'
+        };
+        return icons[ext] || 'fa fa-file';
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function truncateFilename(name, maxLength) {
+        if (name.length <= maxLength) return name;
+        const ext = name.split('.').pop();
+        return name.substring(0, maxLength - ext.length - 4) + '...' + '.' + ext;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function showError(message) {
+        let toast = document.querySelector('.upload-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'upload-toast';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = '<i class="fa fa-exclamation-circle"></i> ' + escapeHtml(message);
+        toast.classList.add('visible');
+        setTimeout(function() { toast.classList.remove('visible'); }, 3000);
+    }
+})();
+</script>

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>lib/chart.umd.min.js</location>
+        <name>Chart.js</name>
+        <version>4.4.1</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>lib/vanilla-table-enhancer.js</location>
+        <name>Vanilla Table Enhancer</name>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>lib/vanilla-table-enhancer.css</location>
+        <name>Vanilla Table Enhancer CSS</name>
+        <version>1.0.0</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>amd/vendor/simple-datatables.js</location>
+        <name>Simple DataTables</name>
+        <version>3.2.0</version>
+        <license>LGPL</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+    <library>
+        <location>amd/vendor/style.css</location>
+        <name>Simple DataTables CSS</name>
+        <version>3.2.0</version>
+        <license>LGPL</license>
+        <licenseversion>3.0</licenseversion>
+    </library>
+    <library>
+        <location>amd/src/lib/lottie.js</location>
+        <name>Lottie Web</name>
+        <version>5.12.2</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>amd/src/lib/lottie.min.js</location>
+        <name>Lottie Web (minified)</name>
+        <version>5.12.2</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>amd/src/vendor/lottie_light_min.js</location>
+        <name>Lottie Web Light</name>
+        <version>5.12.2</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+</libraries>

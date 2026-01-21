@@ -1,0 +1,33 @@
+# Moodle plugin .gitignore
+
+# Documentation (internal development docs, not for distribution)
+docs/
+
+# Sensitive configuration
+config.php
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Node modules (if any)
+node_modules/
+
+# Compiled files (except AMD build which Moodle requires)
+*.min.css
+
+# Don't ignore AMD build files - Moodle needs these!
+# amd/build/*.min.js must be committed for the plugin to work

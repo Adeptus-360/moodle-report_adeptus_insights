@@ -1,0 +1,581 @@
+{{! report/adeptus_insights/templates/index.mustache }}
+
+<!-- Authentication Status Display -->
+{{#js}}
+// The authentication system is already initialized by PHP via AMD modules
+// Additional UI enhancements can be added here if needed
+require(['jquery'], function($) {
+    $(document).ready(function() {
+        // Initialize any additional features here
+    });
+});
+{{/js}}
+
+<div class="adeptus-insights-dashboard">
+    <div class="container-fluid">
+        <!-- Welcome section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h1 class="display-4 mb-3">{{#str}}welcome_to_adeptus, report_adeptus_insights{{/str}}</h1>
+                        <p class="lead">{{#str}}welcome_description, report_adeptus_insights{{/str}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="row">
+            <!-- Generated Reports Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/generated_reports.php';">
+                    <div class="card-body text-center">
+                        <div class="lottie-container mb-3">
+                            <div data-lottie-path="report/adeptus_insights/amd/lottie/generated_reports.json"></div>
+                        </div>
+                        <h5 class="card-title">{{#str}}generated_reports, report_adeptus_insights{{/str}}</h5>
+                        <p class="card-text">{{#str}}generated_reports_desc, report_adeptus_insights{{/str}}</p>
+                        <a href="{{config.wwwroot}}/report/adeptus_insights/generated_reports.php" class="btn btn-generated-reports">{{#str}}view_reports, report_adeptus_insights{{/str}}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Wizard Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/wizard.php';">
+                    <div class="card-body text-center">
+                        <div class="lottie-container mb-3">
+                            <div data-lottie-path="report/adeptus_insights/amd/lottie/report_wizard.json"></div>
+                        </div>
+                        <h5 class="card-title">{{#str}}report_wizard, report_adeptus_insights{{/str}}</h5>
+                        <p class="card-text">{{#str}}report_wizard_desc, report_adeptus_insights{{/str}}</p>
+                        <a href="{{config.wwwroot}}/report/adeptus_insights/wizard.php" class="btn btn-report-wizard">{{#str}}get_started, report_adeptus_insights{{/str}}</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Assistant Card -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/assistant.php';">
+                <div class="card-body text-center">
+                        <div class="lottie-container mb-3">
+                            <div data-lottie-path="report/adeptus_insights/amd/lottie/ai_assistant.json"></div>
+                        </div>
+                        <h5 class="card-title">{{#str}}ai_driven_assistant, report_adeptus_insights{{/str}}</h5>
+                        <p class="card-text">{{#str}}ai_driven_assistant_desc, report_adeptus_insights{{/str}}</p>
+                        <a href="{{config.wwwroot}}/report/adeptus_insights/assistant.php" class="btn btn-start-chat">{{#str}}start_chat, report_adeptus_insights{{/str}}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current subscription status -->
+        {{#subscription}}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card analytics-card">
+                    <div class="card-header analytics-header d-flex align-items-center justify-content-between">
+                        <h4 class="m-0">{{#str}}current_subscription, report_adeptus_insights{{/str}}</h4>
+                        <span class="status-pill" aria-live="polite">
+                            <i class="icon fa fa-check-circle"></i>
+                            <span class="status-text text-capitalize">{{status}}</span>
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <!-- Plan -->
+                            <div class="stat-card" role="group" aria-label="Plan">
+                                <div class="stat-icon icon-plan"><i class="icon fa fa-cubes" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}plan, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value stat-text no-animate" data-raw="{{plan_name}}">{{plan_name}}</div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="stat-card" role="group" aria-label="Status">
+                                <div class="stat-icon icon-status"><i class="icon fa fa-bolt" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}status, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
+                            </div>
+
+                            <!-- AI tokens remaining -->
+                            <div class="stat-card" role="group" aria-label="AI tokens remaining">
+                                <div class="stat-icon icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
+                            </div>
+
+                            <!-- Exports remaining -->
+                            <div class="stat-card" role="group" aria-label="Exports remaining">
+                                <div class="stat-icon icon-exports"><i class="icon fa fa-cloud-download" aria-hidden="true"></i></div>
+                                <div class="stat-label">{{#str}}exports_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="stat-value" data-count-to="{{exports_remaining}}">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/subscription}}
+
+        <!-- Subscription Management & Support Banners -->
+        <div class="row mt-2">
+            <!-- Subscription Management Banner -->
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="subscription-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
+                    <div class="subscription-banner-content">
+                        <div class="subscription-banner-icon">
+                            <i class="fa fa-credit-card"></i>
+                        </div>
+                        <div class="subscription-banner-text">
+                            <h6 class="mb-0">{{#str}}subscription_management, report_adeptus_insights{{/str}}</h6>
+                            <small class="text-muted-light">{{#str}}subscription_management_desc, report_adeptus_insights{{/str}}</small>
+                        </div>
+                        <div class="subscription-banner-action">
+                            <a href="{{config.wwwroot}}/report/adeptus_insights/subscription.php" class="btn btn-light btn-sm">
+                                {{#str}}manage_subscription, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support & Updates Banner -->
+            <div class="col-md-6">
+                <div class="support-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/support.php';">
+                    <div class="support-banner-content">
+                        <div class="support-banner-icon">
+                            <i class="fa fa-life-ring"></i>
+                        </div>
+                        <div class="support-banner-text">
+                            <h6 class="mb-0">{{#str}}support_updates, report_adeptus_insights{{/str}}</h6>
+                            <small class="text-muted-light">{{#str}}support_updates_desc, report_adeptus_insights{{/str}}</small>
+                        </div>
+                        <div class="support-banner-action">
+                            <a href="{{config.wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light btn-sm">
+                                {{#str}}view_tickets, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-subscription {
+        background-color: #2f63eb;
+        border-color: #2f63eb;
+        color: #fff;
+    }
+
+    .btn-generated-reports {
+        background-color: #2fa4e9;
+        border-color: #2fa4e9;
+        color: #fff;
+    }
+
+    .btn-report-wizard {
+        background-color: #2f85ea;
+        border-color: #2f85ea;
+        color: #fff;
+    }
+
+    .btn-start-chat {
+        background-color: #2f63eb;
+        border-color: #2f63eb;
+        color: #fff;
+    }
+
+    .btn-generated-reports:hover {
+        background-color: #fff;
+        border-color: #2fa4e9;
+        color: #2fa4e9;
+    }
+
+    .btn-subscription:hover {
+        background-color: #fff;
+        border-color: #2f63eb;
+    }
+
+    .btn-report-wizard:hover {
+        background-color: #fff;
+        border-color: #2f85ea;
+    }
+
+    .btn-start-chat:hover {
+        background-color: #fff;
+        border-color: #2f63eb;
+    }
+
+    /* Subscription Banner Styles */
+    .subscription-banner {
+        background: linear-gradient(135deg, #2fa4e9 0%, #2f63eb 100%);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
+    }
+
+    .subscription-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+
+    .subscription-banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .subscription-banner-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .subscription-banner-text {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .subscription-banner-text h6 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .subscription-banner-text .text-muted-light {
+        color: rgba(255,255,255,0.85);
+    }
+
+    .subscription-banner-action .btn {
+        white-space: nowrap;
+    }
+
+    .subscription-banner-action .btn:hover {
+        background-color: white;
+        color: #2f63eb;
+    }
+
+    /* Support Banner Styles */
+    .support-banner {
+        background: linear-gradient(135deg, #2f63eb 0%, #2fa4e9 100%);
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        height: 100%;
+    }
+
+    .support-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(47,99,235,0.3);
+    }
+
+    .support-banner-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .support-banner-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+
+    .support-banner-text {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .support-banner-text h6 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .support-banner-text .text-muted-light {
+        color: rgba(255,255,255,0.85);
+    }
+
+    .support-banner-action .btn {
+        white-space: nowrap;
+    }
+
+    .support-banner-action .btn:hover {
+        background-color: white;
+        color: #2f63eb;
+    }
+
+    @media (max-width: 768px) {
+        .subscription-banner-content,
+        .support-banner-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .subscription-banner-text,
+        .support-banner-text {
+            min-width: 100%;
+        }
+    }
+
+    .adeptus-insights-dashboard {
+        /* padding: 2rem 0; */
+    }
+    
+    .report-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+        border: none;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+    
+    .report-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15);
+    }
+    
+    .report-card .card-body {
+        padding: 2rem 1.5rem;
+    }
+    
+    .lottie-container {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .lottie-container div {
+        width: 100%;
+        height: 100%;
+        background: none;
+    }
+    
+    .card-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+    
+    .card-text {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+    
+    .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15);
+    }
+    
+    .display-4 {
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .lead {
+        color: #6c757d;
+        font-size: 1.25rem;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border: none;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+    
+    .card-header h4 {
+        margin: 0;
+        font-weight: 600;
+    }
+    /* Analytics strip */
+    .analytics-card {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,.06);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+    .analytics-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    color: #fff;
+    border: none;
+    }
+    .status-pill {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .35rem .75rem; border-radius: 999px;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(3px);
+    font-weight: 600; letter-spacing: .2px;
+    animation: pillPulse 3s ease-in-out infinite;
+    }
+    .status-pill .icon { margin-right: .25rem; }
+
+    .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    }
+    @media (max-width: 992px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 576px) { .stats-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+    position: relative;
+    border-radius: .75rem;
+    padding: 1.25rem 1rem 1rem 1rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(2,6,23,.06);
+    transform: translateY(0);
+    transition: transform .2s ease, box-shadow .2s ease;
+    overflow: hidden;
+    }
+    .stat-card::after {
+    content:"";
+    position:absolute; inset:-1px;
+    background: linear-gradient(120deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
+    opacity: 0; transition: opacity .2s ease;
+    }
+    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(2,6,23,.08); }
+    .stat-card:hover::after { opacity: 1; }
+
+    .stat-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: .5rem;
+    color:#0b67ff; background: rgba(37,99,235,.12);
+    animation: iconFloat .9s ease-out both;
+    }
+    .icon-status { color:#16a34a; background: rgba(22,163,74,.12); }
+    .icon-credits { color:#f59e0b; background: rgba(245,158,11,.14); }
+    .icon-exports { color:#8b5cf6; background: rgba(139,92,246,.14); }
+
+    .stat-label {
+    font-size: .85rem; color: #64748b; letter-spacing: .2px;
+    margin-bottom: .15rem;
+    }
+    .stat-value {
+    font-size: 1.75rem; font-weight: 700; color: #0f172a;
+    line-height: 1.1;
+    min-height: 2rem;
+    }
+    .stat-text { font-size: 1.1rem; font-weight: 600; color: #0f172a; }
+
+    /* Micro animations */
+    @keyframes iconFloat { from { transform: translateY(6px); opacity: .0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes pillPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+
+    @media (prefers-reduced-motion: reduce) {
+    .stat-card, .stat-card::after, .stat-icon, .status-pill { animation: none !important; transition: none !important; }
+    }
+
+</style>
+{{#js}}
+(function(){
+  // Micro counter animation with IntersectionObserver (one-shot).
+  var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function animateCount(el, to, opts) {
+    var dur = (opts && opts.duration) || 1400;
+    var fmt = (opts && opts.format) || function(v){ return v.toString(); };
+    var start = 0;
+    var end = +to; // coerce
+    if (!isFinite(end)) {
+      // Non-numeric target: show raw text and stop.
+      el.textContent = (to === null || typeof to === 'undefined') ? '-' : String(to);
+      el.classList.add('no-animate');
+      return;
+    }
+    if (prefersReduced) { el.textContent = fmt(end); return; }
+
+    var t0 = null;
+    function step(ts) {
+      if (!t0) t0 = ts;
+      var p = Math.min(1, (ts - t0) / dur);
+      // easeOutCubic
+      var eased = 1 - Math.pow(1 - p, 3);
+      var current = Math.round(start + (end - start) * eased);
+      el.textContent = fmt(current);
+      if (p < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = fmt(end);
+        el.classList.add('counted');
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function numberFormatter(n) {
+    var v = +n;
+    if (!isFinite(v)) return String(n);
+    // Compact for big numbers
+    if (v >= 1000000) return (Math.round(v/100000)/10) + 'M';
+    if (v >= 1000) return (Math.round(v/100)/10) + 'k';
+    return v.toString();
+  }
+
+  function bootCounters(){
+    var nodes = [].slice.call(document.querySelectorAll('.stat-value[data-count-to]'));
+    if (!nodes.length) return;
+
+    // Fallback if no IO
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach(function(el){ animateCount(el, el.getAttribute('data-count-to'), {duration: 1400, format: numberFormatter}); });
+      return;
+    }
+
+    var once = new IntersectionObserver(function(entries, obs){
+      entries.forEach(function(e){
+        if (e.isIntersecting) {
+          var el = e.target;
+          animateCount(el, el.getAttribute('data-count-to'), {duration: 1400, format: numberFormatter});
+          obs.unobserve(el);
+        }
+      });
+    }, {threshold: 0.4});
+
+    nodes.forEach(function(el){ once.observe(el); });
+  }
+
+  // Start after DOM ready (template already logs earlier).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootCounters);
+  } else {
+    bootCounters();
+  }
+})();
+{{/js}}
