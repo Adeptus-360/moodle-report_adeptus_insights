@@ -16,6 +16,10 @@ Adeptus Insights is a Moodle report plugin that provides AI-powered analytics an
 - **Interactive Data Tables**: Sort, filter, and search through report results
 - **Chart Visualizations**: Visualize data with various chart types
 
+### Companion Block Plugin
+
+Extend your reporting capabilities with the [Adeptus Insights Block](https://github.com/Adeptus-360/moodle-block_adeptus_insights) - a complementary plugin that allows you to embed generated reports into block areas throughout your Moodle site. Display KPIs on dashboards, course pages, or any block region.
+
 ## Requirements
 
 - **Moodle**: Version 4.1 or higher (2022112800)
