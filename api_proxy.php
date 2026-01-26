@@ -43,8 +43,11 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization, Accept, Origi
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 
+// Get request method early for use throughout the script.
+$requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : 'GET';
+
 // Handle preflight requests.
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if ($requestmethod === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
@@ -53,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $publicendpoints = ['register'];
 
 // Get the request path to determine the endpoint early.
-$requesturi = $_SERVER['REQUEST_URI'];
+$requesturi = isset($_SERVER['REQUEST_URI']) ? clean_param($_SERVER['REQUEST_URI'], PARAM_URL) : '';
 $path = parse_url($requesturi, PHP_URL_PATH);
 $pathparts = explode('/', trim($path, '/'));
 $endpoint = end($pathparts);
@@ -65,20 +68,20 @@ if (!in_array($endpoint, $publicendpoints)) {
     require_capability('report/adeptus_insights:view', $context);
 
     // Validate session key for POST/PUT/PATCH/DELETE requests.
-    if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+    if (in_array($requestmethod, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
         // Try to get sesskey from header, query string, or request body.
         $sesskey = null;
         if (isset($_SERVER['HTTP_X_SESSKEY'])) {
-            $sesskey = $_SERVER['HTTP_X_SESSKEY'];
-        } else if (isset($_GET['sesskey'])) {
-            $sesskey = $_GET['sesskey'];
-        } else if (isset($_POST['sesskey'])) {
-            $sesskey = $_POST['sesskey'];
+            $sesskey = clean_param($_SERVER['HTTP_X_SESSKEY'], PARAM_ALPHANUM);
         } else {
+            // Try optional_param first (handles both GET and POST).
+            $sesskey = optional_param('sesskey', null, PARAM_ALPHANUM);
+        }
+        if (empty($sesskey)) {
             // Try to get from JSON body.
             $jsoninput = json_decode(file_get_contents('php://input'), true);
             if (isset($jsoninput['sesskey'])) {
-                $sesskey = $jsoninput['sesskey'];
+                $sesskey = clean_param($jsoninput['sesskey'], PARAM_ALPHANUM);
             }
         }
 
@@ -164,9 +167,9 @@ function report_adeptus_insights_forward_to_backend($endpoint, $data = [], $meth
         'Accept: application/json',
     ];
 
-    // Forward API key header if present
+    // Forward API key header if present.
     if (isset($_SERVER['HTTP_X_API_KEY'])) {
-        $headers[] = 'X-API-Key: ' . $_SERVER['HTTP_X_API_KEY'];
+        $headers[] = 'X-API-Key: ' . clean_param($_SERVER['HTTP_X_API_KEY'], PARAM_ALPHANUMEXT);
     }
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
@@ -198,7 +201,8 @@ function report_adeptus_insights_forward_to_backend($endpoint, $data = [], $meth
  * Handle plugin registration endpoint.
  */
 function report_adeptus_insights_handle_registration() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -210,13 +214,25 @@ function report_adeptus_insights_handle_registration() {
     // Get input data (handle both JSON and form data)
     $input = [];
 
-    // Try to get JSON input first
+    // Try to get JSON input first.
     $jsoninput = json_decode(file_get_contents('php://input'), true);
     if ($jsoninput) {
-        $input = $jsoninput;
+        // Clean each input value from JSON.
+        $input = [];
+        foreach ($jsoninput as $key => $value) {
+            $input[clean_param($key, PARAM_ALPHANUMEXT)] = is_string($value) ? clean_param($value, PARAM_TEXT) : $value;
+        }
     } else {
-        // Fall back to form data
-        $input = $_POST;
+        // Fall back to form data using Moodle's parameter functions.
+        $input = [
+            'admin_email' => optional_param('admin_email', '', PARAM_EMAIL),
+            'admin_name' => optional_param('admin_name', '', PARAM_TEXT),
+            'site_url' => optional_param('site_url', '', PARAM_URL),
+            'site_name' => optional_param('site_name', '', PARAM_TEXT),
+            'moodle_version' => optional_param('moodle_version', '', PARAM_TEXT),
+            'php_version' => optional_param('php_version', '', PARAM_TEXT),
+            'plugin_version' => optional_param('plugin_version', '', PARAM_TEXT),
+        ];
     }
 
     // Validate required fields for form data
@@ -266,7 +282,8 @@ function report_adeptus_insights_handle_registration() {
  * Handle subscription plans endpoint.
  */
 function report_adeptus_insights_handle_plans() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'GET' && $requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -328,7 +345,8 @@ function report_adeptus_insights_get_plan_features($plan) {
  * Handle Stripe configuration endpoint.
  */
 function report_adeptus_insights_handle_stripe_config() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'GET' && $requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -354,7 +372,8 @@ function report_adeptus_insights_handle_stripe_config() {
  * Handle create subscription endpoint.
  */
 function report_adeptus_insights_handle_create_subscription() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -364,10 +383,14 @@ function report_adeptus_insights_handle_create_subscription() {
     }
 
     try {
-        // Get input data
+        // Get input data from JSON body (primary method for API).
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
-            $input = $_POST;
+            // Fall back to Moodle parameter functions.
+            $input = [
+                'plan_id' => optional_param('plan_id', '', PARAM_ALPHANUMEXT),
+                'payment_method_id' => optional_param('payment_method_id', '', PARAM_ALPHANUMEXT),
+            ];
         }
 
         // Forward to Laravel backend
@@ -386,7 +409,8 @@ function report_adeptus_insights_handle_create_subscription() {
  * Handle show subscription details endpoint.
  */
 function report_adeptus_insights_handle_show_subscription() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -423,7 +447,8 @@ function report_adeptus_insights_handle_show_subscription() {
  * Handle cancel subscription endpoint.
  */
 function report_adeptus_insights_handle_cancel_subscription() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,
@@ -442,7 +467,8 @@ function report_adeptus_insights_handle_cancel_subscription() {
  * Handle update subscription endpoint.
  */
 function report_adeptus_insights_handle_update_subscription() {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    global $requestmethod;
+    if ($requestmethod !== 'POST') {
         http_response_code(405);
         echo json_encode([
             'success' => false,

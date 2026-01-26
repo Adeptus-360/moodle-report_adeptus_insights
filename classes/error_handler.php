@@ -357,7 +357,7 @@ class error_handler {
             'additional_data' => $additionaldata,
             'timestamp' => time(),
             'ip_address' => getremoteaddr(),
-            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? clean_param($_SERVER['HTTP_USER_AGENT'], PARAM_TEXT) : '',
         ];
 
         // Log to Moodle's debugging system

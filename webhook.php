@@ -30,15 +30,22 @@
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-// Verify this is a webhook request
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+// Verify this is a webhook request.
+$requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : '';
+if ($requestmethod !== 'POST') {
     http_response_code(405);
     exit('Method not allowed');
 }
 
-// Get the webhook payload
+// Get the webhook payload.
 $payload = file_get_contents('php://input');
-$sigheader = $_SERVER['HTTP_STRIPE_SIGNATURE'] ?? '';
+// Get Stripe signature header and clean it (base64 chars, timestamps, commas, equals).
+$sigheader = isset($_SERVER['HTTP_STRIPE_SIGNATURE']) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : '';
+// Stripe signatures contain special characters (t=,v1=) so we validate format rather than cleaning.
+if (!empty($sigheader) && !preg_match('/^t=\d+,v\d+=[a-f0-9]+/', $sigheader)) {
+    http_response_code(400);
+    exit('Invalid signature format');
+}
 
 if (empty($sigheader)) {
     http_response_code(400);

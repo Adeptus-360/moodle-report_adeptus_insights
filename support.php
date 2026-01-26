@@ -53,11 +53,13 @@ $action = optional_param('action', 'list', PARAM_ALPHA);
 $view = optional_param('view', 'tickets', PARAM_ALPHA);
 $ticketid = optional_param('ticket_id', 0, PARAM_INT);
 
-// Process form submissions
+// Process form submissions.
 $message = '';
 $messagetype = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && confirm_sesskey()) {
+// Check if this is a POST request using Moodle's data_submitted() for form handling.
+$requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : '';
+if ($requestmethod === 'POST' && confirm_sesskey()) {
     // Use PARAM_ALPHANUMEXT to allow underscores in action names
     $postaction = required_param('action', PARAM_ALPHANUMEXT);
 

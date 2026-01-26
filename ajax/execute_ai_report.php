@@ -42,18 +42,20 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 // Set content type
 header('Content-Type: application/json');
 
-// Get parameters - accept both GET and POST, and JSON body
-$requestmethod = $_SERVER['REQUEST_METHOD'];
+// Get parameters - accept both GET and POST, and JSON body.
+$requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : 'GET';
 $inputdata = [];
 
 if ($requestmethod === 'POST') {
-    // Try to get JSON body first
+    // Try to get JSON body first.
     $jsoninput = file_get_contents('php://input');
     if (!empty($jsoninput)) {
         $inputdata = json_decode($jsoninput, true) ?: [];
     }
-    // Merge with POST data (POST takes precedence for sesskey)
-    $inputdata = array_merge($inputdata, $_POST);
+    // For sesskey, use Moodle's parameter function if not in JSON.
+    if (!isset($inputdata['sesskey'])) {
+        $inputdata['sesskey'] = optional_param('sesskey', '', PARAM_ALPHANUM);
+    }
 }
 
 // Get SQL - required
