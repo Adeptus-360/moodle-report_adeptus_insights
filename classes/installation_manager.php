@@ -241,7 +241,7 @@ class installation_manager {
 
                     return [
                         'success' => false,
-                        'message' => 'Site already exists on backend',
+                        'message' => get_string('site_already_exists', 'report_adeptus_insights'),
                         'code' => 'SITE_EXISTS',
                         'redirect_to' => 'index',
                         'data' => $response['data'],
@@ -773,7 +773,7 @@ class installation_manager {
                 'is_cancelled' => false,
                 'has_payment_issues' => false,
                 'should_disable_api_access' => false,
-                'status_message' => 'Active subscription',
+                'status_message' => get_string('active_subscription_status', 'report_adeptus_insights'),
                 'is_registered' => true,
                 'subscription_id' => null,
                 'stripe_subscription_id' => null,
@@ -858,7 +858,7 @@ class installation_manager {
             'is_cancelled' => $subscription['is_cancelled'] ?? ($subscription['status'] === 'cancelled'),
             'has_payment_issues' => $subscription['has_payment_issues'] ?? false,
             'should_disable_api_access' => $subscription['should_disable_api_access'] ?? false,
-            'status_message' => $subscription['status_message'] ?? 'Active subscription',
+            'status_message' => $subscription['status_message'] ?? get_string('active_subscription_status', 'report_adeptus_insights'),
             'is_registered' => true,
             'subscription_id' => $subscription['id'],
             'stripe_subscription_id' => $subscription['stripe_subscription_id'],
@@ -921,7 +921,7 @@ class installation_manager {
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Payment processing is not configured. Please contact support.',
+                'message' => get_string('payment_not_configured', 'report_adeptus_insights'),
             ];
         }
     }
@@ -969,18 +969,18 @@ class installation_manager {
             if ($response['success']) {
                 return [
                     'success' => true,
-                    'message' => 'Subscription plan updated successfully',
+                    'message' => get_string('subscription_plan_updated', 'report_adeptus_insights'),
                 ];
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to update subscription plan',
+                    'message' => $response['message'] ?? get_string('subscription_update_failed', 'report_adeptus_insights', ''),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to update subscription plan: ' . $e->getMessage(),
+                'message' => get_string('subscription_update_failed', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -1146,19 +1146,19 @@ class installation_manager {
 
                 return [
                     'success' => true,
-                    'message' => 'Free plan activated successfully',
+                    'message' => get_string('free_plan_activated', 'report_adeptus_insights'),
                 ];
             } else {
-                $errormessage = isset($response['message']) ? $response['message'] : 'Unknown error';
+                $errormessage = isset($response['message']) ? $response['message'] : get_string('unknown_error', 'report_adeptus_insights');
                 return [
                     'success' => false,
-                    'message' => 'Failed to activate free plan: ' . $errormessage,
+                    'message' => get_string('free_plan_activation_failed', 'report_adeptus_insights', $errormessage),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to activate free plan: ' . $e->getMessage(),
+                'message' => get_string('free_plan_activation_failed', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -1460,13 +1460,13 @@ class installation_manager {
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create billing portal session',
+                    'message' => $response['message'] ?? get_string('error_billing_portal_failed', 'report_adeptus_insights'),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Failed to create billing portal session: ' . $e->getMessage(),
+                'message' => get_string('error_billing_portal_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -1609,19 +1609,19 @@ class installation_manager {
         try {
             // Check if installation is registered
             if (!$this->is_registered()) {
-                return ['success' => false, 'message' => 'Installation not registered'];
+                return ['success' => false, 'message' => get_string('error_installation_not_registered', 'report_adeptus_insights')];
             }
 
             // Get the subscription details
             $subscription = $this->get_subscription_details();
             if (!$subscription) {
-                return ['success' => false, 'message' => 'Subscription not found'];
+                return ['success' => false, 'message' => get_string('error_no_subscription_found', 'report_adeptus_insights')];
             }
 
             // Get the target plan from the product ID
             $plan = $this->get_plan_by_stripe_product_id($productid);
             if (!$plan) {
-                return ['success' => false, 'message' => 'Target plan not found'];
+                return ['success' => false, 'message' => get_string('error_target_plan_not_found', 'report_adeptus_insights')];
             }
 
             // Create or get Stripe customer
@@ -1646,7 +1646,7 @@ class installation_manager {
                 'portal_url' => $portalresult['portal_url'],
             ];
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => 'Error creating portal session: ' . $e->getMessage()];
+            return ['success' => false, 'message' => get_string('error_portal_session_exception', 'report_adeptus_insights', $e->getMessage())];
         }
     }
 
@@ -1721,13 +1721,13 @@ class installation_manager {
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create Stripe customer',
+                    'message' => $response['message'] ?? get_string('error_stripe_customer_failed', 'report_adeptus_insights'),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating Stripe customer: ' . $e->getMessage(),
+                'message' => get_string('error_stripe_customer_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -1755,13 +1755,13 @@ class installation_manager {
             } else {
                 return [
                     'success' => false,
-                    'message' => $response['message'] ?? 'Failed to create portal session',
+                    'message' => $response['message'] ?? get_string('error_portal_session_failed', 'report_adeptus_insights'),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating portal session: ' . $e->getMessage(),
+                'message' => get_string('error_portal_session_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -1872,7 +1872,7 @@ class installation_manager {
                 return [
                     'allowed' => true, // Allow generation but track locally
                     'reason' => 'unregistered',
-                    'message' => 'Installation not registered - using free tier defaults',
+                    'message' => get_string('installation_not_registered_free_tier', 'report_adeptus_insights'),
                     'tier' => 'free',
                 ];
             }
@@ -1886,7 +1886,7 @@ class installation_manager {
                 return [
                     'allowed' => true, // Fail open for now
                     'reason' => 'api_error',
-                    'message' => 'Could not verify access - allowing by default',
+                    'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
                 ];
             }
 
@@ -1906,13 +1906,13 @@ class installation_manager {
             return [
                 'allowed' => false,
                 'reason' => $response['data']['reason'] ?? 'unknown',
-                'message' => $response['data']['message'] ?? 'Access denied',
+                'message' => $response['data']['message'] ?? get_string('error_access_denied', 'report_adeptus_insights'),
             ];
         } catch (\Exception $e) {
             return [
                 'allowed' => true, // Fail open
                 'reason' => 'exception',
-                'message' => 'Could not verify access - allowing by default',
+                'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
             ];
         }
     }
@@ -1997,7 +1997,7 @@ class installation_manager {
                 return [
                     'allowed' => false,
                     'reason' => 'limit_reached',
-                    'message' => 'Monthly export limit reached',
+                    'message' => get_string('monthly_export_limit_reached', 'report_adeptus_insights'),
                     'remaining' => 0,
                     'limit' => $subscription['exports_limit'] ?? 3,
                     'upgrade_required' => true,
@@ -2013,7 +2013,7 @@ class installation_manager {
             return [
                 'allowed' => true, // Fail open
                 'reason' => 'exception',
-                'message' => 'Could not verify access - allowing by default',
+                'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
             ];
         }
     }

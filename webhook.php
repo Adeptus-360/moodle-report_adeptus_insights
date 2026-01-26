@@ -34,7 +34,7 @@ require_once($CFG->libdir . '/adminlib.php');
 $requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : '';
 if ($requestmethod !== 'POST') {
     http_response_code(405);
-    exit('Method not allowed');
+    exit(get_string('webhook_method_not_allowed', 'report_adeptus_insights'));
 }
 
 // Get the webhook payload.
@@ -44,12 +44,12 @@ $sigheader = isset($_SERVER['HTTP_STRIPE_SIGNATURE']) ? $_SERVER['HTTP_STRIPE_SI
 // Stripe signatures contain special characters (t=,v1=) so we validate format rather than cleaning.
 if (!empty($sigheader) && !preg_match('/^t=\d+,v\d+=[a-f0-9]+/', $sigheader)) {
     http_response_code(400);
-    exit('Invalid signature format');
+    exit(get_string('webhook_invalid_signature', 'report_adeptus_insights'));
 }
 
 if (empty($sigheader)) {
     http_response_code(400);
-    exit('No signature header');
+    exit(get_string('webhook_no_signature', 'report_adeptus_insights'));
 }
 
 try {
@@ -141,7 +141,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
-        return ['success' => false, 'error' => 'Plan not found'];
+        return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
     // Update subscription status
@@ -203,7 +203,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
-        return ['success' => false, 'error' => 'Plan not found'];
+        return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
     // Update subscription status
@@ -297,13 +297,13 @@ function report_adeptus_insights_handle_payment_succeeded($event) {
     // Get subscription details
     $subscription = $DB->get_record('report_adeptus_insights_subscription', ['stripe_subscription_id' => $subscriptionid]);
     if (!$subscription) {
-        return ['success' => false, 'error' => 'Subscription not found'];
+        return ['success' => false, 'error' => get_string('webhook_subscription_not_found', 'report_adeptus_insights')];
     }
 
     // Get plan details
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_product_id' => $subscription->plan_id]);
     if (!$plan) {
-        return ['success' => false, 'error' => 'Plan not found'];
+        return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
     // Reset credits for new billing period

@@ -53,9 +53,10 @@ if (!$authmanager->check_auth(false)) {
 
     echo $OUTPUT->header();
     echo '<div class="alert alert-warning">';
-    echo '<h2>Authentication Required</h2>';
-    echo '<p>You need to be logged into Moodle to access this plugin.</p>';
-    echo '<p><a href="' . $CFG->wwwroot . '/login/index.php" class="btn btn-primary">Login to Moodle</a></p>';
+    echo '<h2>' . get_string('authentication_required', 'report_adeptus_insights') . '</h2>';
+    echo '<p>' . get_string('login_required_message', 'report_adeptus_insights') . '</p>';
+    echo '<p><a href="' . $CFG->wwwroot . '/login/index.php" class="btn btn-primary">';
+    echo get_string('login_to_moodle', 'report_adeptus_insights') . '</a></p>';
     echo '</div>';
     echo $OUTPUT->footer();
     exit;

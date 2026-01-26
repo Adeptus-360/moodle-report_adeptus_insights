@@ -35,13 +35,13 @@ defined('MOODLE_INTERNAL') || die();
  */
 class error_handler {
     /** @var array Error code definitions. */
-    private $errorcodes;
+    private $error_codes;
 
     /** @var array Recovery action suggestions. */
-    private $recoveryactions;
+    private $recovery_actions;
 
-    /** @var string Admin contact information. */
-    private $admincontact;
+    /** @var array Admin contact information. */
+    private $admin_contact;
 
     /**
      * Constructor.
@@ -58,89 +58,89 @@ class error_handler {
     private function initialize_error_codes() {
         $this->error_codes = [
             'MISSING_HEADERS' => [
-                'title' => 'Missing Authentication Information',
-                'message' => 'Required authentication headers are missing from your request.',
-                'user_message' => 'The plugin is missing required authentication information. This usually indicates a configuration issue.',
+                'title' => get_string('errorhandler_missing_headers_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_missing_headers_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_missing_headers_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'refresh_page',
             ],
 
             'INVALID_API_KEY_FORMAT' => [
-                'title' => 'Invalid API Key Format',
-                'message' => 'The API key format is invalid or corrupted.',
-                'user_message' => 'The plugin\'s API key appears to be corrupted or in an invalid format.',
+                'title' => get_string('errorhandler_invalid_api_key_format_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_invalid_api_key_format_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_invalid_api_key_format_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'contact_admin',
             ],
 
             'INVALID_API_KEY' => [
-                'title' => 'Invalid API Key',
-                'message' => 'The API key is invalid or has been revoked.',
-                'user_message' => 'Your plugin\'s API key is no longer valid. This may happen if the key was revoked or expired.',
+                'title' => get_string('errorhandler_invalid_api_key_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_invalid_api_key_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_invalid_api_key_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'contact_admin',
             ],
 
             'SITE_URL_MISMATCH' => [
-                'title' => 'Site URL Mismatch',
-                'message' => 'The site URL does not match the registered installation.',
-                'user_message' => 'The current site URL doesn\'t match what\'s registered with the plugin service. This often happens after site migrations or URL changes.',
+                'title' => get_string('errorhandler_site_url_mismatch_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_site_url_mismatch_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_site_url_mismatch_user', 'report_adeptus_insights'),
                 'severity' => 'warning',
                 'recovery' => 'contact_admin',
             ],
 
             'UNAUTHORIZED_USER' => [
-                'title' => 'User Not Authorized',
-                'message' => 'Your user account is not authorized to access this plugin.',
-                'user_message' => 'Your user account doesn\'t have permission to access the Adeptus Insights plugin. Please contact your administrator.',
+                'title' => get_string('errorhandler_unauthorized_user_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_unauthorized_user_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_unauthorized_user_user', 'report_adeptus_insights'),
                 'severity' => 'warning',
                 'recovery' => 'contact_admin',
             ],
 
             'SUBSCRIPTION_INACTIVE' => [
-                'title' => 'Subscription Inactive',
-                'message' => 'Your subscription is inactive or has expired.',
-                'user_message' => 'Your plugin subscription is currently inactive. Please contact your administrator to renew or activate your subscription.',
+                'title' => get_string('errorhandler_subscription_inactive_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_subscription_inactive_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_subscription_inactive_user', 'report_adeptus_insights'),
                 'severity' => 'warning',
                 'recovery' => 'contact_admin',
             ],
 
             'INSUFFICIENT_TOKENS' => [
-                'title' => 'Insufficient Tokens',
-                'message' => 'You have insufficient tokens for this operation.',
-                'user_message' => 'You don\'t have enough tokens to perform this operation. Please contact your administrator to purchase more tokens.',
+                'title' => get_string('errorhandler_insufficient_tokens_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_insufficient_tokens_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_insufficient_tokens_user', 'report_adeptus_insights'),
                 'severity' => 'warning',
                 'recovery' => 'contact_admin',
             ],
 
             'BACKEND_CONNECTION_FAILED' => [
-                'title' => 'Service Unavailable',
-                'message' => 'Unable to connect to the plugin service.',
-                'user_message' => 'The plugin service is currently unavailable. This may be a temporary issue. Please try again later.',
+                'title' => get_string('errorhandler_backend_connection_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_backend_connection_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_backend_connection_user', 'report_adeptus_insights'),
                 'severity' => 'warning',
                 'recovery' => 'retry_later',
             ],
 
             'VALIDATION_ERROR' => [
-                'title' => 'Authentication Error',
-                'message' => 'An error occurred during authentication validation.',
-                'user_message' => 'There was an error validating your authentication. This may be a temporary system issue.',
+                'title' => get_string('errorhandler_authentication_error_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_authentication_error_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_authentication_error_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'refresh_page',
             ],
 
             'DATABASE_ERROR' => [
-                'title' => 'System Error',
-                'message' => 'A database error occurred during validation.',
-                'user_message' => 'A system error occurred while validating your access. Please try again later.',
+                'title' => get_string('errorhandler_database_error_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_database_error_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_database_error_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'retry_later',
             ],
 
             'UNKNOWN_ERROR' => [
-                'title' => 'Unexpected Error',
-                'message' => 'An unexpected error occurred.',
-                'user_message' => 'An unexpected error occurred. Please contact your administrator for assistance.',
+                'title' => get_string('errorhandler_unknown_error_title', 'report_adeptus_insights'),
+                'message' => get_string('errorhandler_unknown_error_message', 'report_adeptus_insights'),
+                'user_message' => get_string('errorhandler_unknown_error_user', 'report_adeptus_insights'),
                 'severity' => 'error',
                 'recovery' => 'contact_admin',
             ],
@@ -154,32 +154,32 @@ class error_handler {
         $this->recovery_actions = [
             'refresh_page' => [
                 'action' => 'refresh_page',
-                'label' => 'Refresh Page',
-                'description' => 'Try refreshing the page to resolve temporary issues.',
+                'label' => get_string('errorhandler_refresh_page', 'report_adeptus_insights'),
+                'description' => get_string('errorhandler_refresh_page_desc', 'report_adeptus_insights'),
                 'icon' => 'fa-refresh',
                 'button_class' => 'btn-primary',
             ],
 
             'contact_admin' => [
                 'action' => 'contact_admin',
-                'label' => 'Contact Administrator',
-                'description' => 'Contact your plugin administrator for assistance.',
+                'label' => get_string('errorhandler_contact_admin', 'report_adeptus_insights'),
+                'description' => get_string('errorhandler_contact_admin_desc', 'report_adeptus_insights'),
                 'icon' => 'fa-envelope',
                 'button_class' => 'btn-info',
             ],
 
             'retry_later' => [
                 'action' => 'retry_later',
-                'label' => 'Try Again Later',
-                'description' => 'Wait a few minutes and try again.',
+                'label' => get_string('errorhandler_retry_later', 'report_adeptus_insights'),
+                'description' => get_string('errorhandler_retry_later_desc', 'report_adeptus_insights'),
                 'icon' => 'fa-clock-o',
                 'button_class' => 'btn-secondary',
             ],
 
             'check_documentation' => [
                 'action' => 'check_documentation',
-                'label' => 'View Documentation',
-                'description' => 'Check the troubleshooting guide for solutions.',
+                'label' => get_string('errorhandler_view_documentation', 'report_adeptus_insights'),
+                'description' => get_string('errorhandler_view_documentation_desc', 'report_adeptus_insights'),
                 'icon' => 'fa-book',
                 'button_class' => 'btn-outline-info',
             ],
@@ -269,66 +269,66 @@ class error_handler {
         switch ($errorcode) {
             case 'MISSING_HEADERS':
                 $suggestions = [
-                    'Check if the plugin is properly configured',
-                    'Verify that all required settings are saved',
-                    'Try logging out and logging back in',
+                    get_string('errorhandler_suggestion_check_config', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_verify_settings', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_logout_login', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'INVALID_API_KEY':
             case 'INVALID_API_KEY_FORMAT':
                 $suggestions = [
-                    'The API key may have been corrupted',
-                    'Contact your administrator to regenerate the key',
-                    'Check if the plugin was recently updated',
+                    get_string('errorhandler_suggestion_api_key_corrupted', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin_regen_key', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_plugin_updated', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'SITE_URL_MISMATCH':
                 $suggestions = [
-                    'Your site may have been moved to a new URL',
-                    'Check if the site URL in Moodle settings has changed',
-                    'Contact your administrator to update the registration',
+                    get_string('errorhandler_suggestion_site_moved', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_check_site_url', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin_update', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'UNAUTHORIZED_USER':
                 $suggestions = [
-                    'Verify you have the correct permissions',
-                    'Check if your role has been changed',
-                    'Contact your administrator to grant access',
+                    get_string('errorhandler_suggestion_check_permissions', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_check_role', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin_access', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'SUBSCRIPTION_INACTIVE':
                 $suggestions = [
-                    'Your subscription may have expired',
-                    'Check if payment information needs updating',
-                    'Contact your administrator to renew the subscription',
+                    get_string('errorhandler_suggestion_check_subscription', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_payment_info', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin_renew', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'INSUFFICIENT_TOKENS':
                 $suggestions = [
-                    'You may need to purchase more tokens',
-                    'Check your current token balance',
-                    'Contact your administrator to add more tokens',
+                    get_string('errorhandler_suggestion_purchase_tokens', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_check_token_balance', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin_tokens', 'report_adeptus_insights'),
                 ];
                 break;
 
             case 'BACKEND_CONNECTION_FAILED':
                 $suggestions = [
-                    'Check your internet connection',
-                    'The service may be temporarily unavailable',
-                    'Try again in a few minutes',
+                    get_string('errorhandler_suggestion_check_connection', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_service_unavailable', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_try_again', 'report_adeptus_insights'),
                 ];
                 break;
 
             default:
                 $suggestions = [
-                    'Try refreshing the page',
-                    'Check if the issue persists',
-                    'Contact your administrator for assistance',
+                    get_string('errorhandler_suggestion_refresh_page', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_check_issue_persists', 'report_adeptus_insights'),
+                    get_string('errorhandler_suggestion_contact_admin', 'report_adeptus_insights'),
                 ];
         }
 
