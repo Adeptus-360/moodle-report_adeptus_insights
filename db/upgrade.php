@@ -29,5 +29,38 @@
  * @return bool True on success.
  */
 function xmldb_report_adeptus_insights_upgrade($oldversion) {
+    global $DB;
+    $dbman = $DB->get_manager();
+
+    // Upgrade to version 2026012601: Add adeptus_generated_reports table.
+    if ($oldversion < 2026012601) {
+        // Define table adeptus_generated_reports to be created.
+        $table = new xmldb_table('adeptus_generated_reports');
+
+        // Adding fields to table adeptus_generated_reports.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('reportid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('parameters', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('generatedat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('resultpath', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('counted_for_usage', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table adeptus_generated_reports.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table adeptus_generated_reports.
+        $table->add_index('userid_idx', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        $table->add_index('generatedat_idx', XMLDB_INDEX_NOTUNIQUE, ['generatedat']);
+
+        // Conditionally create the table (if it doesn't already exist).
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Adeptus Insights savepoint reached.
+        upgrade_plugin_savepoint(true, 2026012601, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

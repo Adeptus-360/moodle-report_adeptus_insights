@@ -202,5 +202,25 @@
             </INDEXES>
         </TABLE>
 
+        <!-- 12. Generated Reports Table -->
+        <TABLE NAME="adeptus_generated_reports" COMMENT="Stores generated report metadata for the Generated Reports section">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportid" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="parameters" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="generatedat" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="resultpath" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="counted_for_usage" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+                <INDEX NAME="generatedat_idx" UNIQUE="false" FIELDS="generatedat"/>
+            </INDEXES>
+        </TABLE>
+
     </TABLES>
 </XMLDB>
