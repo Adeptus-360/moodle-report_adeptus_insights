@@ -1,7 +1,30 @@
 {{!
     This file is part of Moodle - http://moodle.org/
-    Registration Wizard Template - Modern, Beautiful, Multi-step Interface
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template   report_adeptus_insights/registration
+
+    Registration wizard template providing a modern, beautiful, multi-step interface
+    for new user registration and onboarding.
+
     Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+
+    @package    report_adeptus_insights
+    @copyright  2026 Adeptus 360 <info@adeptus360.com>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
@@ -267,7 +290,7 @@ require(['report_adeptus_insights/registration'], function(Registration) {
         Registration.init();
     }
 });
-{{/js}} 
+{{/js}}
 
 <style>
 @media (min-width: 768px) {

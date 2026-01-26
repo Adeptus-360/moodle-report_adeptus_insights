@@ -1,3 +1,30 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * AI Assistant interface for Adeptus Insights plugin.
+ *
+ * Handles the AI chat interface, message sending/receiving, report generation,
+ * chart rendering, and conversation management for the insights assistant.
+ *
+ * @module     report_adeptus_insights/assistant
+ * @package    report_adeptus_insights
+ * @copyright  2026 Adeptus 360 <info@adeptus360.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'core/str', 'report_adeptus_insights/auth_utils'], function ($, Ajax, Notification, Chart, Templates, Str, AuthUtils) {
     var Swal = window.Swal;
 

@@ -1,7 +1,30 @@
 {{!
     This file is part of Moodle - http://moodle.org/
-    Subscription Management Template - Modern, Beautiful, Responsive Interface
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template   report_adeptus_insights/subscription
+
+    Subscription management template providing a modern, beautiful, responsive interface
+    for viewing and managing subscription plans, usage analytics, and billing.
+
     Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+
+    @package    report_adeptus_insights
+    @copyright  2026 Adeptus 360 <info@adeptus360.com>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
@@ -16,7 +39,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
 });
 {{/js}}
 
-<div class="adeptus-subscription-container" id="subscription-container" 
+<div class="adeptus-subscription-container" id="subscription-container"
      {{#current_subscription}}data-subscription='{"status":"{{status}}","is_active":{{is_active}},"is_cancelled":{{is_cancelled}},"has_payment_issues":{{has_payment_issues}},"should_disable_api_access":{{should_disable_api_access}},"status_message":"{{status_message}}","status_details":{}}{{/current_subscription}}'>
     <!-- Header Section -->
     <div class="adeptus-subscription-header">
@@ -72,7 +95,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{/current_subscription}}
                 </div>
             </div>
-            
+
             <div class="adeptus-analytics-card">
                 <div class="adeptus-analytics-header">
                     <div class="adeptus-analytics-icon">
@@ -105,7 +128,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{/current_subscription}}
                 </div>
             </div>
-            
+
             <div class="adeptus-analytics-card">
                 <div class="adeptus-analytics-header">
                     <div class="adeptus-analytics-icon">
@@ -136,7 +159,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{/current_subscription}}
                 </div>
             </div>
-            
+
             <div class="adeptus-analytics-card">
                 <div class="adeptus-analytics-header">
                     <div class="adeptus-analytics-icon">
@@ -205,7 +228,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <span class="adeptus-status-badge adeptus-status-{{status}}">{{status_message}}</span>
                     </div>
                 </div>
-                
+
                 <!-- Status-specific information -->
                 {{#is_cancelled}}
                 <div class="adeptus-cancellation-info">
@@ -227,7 +250,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{/status_details.can_renew}}
                 </div>
                 {{/is_cancelled}}
-                
+
                 {{#has_payment_issues}}
                 <div class="adeptus-payment-issue-info">
                     <div class="adeptus-info-item">
@@ -240,14 +263,14 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     </div>
                 </div>
                 {{/has_payment_issues}}
-                
+
                 {{#is_trial}}
                 <div class="adeptus-trial-notice">
                     <i class="fa fa-clock-o"></i>
                     <span>Trial active until {{trial_ends_at}}</span>
                 </div>
                 {{/is_trial}}
-                
+
                 <div class="adeptus-usage-details">
                     <div class="adeptus-usage-item">
                         <i class="fa fa-bar-chart"></i>
@@ -1185,4 +1208,4 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
         max-width: 100% !important;
     }
 }
-</style> 
+</style>

@@ -1,6 +1,28 @@
 {{!
     This file is part of Moodle - http://moodle.org/
-    Plugin Registration Template - Clean, Professional Interface
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template   report_adeptus_insights/register_plugin
+
+    Plugin registration template providing a clean, professional interface for
+    registering the Adeptus Insights plugin with the backend service.
+
+    @package    report_adeptus_insights
+    @copyright  2026 Adeptus 360 <info@adeptus360.com>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 
 <style>
@@ -320,11 +342,11 @@
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .adeptus-registration-container {
         padding: 10px;
     }
-    
+
     .adeptus-registration-form {
         padding: 20px;
     }
@@ -432,7 +454,7 @@
         <h1><i class="fa fa-check-circle"></i> {{#str}}congratulations, report_adeptus_insights{{/str}}</h1>
         <p>{{#str}}plugin_connected_ready, report_adeptus_insights{{/str}}</p>
     </div>
-    
+
     <div class="adeptus-success-content">
         <div class="adeptus-success-card">
             <div class="adeptus-success-icon">
@@ -458,7 +480,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="adeptus-action-buttons">
             <a href="{{site_url}}/report/adeptus_insights/index.php" class="adeptus-btn-primary">
                 <i class="fa fa-dashboard"></i> {{#str}}go_to_dashboard, report_adeptus_insights{{/str}}
@@ -469,7 +491,7 @@
         </div>
     </div>
     {{/is_registered}}
-    
+
     {{^is_registered}}
     <!-- Not Registered - Registration Form -->
     {{#error_message}}
@@ -477,7 +499,7 @@
         <strong>{{#str}}registration_error, report_adeptus_insights{{/str}}:</strong> {{error_message}}
     </div>
     {{/error_message}}
-    
+
     {{#site_already_exists}}
     <div class="adeptus-info-box adeptus-site-exists">
         <strong><i class="fa fa-info-circle"></i> {{#str}}site_already_registered, report_adeptus_insights{{/str}}:</strong>
@@ -512,12 +534,12 @@
     <div class="adeptus-error" id="validation-error">
         <strong>{{#str}}missing_required_information, report_adeptus_insights{{/str}}</strong> <span id="validation-message"></span>
     </div>
-    
-    
+
+
     <form method="post" class="adeptus-registration-form" id="registration-form">
         <input type="hidden" name="sesskey" value="{{sesskey}}">
         <input type="hidden" name="action" value="register">
-        
+
         <!-- Site Information Section -->
         <div class="adeptus-form-section">
             <h3><i class="fa fa-globe"></i> {{#str}}site_information, report_adeptus_insights{{/str}}</h3>
@@ -536,7 +558,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Administrator Information Section -->
         <div class="adeptus-form-section">
             <h3><i class="fa fa-user"></i> {{#str}}administrator_information, report_adeptus_insights{{/str}}</h3>
@@ -555,7 +577,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- System Information Section -->
         <div class="adeptus-form-section">
             <h3><i class="fa fa-cog"></i> {{#str}}system_information, report_adeptus_insights{{/str}}</h3>
@@ -582,7 +604,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Submit Section -->
         <div class="adeptus-submit-section">
             <button type="submit" class="adeptus-submit-btn" id="register-btn">
@@ -691,4 +713,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-</script> 
+</script>
