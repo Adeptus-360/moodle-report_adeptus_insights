@@ -429,8 +429,8 @@
     {{#is_registered}}
     <!-- Already Registered - Congratulations View -->
     <div class="adeptus-success-header">
-        <h1><i class="fa fa-check-circle"></i> Congratulations!</h1>
-        <p>Your Adeptus Insights plugin is successfully connected and ready to use.</p>
+        <h1><i class="fa fa-check-circle"></i> {{#str}}congratulations, report_adeptus_insights{{/str}}</h1>
+        <p>{{#str}}plugin_connected_ready, report_adeptus_insights{{/str}}</p>
     </div>
     
     <div class="adeptus-success-content">
@@ -438,33 +438,33 @@
             <div class="success-icon">
                 <i class="fa fa-link"></i>
             </div>
-            <h3>Connection Status</h3>
+            <h3>{{#str}}connection_status, report_adeptus_insights{{/str}}</h3>
             <div class="connection-details">
                 <div class="detail-row">
-                    <span class="label">Installation ID:</span>
+                    <span class="label">{{#str}}installation_id, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{installation_id}}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="label">API Key:</span>
+                    <span class="label">{{#str}}api_key, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{api_key}}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="label">Site Name:</span>
+                    <span class="label">{{#str}}site_name_label, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{site_name}}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="label">Status:</span>
-                    <span class="value status-connected">Connected</span>
+                    <span class="label">{{#str}}status, report_adeptus_insights{{/str}}:</span>
+                    <span class="value status-connected">{{#str}}connected, report_adeptus_insights{{/str}}</span>
                 </div>
             </div>
         </div>
         
         <div class="adeptus-action-buttons">
             <a href="{{site_url}}/report/adeptus_insights/index.php" class="adeptus-btn-primary">
-                <i class="fa fa-dashboard"></i> Go to Dashboard
+                <i class="fa fa-dashboard"></i> {{#str}}go_to_dashboard, report_adeptus_insights{{/str}}
             </a>
             <a href="{{site_url}}/report/adeptus_insights/subscription.php" class="adeptus-btn-secondary">
-                <i class="fa fa-credit-card"></i> Manage Subscription
+                <i class="fa fa-credit-card"></i> {{#str}}manage_subscription, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -474,43 +474,43 @@
     <!-- Not Registered - Registration Form -->
     {{#error_message}}
     <div class="adeptus-error">
-        <strong>Registration Error:</strong> {{error_message}}
+        <strong>{{#str}}registration_error, report_adeptus_insights{{/str}}:</strong> {{error_message}}
     </div>
     {{/error_message}}
     
     {{#site_already_exists}}
     <div class="adeptus-info-box adeptus-site-exists">
-        <strong><i class="fa fa-info-circle"></i> Site Already Registered:</strong> 
-        This site is already registered on the backend. You will be redirected to the main page.
+        <strong><i class="fa fa-info-circle"></i> {{#str}}site_already_registered, report_adeptus_insights{{/str}}:</strong>
+        {{#str}}site_already_registered_desc, report_adeptus_insights{{/str}}
     </div>
     {{/site_already_exists}}
 
     <!-- Installation Header -->
     <div class="installation-header">
-       <h1><i class="fa fa-rocket"></i> Adeptus Insights Registration</h1>
-        <p>Complete the registration to activate your plugin</p>
+       <h1><i class="fa fa-rocket"></i> {{#str}}adeptus_insights_registration, report_adeptus_insights{{/str}}</h1>
+        <p>{{#str}}complete_registration_activate, report_adeptus_insights{{/str}}</p>
     </div>
 
     <!-- Installation Progress -->
     <div class="installation-progress">
         <div class="progress-step current">
             <div class="step-number">1</div>
-            <div class="step-label">Plugin Registration</div>
+            <div class="step-label">{{#str}}step_plugin_registration, report_adeptus_insights{{/str}}</div>
         </div>
         <div class="progress-connector"></div>
         <div class="progress-step pending">
             <div class="step-number">2</div>
-            <div class="step-label">Subscription Setup</div>
+            <div class="step-label">{{#str}}step_subscription_setup, report_adeptus_insights{{/str}}</div>
         </div>
         <div class="progress-connector"></div>
         <div class="progress-step pending">
             <div class="step-number">3</div>
-            <div class="step-label">Installation Complete</div>
+            <div class="step-label">{{#str}}step_installation_complete, report_adeptus_insights{{/str}}</div>
         </div>
     </div>
 
     <div class="adeptus-error" id="validation-error">
-        <strong>Missing Required Information:</strong> <span id="validation-message"></span>
+        <strong>{{#str}}missing_required_information, report_adeptus_insights{{/str}}</strong> <span id="validation-message"></span>
     </div>
     
     
@@ -520,65 +520,65 @@
         
         <!-- Site Information Section -->
         <div class="adeptus-form-section">
-            <h3><i class="fa fa-globe"></i> Site Information</h3>
-            
+            <h3><i class="fa fa-globe"></i> {{#str}}site_information, report_adeptus_insights{{/str}}</h3>
+
             <div class="adeptus-form-row">
                 <div class="adeptus-form-group">
-                    <label for="site_name">Site Name *</label>
+                    <label for="site_name">{{#str}}site_name_label, report_adeptus_insights{{/str}} *</label>
                     <input type="text" id="site_name" name="site_name" value="{{site_name}}" readonly>
-                    <div class="form-help">Your Moodle site name</div>
+                    <div class="form-help">{{#str}}your_moodle_site_name, report_adeptus_insights{{/str}}</div>
                 </div>
-                
+
                 <div class="adeptus-form-group">
-                    <label for="site_url">Site URL *</label>
+                    <label for="site_url">{{#str}}site_url_label, report_adeptus_insights{{/str}} *</label>
                     <input type="url" id="site_url" name="site_url" value="{{site_url}}" readonly>
-                    <div class="form-help">Your Moodle site URL</div>
+                    <div class="form-help">{{#str}}your_moodle_site_url, report_adeptus_insights{{/str}}</div>
                 </div>
             </div>
         </div>
         
         <!-- Administrator Information Section -->
         <div class="adeptus-form-section">
-            <h3><i class="fa fa-user"></i> Administrator Information</h3>
-            
+            <h3><i class="fa fa-user"></i> {{#str}}administrator_information, report_adeptus_insights{{/str}}</h3>
+
             <div class="adeptus-form-row">
                 <div class="adeptus-form-group">
-                    <label for="admin_name">Administrator Name *</label>
+                    <label for="admin_name">{{#str}}administrator_name, report_adeptus_insights{{/str}} *</label>
                     <input type="text" id="admin_name" name="admin_name" value="{{admin_name}}" readonly>
-                    <div class="form-help">Your full name as the administrator</div>
+                    <div class="form-help">{{#str}}your_full_name_admin, report_adeptus_insights{{/str}}</div>
                 </div>
-                
+
                 <div class="adeptus-form-group">
-                    <label for="admin_email">Administrator Email *</label>
+                    <label for="admin_email">{{#str}}administrator_email, report_adeptus_insights{{/str}} *</label>
                     <input type="email" id="admin_email" name="admin_email" value="{{admin_email}}" readonly>
-                    <div class="form-help">Your email address for account management</div>
+                    <div class="form-help">{{#str}}your_email_account_mgmt, report_adeptus_insights{{/str}}</div>
                 </div>
             </div>
         </div>
         
         <!-- System Information Section -->
         <div class="adeptus-form-section">
-            <h3><i class="fa fa-cog"></i> System Information</h3>
-            
+            <h3><i class="fa fa-cog"></i> {{#str}}system_information, report_adeptus_insights{{/str}}</h3>
+
             <div class="adeptus-form-row">
                 <div class="adeptus-form-group">
-                    <label for="moodle_version">Moodle Version *</label>
+                    <label for="moodle_version">{{#str}}moodle_version, report_adeptus_insights{{/str}} *</label>
                     <input type="text" id="moodle_version" name="moodle_version" value="{{moodle_version}}" readonly>
-                    <div class="form-help">Your current Moodle version</div>
+                    <div class="form-help">{{#str}}your_moodle_version, report_adeptus_insights{{/str}}</div>
                 </div>
-                
+
                 <div class="adeptus-form-group">
-                    <label for="php_version">PHP Version *</label>
+                    <label for="php_version">{{#str}}php_version, report_adeptus_insights{{/str}} *</label>
                     <input type="text" id="php_version" name="php_version" value="{{php_version}}" readonly>
-                    <div class="form-help">Your current PHP version</div>
+                    <div class="form-help">{{#str}}your_php_version, report_adeptus_insights{{/str}}</div>
                 </div>
             </div>
-            
+
             <div class="adeptus-form-row">
                 <div class="adeptus-form-group">
-                    <label for="plugin_version">Plugin Version *</label>
+                    <label for="plugin_version">{{#str}}plugin_version, report_adeptus_insights{{/str}} *</label>
                     <input type="text" id="plugin_version" name="plugin_version" value="{{plugin_version}}" readonly>
-                    <div class="form-help">Current Adeptus Insights plugin version</div>
+                    <div class="form-help">{{#str}}current_plugin_version, report_adeptus_insights{{/str}}</div>
                 </div>
             </div>
         </div>
@@ -586,14 +586,14 @@
         <!-- Submit Section -->
         <div class="adeptus-submit-section">
             <button type="submit" class="adeptus-submit-btn" id="register-btn">
-                <i class="fa fa-check"></i> Register Plugin
+                <i class="fa fa-check"></i> {{#str}}register_plugin, report_adeptus_insights{{/str}}
             </button>
         </div>
         <!-- Loading Overlay -->
         <div class="adeptus-loading" id="loading-overlay">
             <div class="spinner"></div>
-            <p>Registering your plugin...</p>
-            <p>Please wait while we set up your account.</p>
+            <p>{{#str}}registering_plugin, report_adeptus_insights{{/str}}</p>
+            <p>{{#str}}please_wait_setup, report_adeptus_insights{{/str}}</p>
         </div>
     </form>
     {{/is_registered}}
@@ -601,77 +601,92 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Localized strings
+    var STRINGS = {
+        siteName: '{{#str}}site_name_label, report_adeptus_insights{{/str}}',
+        siteUrl: '{{#str}}site_url_label, report_adeptus_insights{{/str}}',
+        administratorName: '{{#str}}administrator_name, report_adeptus_insights{{/str}}',
+        administratorEmail: '{{#str}}administrator_email, report_adeptus_insights{{/str}}',
+        moodleVersion: '{{#str}}moodle_version, report_adeptus_insights{{/str}}',
+        phpVersion: '{{#str}}php_version, report_adeptus_insights{{/str}}',
+        pluginVersion: '{{#str}}plugin_version, report_adeptus_insights{{/str}}',
+        missingFieldsMessage: '{{#str}}missing_fields_message, report_adeptus_insights{{/str}}',
+        registrationDisabled: '{{#str}}registration_disabled, report_adeptus_insights{{/str}}',
+        registerPlugin: '{{#str}}register_plugin, report_adeptus_insights{{/str}}',
+        registering: '{{#str}}registering, report_adeptus_insights{{/str}}'
+    };
+
     const form = document.getElementById('registration-form');
-    
+
     // Only run validation if form exists (not registered)
     if (form) {
         const submitBtn = document.getElementById('register-btn');
         const loadingOverlay = document.getElementById('loading-overlay');
         const validationError = document.getElementById('validation-error');
         const validationMessage = document.getElementById('validation-message');
-        
+
         // Required field validation
         const requiredFields = [
-            { id: 'site_name', name: 'Site Name', value: '{{site_name}}' },
-            { id: 'site_url', name: 'Site URL', value: '{{site_url}}' },
-            { id: 'admin_name', name: 'Administrator Name', value: '{{admin_name}}' },
-            { id: 'admin_email', name: 'Administrator Email', value: '{{admin_email}}' },
-            { id: 'moodle_version', name: 'Moodle Version', value: '{{moodle_version}}' },
-            { id: 'php_version', name: 'PHP Version', value: '{{php_version}}' },
-            { id: 'plugin_version', name: 'Plugin Version', value: '{{plugin_version}}' }
+            { id: 'site_name', name: STRINGS.siteName, value: '{{site_name}}' },
+            { id: 'site_url', name: STRINGS.siteUrl, value: '{{site_url}}' },
+            { id: 'admin_name', name: STRINGS.administratorName, value: '{{admin_name}}' },
+            { id: 'admin_email', name: STRINGS.administratorEmail, value: '{{admin_email}}' },
+            { id: 'moodle_version', name: STRINGS.moodleVersion, value: '{{moodle_version}}' },
+            { id: 'php_version', name: STRINGS.phpVersion, value: '{{php_version}}' },
+            { id: 'plugin_version', name: STRINGS.pluginVersion, value: '{{plugin_version}}' }
         ];
-        
+
         function validateFields() {
             const missingFields = [];
-            
+
             requiredFields.forEach(field => {
                 const value = field.value.trim();
                 if (!value || value === '' || value === 'undefined' || value === 'null') {
                     missingFields.push(field.name);
                 }
             });
-            
+
             if (missingFields.length > 0) {
                 // Show validation error
                 validationError.style.display = 'block';
-                validationMessage.innerHTML = `The following required information is missing: <strong>${missingFields.join(', ')}</strong>. Please contact your system administrator to ensure these Moodle configuration values are properly set before registering the plugin.`;
-                
+                validationMessage.innerHTML = STRINGS.missingFieldsMessage.replace('{fields}', '<strong>' + missingFields.join(', ') + '</strong>');
+
                 // Disable submit button
                 submitBtn.disabled = true;
                 submitBtn.style.opacity = '0.5';
                 submitBtn.style.cursor = 'not-allowed';
-                submitBtn.innerHTML = '<i class="fa fa-ban"></i> Registration Disabled';
-                
+                submitBtn.innerHTML = '<i class="fa fa-ban"></i> ' + STRINGS.registrationDisabled;
+
                 return false;
             } else {
                 // Hide validation error
                 validationError.style.display = 'none';
-                
+
                 // Enable submit button
                 submitBtn.disabled = false;
                 submitBtn.style.opacity = '1';
                 submitBtn.style.cursor = 'pointer';
-                submitBtn.innerHTML = '<i class="fa fa-check"></i> Register Plugin';
-                
+                submitBtn.innerHTML = '<i class="fa fa-check"></i> ' + STRINGS.registerPlugin;
+
                 return true;
             }
         }
-        
+
         // Run validation on page load
         validateFields();
-        
+
         form.addEventListener('submit', function(e) {
             // Validate before submitting
             if (!validateFields()) {
                 e.preventDefault();
                 return false;
             }
-            
+
             // Show loading overlay
             loadingOverlay.style.display = 'block';
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Registering...';
-            
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + STRINGS.registering;
+
             // Form will submit normally
         });
     }

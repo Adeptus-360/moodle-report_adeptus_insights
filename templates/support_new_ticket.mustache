@@ -10,11 +10,11 @@
                 <i class="fa fa-ticket-alt page-header-icon"></i>
                 {{#str}}new_ticket, report_adeptus_insights{{/str}}
             </h1>
-            <p class="page-header-subtitle">Submit a new support ticket for assistance.</p>
+            <p class="page-header-subtitle">{{#str}}submit_ticket_subtitle, report_adeptus_insights{{/str}}</p>
         </div>
         <div class="page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
-                <i class="fa fa-arrow-left"></i> Back to Tickets
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_tickets, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -33,7 +33,7 @@
         <div class="alert alert-warning">
             <i class="fa fa-exclamation-triangle"></i>
             {{#str}}support_not_available, report_adeptus_insights{{/str}}
-            <a href="{{wwwroot}}/report/adeptus_insights/subscription.php" class="alert-link">Register now</a>
+            <a href="{{wwwroot}}/report/adeptus_insights/subscription.php" class="alert-link">{{#str}}register_now, report_adeptus_insights{{/str}}</a>
         </div>
         {{/is_registered}}
 
@@ -56,7 +56,7 @@
                                             {{#str}}ticket_category, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
                                         </label>
                                         <select name="category" id="category" class="form-control" required>
-                                            <option value="">-- Select Category --</option>
+                                            <option value="">-- {{#str}}select_category, report_adeptus_insights{{/str}} --</option>
                                             {{#categories}}
                                             <option value="{{value}}">{{label}}</option>
                                             {{/categories}}
@@ -82,7 +82,7 @@
                                     {{#str}}ticket_subject, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
                                 </label>
                                 <input type="text" name="subject" id="subject" class="form-control" maxlength="255" required
-                                       placeholder="Brief description of your issue">
+                                       placeholder="{{#str}}ticket_subject_placeholder, report_adeptus_insights{{/str}}">
                             </div>
 
                             <div class="form-group mb-3">
@@ -90,13 +90,13 @@
                                     {{#str}}ticket_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
                                 </label>
                                 <textarea name="message" id="message" class="form-control" rows="8" maxlength="10000" required
-                                          placeholder="Please provide details about your issue, including steps to reproduce if applicable."></textarea>
-                                <small class="text-muted">Maximum 10,000 characters</small>
+                                          placeholder="{{#str}}ticket_message_placeholder, report_adeptus_insights{{/str}}"></textarea>
+                                <small class="text-muted">{{#str}}max_characters, report_adeptus_insights{{/str}}</small>
                             </div>
 
                             <hr>
 
-                            <h6 class="text-muted mb-3"><i class="fa fa-user"></i> Contact Information (Optional)</h6>
+                            <h6 class="text-muted mb-3"><i class="fa fa-user"></i> {{#str}}contact_info_optional, report_adeptus_insights{{/str}}</h6>
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -133,19 +133,19 @@
                                             <i class="fa fa-cloud-upload-alt"></i>
                                         </div>
                                         <div class="dropzone-text">
-                                            <p class="dropzone-title">Drag & drop files here</p>
-                                            <p class="dropzone-subtitle">or <span class="dropzone-browse">browse</span> to choose files</p>
+                                            <p class="dropzone-title">{{#str}}drag_drop_files, report_adeptus_insights{{/str}}</p>
+                                            <p class="dropzone-subtitle">{{#str}}or_browse_files, report_adeptus_insights{{/str}}</p>
                                         </div>
                                         <div class="dropzone-info">
-                                            <span><i class="fa fa-image"></i> Images</span>
-                                            <span><i class="fa fa-file-pdf"></i> PDF</span>
-                                            <span><i class="fa fa-file-alt"></i> Text</span>
-                                            <span><i class="fa fa-file-archive"></i> ZIP</span>
+                                            <span><i class="fa fa-image"></i> {{#str}}images, report_adeptus_insights{{/str}}</span>
+                                            <span><i class="fa fa-file-pdf"></i> {{#str}}pdf, report_adeptus_insights{{/str}}</span>
+                                            <span><i class="fa fa-file-alt"></i> {{#str}}text, report_adeptus_insights{{/str}}</span>
+                                            <span><i class="fa fa-file-archive"></i> {{#str}}zip, report_adeptus_insights{{/str}}</span>
                                         </div>
                                     </div>
                                     <div class="dropzone-overlay">
                                         <i class="fa fa-download"></i>
-                                        <span>Drop files to upload</span>
+                                        <span>{{#str}}drop_files_upload, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
 
@@ -156,11 +156,11 @@
                                 <div class="upload-info">
                                     <div class="upload-info-item">
                                         <i class="fa fa-check-circle text-success"></i>
-                                        <span>Max 5 files, 10MB each</span>
+                                        <span>{{#str}}max_files_size, report_adeptus_insights{{/str}}</span>
                                     </div>
                                     <div class="upload-info-item">
                                         <i class="fa fa-info-circle text-primary"></i>
-                                        <span>JPG, PNG, GIF, PDF, TXT, LOG, CSV, JSON, ZIP</span>
+                                        <span>{{#str}}allowed_file_types, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -185,6 +185,15 @@
 <script>
 (function() {
     'use strict';
+
+    // Localized strings
+    var STRINGS = {
+        maxFilesAllowed: '{{#str}}max_files_allowed, report_adeptus_insights{{/str}}',
+        fileTypeNotAllowed: '{{#str}}file_type_not_allowed, report_adeptus_insights{{/str}}',
+        fileTooLarge: '{{#str}}file_too_large, report_adeptus_insights{{/str}}',
+        fileAlreadyAdded: '{{#str}}file_already_added, report_adeptus_insights{{/str}}',
+        removeFile: '{{#str}}remove_file, report_adeptus_insights{{/str}}'
+    };
 
     const dropzone = document.getElementById('fileDropzone');
     const fileInput = document.getElementById('attachments');
@@ -258,26 +267,26 @@
         filesArray.forEach(file => {
             // Check max files
             if (selectedFiles.length >= MAX_FILES) {
-                showError('Maximum ' + MAX_FILES + ' files allowed');
+                showError(STRINGS.maxFilesAllowed.replace('{count}', MAX_FILES));
                 return;
             }
 
             // Check file type
             const ext = file.name.split('.').pop().toLowerCase();
             if (!ALLOWED_EXTENSIONS.includes(ext)) {
-                showError('File type .' + ext + ' is not allowed');
+                showError(STRINGS.fileTypeNotAllowed.replace('{ext}', ext));
                 return;
             }
 
             // Check file size
             if (file.size > MAX_SIZE) {
-                showError(file.name + ' is too large (max 10MB)');
+                showError(STRINGS.fileTooLarge.replace('{filename}', file.name));
                 return;
             }
 
             // Check for duplicates
             if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                showError(file.name + ' is already added');
+                showError(STRINGS.fileAlreadyAdded.replace('{filename}', file.name));
                 return;
             }
 

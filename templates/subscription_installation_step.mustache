@@ -397,25 +397,25 @@
 <div class="adeptus-installation-container">
     <!-- Installation Header -->
     <div class="installation-header">
-        <h1><i class="fa fa-rocket"></i> Choose Your Plan</h1>
-        <p>Select the plan that best fits your institution's needs</p>
+        <h1><i class="fa fa-rocket"></i> {{#str}}choose_your_plan, report_adeptus_insights{{/str}}</h1>
+        <p>{{#str}}select_plan_fits, report_adeptus_insights{{/str}}</p>
     </div>
 
     <!-- Installation Progress -->
     <div class="installation-progress">
         <div class="progress-step completed">
             <div class="step-number"><i class="fa fa-check"></i></div>
-            <div class="step-label">Registration</div>
+            <div class="step-label">{{#str}}step_registration, report_adeptus_insights{{/str}}</div>
         </div>
         <div class="progress-connector completed"></div>
         <div class="progress-step current">
             <div class="step-number">2</div>
-            <div class="step-label">Choose Plan</div>
+            <div class="step-label">{{#str}}step_choose_plan, report_adeptus_insights{{/str}}</div>
         </div>
         <div class="progress-connector"></div>
         <div class="progress-step pending">
             <div class="step-number">3</div>
-            <div class="step-label">Complete</div>
+            <div class="step-label">{{#str}}step_complete, report_adeptus_insights{{/str}}</div>
         </div>
     </div>
 
@@ -423,11 +423,11 @@
     <div class="billing-toggle-container">
         <div class="billing-toggle">
             <button type="button" class="billing-toggle-btn active" data-interval="monthly">
-                Monthly
+                {{#str}}monthly, report_adeptus_insights{{/str}}
             </button>
             <button type="button" class="billing-toggle-btn" data-interval="yearly">
-                Annual
-                {{#max_yearly_savings}}<span class="savings-badge">Save {{max_yearly_savings}}%</span>{{/max_yearly_savings}}
+                {{#str}}annual, report_adeptus_insights{{/str}}
+                {{#max_yearly_savings}}<span class="savings-badge">{{#str}}save, report_adeptus_insights{{/str}} {{max_yearly_savings}}%</span>{{/max_yearly_savings}}
             </button>
         </div>
     </div>
@@ -437,8 +437,8 @@
         <div class="plans-grid" id="plans-container">
             {{#monthly_plans}}
             <div class="plan-card {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="monthly">
-                {{#is_popular}}<div class="plan-badge popular">Most Popular</div>{{/is_popular}}
-                {{#is_current}}<div class="plan-badge current">Current Plan</div>{{/is_current}}
+                {{#is_popular}}<div class="plan-badge popular">{{#str}}most_popular, report_adeptus_insights{{/str}}</div>{{/is_popular}}
+                {{#is_current}}<div class="plan-badge current">{{#str}}current_plan, report_adeptus_insights{{/str}}</div>{{/is_current}}
 
                 <div class="plan-header">
                     <div class="plan-name">{{short_name}}</div>
@@ -447,33 +447,33 @@
 
                 <div class="plan-price">
                     {{#is_free}}
-                    <div class="price-free">Free</div>
-                    <div class="price-period">Forever</div>
+                    <div class="price-free">{{#str}}free, report_adeptus_insights{{/str}}</div>
+                    <div class="price-period">{{#str}}forever, report_adeptus_insights{{/str}}</div>
                     {{/is_free}}
                     {{^is_free}}
                     <div class="price-amount">
                         <span class="currency">$</span>{{price_formatted}}
                     </div>
-                    <div class="price-period">per month</div>
+                    <div class="price-period">{{#str}}per_month, report_adeptus_insights{{/str}}</div>
                     {{/is_free}}
                 </div>
 
                 <div class="plan-limits">
                     <div class="limit-item">
                         <div class="limit-value">{{tokens_limit}}</div>
-                        <div class="limit-label">AI Tokens</div>
+                        <div class="limit-label">{{#str}}ai_tokens, report_adeptus_insights{{/str}}</div>
                     </div>
                     <div class="limit-item">
                         <div class="limit-value">{{exports_limit}}</div>
-                        <div class="limit-label">Exports/mo</div>
+                        <div class="limit-label">{{#str}}exports_mo, report_adeptus_insights{{/str}}</div>
                     </div>
                     <div class="limit-item">
                         <div class="limit-value">{{reports_limit}}</div>
-                        <div class="limit-label">Saved Reports</div>
+                        <div class="limit-label">{{#str}}saved_reports, report_adeptus_insights{{/str}}</div>
                     </div>
                     <div class="limit-item">
                         <div class="limit-value">{{export_formats}}</div>
-                        <div class="limit-label">Formats</div>
+                        <div class="limit-label">{{#str}}formats, report_adeptus_insights{{/str}}</div>
                     </div>
                 </div>
 
@@ -488,18 +488,18 @@
                 <div class="plan-action">
                     {{#is_current}}
                     <button class="plan-btn plan-btn-current" disabled>
-                        <i class="fa fa-check-circle"></i> Current Plan
+                        <i class="fa fa-check-circle"></i> {{#str}}current_plan, report_adeptus_insights{{/str}}
                     </button>
                     {{/is_current}}
                     {{^is_current}}
                     {{#is_free}}
                     <button class="plan-btn plan-btn-outline select-plan-btn" data-plan-id="{{id}}" data-plan-name="{{name}}">
-                        Select Free Plan
+                        {{#str}}select_free_plan, report_adeptus_insights{{/str}}
                     </button>
                     {{/is_free}}
                     {{^is_free}}
                     <button class="plan-btn plan-btn-primary select-plan-btn" data-plan-id="{{id}}" data-plan-name="{{name}}" data-stripe-product="{{stripe_product_id}}">
-                        <i class="fa fa-arrow-up"></i> Upgrade to {{short_name}}
+                        <i class="fa fa-arrow-up"></i> {{#str}}upgrade_to, report_adeptus_insights{{/str}} {{short_name}}
                     </button>
                     {{/is_free}}
                     {{/is_current}}
@@ -518,6 +518,27 @@
 
 {{#js}}
 require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+    // Localized strings
+    var STRINGS = {
+        annualPlansSoon: '{{#str}}annual_plans_coming_soon, report_adeptus_insights{{/str}}',
+        currentPlan: '{{#str}}current_plan, report_adeptus_insights{{/str}}',
+        mostPopular: '{{#str}}most_popular, report_adeptus_insights{{/str}}',
+        free: '{{#str}}free, report_adeptus_insights{{/str}}',
+        forever: '{{#str}}forever, report_adeptus_insights{{/str}}',
+        perYear: '{{#str}}per_year, report_adeptus_insights{{/str}}',
+        perMonth: '{{#str}}per_month, report_adeptus_insights{{/str}}',
+        save: '{{#str}}save, report_adeptus_insights{{/str}}',
+        selectFreePlan: '{{#str}}select_free_plan, report_adeptus_insights{{/str}}',
+        upgradeTo: '{{#str}}upgrade_to, report_adeptus_insights{{/str}}',
+        aiTokens: '{{#str}}ai_tokens, report_adeptus_insights{{/str}}',
+        exportsMo: '{{#str}}exports_mo, report_adeptus_insights{{/str}}',
+        savedReports: '{{#str}}saved_reports, report_adeptus_insights{{/str}}',
+        formats: '{{#str}}formats, report_adeptus_insights{{/str}}',
+        redirectingToBilling: '{{#str}}redirecting_to_billing, report_adeptus_insights{{/str}}',
+        failedBillingSession: '{{#str}}failed_billing_session, report_adeptus_insights{{/str}}',
+        connectionError: '{{#str}}connection_error, report_adeptus_insights{{/str}}'
+    };
+
     // Plans data from PHP
     var plansData = {{{plans_json}}};
     var currentInterval = 'monthly';
@@ -558,7 +579,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
             if (!plans || plans.length === 0) {
                 // No plans for this interval, show message
-                container.html('<div class="text-center p-4"><p class="text-muted">Annual plans coming soon!</p></div>');
+                container.html('<div class="text-center p-4"><p class="text-muted">' + STRINGS.annualPlansSoon + '</p></div>');
                 return;
             }
 
@@ -573,20 +594,20 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
         function buildPlanCard(plan, interval) {
             var badgeHtml = '';
             if (plan.is_current) {
-                badgeHtml = '<div class="plan-badge current">Current Plan</div>';
+                badgeHtml = '<div class="plan-badge current">' + STRINGS.currentPlan + '</div>';
             } else if (plan.is_popular) {
-                badgeHtml = '<div class="plan-badge popular">Most Popular</div>';
+                badgeHtml = '<div class="plan-badge popular">' + STRINGS.mostPopular + '</div>';
             }
 
             var priceHtml = '';
             if (plan.is_free) {
-                priceHtml = '<div class="price-free">Free</div><div class="price-period">Forever</div>';
+                priceHtml = '<div class="price-free">' + STRINGS.free + '</div><div class="price-period">' + STRINGS.forever + '</div>';
             } else {
-                var periodText = interval === 'yearly' ? 'per year' : 'per month';
+                var periodText = interval === 'yearly' ? STRINGS.perYear : STRINGS.perMonth;
                 priceHtml = '<div class="price-amount">' + plan.price_formatted + '</div>' +
                            '<div class="price-period">' + periodText + '</div>';
                 if (plan.has_savings) {
-                    priceHtml += '<div class="savings-badge">Save ' + plan.savings_percent + '%</div>';
+                    priceHtml += '<div class="savings-badge">' + STRINGS.save + ' ' + plan.savings_percent + '%</div>';
                 }
             }
 
@@ -599,11 +620,11 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
 
             var actionHtml = '';
             if (plan.is_current) {
-                actionHtml = '<button class="plan-btn plan-btn-current" disabled><i class="fa fa-check-circle"></i> Current Plan</button>';
+                actionHtml = '<button class="plan-btn plan-btn-current" disabled><i class="fa fa-check-circle"></i> ' + STRINGS.currentPlan + '</button>';
             } else if (plan.is_free) {
-                actionHtml = '<button class="plan-btn plan-btn-outline select-plan-btn" data-plan-id="' + plan.id + '" data-plan-name="' + plan.name + '">Select Free Plan</button>';
+                actionHtml = '<button class="plan-btn plan-btn-outline select-plan-btn" data-plan-id="' + plan.id + '" data-plan-name="' + plan.name + '">' + STRINGS.selectFreePlan + '</button>';
             } else {
-                actionHtml = '<button class="plan-btn plan-btn-primary select-plan-btn" data-plan-id="' + plan.id + '" data-plan-name="' + plan.name + '" data-stripe-product="' + (plan.stripe_product_id || '') + '"><i class="fa fa-arrow-up"></i> Upgrade to ' + plan.short_name + '</button>';
+                actionHtml = '<button class="plan-btn plan-btn-primary select-plan-btn" data-plan-id="' + plan.id + '" data-plan-name="' + plan.name + '" data-stripe-product="' + (plan.stripe_product_id || '') + '"><i class="fa fa-arrow-up"></i> ' + STRINGS.upgradeTo + ' ' + plan.short_name + '</button>';
             }
 
             return '<div class="plan-card ' + (plan.is_popular ? 'popular' : '') + ' ' + (plan.is_current ? 'current' : '') + '" data-tier="' + plan.tier + '" data-interval="' + interval + '">' +
@@ -614,10 +635,10 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 '</div>' +
                 '<div class="plan-price">' + priceHtml + '</div>' +
                 '<div class="plan-limits">' +
-                    '<div class="limit-item"><div class="limit-value">' + plan.tokens_limit + '</div><div class="limit-label">AI Tokens</div></div>' +
-                    '<div class="limit-item"><div class="limit-value">' + plan.exports_limit + '</div><div class="limit-label">Exports/mo</div></div>' +
-                    '<div class="limit-item"><div class="limit-value">' + plan.reports_limit + '</div><div class="limit-label">Saved Reports</div></div>' +
-                    '<div class="limit-item"><div class="limit-value">' + plan.export_formats + '</div><div class="limit-label">Formats</div></div>' +
+                    '<div class="limit-item"><div class="limit-value">' + plan.tokens_limit + '</div><div class="limit-label">' + STRINGS.aiTokens + '</div></div>' +
+                    '<div class="limit-item"><div class="limit-value">' + plan.exports_limit + '</div><div class="limit-label">' + STRINGS.exportsMo + '</div></div>' +
+                    '<div class="limit-item"><div class="limit-value">' + plan.reports_limit + '</div><div class="limit-label">' + STRINGS.savedReports + '</div></div>' +
+                    '<div class="limit-item"><div class="limit-value">' + plan.export_formats + '</div><div class="limit-label">' + STRINGS.formats + '</div></div>' +
                 '</div>' +
                 '<div class="plan-features"><ul>' + featuresHtml + '</ul></div>' +
                 '<div class="plan-action">' + actionHtml + '</div>' +
@@ -636,7 +657,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 done: function(response) {
                     if (response && response.success && response.portal_url) {
                         Notification.addNotification({
-                            message: 'Redirecting to billing portal...',
+                            message: STRINGS.redirectingToBilling,
                             type: 'success'
                         });
                         setTimeout(function() {
@@ -644,7 +665,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                         }, 1000);
                     } else {
                         Notification.addNotification({
-                            message: response.message || 'Failed to create billing session. Please try again.',
+                            message: response.message || STRINGS.failedBillingSession,
                             type: 'error'
                         });
                     }
@@ -652,7 +673,7 @@ require(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notifica
                 fail: function(error) {
                     console.error('Billing portal error:', error);
                     Notification.addNotification({
-                        message: 'Connection error. Please try again.',
+                        message: STRINGS.connectionError,
                         type: 'error'
                     });
                 }

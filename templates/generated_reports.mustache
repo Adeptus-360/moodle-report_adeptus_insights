@@ -22,13 +22,13 @@
         </div>
         <div class="page-header-actions">
             <button type="button" class="btn btn-outline-light" id="manage-categories-btn">
-                <i class="fa fa-tags"></i> Manage Categories
+                <i class="fa fa-tags"></i> {{#str}}manage_categories, report_adeptus_insights{{/str}}
             </button>
             <a href="{{config.wwwroot}}/report/adeptus_insights/assistant.php" class="btn btn-outline-light">
-                <i class="fa fa-plus"></i> Generate New Report
+                <i class="fa fa-plus"></i> {{#str}}generate_new_report, report_adeptus_insights{{/str}}
             </a>
             <a href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
-                <i class="fa fa-arrow-left"></i> Back to Dashboard
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -40,21 +40,21 @@
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0"><i class="fa fa-list"></i> All Reports</h5>
+                        <h5 class="card-title mb-0"><i class="fa fa-list"></i> {{#str}}all_reports, report_adeptus_insights{{/str}}</h5>
                     </div>
                     <div class="card-body p-0 position-relative" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                         <div id="reports-loader" class="p-4 d-flex justify-content-center align-items-center" style="min-height: 200px;">
                             <div class="spinner-border text-primary" role="status">
-                                <span class="sr-only">Loading...</span>
+                                <span class="sr-only">{{#str}}loading, report_adeptus_insights{{/str}}</span>
                             </div>
                         </div>
                         <div class="d-none" id="reports-table-wrapper">
                             <table id="reports-table" class="table mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Report Name</th>
-                                        <th>Date</th>
-                                        <th>From</th>
+                                        <th>{{#str}}report_name, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}date, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}from, report_adeptus_insights{{/str}}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="reports-tbody">
@@ -67,7 +67,7 @@
                             <h5 class="text-muted">{{#str}}no_reports_yet, report_adeptus_insights{{/str}}</h5>
                             <p class="text-muted">{{#str}}no_reports_yet_desc, report_adeptus_insights{{/str}}</p>
                             <a href="{{config.wwwroot}}/report/adeptus_insights/assistant.php" class="btn btn-outline-primary mt-2">
-                                <i class="fa fa-robot"></i> Go to AI Assistant
+                                <i class="fa fa-robot"></i> {{#str}}go_to_ai_assistant, report_adeptus_insights{{/str}}
                             </a>
                         </div>
                     </div>
@@ -78,12 +78,12 @@
             <div class="col-md-8">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0 report-view-title">Select a Report</h5>
+                        <h5 class="card-title mb-0 report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
                         <div class="report-category-selector d-none" id="report-category-selector">
                             <div class="category-dropdown-wrapper">
                                 <button type="button" class="category-current-btn" id="category-current-btn">
                                     <span class="category-dot" id="category-dot"></span>
-                                    <span class="category-name" id="category-name">General</span>
+                                    <span class="category-name" id="category-name">{{#str}}general, report_adeptus_insights{{/str}}</span>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </button>
                                 <div class="category-dropdown-menu" id="category-dropdown-menu">
@@ -98,14 +98,14 @@
                     <div class="card-body p-4 report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                         <div id="report-placeholder" class="text-center py-5">
                             <i class="fa fa-file-alt fa-4x text-muted mb-3"></i>
-                            <h5 class="text-muted">Select a report to view details</h5>
-                            <p class="text-muted">Click on any report from the list to see its data here.</p>
+                            <h5 class="text-muted">{{#str}}select_report_to_view, report_adeptus_insights{{/str}}</h5>
+                            <p class="text-muted">{{#str}}click_report_to_view, report_adeptus_insights{{/str}}</p>
                         </div>
                         <div id="report-loading" class="text-center py-5 d-none">
                             <div class="spinner-border text-primary" role="status">
-                                <span class="sr-only">Loading report...</span>
+                                <span class="sr-only">{{#str}}loading_report, report_adeptus_insights{{/str}}</span>
                             </div>
-                            <p class="mt-3 text-muted">Loading report data...</p>
+                            <p class="mt-3 text-muted">{{#str}}loading_report_data, report_adeptus_insights{{/str}}</p>
                         </div>
                         <div id="report-content" class="d-none">
                             <!-- Report content will be injected here -->
@@ -121,6 +121,117 @@
 require(['jquery', 'core/chartjs'], function($, Chart) {
     'use strict';
 
+    // Localized strings injected from Mustache
+    var STRINGS = {
+        // General
+        general: '{{#str}}general, report_adeptus_insights{{/str}}',
+        wizard: '{{#str}}wizard, report_adeptus_insights{{/str}}',
+        ai: '{{#str}}ai, report_adeptus_insights{{/str}}',
+        report: '{{#str}}report, report_adeptus_insights{{/str}}',
+        reportDetails: '{{#str}}report_details, report_adeptus_insights{{/str}}',
+        untitledReport: '{{#str}}untitled_report, report_adeptus_insights{{/str}}',
+        unknown: '{{#str}}unknown, report_adeptus_insights{{/str}}',
+        rows: '{{#str}}rows, report_adeptus_insights{{/str}}',
+        table: '{{#str}}table, report_adeptus_insights{{/str}}',
+        chart: '{{#str}}chart, report_adeptus_insights{{/str}}',
+        retry: '{{#str}}retry, report_adeptus_insights{{/str}}',
+        cancel: '{{#str}}cancel, report_adeptus_insights{{/str}}',
+        error: '{{#str}}error, report_adeptus_insights{{/str}}',
+
+        // Export
+        exportPdf: '{{#str}}export_pdf, report_adeptus_insights{{/str}}',
+        exportCsv: '{{#str}}export_csv, report_adeptus_insights{{/str}}',
+        exportJson: '{{#str}}export_json, report_adeptus_insights{{/str}}',
+        exportingAs: '{{#str}}exporting_as, report_adeptus_insights{{/str}}',
+        exportNotAvailable: '{{#str}}export_not_available, report_adeptus_insights{{/str}}',
+        exportNotEligible: '{{#str}}export_not_eligible, report_adeptus_insights{{/str}}',
+        exportFailed: '{{#str}}export_failed, report_adeptus_insights{{/str}}',
+        exportFailedMessage: '{{#str}}export_failed_message, report_adeptus_insights{{/str}}',
+        fileDownloadedSuccess: '{{#str}}file_downloaded_success, report_adeptus_insights{{/str}}',
+        noData: '{{#str}}no_data, report_adeptus_insights{{/str}}',
+        noDataToExport: '{{#str}}no_data_to_export, report_adeptus_insights{{/str}}',
+        noDataAvailable: '{{#str}}no_data_available, report_adeptus_insights{{/str}}',
+        noDataRows: '{{#str}}no_data_rows, report_adeptus_insights{{/str}}',
+
+        // Premium
+        premiumExportFormat: '{{#str}}premium_export_format, report_adeptus_insights{{/str}}',
+        premiumFeature: '{{#str}}premium_feature, report_adeptus_insights{{/str}}',
+        upgradeNow: '{{#str}}upgrade_now, report_adeptus_insights{{/str}}',
+        freePlan: '{{#str}}free_plan_label, report_adeptus_insights{{/str}}',
+        freePlanPdfOnly: '{{#str}}free_plan_pdf_only, report_adeptus_insights{{/str}}',
+        paidPlans: '{{#str}}paid_plans_label, report_adeptus_insights{{/str}}',
+        paidPlansAllFormats: '{{#str}}paid_plans_all_formats, report_adeptus_insights{{/str}}',
+        exportUpgradeMessage: '{{#str}}export_upgrade_message, report_adeptus_insights{{/str}}',
+
+        // Categories
+        categories: '{{#str}}categories, report_adeptus_insights{{/str}}',
+        createNewCategory: '{{#str}}create_new_category, report_adeptus_insights{{/str}}',
+        customColor: '{{#str}}custom_color, report_adeptus_insights{{/str}}',
+        yourCategories: '{{#str}}your_categories, report_adeptus_insights{{/str}}',
+        defaultCategories: '{{#str}}default_categories, report_adeptus_insights{{/str}}',
+        readOnly: '{{#str}}read_only, report_adeptus_insights{{/str}}',
+        noCustomCategories: '{{#str}}no_custom_categories, report_adeptus_insights{{/str}}',
+        createFirstCategory: '{{#str}}create_first_category, report_adeptus_insights{{/str}}',
+        categoryCreated: '{{#str}}category_created, report_adeptus_insights{{/str}}',
+        categoryUpdated: '{{#str}}category_updated, report_adeptus_insights{{/str}}',
+        categoryDeleted: '{{#str}}category_deleted, report_adeptus_insights{{/str}}',
+        editCategory: '{{#str}}edit_category, report_adeptus_insights{{/str}}',
+        deleteCategory: '{{#str}}delete_category, report_adeptus_insights{{/str}}',
+        deleteCategoryConfirm: '{{#str}}delete_category_confirm, report_adeptus_insights{{/str}}',
+        deleteCategoryWarning: '{{#str}}delete_category_warning, report_adeptus_insights{{/str}}',
+        yesDelete: '{{#str}}yes_delete, report_adeptus_insights{{/str}}',
+        categoryName: '{{#str}}category_name, report_adeptus_insights{{/str}}',
+        pleaseEnterCategoryName: '{{#str}}please_enter_category_name, report_adeptus_insights{{/str}}',
+        name: '{{#str}}name, report_adeptus_insights{{/str}}',
+        color: '{{#str}}color, report_adeptus_insights{{/str}}',
+        custom: '{{#str}}custom, report_adeptus_insights{{/str}}',
+        saveChanges: '{{#str}}save_changes, report_adeptus_insights{{/str}}',
+
+        // Reports
+        selectAReport: '{{#str}}select_a_report, report_adeptus_insights{{/str}}',
+        noReportSelected: '{{#str}}no_report_selected, report_adeptus_insights{{/str}}',
+        deleteReport: '{{#str}}delete_report, report_adeptus_insights{{/str}}',
+        deleteReportConfirm: '{{#str}}delete_report_confirm, report_adeptus_insights{{/str}}',
+        deleteReportWarning: '{{#str}}delete_report_warning, report_adeptus_insights{{/str}}',
+        deletingReport: '{{#str}}deleting_report, report_adeptus_insights{{/str}}',
+        deletingReportWait: '{{#str}}deleting_report_wait, report_adeptus_insights{{/str}}',
+        deleteFailed: '{{#str}}delete_failed, report_adeptus_insights{{/str}}',
+        reportDeletedSuccess: '{{#str}}report_deleted_success, report_adeptus_insights{{/str}}',
+        reportCount: '{{#str}}report_count, report_adeptus_insights{{/str}}',
+        reportsCount: '{{#str}}reports_count, report_adeptus_insights{{/str}}',
+        youHaveReportsSaved: '{{#str}}you_have_reports_saved, report_adeptus_insights{{/str}}',
+
+        // Loading/Errors
+        sessionExpired: '{{#str}}session_expired, report_adeptus_insights{{/str}}',
+        refreshPage: '{{#str}}refresh_page, report_adeptus_insights{{/str}}',
+        refreshPageToContinue: '{{#str}}refresh_page_to_continue, report_adeptus_insights{{/str}}',
+        failedToLoadReports: '{{#str}}failed_to_load_reports, report_adeptus_insights{{/str}}',
+        tryAgainLater: '{{#str}}try_again_later, report_adeptus_insights{{/str}}',
+        failedToExecuteReport: '{{#str}}failed_to_execute_report, report_adeptus_insights{{/str}}',
+        failedToLoadReportDetails: '{{#str}}failed_to_load_report_details, report_adeptus_insights{{/str}}',
+        failedToGenerateReport: '{{#str}}failed_to_generate_report, report_adeptus_insights{{/str}}',
+        failedToExecuteWizardReport: '{{#str}}failed_to_execute_wizard_report, report_adeptus_insights{{/str}}',
+        authenticationRequired: '{{#str}}authentication_required, report_adeptus_insights{{/str}}',
+        authenticationRequiredMessage: '{{#str}}authentication_required_message, report_adeptus_insights{{/str}}',
+
+        // DataTable
+        searchReports: '{{#str}}search_reports, report_adeptus_insights{{/str}}',
+        noReportsFound: '{{#str}}no_reports_found, report_adeptus_insights{{/str}}',
+        showingReports: '{{#str}}showing_reports, report_adeptus_insights{{/str}}',
+        showingFirstRows: '{{#str}}showing_first_rows, report_adeptus_insights{{/str}}',
+        exportToSeeAll: '{{#str}}export_to_see_all, report_adeptus_insights{{/str}}',
+
+        // Chart
+        chartType: '{{#str}}chart_type, report_adeptus_insights{{/str}}',
+        barChart: '{{#str}}bar_chart, report_adeptus_insights{{/str}}',
+        lineChart: '{{#str}}line_chart, report_adeptus_insights{{/str}}',
+        pieChart: '{{#str}}pie_chart, report_adeptus_insights{{/str}}',
+        doughnutChart: '{{#str}}doughnut_chart, report_adeptus_insights{{/str}}',
+        xAxisLabels: '{{#str}}x_axis_labels, report_adeptus_insights{{/str}}',
+        yAxisValues: '{{#str}}y_axis_values, report_adeptus_insights{{/str}}',
+        errorRenderingChart: '{{#str}}error_rendering_chart, report_adeptus_insights{{/str}}'
+    };
+
     var GeneratedReports = {
         backendUrl: '{{backendUrl}}',
         cachedReports: [],
@@ -133,6 +244,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         currentView: 'table',
         chartInstance: null,
         Chart: Chart,
+        strings: STRINGS,
         isFreePlan: {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}},
 
         init: function() {
@@ -155,21 +267,20 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var formatName = formatNames[format] || format.toUpperCase();
 
             Swal.fire({
-                title: 'Premium Export Format',
+                title: STRINGS.premiumExportFormat,
                 html: '<div style="text-align: center; padding: 20px;">' +
                     '<div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">' +
                     '<i class="fa fa-crown"></i></div>' +
-                    '<h3 style="color: #2c3e50; margin-bottom: 15px;">' + formatName + ' Export is a Premium Feature</h3>' +
+                    '<h3 style="color: #2c3e50; margin-bottom: 15px;">' + formatName + ' ' + STRINGS.premiumFeature + '</h3>' +
                     '<p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">' +
-                    'Export to ' + formatName + ' format is only available with a paid subscription plan. ' +
-                    'Upgrade now to unlock all export formats and advanced features.</p>' +
+                    STRINGS.exportUpgradeMessage.replace('{format}', formatName) + '</p>' +
                     '<div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">' +
                     '<p style="margin: 0; font-size: 14px; color: #34495e;">' +
-                    '<strong>Free Plan:</strong> PDF exports only<br>' +
-                    '<strong>Paid Plans:</strong> CSV, Excel, JSON, and PDF exports</p></div></div>',
+                    '<strong>' + STRINGS.freePlan + '</strong> ' + STRINGS.freePlanPdfOnly + '<br>' +
+                    '<strong>' + STRINGS.paidPlans + '</strong> ' + STRINGS.paidPlansAllFormats + '</p></div></div>',
                 showCancelButton: true,
-                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
-                cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> ' + STRINGS.upgradeNow,
+                cancelButtonText: '<i class="fa fa-times"></i> ' + STRINGS.cancel,
                 confirmButtonColor: '#3498db',
                 cancelButtonColor: '#95a5a6',
                 width: 500
@@ -411,8 +522,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     '<div class="cat-empty-icon">' +
                         '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>' +
                     '</div>' +
-                    '<div class="cat-empty-text">No custom categories yet</div>' +
-                    '<div class="cat-empty-hint">Create your first category above</div>' +
+                    '<div class="cat-empty-text">' + STRINGS.noCustomCategories + '</div>' +
+                    '<div class="cat-empty-hint">' + STRINGS.createFirstCategory + '</div>' +
                 '</div>';
 
             // Build system categories HTML
@@ -430,14 +541,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             }).join('');
 
             Swal.fire({
-                title: 'Categories',
+                title: STRINGS.categories,
                 html: '<div class="cat-modal">' +
                     // Add new category section
                     '<div class="cat-add-section">' +
-                        '<div class="cat-add-header">Create new category</div>' +
+                        '<div class="cat-add-header">' + STRINGS.createNewCategory + '</div>' +
                         '<div class="cat-add-form">' +
                             '<div class="cat-add-input-wrapper">' +
-                                '<input type="text" id="new-category-name" class="cat-add-input" placeholder="Category name">' +
+                                '<input type="text" id="new-category-name" class="cat-add-input" placeholder="' + STRINGS.categoryName + '">' +
                                 '<div class="cat-add-color-wrapper">' +
                                     '<button type="button" class="cat-add-color-btn" id="color-picker-toggle">' +
                                         '<span class="cat-add-color-preview" id="selected-color-preview" style="background: #3b82f6;"></span>' +
@@ -447,7 +558,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                                         '<div class="cat-color-swatches">' + colorSwatchesHtml + '</div>' +
                                         '<div class="cat-color-custom">' +
                                             '<input type="color" id="new-category-color" value="#3b82f6">' +
-                                            '<span>Custom color</span>' +
+                                            '<span>' + STRINGS.customColor + '</span>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
@@ -461,7 +572,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     // Custom categories section
                     '<div class="cat-section">' +
                         '<div class="cat-section-header">' +
-                            '<span class="cat-section-title">Your Categories</span>' +
+                            '<span class="cat-section-title">' + STRINGS.yourCategories + '</span>' +
                             '<span class="cat-section-count">' + customCategories.length + '</span>' +
                         '</div>' +
                         '<div class="cat-cards-list">' + customCategoriesHtml + '</div>' +
@@ -469,8 +580,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     // System categories section
                     '<div class="cat-section cat-section-system">' +
                         '<div class="cat-section-header">' +
-                            '<span class="cat-section-title">Default Categories</span>' +
-                            '<span class="cat-section-badge">Read-only</span>' +
+                            '<span class="cat-section-title">' + STRINGS.defaultCategories + '</span>' +
+                            '<span class="cat-section-badge">' + STRINGS.readOnly + '</span>' +
                         '</div>' +
                         '<div class="cat-system-list">' + systemCategoriesHtml + '</div>' +
                     '</div>' +
@@ -590,20 +701,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         Swal.close();
                         Swal.fire({
                             icon: 'success',
-                            title: 'Category Created',
-                            text: 'Category "' + name + '" has been created.',
+                            title: STRINGS.categoryCreated,
                             timer: 1500,
                             showConfirmButton: false
                         }).then(function() {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.showValidationMessage(response.message || 'Failed to create category');
+                        Swal.showValidationMessage(response.message);
                     }
                 },
                 error: function(xhr) {
                     var msg = xhr.responseJSON?.message || 'Failed to create category';
-                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
                 }
             });
         },
@@ -618,30 +728,30 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             }).join('');
 
             Swal.fire({
-                title: 'Edit Category',
+                title: STRINGS.editCategory,
                 html: '<div class="cat-edit-modal">' +
                     '<div class="cat-edit-preview" id="edit-preview">' +
                         '<div class="cat-edit-preview-color" id="edit-preview-color" style="background: ' + (category.color || '#6c757d') + ';"></div>' +
                         '<span class="cat-edit-preview-name" id="edit-preview-name">' + category.name + '</span>' +
                     '</div>' +
                     '<div class="cat-edit-field">' +
-                        '<label class="cat-edit-label">Name</label>' +
+                        '<label class="cat-edit-label">' + STRINGS.name + '</label>' +
                         '<input type="text" id="edit-cat-name" class="cat-edit-input" value="' + category.name.replace(/"/g, '&quot;') + '">' +
                     '</div>' +
                     '<div class="cat-edit-field">' +
-                        '<label class="cat-edit-label">Color</label>' +
+                        '<label class="cat-edit-label">' + STRINGS.color + '</label>' +
                         '<div class="cat-edit-colors">' +
                             '<div class="cat-edit-swatches">' + colorSwatchesHtml + '</div>' +
                             '<div class="cat-edit-custom">' +
                                 '<input type="color" id="edit-cat-color" value="' + (category.color || '#6c757d') + '">' +
-                                '<span>Custom</span>' +
+                                '<span>' + STRINGS.custom + '</span>' +
                             '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>',
                 showCancelButton: true,
-                confirmButtonText: 'Save Changes',
-                cancelButtonText: 'Cancel',
+                confirmButtonText: STRINGS.saveChanges,
+                cancelButtonText: STRINGS.cancel,
                 customClass: {
                     popup: 'cat-edit-popup',
                     confirmButton: 'cat-edit-confirm-btn',
@@ -675,7 +785,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     var name = document.getElementById('edit-cat-name').value.trim();
                     var color = document.getElementById('edit-cat-color').value;
                     if (!name) {
-                        Swal.showValidationMessage('Please enter a category name');
+                        Swal.showValidationMessage(STRINGS.pleaseEnterCategoryName);
                         return false;
                     }
                     return { name: name, color: color };
@@ -711,19 +821,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         }
                         Swal.fire({
                             icon: 'success',
-                            title: 'Category Updated',
+                            title: STRINGS.categoryUpdated,
                             timer: 1500,
                             showConfirmButton: false
                         }).then(function() {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to update category' });
+                        Swal.fire({ icon: 'error', title: STRINGS.error, text: response.message });
                     }
                 },
                 error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || 'Failed to update category';
-                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    var msg = xhr.responseJSON?.message || '';
+                    Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
                 }
             });
         },
@@ -732,14 +842,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var self = this;
 
             Swal.fire({
-                title: 'Delete Category?',
-                html: '<p>Are you sure you want to delete <strong>' + category.name + '</strong>?</p>' +
-                      '<p class="text-muted small">Reports in this category will be moved to "General".</p>',
+                title: STRINGS.deleteCategoryConfirm,
+                html: '<p>' + STRINGS.deleteCategoryWarning.replace('{name}', '<strong>' + category.name + '</strong>') + '</p>',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
-                confirmButtonText: 'Yes, Delete',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: STRINGS.yesDelete,
+                cancelButtonText: STRINGS.cancel
             }).then(function(result) {
                 if (result.isConfirmed) {
                     self.deleteCategory(category.id);
@@ -766,20 +875,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         self.cachedCategories = self.cachedCategories.filter(function(c) { return c.id != categoryId; });
                         Swal.fire({
                             icon: 'success',
-                            title: 'Category Deleted',
-                            text: response.data?.reports_reassigned ? response.data.reports_reassigned + ' reports moved to General' : 'Category has been deleted',
+                            title: STRINGS.categoryDeleted,
                             timer: 2000,
                             showConfirmButton: false
                         }).then(function() {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to delete category' });
+                        Swal.fire({ icon: 'error', title: STRINGS.error, text: response.message });
                     }
                 },
                 error: function(xhr) {
                     var msg = xhr.responseJSON?.message || 'Failed to delete category';
-                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
                 }
             });
         },
@@ -797,25 +905,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!report || !report.slug) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No Report Selected',
-                    text: 'Please select a report to delete.'
+                    title: STRINGS.noReportSelected,
+                    text: STRINGS.selectAReport
                 });
                 return;
             }
 
-            var reportName = report.description || report.name || 'this report';
+            var reportName = report.description || report.name || STRINGS.untitledReport;
             var source = (report.source || 'assistant').toLowerCase();
-            var sourceLabel = source === 'wizard' ? 'Wizard' : 'AI';
+            var sourceLabel = source === 'wizard' ? STRINGS.wizard : STRINGS.ai;
 
             Swal.fire({
-                title: 'Delete Report?',
-                html: '<p>Are you sure you want to delete <strong>' + reportName + '</strong>?</p>' +
-                      '<p class="text-muted small">This action cannot be undone.</p>',
+                title: STRINGS.deleteReportConfirm,
+                html: '<p>' + STRINGS.deleteReportWarning.replace('{name}', '<strong>' + reportName + '</strong>') + '</p>',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#dc3545',
-                confirmButtonText: '<i class="fa fa-trash"></i> Yes, Delete',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: '<i class="fa fa-trash"></i> ' + STRINGS.yesDelete,
+                cancelButtonText: STRINGS.cancel
             }).then(function(result) {
                 if (result.isConfirmed) {
                     self.deleteReport(report.slug, source, reportName);
@@ -834,8 +941,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // Show loading state
             Swal.fire({
-                title: 'Deleting Report...',
-                text: 'Please wait while we remove the report.',
+                title: STRINGS.deletingReport,
+                text: STRINGS.deletingReportWait,
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 didOpen: function() {
@@ -862,8 +969,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     Swal.close();
                     Swal.fire({
                         icon: 'error',
-                        title: 'Delete Failed',
-                        text: response.message || 'Failed to delete report'
+                        title: STRINGS.deleteFailed,
+                        text: response.message
                     });
                     return;
                 }
@@ -890,19 +997,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 $('#report-content').addClass('d-none');
                 $('#report-placeholder').removeClass('d-none');
                 $('#report-category-selector').addClass('d-none');
-                $('.report-view-title').text('Select a Report');
+                $('.report-view-title').text(STRINGS.selectAReport);
 
                 Swal.close();
 
                 // Show success toast
-                self.showToast('Report deleted successfully!', 'success');
+                self.showToast(STRINGS.reportDeletedSuccess, 'success');
 
             }).catch(function(xhr) {
                 Swal.close();
-                var errorMsg = 'Failed to delete report';
+                var errorMsg = '';
                 try {
                     var response = JSON.parse(xhr.responseText);
-                    errorMsg = response.message || errorMsg;
+                    errorMsg = response.message || '';
                 } catch (e) {
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMsg = xhr.responseJSON.message;
@@ -910,7 +1017,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 }
                 Swal.fire({
                     icon: 'error',
-                    title: 'Delete Failed',
+                    title: STRINGS.deleteFailed,
                     text: errorMsg
                 });
             });
@@ -943,14 +1050,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
          */
         showReportCategorySelector: function(report) {
             var self = this;
-            var categoryInfo = report.category_info || { name: report.category || 'General', color: '#6c757d' };
+            var categoryInfo = report.category_info || { name: report.category || STRINGS.general, color: '#6c757d' };
 
             // Store current report for category updates
             this.currentCategoryReport = report;
 
             // Update current category display
             $('#category-dot').css('background', categoryInfo.color || '#6c757d');
-            $('#category-name').text(categoryInfo.name || 'General');
+            $('#category-name').text(categoryInfo.name || STRINGS.general);
             $('#report-category-selector').removeClass('d-none');
 
             // Helper function to build and bind dropdown
@@ -1069,14 +1176,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         // Revert on failure.
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: response.message || 'Failed to update category'
+                            title: STRINGS.error,
+                            text: response.message
                         });
                     }
                 },
                 error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || 'Failed to update category';
-                    Swal.fire({ icon: 'error', title: 'Error', text: msg });
+                    var msg = xhr.responseJSON?.message || '';
+                    Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
                 }
             });
         },
@@ -1225,16 +1332,16 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     if (xhr.status === 401) {
                         $('#no-reports-message').removeClass('d-none').html(
                             '<i class="fa fa-lock fa-3x text-warning mb-3"></i>' +
-                            '<h5 class="text-muted">Session Expired</h5>' +
-                            '<p class="text-muted">Please refresh the page to continue.</p>' +
-                            '<button class="btn btn-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> Refresh Page</button>'
+                            '<h5 class="text-muted">' + STRINGS.sessionExpired + '</h5>' +
+                            '<p class="text-muted">' + STRINGS.refreshPageToContinue + '</p>' +
+                            '<button class="btn btn-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> ' + STRINGS.refreshPage + '</button>'
                         );
                     } else {
                         $('#no-reports-message').removeClass('d-none').html(
                             '<i class="fa fa-exclamation-circle fa-3x text-danger mb-3"></i>' +
-                            '<h5 class="text-muted">Failed to Load Reports</h5>' +
-                            '<p class="text-muted">Please try again later.</p>' +
-                            '<button class="btn btn-outline-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> Retry</button>'
+                            '<h5 class="text-muted">' + STRINGS.failedToLoadReports + '</h5>' +
+                            '<p class="text-muted">' + STRINGS.tryAgainLater + '</p>' +
+                            '<button class="btn btn-outline-primary btn-sm" onclick="location.reload()"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>'
                         );
                     }
                 }
@@ -1242,8 +1349,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         },
 
         updateReportCount: function(count) {
-            var countText = count === 1 ? '1 Report' : count + ' Reports';
-            $('.page-header-subtitle').text('You have ' + countText.toLowerCase() + ' saved');
+            var countText = count === 1 ? STRINGS.reportCount : count + ' ' + STRINGS.reportsCount;
+            $('.page-header-subtitle').text(STRINGS.youHaveReportsSaved.replace('{count}', countText.toLowerCase()));
         },
 
         renderReportsList: function(reports) {
@@ -1279,16 +1386,16 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var source = (report.source || 'assistant').toLowerCase();
                 var sourceBadge = '';
                 if (source === 'wizard') {
-                    sourceBadge = '<span class="badge badge-wizard"><i class="fa fa-magic"></i> Wizard</span>';
+                    sourceBadge = '<span class="badge badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
                 } else {
-                    sourceBadge = '<span class="badge badge-ai"><i class="fa fa-robot"></i> AI</span>';
+                    sourceBadge = '<span class="badge badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
                 }
 
                 var row = $('<tr class="report-row" data-report-slug="' + report.slug + '" data-report-source="' + source + '"></tr>');
                 row.html(
                     '<td>' +
                         '<div class="report-name-cell">' +
-                            '<span class="report-name">' + (report.description || report.name || 'Untitled Report') + '</span>' +
+                            '<span class="report-name">' + (report.description || report.name || STRINGS.untitledReport) + '</span>' +
                             '<div class="report-badges mt-1">' + categoryBadge + rowCountBadge + '</div>' +
                         '</div>' +
                     '</td>' +
@@ -1318,9 +1425,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         perPage: 15,
                         loading: false,
                         labels: {
-                            placeholder: "Search reports...",
-                            noRows: "No reports found",
-                            info: "Showing {start} to {end} of {rows} reports"
+                            placeholder: STRINGS.searchReports,
+                            noRows: STRINGS.noReportsFound,
+                            info: STRINGS.showingReports
                         }
                     });
 
@@ -1359,7 +1466,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var source = cachedReport ? (cachedReport.source || 'assistant') : 'assistant';
 
             if (cachedReport) {
-                $('.report-view-title').text(cachedReport.description || cachedReport.name || 'Report Details');
+                $('.report-view-title').text(cachedReport.description || cachedReport.name || STRINGS.reportDetails);
                 // Show category selector for all report types (both assistant and wizard)
                 self.showReportCategorySelector(cachedReport);
             }
@@ -1413,8 +1520,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                                 $('#report-loading').addClass('d-none');
                                 $('#report-content').html(
                                     '<div class="alert alert-danger">' +
-                                        '<i class="fa fa-exclamation-circle"></i> Failed to execute report: ' + error.message +
-                                        '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                                        '<i class="fa fa-exclamation-circle"></i> ' + STRINGS.failedToExecuteReport + ': ' + error.message +
+                                        '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
                                     '</div>'
                                 ).removeClass('d-none');
                             });
@@ -1436,8 +1543,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     $('#report-loading').addClass('d-none');
                     $('#report-content').html(
                         '<div class="alert alert-danger">' +
-                            '<i class="fa fa-exclamation-circle"></i> Failed to load report details.' +
-                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                            '<i class="fa fa-exclamation-circle"></i> ' + STRINGS.failedToLoadReportDetails +
+                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
                         '</div>'
                     ).removeClass('d-none');
                 }
@@ -1491,8 +1598,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         $('#report-loading').addClass('d-none');
                         $('#report-content').html(
                             '<div class="alert alert-warning">' +
-                                '<i class="fa fa-exclamation-triangle"></i> ' + (response.message || 'Failed to generate report.') +
-                                '<button class="btn btn-sm btn-outline-warning ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                                '<i class="fa fa-exclamation-triangle"></i> ' + (response.message || STRINGS.failedToGenerateReport) +
+                                '<button class="btn btn-sm btn-outline-warning ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
                             '</div>'
                         ).removeClass('d-none');
                     }
@@ -1501,8 +1608,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     $('#report-loading').addClass('d-none');
                     $('#report-content').html(
                         '<div class="alert alert-danger">' +
-                            '<i class="fa fa-exclamation-circle"></i> Failed to execute wizard report.' +
-                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> Retry</button>' +
+                            '<i class="fa fa-exclamation-circle"></i> ' + STRINGS.failedToExecuteWizardReport +
+                            '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
                         '</div>'
                     ).removeClass('d-none');
                 }
@@ -1570,19 +1677,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // Report header with enhanced styling
             contentHtml += '<div class="report-detail-header mb-4">';
-            contentHtml += '<h4 class="mb-2">' + (report.description || report.name || 'Report') + '</h4>';
+            contentHtml += '<h4 class="mb-2">' + (report.description || report.name || STRINGS.report) + '</h4>';
             contentHtml += '<div class="report-meta d-flex flex-wrap align-items-center gap-2">';
 
             // Source badge
             var reportSource = (report.source || 'assistant').toLowerCase();
             if (reportSource === 'wizard') {
-                contentHtml += '<span class="badge badge-wizard"><i class="fa fa-magic"></i> Wizard</span>';
+                contentHtml += '<span class="badge badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
             } else {
-                contentHtml += '<span class="badge badge-ai"><i class="fa fa-robot"></i> AI</span>';
+                contentHtml += '<span class="badge badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
             }
 
             // Row count badge
-            contentHtml += '<span class="badge badge-rowcount"><i class="fa fa-table"></i> ' + rowCount + ' rows</span>';
+            contentHtml += '<span class="badge badge-rowcount"><i class="fa fa-table"></i> ' + rowCount + ' ' + STRINGS.rows + '</span>';
             contentHtml += '</div>';
             contentHtml += '</div>';
 
@@ -1591,16 +1698,16 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // View toggle buttons
             contentHtml += '<div class="view-toggle btn-group" role="group">';
-            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn active" data-view="table"><i class="fa fa-table"></i> Table</button>';
-            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> Chart</button>';
+            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn active" data-view="table"><i class="fa fa-table"></i> ' + STRINGS.table + '</button>';
+            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> ' + STRINGS.chart + '</button>';
             contentHtml += '</div>';
 
             // Export buttons - PDF available for all, CSV/JSON premium on free plan
             var premiumClass = self.isFreePlan ? ' export-premium' : '';
             contentHtml += '<div class="export-buttons d-flex gap-2">';
-            contentHtml += '<button class="btn btn-outline-danger btn-sm export-pdf-btn"><i class="fa fa-file-pdf-o"></i> Export PDF</button>';
-            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> Export CSV' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
-            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> Export JSON' + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '<button class="btn btn-outline-danger btn-sm export-pdf-btn"><i class="fa fa-file-pdf-o"></i> ' + STRINGS.exportPdf + '</button>';
+            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> ' + STRINGS.exportCsv + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> ' + STRINGS.exportJson + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
             contentHtml += '</div>';
             contentHtml += '</div>';
 
@@ -1643,8 +1750,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                 if (data.length > displayLimit) {
                     contentHtml += '<div class="alert alert-info mt-3 d-flex align-items-center justify-content-between">';
-                    contentHtml += '<span><i class="fa fa-info-circle"></i> Showing first ' + displayLimit + ' rows of ' + data.length + ' total rows.</span>';
-                    contentHtml += '<span class="text-primary">Export to see all data</span>';
+                    contentHtml += '<span><i class="fa fa-info-circle"></i> ' + STRINGS.showingFirstRows.replace('{first}', displayLimit).replace('{total}', data.length) + '</span>';
+                    contentHtml += '<span class="text-primary">' + STRINGS.exportToSeeAll + '</span>';
                     contentHtml += '</div>';
                 }
                 contentHtml += '</div>'; // Close table view
@@ -1656,18 +1763,18 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                 // Chart type selector
                 contentHtml += '<div class="control-group">';
-                contentHtml += '<label for="chart-type-select" class="form-label">Chart Type</label>';
+                contentHtml += '<label for="chart-type-select" class="form-label">' + STRINGS.chartType + '</label>';
                 contentHtml += '<select id="chart-type-select" class="form-select form-select-sm">';
-                contentHtml += '<option value="bar">Bar Chart</option>';
-                contentHtml += '<option value="line">Line Chart</option>';
-                contentHtml += '<option value="pie">Pie Chart</option>';
-                contentHtml += '<option value="doughnut">Doughnut Chart</option>';
+                contentHtml += '<option value="bar">' + STRINGS.barChart + '</option>';
+                contentHtml += '<option value="line">' + STRINGS.lineChart + '</option>';
+                contentHtml += '<option value="pie">' + STRINGS.pieChart + '</option>';
+                contentHtml += '<option value="doughnut">' + STRINGS.doughnutChart + '</option>';
                 contentHtml += '</select>';
                 contentHtml += '</div>';
 
                 // X-Axis selector
                 contentHtml += '<div class="control-group">';
-                contentHtml += '<label for="chart-x-axis" class="form-label">X-Axis (Labels)</label>';
+                contentHtml += '<label for="chart-x-axis" class="form-label">' + STRINGS.xAxisLabels + '</label>';
                 contentHtml += '<select id="chart-x-axis" class="form-select form-select-sm">';
                 headers.forEach(function(header, idx) {
                     var formattedHeader = header.replace(/_/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); });
@@ -1680,7 +1787,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 // Y-Axis selector (only numeric columns)
                 var numericCols = self.detectNumericColumns(data, headers);
                 contentHtml += '<div class="control-group">';
-                contentHtml += '<label for="chart-y-axis" class="form-label">Y-Axis (Values)</label>';
+                contentHtml += '<label for="chart-y-axis" class="form-label">' + STRINGS.yAxisValues + '</label>';
                 contentHtml += '<select id="chart-y-axis" class="form-select form-select-sm">';
                 if (numericCols.length > 0) {
                     numericCols.forEach(function(col, idx) {
@@ -1710,8 +1817,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             } else {
                 contentHtml += '<div class="alert alert-warning text-center py-4">';
                 contentHtml += '<i class="fa fa-inbox fa-2x mb-2 d-block"></i>';
-                contentHtml += '<strong>No data available</strong><br>';
-                contentHtml += '<small class="text-muted">This report has no data rows.</small>';
+                contentHtml += '<strong>' + STRINGS.noDataAvailable + '</strong><br>';
+                contentHtml += '<small class="text-muted">' + STRINGS.noDataRows + '</small>';
                 contentHtml += '</div>';
             }
 
@@ -1779,7 +1886,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var chartData = data.slice(0, 50);
             var labels = chartData.map(function(r) {
                 var label = r[labelKey];
-                if (label === null || label === undefined) return 'Unknown';
+                if (label === null || label === undefined) return STRINGS.unknown;
                 // Truncate long labels
                 var labelStr = String(label);
                 return labelStr.length > 30 ? labelStr.substring(0, 30) + '...' : labelStr;
@@ -1797,7 +1904,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             } catch (error) {
                 console.error('Error creating chart:', error);
                 $('#report-chart-view .chart-container').html(
-                    '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Error rendering chart: ' + error.message + '</div>'
+                    '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' + STRINGS.errorRenderingChart + ': ' + error.message + '</div>'
                 );
             }
         },
@@ -1818,7 +1925,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         createChartConfig: function(chartType, labels, values, valueKey, colors) {
             var self = this;
-            var reportName = this.currentReport?.description || this.currentReport?.name || 'Report';
+            var reportName = this.currentReport?.description || this.currentReport?.name || STRINGS.report;
 
             var baseConfig = {
                 responsive: true,
@@ -1906,14 +2013,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             if (!self.currentReportData || !Array.isArray(self.currentReportData) || self.currentReportData.length === 0) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'No Data',
-                    text: 'No data available to export. Please load the report first.'
+                    title: STRINGS.noData,
+                    text: STRINGS.noDataToExport
                 });
                 return;
             }
 
             Swal.fire({
-                title: 'Exporting as ' + format.toUpperCase() + '...',
+                title: STRINGS.exportingAs.replace('{format}', format.toUpperCase()),
                 allowOutsideClick: false,
                 didOpen: function() { Swal.showLoading(); }
             });
@@ -1928,8 +2035,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Export Not Available',
-                            text: eligibility.message || 'You are not eligible to export in this format.'
+                            title: STRINGS.exportNotAvailable,
+                            text: eligibility.message || STRINGS.exportNotEligible
                         });
                     }
                     return;
@@ -2018,14 +2125,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 self.trackExport(format, reportName);
 
                 // Show toast notification instead of SweetAlert
-                self.showToast(format.toUpperCase() + ' file downloaded successfully!', 'success');
+                self.showToast(format.toUpperCase() + ' ' + STRINGS.fileDownloadedSuccess, 'success');
 
             } catch (error) {
                 Swal.close();
                 Swal.fire({
                     icon: 'error',
-                    title: 'Export Failed',
-                    text: error.message || 'Failed to export report.'
+                    title: STRINGS.exportFailed,
+                    text: error.message || STRINGS.exportFailedMessage
                 });
             }
         }
@@ -2051,8 +2158,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 $('#reports-loader').addClass('d-none');
                 $('#no-reports-message').removeClass('d-none').html(
                     '<i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>' +
-                    '<h5 class="text-muted">Authentication Required</h5>' +
-                    '<p class="text-muted">Please ensure you are logged in to view reports.</p>'
+                    '<h5 class="text-muted">' + STRINGS.authenticationRequired + '</h5>' +
+                    '<p class="text-muted">' + STRINGS.authenticationRequiredMessage + '</p>'
                 );
             }
         }, 5000);

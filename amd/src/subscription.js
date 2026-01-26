@@ -1,8 +1,202 @@
 // jshint ignore:start
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, Str) {
     'use strict';
 
     var Swal = window.Swal;
+
+    // Language strings storage
+    var strings = {};
+
+    /**
+     * Load all language strings needed for the module
+     * @returns {Promise} Promise that resolves when strings are loaded
+     */
+    var loadStrings = function() {
+        return Str.get_strings([
+            {key: 'js_verifying_payment', component: 'report_adeptus_insights'},
+            {key: 'js_verifying_payment_text', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_successful', component: 'report_adeptus_insights'},
+            {key: 'js_verification_issue', component: 'report_adeptus_insights'},
+            {key: 'js_verification_issue_text', component: 'report_adeptus_insights'},
+            {key: 'js_processing_payment', component: 'report_adeptus_insights'},
+            {key: 'js_processing_payment_text', component: 'report_adeptus_insights'},
+            {key: 'js_checkout_cancelled', component: 'report_adeptus_insights'},
+            {key: 'js_checkout_cancelled_text', component: 'report_adeptus_insights'},
+            {key: 'js_cancel_subscription_title', component: 'report_adeptus_insights'},
+            {key: 'js_cancel_subscription_text', component: 'report_adeptus_insights'},
+            {key: 'js_yes_cancel', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_to', component: 'report_adeptus_insights'},
+            {key: 'js_downgrade_to', component: 'report_adeptus_insights'},
+            {key: 'js_choose_your_plan', component: 'report_adeptus_insights'},
+            {key: 'js_redirecting', component: 'report_adeptus_insights'},
+            {key: 'js_popup_blocked', component: 'report_adeptus_insights'},
+            {key: 'js_popup_blocked_text', component: 'report_adeptus_insights'},
+            {key: 'js_portal_creation_failed', component: 'report_adeptus_insights'},
+            {key: 'js_connection_error', component: 'report_adeptus_insights'},
+            {key: 'js_preparing_checkout', component: 'report_adeptus_insights'},
+            {key: 'js_redirecting_checkout', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_coming_soon', component: 'report_adeptus_insights'},
+            {key: 'js_billing_portal_error', component: 'report_adeptus_insights'},
+            {key: 'js_opening_billing_portal', component: 'report_adeptus_insights'},
+            {key: 'js_loading_plans', component: 'report_adeptus_insights'},
+            {key: 'js_continue', component: 'report_adeptus_insights'},
+            {key: 'error', component: 'report_adeptus_insights'},
+            {key: 'cancel', component: 'report_adeptus_insights'},
+            {key: 'js_ok', component: 'report_adeptus_insights'},
+            {key: 'js_plan_id_not_available', component: 'report_adeptus_insights'},
+            {key: 'js_failed_billing_portal', component: 'report_adeptus_insights'},
+            {key: 'js_failed_load_plans', component: 'report_adeptus_insights'},
+            {key: 'js_failed_open_billing', component: 'report_adeptus_insights'},
+            {key: 'js_failed_checkout', component: 'report_adeptus_insights'},
+            {key: 'js_payment_not_available', component: 'report_adeptus_insights'},
+            {key: 'js_checkout_error', component: 'report_adeptus_insights'},
+            {key: 'js_subscribe_to', component: 'report_adeptus_insights'},
+            {key: 'js_renew_subscription', component: 'report_adeptus_insights'},
+            {key: 'js_keep_subscription', component: 'report_adeptus_insights'},
+            {key: 'js_yes_cancel_subscription', component: 'report_adeptus_insights'},
+            {key: 'js_monthly', component: 'report_adeptus_insights'},
+            {key: 'js_annual', component: 'report_adeptus_insights'},
+            {key: 'js_current_plan', component: 'report_adeptus_insights'},
+            {key: 'js_most_popular', component: 'report_adeptus_insights'},
+            {key: 'js_free', component: 'report_adeptus_insights'},
+            {key: 'js_forever', component: 'report_adeptus_insights'},
+            {key: 'js_per_year', component: 'report_adeptus_insights'},
+            {key: 'js_per_month', component: 'report_adeptus_insights'},
+            {key: 'js_save_percent', component: 'report_adeptus_insights'},
+            {key: 'js_ai_tokens', component: 'report_adeptus_insights'},
+            {key: 'js_exports_mo', component: 'report_adeptus_insights'},
+            {key: 'js_saved_reports', component: 'report_adeptus_insights'},
+            {key: 'js_formats', component: 'report_adeptus_insights'},
+            {key: 'js_free_plan', component: 'report_adeptus_insights'},
+            {key: 'js_annual_plans_soon', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade', component: 'report_adeptus_insights'},
+            {key: 'js_downgrade', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_redirect_text', component: 'report_adeptus_insights'},
+            {key: 'js_downgrade_redirect_text', component: 'report_adeptus_insights'},
+            {key: 'js_downgrade_features_text', component: 'report_adeptus_insights'},
+            {key: 'js_action_undone', component: 'report_adeptus_insights'},
+            {key: 'js_opening_billing_portal_new_window', component: 'report_adeptus_insights'},
+            {key: 'js_open_portal_manually', component: 'report_adeptus_insights'},
+            {key: 'js_current_subscription', component: 'report_adeptus_insights'},
+            {key: 'js_plan_label', component: 'report_adeptus_insights'},
+            {key: 'js_status_label', component: 'report_adeptus_insights'},
+            {key: 'js_cancelled_access_ends', component: 'report_adeptus_insights'},
+            {key: 'js_payment_failed_attempts', component: 'report_adeptus_insights'},
+            {key: 'js_next_billing', component: 'report_adeptus_insights'},
+            {key: 'js_api_access_disabled', component: 'report_adeptus_insights'},
+            {key: 'js_update_payment_restore', component: 'report_adeptus_insights'},
+            {key: 'js_subscription_cancelled_reactivate', component: 'report_adeptus_insights'},
+            {key: 'js_preparing_upgrade', component: 'report_adeptus_insights'},
+            {key: 'js_opening_billing', component: 'report_adeptus_insights'},
+            {key: 'js_online_payments_not_configured', component: 'report_adeptus_insights'},
+            {key: 'js_setting_up_payment', component: 'report_adeptus_insights'},
+            {key: 'js_redirect_complete_payment', component: 'report_adeptus_insights'},
+            {key: 'js_stripe_not_configured', component: 'report_adeptus_insights'},
+            {key: 'js_contact_admin', component: 'report_adeptus_insights'},
+            {key: 'js_redirect_complete_subscription', component: 'report_adeptus_insights'},
+            {key: 'js_welcome_back_renew', component: 'report_adeptus_insights'},
+            {key: 'js_not_now', component: 'report_adeptus_insights'},
+            {key: 'js_renew_now', component: 'report_adeptus_insights'}
+        ]).then(function(results) {
+            strings = {
+                verifying_payment: results[0],
+                verifying_payment_text: results[1],
+                upgrade_successful: results[2],
+                verification_issue: results[3],
+                verification_issue_text: results[4],
+                processing_payment: results[5],
+                processing_payment_text: results[6],
+                checkout_cancelled: results[7],
+                checkout_cancelled_text: results[8],
+                cancel_subscription_title: results[9],
+                cancel_subscription_text: results[10],
+                yes_cancel: results[11],
+                upgrade_to: results[12],
+                downgrade_to: results[13],
+                choose_your_plan: results[14],
+                redirecting: results[15],
+                popup_blocked: results[16],
+                popup_blocked_text: results[17],
+                portal_creation_failed: results[18],
+                connection_error: results[19],
+                preparing_checkout: results[20],
+                redirecting_checkout: results[21],
+                upgrade_coming_soon: results[22],
+                billing_portal_error: results[23],
+                opening_billing_portal: results[24],
+                loading_plans: results[25],
+                continue_text: results[26],
+                error: results[27],
+                cancel: results[28],
+                ok: results[29],
+                plan_id_not_available: results[30],
+                failed_billing_portal: results[31],
+                failed_load_plans: results[32],
+                failed_open_billing: results[33],
+                failed_checkout: results[34],
+                payment_not_available: results[35],
+                checkout_error: results[36],
+                subscribe_to: results[37],
+                renew_subscription: results[38],
+                keep_subscription: results[39],
+                yes_cancel_subscription: results[40],
+                monthly: results[41],
+                annual: results[42],
+                current_plan: results[43],
+                most_popular: results[44],
+                free: results[45],
+                forever: results[46],
+                per_year: results[47],
+                per_month: results[48],
+                save_percent: results[49],
+                ai_tokens: results[50],
+                exports_mo: results[51],
+                saved_reports: results[52],
+                formats: results[53],
+                free_plan: results[54],
+                annual_plans_soon: results[55],
+                upgrade: results[56],
+                downgrade: results[57],
+                upgrade_redirect_text: results[58],
+                downgrade_redirect_text: results[59],
+                downgrade_features_text: results[60],
+                action_undone: results[61],
+                opening_billing_portal_new_window: results[62],
+                open_portal_manually: results[63],
+                current_subscription: results[64],
+                plan_label: results[65],
+                status_label: results[66],
+                cancelled_access_ends: results[67],
+                payment_failed_attempts: results[68],
+                next_billing: results[69],
+                api_access_disabled: results[70],
+                update_payment_restore: results[71],
+                subscription_cancelled_reactivate: results[72],
+                preparing_upgrade: results[73],
+                opening_billing: results[74],
+                online_payments_not_configured: results[75],
+                setting_up_payment: results[76],
+                redirect_complete_payment: results[77],
+                stripe_not_configured: results[78],
+                contact_admin: results[79],
+                redirect_complete_subscription: results[80],
+                welcome_back_renew: results[81],
+                not_now: results[82],
+                renew_now: results[83]
+            };
+            return strings;
+        });
+    };
+
+    /**
+     * Get a loaded string, with fallback
+     * @param {string} key - The string key
+     * @param {string} fallback - Fallback value if string not loaded
+     * @returns {string} The string value
+     */
+    var getString = function(key, fallback) {
+        return strings[key] || fallback || key;
+    };
 
     /**
      * Subscription management for Adeptus Insights plugin
@@ -14,6 +208,20 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Initialize subscription functionality
          */
         init: function() {
+            var self = this;
+            // Load strings first, then initialize
+            loadStrings().then(function() {
+                self._initAfterStrings();
+            }).catch(function() {
+                // Continue even if strings fail to load (fallbacks will be used)
+                self._initAfterStrings();
+            });
+        },
+
+        /**
+         * Continue initialization after strings are loaded
+         */
+        _initAfterStrings: function() {
             // Initialize event handlers
             this.initEventHandlers();
 
@@ -35,8 +243,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (checkoutStatus === 'success' && sessionId) {
                 // Show loading
                 Swal.fire({
-                    title: 'Verifying Payment...',
-                    html: '<p>Please wait while we confirm your subscription upgrade.</p>',
+                    title: getString('verifying_payment', 'Verifying Payment...'),
+                    html: '<p>' + getString('verifying_payment_text', 'Please wait while we confirm your subscription upgrade.') + '</p>',
                     allowOutsideClick: false,
                     showConfirmButton: false,
                     didOpen: function() {
@@ -53,14 +261,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     },
                     done: function(response) {
                         if (response && response.success) {
+                            var planName = response.plan_name || 'Pro';
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Upgrade Successful!',
-                                html: '<p>Your subscription has been upgraded to <strong>' +
-                                      (response.plan_name || 'Pro') + '</strong>.</p>' +
-                                      '<p>Your new features are now available.</p>',
+                                title: getString('upgrade_successful', 'Upgrade Successful!'),
+                                html: '<p>' + getString('upgrade_successful_text', 'Your subscription has been upgraded to <strong>' + planName + '</strong>. Your new features are now available.').replace('{$a}', '<strong>' + planName + '</strong>') + '</p>',
                                 confirmButtonColor: '#2563eb',
-                                confirmButtonText: 'Continue'
+                                confirmButtonText: getString('continue_text', 'Continue')
                             }).then(function() {
                                 // Clean URL and refresh to show new plan
                                 var cleanUrl = window.location.href.split('?')[0];
@@ -69,9 +276,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         } else {
                             Swal.fire({
                                 icon: 'warning',
-                                title: 'Verification Issue',
+                                title: getString('verification_issue', 'Verification Issue'),
                                 html: '<p>' + (response.message || 'Could not verify payment.') + '</p>' +
-                                      '<p>If you completed payment, your subscription will be updated shortly.</p>',
+                                      '<p>' + getString('verification_issue_text', 'If you completed payment, your subscription will be updated shortly.') + '</p>',
                                 confirmButtonColor: '#2563eb'
                             });
                         }
@@ -79,9 +286,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     fail: function(error) {
                         Swal.fire({
                             icon: 'info',
-                            title: 'Processing Payment',
-                            html: '<p>Your payment is being processed.</p>' +
-                                  '<p>Your subscription will be updated within a few minutes.</p>',
+                            title: getString('processing_payment', 'Processing Payment'),
+                            html: '<p>' + getString('processing_payment_text', 'Your payment is being processed. Your subscription will be updated within a few minutes.') + '</p>',
                             confirmButtonColor: '#2563eb'
                         });
                     }
@@ -94,8 +300,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             } else if (checkoutStatus === 'cancelled') {
                 Swal.fire({
                     icon: 'info',
-                    title: 'Checkout Cancelled',
-                    text: 'Your checkout was cancelled. No charges were made.',
+                    title: getString('checkout_cancelled', 'Checkout Cancelled'),
+                    text: getString('checkout_cancelled_text', 'Your checkout was cancelled. No charges were made.'),
                     confirmButtonColor: '#2563eb'
                 });
 
@@ -176,8 +382,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (!planId) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Plan ID not available. Please try again.',
+                    title: getString('error', 'Error'),
+                    text: getString('plan_id_not_available', 'Plan ID not available. Please try again.'),
                     confirmButtonColor: '#3085d6'
                 });
                 return;
@@ -186,13 +392,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Show confirmation dialog
             Swal.fire({
                 icon: 'question',
-                title: 'Upgrade to ' + planName + '?',
-                html: '<p>You will be redirected to the billing portal to complete the upgrade.</p>',
+                title: getString('upgrade_to', 'Upgrade to {$a}?').replace('{$a}', planName),
+                html: '<p>' + getString('upgrade_redirect_text', 'You will be redirected to the billing portal to complete the upgrade.') + '</p>',
                 showCancelButton: true,
                 confirmButtonColor: '#f39c12',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> ' + getString('upgrade', 'Upgrade'),
+                cancelButtonText: getString('cancel', 'Cancel')
             }).then(function(result) {
                 if (result.isConfirmed) {
                     Subscription.createBillingPortalSession(planId, 'upgrade');
@@ -210,8 +416,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (!planId) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Plan ID not available. Please try again.',
+                    title: getString('error', 'Error'),
+                    text: getString('plan_id_not_available', 'Plan ID not available. Please try again.'),
                     confirmButtonColor: '#3085d6'
                 });
                 return;
@@ -220,14 +426,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Show confirmation dialog
             Swal.fire({
                 icon: 'warning',
-                title: 'Downgrade to ' + planName + '?',
-                html: '<p>You will be redirected to the billing portal to complete the downgrade.</p>' +
-                      '<p class="text-muted"><small>Your current plan features will remain active until the end of the billing period.</small></p>',
+                title: getString('downgrade_to', 'Downgrade to {$a}?').replace('{$a}', planName),
+                html: '<p>' + getString('downgrade_redirect_text', 'You will be redirected to the billing portal to complete the downgrade.') + '</p>' +
+                      '<p class="text-muted"><small>' + getString('downgrade_features_text', 'Your current plan features will remain active until the end of the billing period.') + '</small></p>',
                 showCancelButton: true,
                 confirmButtonColor: '#17a2b8',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-arrow-down"></i> Downgrade',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: '<i class="fa fa-arrow-down"></i> ' + getString('downgrade', 'Downgrade'),
+                cancelButtonText: getString('cancel', 'Cancel')
             }).then(function(result) {
                 if (result.isConfirmed) {
                     Subscription.createBillingPortalSession(planId, 'downgrade');
@@ -241,15 +447,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         handleCancelSubscription: function($button) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Cancel Subscription?',
-                html: '<p><strong>Are you sure you want to cancel your subscription?</strong></p>' +
-                      '<p>You will lose access to premium features at the end of your billing period.</p>' +
-                      '<p class="text-danger"><small>This action cannot be undone.</small></p>',
+                title: getString('cancel_subscription_title', 'Cancel Subscription?'),
+                html: '<p><strong>' + getString('cancel_subscription_text', 'Are you sure you want to cancel your subscription? You will lose access to premium features at the end of your billing period.') + '</strong></p>' +
+                      '<p class="text-danger"><small>' + getString('action_undone', 'This action cannot be undone.') + '</small></p>',
                 showCancelButton: true,
                 confirmButtonColor: '#e74c3c',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-times"></i> Yes, Cancel Subscription',
-                cancelButtonText: 'Keep Subscription',
+                confirmButtonText: '<i class="fa fa-times"></i> ' + getString('yes_cancel', 'Yes, cancel it'),
+                cancelButtonText: getString('keep_subscription', 'Keep Subscription'),
                 focusCancel: true
             }).then(function(result) {
                 if (result.isConfirmed) {
@@ -291,8 +496,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     if (response && response.success && response.portal_url) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Redirecting...',
-                            html: '<p>Opening billing portal in a new window...</p>',
+                            title: getString('redirecting', 'Redirecting...'),
+                            html: '<p>' + getString('opening_billing_portal_new_window', 'Opening billing portal in a new window...') + '</p>',
                             timer: 2000,
                             timerProgressBar: true,
                             showConfirmButton: false,
@@ -308,19 +513,19 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                             if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
                                 Swal.fire({
                                     icon: 'warning',
-                                    title: 'Popup Blocked',
-                                    html: '<p>Please allow popups for this site and try again.</p>' +
-                                          '<p><a href="' + response.portal_url + '" target="_blank" class="btn btn-primary">Open Portal Manually</a></p>',
+                                    title: getString('popup_blocked', 'Popup Blocked'),
+                                    html: '<p>' + getString('popup_blocked_text', 'Please allow popups for this site to access the billing portal.') + '</p>' +
+                                          '<p><a href="' + response.portal_url + '" target="_blank" class="btn btn-primary">' + getString('open_portal_manually', 'Open Portal Manually') + '</a></p>',
                                     showConfirmButton: true,
-                                    confirmButtonText: 'OK'
+                                    confirmButtonText: getString('ok', 'OK')
                                 });
                             }
                         }, 1000);
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Portal Creation Failed',
-                            text: (response && response.message) || 'Failed to create billing portal session. Please try again.',
+                            title: getString('portal_creation_failed', 'Portal Creation Failed'),
+                            text: (response && response.message) || getString('failed_billing_portal', 'Failed to create billing portal session. Please try again.'),
                             confirmButtonColor: '#3085d6'
                         });
                     }
@@ -328,8 +533,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 fail: function(error) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Failed to create billing portal session. Please check your connection and try again.',
+                        title: getString('connection_error', 'Connection Error'),
+                        text: getString('failed_billing_portal', 'Failed to create billing portal session. Please check your connection and try again.'),
                         confirmButtonColor: '#3085d6'
                     });
                 }
@@ -364,9 +569,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (!$container.length) return;
 
             var html = '<div class="current-subscription">';
-            html += '<h3>Current Subscription</h3>';
+            html += '<h3>' + getString('current_subscription', 'Current Subscription') + '</h3>';
             html += '<div class="subscription-details">';
-            html += '<p><strong>Plan:</strong> ' + (subscriptionData.plan_name || 'Unknown') + '</p>';
+            html += '<p><strong>' + getString('plan_label', 'Plan:') + '</strong> ' + (subscriptionData.plan_name || 'Unknown') + '</p>';
 
             // Display status with appropriate styling and messaging
             var statusClass = 'text-success';
@@ -380,7 +585,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 statusClass = 'text-warning';
             }
 
-            html += '<p><strong>Status:</strong> <span class="' + statusClass + '">' + statusText + '</span></p>';
+            html += '<p><strong>' + getString('status_label', 'Status:') + '</strong> <span class="' + statusClass + '">' + statusText + '</span></p>';
 
             // Display status message if available
             if (subscriptionData.status_message) {
@@ -396,17 +601,17 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Show cancellation info
             if (subscriptionData.cancel_at_period_end) {
                 var cancelDate = new Date(subscriptionData.current_period_end * 1000);
-                html += '<p class="text-warning"><strong>⚠️ Cancelled:</strong> Access ends on ' + cancelDate.toLocaleDateString() + '</p>';
+                html += '<p class="text-warning"><strong>' + getString('cancelled_access_ends', 'Cancelled: Access ends on {$a}').replace('{$a}', cancelDate.toLocaleDateString()) + '</strong></p>';
             }
 
             // Show payment failure info
             if (subscriptionData.failed_payment_attempts > 0) {
-                html += '<p class="text-danger"><strong>❌ Payment Failed:</strong> ' + subscriptionData.failed_payment_attempts + ' failed attempts</p>';
+                html += '<p class="text-danger"><strong>' + getString('payment_failed_attempts', 'Payment Failed: {$a} failed attempts').replace('{$a}', subscriptionData.failed_payment_attempts) + '</strong></p>';
             }
 
             if (subscriptionData.current_period_end) {
                 var endDate = new Date(subscriptionData.current_period_end * 1000);
-                html += '<p><strong>Next billing:</strong> ' + endDate.toLocaleDateString() + '</p>';
+                html += '<p><strong>' + getString('next_billing', 'Next billing:') + '</strong> ' + endDate.toLocaleDateString() + '</p>';
             }
 
             html += '</div>';
@@ -433,7 +638,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Disable/enable API-dependent elements
             if (apiAccessDisabled) {
                 $('.btn-send-message, .btn-generate-report, .btn-ai-assistant').prop('disabled', true)
-                    .attr('title', 'API access disabled: ' + (subscriptionData.status_message || 'Subscription issue'));
+                    .attr('title', getString('api_access_disabled', 'API access disabled') + ': ' + (subscriptionData.status_message || ''));
 
                 // Show warning message
                 this.showApiAccessWarning(subscriptionData);
@@ -454,13 +659,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if ($existingWarning.length) return;
 
             var warningHtml = '<div class="api-access-warning alert alert-danger alert-dismissible fade show" role="alert">';
-            warningHtml += '<strong>⚠️ API Access Disabled</strong><br>';
-            warningHtml += subscriptionData.status_message || 'Your subscription has an issue that prevents API access.';
+            warningHtml += '<strong>' + getString('api_access_disabled', 'API Access Disabled') + '</strong><br>';
+            warningHtml += subscriptionData.status_message || '';
 
             if (subscriptionData.has_payment_issues) {
-                warningHtml += '<br><small>Please update your payment method to restore access.</small>';
+                warningHtml += '<br><small>' + getString('update_payment_restore', 'Please update your payment method to restore access.') + '</small>';
             } else if (subscriptionData.is_cancelled) {
-                warningHtml += '<br><small>Your subscription has been cancelled. Please reactivate to restore access.</small>';
+                warningHtml += '<br><small>' + getString('subscription_cancelled_reactivate', 'Your subscription has been cancelled. Please reactivate to restore access.') + '</small>';
             }
 
             warningHtml += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
@@ -496,7 +701,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         handleUpgradeFromFree: function() {
             // Show loading state
             Swal.fire({
-                title: 'Loading Plans...',
+                title: getString('loading_plans', 'Loading Plans...'),
                 html: '<div style="padding: 20px;"><i class="fa fa-spinner fa-spin fa-2x"></i></div>',
                 showConfirmButton: false,
                 allowOutsideClick: false
@@ -517,8 +722,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: data.message || 'Failed to load plans. Please try again.',
+                            title: getString('error', 'Error'),
+                            text: data.message || getString('failed_load_plans', 'Failed to load plans. Please try again.'),
                             confirmButtonColor: '#3085d6'
                         });
                     }
@@ -526,8 +731,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 .catch(function(error) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Failed to load plans. Please check your connection and try again.',
+                        title: getString('connection_error', 'Connection Error'),
+                        text: getString('failed_load_plans', 'Failed to load plans. Please check your connection and try again.'),
                         confirmButtonColor: '#3085d6'
                     });
                 });
@@ -550,15 +755,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 modalHtml += '<button type="button" class="billing-toggle-btn active" data-interval="monthly" style="' +
                     'padding: 10px 24px; border: none; background: white; border-radius: 50px; ' +
                     'font-weight: 600; font-size: 14px; cursor: pointer; color: #1f2937; ' +
-                    'box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">Monthly</button>';
+                    'box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">' + getString('monthly', 'Monthly') + '</button>';
                 modalHtml += '<button type="button" class="billing-toggle-btn" data-interval="yearly" style="' +
                     'padding: 10px 24px; border: none; background: transparent; border-radius: 50px; ' +
                     'font-weight: 600; font-size: 14px; cursor: pointer; color: #6b7280; transition: all 0.3s ease;">' +
-                    'Annual';
+                    getString('annual', 'Annual');
                 if (maxYearlySavings > 0) {
                     modalHtml += '<span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); ' +
                         'color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; ' +
-                        'margin-left: 6px; text-transform: uppercase;">Save ' + maxYearlySavings + '%</span>';
+                        'margin-left: 6px; text-transform: uppercase;">' + getString('save_percent', 'Save {$a}%').replace('{$a}', maxYearlySavings) + '</span>';
                 }
                 modalHtml += '</button>';
                 modalHtml += '</div></div>';
@@ -572,12 +777,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             modalHtml += '</div>';
 
             Swal.fire({
-                title: '<i class="fa fa-rocket" style="color: #2563eb;"></i> Choose Your Plan',
+                title: '<i class="fa fa-rocket" style="color: #2563eb;"></i> ' + getString('choose_your_plan', 'Choose Your Plan'),
                 html: modalHtml,
                 width: '95%',
                 showCancelButton: true,
                 showConfirmButton: false,
-                cancelButtonText: 'Cancel',
+                cancelButtonText: getString('cancel', 'Cancel'),
                 cancelButtonColor: '#95a5a6',
                 customClass: {
                     popup: 'plans-modal-popup'
@@ -595,7 +800,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (!plans || plans.length === 0) {
                 return '<div style="text-align: center; padding: 40px; color: #6b7280;">' +
                     '<i class="fa fa-calendar-times-o fa-2x" style="margin-bottom: 10px;"></i>' +
-                    '<p>Annual plans coming soon!</p></div>';
+                    '<p>' + getString('annual_plans_soon', 'Annual plans coming soon!') + '</p></div>';
             }
 
             var html = '<div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1000px; margin: 0 auto;">';
@@ -619,12 +824,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     html += '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); ' +
                         'background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; ' +
                         'font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px; ' +
-                        'text-transform: uppercase; letter-spacing: 0.5px;">Current Plan</div>';
+                        'text-transform: uppercase; letter-spacing: 0.5px;">' + getString('current_plan', 'Current Plan') + '</div>';
                 } else if (plan.is_popular) {
                     html += '<div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); ' +
                         'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
                         'font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 20px; ' +
-                        'text-transform: uppercase; letter-spacing: 0.5px;">Most Popular</div>';
+                        'text-transform: uppercase; letter-spacing: 0.5px;">' + getString('most_popular', 'Most Popular') + '</div>';
                 }
 
                 // Header
@@ -640,17 +845,17 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 // Price
                 html += '<div style="text-align: center; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e5e7eb;">';
                 if (plan.is_free) {
-                    html += '<div style="font-size: 42px; font-weight: 800; color: #10b981;">Free</div>';
-                    html += '<div style="color: #6b7280; font-size: 13px;">Forever</div>';
+                    html += '<div style="font-size: 42px; font-weight: 800; color: #10b981;">' + getString('free', 'Free') + '</div>';
+                    html += '<div style="color: #6b7280; font-size: 13px;">' + getString('forever', 'Forever') + '</div>';
                 } else {
                     html += '<div style="font-size: 42px; font-weight: 800; color: #1f2937;">' +
                         plan.price_formatted + '</div>';
-                    var periodText = interval === 'yearly' ? 'per year' : 'per month';
+                    var periodText = interval === 'yearly' ? getString('per_year', 'per year') : getString('per_month', 'per month');
                     html += '<div style="color: #6b7280; font-size: 13px;">' + periodText + '</div>';
                     if (plan.has_savings) {
                         html += '<div style="margin-top: 6px;"><span style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); ' +
                             'color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;">' +
-                            'Save ' + plan.savings_percent + '%</span></div>';
+                            getString('save_percent', 'Save {$a}%').replace('{$a}', plan.savings_percent) + '</span></div>';
                     }
                 }
                 html += '</div>';
@@ -659,16 +864,16 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">';
                 html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
                     '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.tokens_limit + '</div>' +
-                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">AI Tokens</div></div>';
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">' + getString('ai_tokens', 'AI Tokens') + '</div></div>';
                 html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
                     '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.exports_limit + '</div>' +
-                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Exports/mo</div></div>';
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">' + getString('exports_mo', 'Exports/mo') + '</div></div>';
                 html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
                     '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.reports_limit + '</div>' +
-                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Saved Reports</div></div>';
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">' + getString('saved_reports', 'Saved Reports') + '</div></div>';
                 html += '<div style="text-align: center; padding: 12px; background: #f9fafb; border-radius: 10px;">' +
                     '<div style="font-size: 16px; font-weight: 700; color: #1f2937;">' + plan.export_formats + '</div>' +
-                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Formats</div></div>';
+                    '<div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">' + getString('formats', 'Formats') + '</div></div>';
                 html += '</div>';
 
                 // Features list
@@ -690,12 +895,12 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     html += '<button class="plan-select-btn" disabled style="' +
                         'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
                         'background: #e5e7eb; color: #6b7280; font-weight: 600; font-size: 14px; cursor: default;">' +
-                        '<i class="fa fa-check-circle"></i> Current Plan</button>';
+                        '<i class="fa fa-check-circle"></i> ' + getString('current_plan', 'Current Plan') + '</button>';
                 } else if (plan.is_free) {
                     html += '<button class="plan-select-btn" disabled style="' +
                         'display: block; width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; ' +
                         'background: white; color: #374151; font-weight: 600; font-size: 14px; cursor: default;">' +
-                        'Free Plan</button>';
+                        getString('free_plan', 'Free Plan') + '</button>';
                 } else {
                     // Include stripe_price_id if available for checkout
                     var stripePriceId = plan.stripe_price_id || '';
@@ -707,7 +912,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                         'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
                         'background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; ' +
                         'font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s ease;">' +
-                        '<i class="fa fa-arrow-up"></i> Upgrade to ' + plan.short_name + '</button>';
+                        '<i class="fa fa-arrow-up"></i> ' + getString('upgrade_to', 'Upgrade to') + ' ' + plan.short_name + '</button>';
                 }
                 html += '</div>';
 
@@ -794,8 +999,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         openBillingPortalForUpgrade: function(planName, planId) {
             Swal.fire({
-                title: 'Opening Billing Portal...',
-                html: '<p>Preparing upgrade to ' + planName + '...</p>',
+                title: getString('opening_billing_portal', 'Opening Billing Portal...'),
+                html: '<p>' + getString('preparing_upgrade', 'Preparing upgrade to {$a}...').replace('{$a}', planName) + '</p>',
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 didOpen: function() {
@@ -821,8 +1026,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     if (response && response.success && response.portal_url) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Redirecting...',
-                            html: '<p>Opening billing portal...</p>',
+                            title: getString('redirecting', 'Redirecting...'),
+                            html: '<p>' + getString('opening_billing', 'Opening billing portal...') + '</p>',
                             timer: 2000,
                             timerProgressBar: true,
                             showConfirmButton: false,
@@ -834,7 +1039,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                             window.location.href = response.portal_url;
                         }, 1000);
                     } else {
-                        var errorMessage = (response && response.message) || 'Failed to open billing portal.';
+                        var errorMessage = (response && response.message) || getString('failed_open_billing', 'Failed to open billing portal.');
 
                         // Check for specific error codes and provide helpful messages
                         if (errorMessage.indexOf('NO_STRIPE_CUSTOMER') !== -1 ||
@@ -842,17 +1047,17 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                             errorMessage.indexOf('Stripe') !== -1) {
                             Swal.fire({
                                 icon: 'info',
-                                title: 'Upgrade Coming Soon',
-                                html: '<p>Online payments are not yet configured for this installation.</p>' +
-                                      '<p>To upgrade to <strong>' + planName + '</strong>, please contact your administrator or email:</p>' +
+                                title: getString('upgrade_coming_soon', 'Upgrade Coming Soon'),
+                                html: '<p>' + getString('online_payments_not_configured', 'Online payments are not yet configured for this installation.') + '</p>' +
+                                      '<p>' + getString('contact_admin', 'To upgrade to <strong>{$a}</strong>, please contact your administrator or email:').replace('{$a}', planName) + '</p>' +
                                       '<p><a href="mailto:support@adeptus360.com?subject=Upgrade%20to%20' + planName + '">support@adeptus360.com</a></p>',
                                 confirmButtonColor: '#2563eb',
-                                confirmButtonText: 'OK'
+                                confirmButtonText: getString('ok', 'OK')
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Billing Portal Error',
+                                title: getString('billing_portal_error', 'Billing Portal Error'),
                                 text: errorMessage,
                                 confirmButtonColor: '#3085d6'
                             });
@@ -862,8 +1067,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 fail: function(error) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Failed to open billing portal. Please try again.',
+                        title: getString('connection_error', 'Connection Error'),
+                        text: getString('failed_open_billing', 'Failed to open billing portal. Please try again.'),
                         confirmButtonColor: '#3085d6'
                     });
                 }
@@ -878,8 +1083,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          */
         createCheckoutSession: function(planId, stripePriceId, planName) {
             Swal.fire({
-                title: 'Preparing Checkout...',
-                html: '<p>Setting up payment for ' + planName + '...</p>',
+                title: getString('preparing_checkout', 'Preparing Checkout...'),
+                html: '<p>' + getString('setting_up_payment', 'Setting up payment for {$a}...').replace('{$a}', planName) + '</p>',
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 didOpen: function() {
@@ -902,8 +1107,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     if (response && response.success && response.checkout_url) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Redirecting to Checkout...',
-                            html: '<p>You will be redirected to complete your payment.</p>',
+                            title: getString('redirecting_checkout', 'Redirecting to Checkout...'),
+                            html: '<p>' + getString('redirect_complete_payment', 'You will be redirected to complete your payment.') + '</p>',
                             timer: 2000,
                             timerProgressBar: true,
                             showConfirmButton: false,
@@ -914,24 +1119,24 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                             window.location.href = response.checkout_url;
                         }, 1000);
                     } else {
-                        var errorMessage = (response && response.message) || 'Failed to create checkout session.';
+                        var errorMessage = (response && response.message) || getString('failed_checkout', 'Failed to create checkout session.');
                         var errorCode = (response && response.error_code) || '';
 
                         // Handle specific error codes
                         if (errorCode === 'STRIPE_NOT_CONFIGURED') {
                             Swal.fire({
                                 icon: 'info',
-                                title: 'Payment Not Available',
-                                html: '<p>Stripe is not yet configured for the <strong>' + planName + '</strong> plan.</p>' +
-                                      '<p>Please contact your administrator or email:</p>' +
+                                title: getString('payment_not_available', 'Payment Not Available'),
+                                html: '<p>' + getString('stripe_not_configured', 'Stripe is not yet configured for the <strong>{$a}</strong> plan.').replace('{$a}', planName) + '</p>' +
+                                      '<p>' + getString('contact_admin', 'Please contact your administrator or email:') + '</p>' +
                                       '<p><a href="mailto:support@adeptus360.com?subject=Upgrade%20to%20' + planName + '">support@adeptus360.com</a></p>',
                                 confirmButtonColor: '#2563eb',
-                                confirmButtonText: 'OK'
+                                confirmButtonText: getString('ok', 'OK')
                             });
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Checkout Error',
+                                title: getString('checkout_error', 'Checkout Error'),
                                 text: errorMessage,
                                 confirmButtonColor: '#3085d6'
                             });
@@ -941,8 +1146,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 fail: function(error) {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Connection Error',
-                        text: 'Failed to create checkout session. Please try again.',
+                        title: getString('connection_error', 'Connection Error'),
+                        text: getString('failed_checkout', 'Failed to create checkout session. Please try again.'),
                         confirmButtonColor: '#3085d6'
                     });
                 }
@@ -956,8 +1161,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             if (!planId) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Plan ID not available. Please try again.',
+                    title: getString('error', 'Error'),
+                    text: getString('plan_id_not_available', 'Plan ID not available. Please try again.'),
                     confirmButtonColor: '#3085d6'
                 });
                 return;
@@ -966,13 +1171,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Show confirmation dialog
             Swal.fire({
                 icon: 'info',
-                title: 'Subscribe to ' + planName + '?',
-                html: '<p>You will be redirected to complete your subscription.</p>',
+                title: getString('subscribe_to', 'Subscribe to {$a}?').replace('{$a}', planName),
+                html: '<p>' + getString('redirect_complete_subscription', 'You will be redirected to complete your subscription.') + '</p>',
                 showCancelButton: true,
                 confirmButtonColor: '#3498db',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-credit-card"></i> Subscribe Now',
-                cancelButtonText: 'Cancel'
+                confirmButtonText: '<i class="fa fa-credit-card"></i> ' + getString('subscribe_to', 'Subscribe Now'),
+                cancelButtonText: getString('cancel', 'Cancel')
             }).then(function(result) {
                 if (result.isConfirmed) {
                     Subscription.createBillingPortalSession(planId, 'subscribe');
@@ -986,13 +1191,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         handleRenewSubscription: function() {
             Swal.fire({
                 icon: 'success',
-                title: 'Renew Your Subscription?',
-                html: '<p>Welcome back! Renew your subscription to regain access to all premium features.</p>',
+                title: getString('renew_subscription', 'Renew Your Subscription?'),
+                html: '<p>' + getString('welcome_back_renew', 'Welcome back! Renew your subscription to regain access to all premium features.') + '</p>',
                 showCancelButton: true,
                 confirmButtonColor: '#27ae60',
                 cancelButtonColor: '#95a5a6',
-                confirmButtonText: '<i class="fa fa-refresh"></i> Renew Subscription',
-                cancelButtonText: 'Not Now'
+                confirmButtonText: '<i class="fa fa-refresh"></i> ' + getString('renew_now', 'Renew Subscription'),
+                cancelButtonText: getString('not_now', 'Not Now')
             }).then(function(result) {
                 if (result.isConfirmed) {
                     // Open billing portal for renewal

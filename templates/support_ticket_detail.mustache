@@ -8,13 +8,13 @@
         <div class="page-header-content">
             <h1 class="page-header-title">
                 <i class="fa fa-ticket-alt page-header-icon"></i>
-                Ticket {{ticket.ticket_number}}
+                {{#str}}ticket_number, report_adeptus_insights{{/str}} {{ticket.ticket_number}}
             </h1>
             <p class="page-header-subtitle">{{ticket.subject}}</p>
         </div>
         <div class="page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
-                <i class="fa fa-arrow-left"></i> Back to Tickets
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_tickets, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -41,7 +41,7 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <strong>
                                     {{#ticket.submitter_name}}{{ticket.submitter_name}}{{/ticket.submitter_name}}
-                                    {{^ticket.submitter_name}}Customer{{/ticket.submitter_name}}
+                                    {{^ticket.submitter_name}}{{#str}}from_customer, report_adeptus_insights{{/str}}{{/ticket.submitter_name}}
                                 </strong>
                                 <small class="text-muted">{{ticket.created_at}}</small>
                             </div>
@@ -50,7 +50,7 @@
                             </div>
                             {{#ticket.has_attachments}}
                             <div class="ticket-attachments mt-3 pt-3 border-top">
-                                <h6 class="text-muted mb-2"><i class="fa fa-paperclip"></i> Attachments</h6>
+                                <h6 class="text-muted mb-2"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}}</h6>
                                 <div class="attachment-list">
                                     {{#ticket.attachments}}
                                     <a href="{{{download_url}}}" class="attachment-item" target="_blank">
@@ -94,7 +94,7 @@
                                 </div>
                                 {{#has_attachments}}
                                 <div class="reply-attachments mt-2 pt-2 border-top">
-                                    <small class="text-muted"><i class="fa fa-paperclip"></i> Attachments:</small>
+                                    <small class="text-muted"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}}:</small>
                                     <div class="attachment-list attachment-list-compact mt-1">
                                         {{#attachments}}
                                         <a href="{{{download_url}}}" class="attachment-item attachment-item-compact" target="_blank">
@@ -141,7 +141,7 @@
                                     {{#str}}reply_message, report_adeptus_insights{{/str}} <span class="text-danger">*</span>
                                 </label>
                                 <textarea name="reply_message" id="reply_message" class="form-control" rows="5"
-                                          maxlength="10000" required placeholder="Type your reply..."></textarea>
+                                          maxlength="10000" required placeholder="{{#str}}type_your_reply, report_adeptus_insights{{/str}}"></textarea>
                             </div>
 
                             <!-- File Attachments -->
@@ -158,17 +158,17 @@
                                                 <i class="fa fa-cloud-upload-alt"></i>
                                             </div>
                                             <div class="dropzone-text">
-                                                <p class="dropzone-title">Drag & drop files or <span class="dropzone-browse">browse</span></p>
+                                                <p class="dropzone-title">{{#str}}drag_drop_or_browse, report_adeptus_insights{{/str}}</p>
                                             </div>
                                         </div>
                                         <div class="dropzone-overlay">
                                             <i class="fa fa-download"></i>
-                                            <span>Drop files</span>
+                                            <span>{{#str}}drop_files, report_adeptus_insights{{/str}}</span>
                                         </div>
                                     </div>
                                     <div class="file-preview-list" id="replyFilePreviewList"></div>
                                     <div class="upload-info upload-info-compact">
-                                        <span><i class="fa fa-info-circle text-muted"></i> Max 5 files, 10MB each (images, PDF, text, ZIP)</span>
+                                        <span><i class="fa fa-info-circle text-muted"></i> {{#str}}max_files_info, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -182,7 +182,7 @@
                         {{^can_reply}}
                         <div class="alert alert-secondary mt-4">
                             <i class="fa fa-lock"></i>
-                            This ticket is closed and cannot receive new replies.
+                            {{#str}}ticket_closed_no_replies, report_adeptus_insights{{/str}}
                         </div>
                         {{/can_reply}}
                     </div>
@@ -193,7 +193,7 @@
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-secondary text-white">
-                        <h6 class="mb-0"><i class="fa fa-info"></i> Ticket Information</h6>
+                        <h6 class="mb-0"><i class="fa fa-info"></i> {{#str}}ticket_information, report_adeptus_insights{{/str}}</h6>
                     </div>
                     <div class="card-body">
                         <table class="table table-sm table-borderless mb-0">
@@ -214,12 +214,12 @@
                                 <td><span class="badge {{ticket.priority_class}}">{{ticket.priority_label}}</span></td>
                             </tr>
                             <tr>
-                                <td class="text-muted">Created</td>
+                                <td class="text-muted">{{#str}}created, report_adeptus_insights{{/str}}</td>
                                 <td>{{ticket.created_at}}</td>
                             </tr>
                             {{#ticket.submitter_email}}
                             <tr>
-                                <td class="text-muted">Email</td>
+                                <td class="text-muted">{{#str}}email, report_adeptus_insights{{/str}}</td>
                                 <td><a href="mailto:{{ticket.submitter_email}}">{{ticket.submitter_email}}</a></td>
                             </tr>
                             {{/ticket.submitter_email}}
@@ -331,6 +331,15 @@
 (function() {
     'use strict';
 
+    // Localized strings
+    var STRINGS = {
+        maxFilesAllowed: '{{#str}}max_files_allowed, report_adeptus_insights{{/str}}',
+        fileTypeNotAllowed: '{{#str}}file_type_not_allowed, report_adeptus_insights{{/str}}',
+        fileTooLarge: '{{#str}}file_too_large, report_adeptus_insights{{/str}}',
+        fileAlreadyAdded: '{{#str}}file_already_added, report_adeptus_insights{{/str}}',
+        removeFile: '{{#str}}remove_file, report_adeptus_insights{{/str}}'
+    };
+
     const dropzone = document.getElementById('replyFileDropzone');
     const fileInput = document.getElementById('reply_attachments');
     const previewList = document.getElementById('replyFilePreviewList');
@@ -377,20 +386,20 @@
     function handleFiles(files) {
         Array.from(files).forEach(file => {
             if (selectedFiles.length >= MAX_FILES) {
-                showError('Maximum ' + MAX_FILES + ' files allowed');
+                showError(STRINGS.maxFilesAllowed.replace('{count}', MAX_FILES));
                 return;
             }
             const ext = file.name.split('.').pop().toLowerCase();
             if (!ALLOWED_EXTENSIONS.includes(ext)) {
-                showError('File type .' + ext + ' is not allowed');
+                showError(STRINGS.fileTypeNotAllowed.replace('{ext}', ext));
                 return;
             }
             if (file.size > MAX_SIZE) {
-                showError(file.name + ' is too large (max 10MB)');
+                showError(STRINGS.fileTooLarge.replace('{filename}', file.name));
                 return;
             }
             if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                showError(file.name + ' is already added');
+                showError(STRINGS.fileAlreadyAdded.replace('{filename}', file.name));
                 return;
             }
             selectedFiles.push(file);
