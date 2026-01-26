@@ -28,9 +28,23 @@ defined('MOODLE_INTERNAL') || die();
  * Callback executed before HTTP headers are sent.
  *
  * Configures RequireJS for SweetAlert2 library.
+ * Only runs on plugin pages to avoid impacting the rest of the system.
  */
 function report_adeptus_insights_before_http_headers() {
     global $PAGE;
+
+    // Only inject JS on plugin pages to avoid impacting other parts of Moodle.
+    // Check if the current page URL is within the plugin's directory.
+    try {
+        $pageurl = $PAGE->url->out(false);
+    } catch (Exception $e) {
+        // URL not set yet, skip injection.
+        return;
+    }
+
+    if (strpos($pageurl, '/report/adeptus_insights/') === false) {
+        return;
+    }
 
     // Configure RequireJS for SweetAlert2
     // This script needs to run before any module tries to require 'sweetalert2'.
