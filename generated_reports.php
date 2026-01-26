@@ -64,7 +64,7 @@ if ($subscription) {
 
 // Load required AMD modules and CSS
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authdata]);
-$PAGE->requires->js_call_amd('report_adeptus_insights/readonly-mode', 'init');
+$PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/readonly-mode.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
