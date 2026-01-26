@@ -1,5 +1,8 @@
+/* Adeptus Insights Assistant Styles */
+/* All selectors namespaced with .path-report-adeptus_insights for Moodle compliance */
+
 /* Header Section - Rounded Card Banner (matches Wizard/Generated Reports style) */
-.assistant-header {
+.path-report-adeptus_insights .adeptus-assistant-header {
     background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
     color: white;
     padding: 30px;
@@ -13,7 +16,7 @@
     overflow: hidden;
 }
 
-.assistant-header::before {
+.path-report-adeptus_insights .adeptus-assistant-header::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -21,25 +24,25 @@
     width: 100%;
     height: 200%;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-    animation: headerFloat 20s linear infinite;
+    animation: adeptus-headerFloat 20s linear infinite;
 }
 
-@keyframes headerFloat {
+@keyframes adeptus-headerFloat {
     0% { transform: translateY(0) rotate(0deg); }
     100% { transform: translateY(-50%) rotate(360deg); }
 }
 
-.assistant-header-content {
+.path-report-adeptus_insights .adeptus-assistant-header-content {
     z-index: 1;
 }
 
-.assistant-header-actions {
+.path-report-adeptus_insights .adeptus-assistant-header-actions {
     z-index: 1;
     display: flex;
     gap: 10px;
 }
 
-.assistant-header-actions .btn-light {
+.path-report-adeptus_insights .adeptus-assistant-header-actions .btn-light {
     background: white;
     color: #0f6cbf;
     border: none;
@@ -49,7 +52,7 @@
     transition: all 0.3s ease;
 }
 
-.assistant-header-actions .btn-light:hover {
+.path-report-adeptus_insights .adeptus-assistant-header-actions .btn-light:hover {
     background: #f8f9fa;
     color: #0a5299;
     transform: translateY(-2px);
@@ -57,40 +60,24 @@
 }
 
 @media (max-width: 768px) {
-    .assistant-header {
+    .path-report-adeptus_insights .adeptus-assistant-header {
         flex-direction: column;
         text-align: center;
         gap: 20px;
     }
 
-    .assistant-header-actions {
+    .path-report-adeptus_insights .adeptus-assistant-header-actions {
         flex-direction: column;
         width: 100%;
     }
 
-    .assistant-header-actions .btn {
+    .path-report-adeptus_insights .adeptus-assistant-header-actions .btn {
         width: 100%;
     }
 }
-/* 
-.assistant-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 100%;
-    height: 200%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
-    animation: float 20s linear infinite;
-}
-
-@keyframes float {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(-100px) rotate(360deg); }
-} */
 
 /* Subscription Status Bar - displayed at bottom of page */
-.subscription-status-bar {
+.path-report-adeptus_insights .adeptus-subscription-status-bar {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 15px 20px;
     border-radius: 0.75rem;
@@ -100,20 +87,20 @@
     border: 1px solid #dee2e6;
 }
 
-.subscription-status-bar .subscription-bar-row {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-bar-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
 }
 
-.subscription-status-bar .subscription-info-left {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-info-left {
     display: flex;
     flex-direction: column;
     gap: 8px;
 }
 
-.subscription-status-bar .subscription-title {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-title {
     font-size: 1rem;
     font-weight: 600;
     margin: 0;
@@ -123,22 +110,22 @@
     color: #333;
 }
 
-.subscription-status-bar .subscription-icon {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-icon {
     color: #0f6cbf;
 }
 
-.subscription-status-bar .subscription-details {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-details {
     font-size: 0.9rem;
     color: #555;
 }
 
-.subscription-status-bar .subscription-actions-right {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-actions-right {
     display: flex;
     align-items: flex-start;
 }
 
 /* View Usage button styling - white text */
-.subscription-status-bar .btn-view-usage {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-btn-view-usage {
     background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
     color: #ffffff !important;
     border: none;
@@ -154,7 +141,7 @@
     box-shadow: 0 2px 8px rgba(15, 108, 191, 0.3);
 }
 
-.subscription-status-bar .btn-view-usage:hover {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-btn-view-usage:hover {
     background: linear-gradient(135deg, #0a5299 0%, #2a7dc4 100%);
     color: #ffffff !important;
     transform: translateY(-2px);
@@ -162,120 +149,120 @@
     text-decoration: none;
 }
 
-.subscription-status-bar .btn-view-usage i {
+.path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-btn-view-usage i {
     font-size: 0.85rem;
 }
 
 @media (max-width: 768px) {
-    .subscription-status-bar {
+    .path-report-adeptus_insights .adeptus-subscription-status-bar {
         padding: 12px 15px;
     }
 
-    .subscription-status-bar .subscription-bar-row {
+    .path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-bar-row {
         flex-direction: column;
         align-items: stretch;
         gap: 15px;
     }
 
-    .subscription-status-bar .subscription-actions-right {
+    .path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-subscription-actions-right {
         justify-content: flex-end;
     }
 }
 
 /* Usage Modal Styling */
-.usage-modal-popup {
+.path-report-adeptus_insights .adeptus-usage-modal-popup {
     padding: 20px !important;
     max-width: 95vw !important;
 }
 
-.usage-modal-popup .swal2-title {
+.path-report-adeptus_insights .adeptus-usage-modal-popup .swal2-title {
     display: none !important;
 }
 
-.usage-modal-popup .swal2-actions {
+.path-report-adeptus_insights .adeptus-usage-modal-popup .swal2-actions {
     display: none !important;
 }
 
-.usage-modal-popup .swal2-html-container {
+.path-report-adeptus_insights .adeptus-usage-modal-popup .swal2-html-container {
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
 }
 
-.usage-modal-container {
+.path-report-adeptus_insights .adeptus-usage-modal-container {
     margin: 0 !important;
     padding: 0 !important;
 }
 
 /* Fix horizontal scroll - constrain modal content */
-.detailed-usage-modal {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal {
     overflow-x: hidden;
     max-width: 100%;
 }
 
 /* Override page's .card-body height for modal */
-.detailed-usage-modal .card-body {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .card-body {
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
 }
 
-.detailed-usage-modal .card-body.p-0 {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .card-body.p-0 {
     padding: 0 !important;
     height: auto !important;
 }
 
 /* Make table section responsive */
-.detailed-usage-modal .table-responsive {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .table-responsive {
     max-height: 350px;
     overflow-y: auto;
     overflow-x: auto;
 }
 
 /* Fix row overflow */
-.detailed-usage-modal .row {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .row {
     margin-left: 0;
     margin-right: 0;
     overflow: hidden;
 }
 
-.detailed-usage-modal .row.g-2 {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .row.g-2 {
     --bs-gutter-x: 0.5rem;
 }
 
 /* Ensure cards have equal height */
-.detailed-usage-modal .row.g-2 .col-md-3 {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .row.g-2 .col-md-3 {
     display: flex;
     padding-left: 0.25rem;
     padding-right: 0.25rem;
 }
 
-.detailed-usage-modal .row.g-2 .card {
+.path-report-adeptus_insights .adeptus-detailed-usage-modal .row.g-2 .card {
     width: 100%;
 }
 
 /* Close button hover effect */
-.usage-modal-close-btn:hover {
+.path-report-adeptus_insights .adeptus-usage-modal-close-btn:hover {
     background: rgba(255,255,255,0.3) !important;
     transform: scale(1.1);
 }
 
 /* Responsive modal cards */
 @media (max-width: 768px) {
-    .detailed-usage-modal .row.g-2 .col-md-3 {
+    .path-report-adeptus_insights .adeptus-detailed-usage-modal .row.g-2 .col-md-3 {
         flex: 0 0 50%;
         max-width: 50%;
     }
 }
 
 @media (max-width: 480px) {
-    .detailed-usage-modal .row.g-2 .col-md-3 {
+    .path-report-adeptus_insights .adeptus-detailed-usage-modal .row.g-2 .col-md-3 {
         flex: 0 0 100%;
         max-width: 100%;
     }
 }
 
-.assistant-title {
+.path-report-adeptus_insights .adeptus-assistant-title {
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0;
@@ -284,105 +271,99 @@
     gap: 15px;
 }
 
-.assistant-icon {
-    animation: sparkle 2s ease-in-out infinite;
+.path-report-adeptus_insights .adeptus-assistant-icon {
+    animation: adeptus-sparkle 2s ease-in-out infinite;
 }
 
-@keyframes sparkle {
+@keyframes adeptus-sparkle {
     0%, 100% { transform: scale(1) rotate(0deg); }
     50% { transform: scale(1.1) rotate(5deg); }
 }
 
-.assistant-subtitle {
+.path-report-adeptus_insights .adeptus-assistant-subtitle {
     font-size: 1.1rem;
     opacity: 0.9;
     margin: 10px 0 0 0;
 }
 
-.assistant-user-info {
+.path-report-adeptus_insights .adeptus-assistant-user-info {
     text-align: right;
     z-index: 1;
 }
 
-.assistant-user-welcome {
+.path-report-adeptus_insights .adeptus-assistant-user-welcome {
     font-size: 1.1rem;
     font-weight: 500;
 }
 
 /* Buttons */
-.btn-back {
-    background: var(--accent-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
+.path-report-adeptus_insights .adeptus-btn-back {
+    background: var(--accent-color, #f8f9fa);
+    border: 1px solid var(--border-color, #e9ecef);
+    color: var(--text-primary, #2c3e50);
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 0.9rem;
     margin-bottom: 20px;
 }
 
-.btn-back:hover {
-    background: var(--border-color);
+.path-report-adeptus_insights .adeptus-btn-back:hover {
+    background: var(--border-color, #e9ecef);
 }
 
-.btn-primary {
+.path-report-adeptus_insights .adeptus-btn-primary {
     background: white;
     color: #2563eb;
     border-radius: 70px 7px 70px!important;
 }
 
-.btn:hover {
+.path-report-adeptus_insights .adeptus-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-.btn-secondary {
+.path-report-adeptus_insights .adeptus-btn-secondary {
     background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    color: var(--primary-color, #0f6cbf);
+    border: 2px solid var(--primary-color, #0f6cbf);
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.btn-secondary:hover {
-    background: var(--primary-color);
+.path-report-adeptus_insights .adeptus-btn-secondary:hover {
+    background: var(--primary-color, #0f6cbf);
     color: white;
 }
 
-.btn-regenerate, .btn-generate {
-    background: var(--primary-color);
+.path-report-adeptus_insights .adeptus-btn-regenerate,
+.path-report-adeptus_insights .adeptus-btn-generate {
+    background: var(--primary-color, #0f6cbf);
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 0.9rem;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
-.btn-regenerate:hover, .btn-generate:hover {
-    background: var(--primary-dark);
+.path-report-adeptus_insights .adeptus-btn-regenerate:hover,
+.path-report-adeptus_insights .adeptus-btn-generate:hover {
+    background: var(--primary-dark, #0a5299);
 }
 
-.mr-auto {
-    width: 100%;
-}
-
-.page-header-headings {
-    width: 100%;
-}
-
-.btn-bookmark {
+.path-report-adeptus_insights .adeptus-btn-bookmark {
     background: #ffc107;
     color: #212529;
     border: none;
@@ -391,29 +372,29 @@
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.btn-bookmark:hover {
+.path-report-adeptus_insights .adeptus-btn-bookmark:hover {
     background: #e0a800;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
 }
 
-.btn-bookmark i {
-    transition: var(--transition);
+.path-report-adeptus_insights .adeptus-btn-bookmark i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-bookmark:hover i {
+.path-report-adeptus_insights .adeptus-btn-bookmark:hover i {
     transform: scale(1.1);
 }
 
 /* Credit usage animations */
-.credit-update-highlight {
-    animation: creditUpdatePulse 1s ease-in-out;
+.path-report-adeptus_insights .adeptus-credit-update-highlight {
+    animation: adeptus-creditUpdatePulse 1s ease-in-out;
     background: linear-gradient(45deg, #28a745, #20c997);
     color: white;
     padding: 2px 6px;
@@ -422,7 +403,7 @@
     display: inline-block;
 }
 
-@keyframes creditUpdatePulse {
+@keyframes adeptus-creditUpdatePulse {
     0% {
         transform: scale(1);
         box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
@@ -438,23 +419,22 @@
 }
 
 /* Credit usage notification styles */
-.credit-usage-notification {
+.path-report-adeptus_insights .adeptus-credit-usage-notification {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     border-left: 4px solid #1e7e34;
 }
 
-.refresh-success-notification,
-.refresh-error-notification {
+.path-report-adeptus_insights .adeptus-refresh-success-notification,
+.path-report-adeptus_insights .adeptus-refresh-error-notification {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     border-left: 4px solid #1e7e34;
 }
 
-.refresh-error-notification {
+.path-report-adeptus_insights .adeptus-refresh-error-notification {
     border-left-color: #721c24;
 }
 
-
-.btn {
+.path-report-adeptus_insights .adeptus-btn {
     padding: 12px 24px;
     border-radius: 70px 7px 70px;
     font-weight: 600;
@@ -468,7 +448,7 @@
 }
 
 /* URL links in report tables */
-.report-url-link {
+.path-report-adeptus_insights .adeptus-report-url-link {
     color: #0d6efd;
     text-decoration: none;
     word-break: break-all;
@@ -478,19 +458,19 @@
     display: inline-block;
 }
 
-.report-url-link:hover {
+.path-report-adeptus_insights .adeptus-report-url-link:hover {
     color: #0a58ca;
     background-color: #e7f1ff;
     text-decoration: underline;
 }
 
-.report-url-link:focus {
+.path-report-adeptus_insights .adeptus-report-url-link:focus {
     outline: 2px solid #0d6efd;
     outline-offset: 2px;
 }
 
 /* External link indicator icon (optional - shows link opens in new tab) */
-.report-url-link::after {
+.path-report-adeptus_insights .adeptus-report-url-link::after {
     content: '\f08e'; /* Font Awesome external link icon */
     font-family: 'Font Awesome 6 Free', 'FontAwesome', sans-serif;
     font-weight: 900;
@@ -501,7 +481,7 @@
 }
 
 /* Retry button styles */
-.btn-retry {
+.path-report-adeptus_insights .adeptus-btn-retry {
     background-color: #0d6efd;
     color: white;
     border: none;
@@ -511,12 +491,12 @@
     transition: background-color 0.2s ease;
 }
 
-.btn-retry:hover {
+.path-report-adeptus_insights .adeptus-btn-retry:hover {
     background-color: #0b5ed7;
 }
 
 /* Error state with retry */
-.error-with-retry {
+.path-report-adeptus_insights .adeptus-error-with-retry {
     background-color: #fff5f5;
     border: 1px solid #fed7d7;
     border-radius: 8px;
@@ -524,13 +504,13 @@
     text-align: center;
 }
 
-.error-with-retry .error-message {
+.path-report-adeptus_insights .adeptus-error-with-retry .adeptus-error-message {
     color: #c53030;
     margin-bottom: 12px;
 }
 
 /* Ghost report warning - when AI says report generated but structure is missing */
-.ghost-report-warning {
+.path-report-adeptus_insights .adeptus-ghost-report-warning {
     background: #fff3cd;
     border: 1px solid #ffc107;
     border-radius: 8px;
@@ -539,12 +519,12 @@
     color: #856404;
 }
 
-.ghost-report-warning i {
+.path-report-adeptus_insights .adeptus-ghost-report-warning i {
     margin-right: 8px;
 }
 
 /* System message style */
-.system-message {
+.path-report-adeptus_insights .adeptus-system-message {
     background: #e9ecef;
     color: #495057;
     border-left: 3px solid #6c757d;

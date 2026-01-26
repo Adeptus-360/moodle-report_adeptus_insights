@@ -9,13 +9,13 @@
 
 <style>
 /* Premium Report Styles */
-.premium-report {
+.adeptus-premium-report {
     position: relative;
     border: 2px solid #f39c12 !important;
     background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%) !important;
 }
 
-.premium-badge {
+.adeptus-premium-badge {
     background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
     color: white;
     padding: 4px 8px;
@@ -30,11 +30,11 @@
     gap: 4px;
 }
 
-.premium-badge i {
+.adeptus-premium-badge i {
     font-size: 8px;
 }
 
-.report-meta {
+.adeptus-report-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -43,36 +43,36 @@
 }
 
 /* Upgrade Popup Styles */
-.upgrade-popup .swal2-popup {
+.adeptus-upgrade-popup .swal2-popup {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.upgrade-popup .swal2-title {
+.adeptus-upgrade-popup .swal2-title {
     color: #2c3e50;
     font-weight: 700;
 }
 
 /* Category Card Free Tier Indicator */
-.report-count {
+.adeptus-report-count {
     font-size: 12px;
     color: #7f8c8d;
     font-weight: 500;
 }
 
-.category-card {
+.adeptus-category-card {
     position: relative;
 }
 
 /* Loading indicator styles - removed categories loading since we use full-screen loader */
 
 /* New Section Styles */
-.wizard-section {
+.adeptus-wizard-section {
     margin: 40px 0;
     padding: 0 20px;
 }
 
-.wizard-section .step-header {
+.adeptus-wizard-section .adeptus-step-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -81,7 +81,7 @@
     gap: 15px;
 }
 
-.wizard-section .step-header h2 {
+.adeptus-wizard-section .adeptus-step-header h2 {
     margin: 0;
     font-size: 24px;
     color: #2c3e50;
@@ -90,18 +90,18 @@
     gap: 12px;
 }
 
-.wizard-section .step-header p {
+.adeptus-wizard-section .adeptus-step-header p {
     margin: 5px 0 0 0;
     color: #7f8c8d;
     font-size: 14px;
 }
 
-.wizard-section .section-actions {
+.adeptus-wizard-section .adeptus-section-actions {
     display: flex;
     gap: 10px;
 }
 
-.wizard-section .section-actions button {
+.adeptus-wizard-section .adeptus-section-actions button {
     padding: 8px 16px;
     border: 1px solid #ddd;
     background: white;
@@ -111,13 +111,13 @@
     transition: all 0.3s ease;
 }
 
-.wizard-section .section-actions button:hover {
+.adeptus-wizard-section .adeptus-section-actions button:hover {
     background: #f8f9fa;
     border-color: #007bff;
 }
 
 /* Report Card Styles (similar to category cards but with differences) */
-.report-card {
+.adeptus-report-card {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     border: 2px solid #e9ecef;
     border-radius: 12px;
@@ -128,13 +128,13 @@
     overflow: hidden;
 }
 
-.report-card:hover {
+.adeptus-report-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     border-color: #007bff;
 }
 
-.report-card::after {
+.adeptus-report-card::after {
     content: '\f105';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
@@ -147,7 +147,7 @@
     opacity: 0.7;
 }
 
-.report-card .card-icon {
+.adeptus-report-card .adeptus-card-icon {
     width: 50px;
     height: 50px;
     background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
@@ -160,25 +160,25 @@
     font-size: 20px;
 }
 
-.report-card .card-content h4 {
+.adeptus-report-card .adeptus-card-content h4 {
     margin: 0 0 8px 0;
     font-size: 16px;
     color: #2c3e50;
     font-weight: 600;
 }
 
-.report-card .card-content p {
+.adeptus-report-card .adeptus-card-content p {
     margin: 0 0 5px 0;
     color: #7f8c8d;
     font-size: 13px;
 }
 
-.report-card .card-content .card-date {
+.adeptus-report-card .adeptus-card-content .adeptus-card-date {
     color: #95a5a6;
     font-size: 11px;
 }
 
-.report-card .card-actions {
+.adeptus-report-card .adeptus-card-actions {
     position: absolute;
     top: 15px;
     right: 50px;
@@ -188,11 +188,11 @@
     transition: opacity 0.3s ease;
 }
 
-.report-card:hover .card-actions {
+.adeptus-report-card:hover .adeptus-card-actions {
     opacity: 1;
 }
 
-.report-card .card-actions button {
+.adeptus-report-card .adeptus-card-actions button {
     min-width: 30px;
     height: 30px;
     border: none;
@@ -207,37 +207,37 @@
     white-space: nowrap;
 }
 
-.report-card .card-actions button span {
+.adeptus-report-card .adeptus-card-actions button span {
     font-size: 11px;
     font-weight: 500;
 }
 
-.report-card .card-actions .btn-load-config {
+.adeptus-report-card .adeptus-card-actions .adeptus-btn-load-config {
     background: #28a745;
     color: white;
 }
 
-.report-card .card-actions .btn-load-config:hover {
+.adeptus-report-card .adeptus-card-actions .adeptus-btn-load-config:hover {
     background: #218838;
 }
 
-.report-card .card-actions .btn-remove {
+.adeptus-report-card .adeptus-card-actions .adeptus-btn-remove {
     background: #dc3545;
     color: white;
 }
 
-.report-card .card-actions .btn-remove:hover {
+.adeptus-report-card .adeptus-card-actions .adeptus-btn-remove:hover {
     background: #c82333;
 }
 
 /* Category title styling */
-.category-title {
+.adeptus-category-title {
     font-size: 16px !important;
     font-weight: 600 !important;
 }
 
 /* Blue arrow for category cards */
-.category-card::after {
+.adeptus-category-card::after {
     content: '\f105'; /* FontAwesome chevron-right icon */
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
@@ -251,7 +251,7 @@
 }
 
 /* Form Controls Styling */
-.form-control {
+.adeptus-form-control {
     width: 100% !important;
     padding: 8px 12px !important;
     font-size: 14px !important;
@@ -263,29 +263,29 @@
     box-sizing: border-box !important;
 }
 
-.form-control:focus {
+.adeptus-form-control:focus {
     border-color: #3498db !important;
     outline: none !important;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2) !important;
 }
 
-select.form-control {
+select.adeptus-form-control {
     height: auto !important;
     min-height: 38px !important;
 }
 
-select.form-control option {
+select.adeptus-form-control option {
     padding: 8px 12px !important;
     font-size: 14px !important;
     line-height: 1.4 !important;
 }
 
 /* Parameter field styling */
-.parameter-field {
+.adeptus-parameter-field {
     margin-bottom: 20px;
 }
 
-.parameter-field label {
+.adeptus-parameter-field label {
     display: block;
     margin-bottom: 6px;
     font-weight: 600;
@@ -293,11 +293,11 @@ select.form-control option {
     font-size: 14px;
 }
 
-.parameter-field .form-control {
+.adeptus-parameter-field .adeptus-form-control {
     width: 100%;
 }
 
-.parameter-field .help-text {
+.adeptus-parameter-field .adeptus-help-text {
     font-size: 12px;
     color: #7f8c8d;
     margin-top: 4px;
@@ -339,48 +339,48 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
 
 <div class="adeptus-wizard-container" id="wizard-container">
     <!-- Header Section -->
-    <div class="wizard-header">
-        <div class="wizard-header-content">
-            <h1 class="wizard-title">
-                <i class="fa-solid fa-wand-magic-sparkles wizard-icon"></i>
+    <div class="adeptus-wizard-header">
+        <div class="adeptus-wizard-header-content">
+            <h1 class="adeptus-wizard-title">
+                <i class="fa-solid fa-wand-magic-sparkles adeptus-wizard-icon"></i>
                 {{wizard_title}}
             </h1>
-            <p class="wizard-subtitle">{{#str}}wizard_subtitle, report_adeptus_insights{{/str}}</p>
-            
+            <p class="adeptus-wizard-subtitle">{{#str}}wizard_subtitle, report_adeptus_insights{{/str}}</p>
+
         </div>
-        <div class="wizard-header-section">
-            <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary back-to-dashboard-btn">
+        <div class="adeptus-wizard-header-section">
+            <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary adeptus-back-to-dashboard-btn">
                 <i class="fa-solid fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
 
     <!-- Main Wizard Steps -->
-    <div class="wizard-steps-container">
-        
+    <div class="adeptus-wizard-steps-container">
+
         <!-- Step 1: Select Report Category -->
-        <div class="wizard-step active" id="step-select-category">
-            <div class="step-header">
-                <h2><span class="step-number">1</span> {{#str}}choose_report_category, report_adeptus_insights{{/str}}</h2>
+        <div class="adeptus-wizard-step active" id="step-select-category">
+            <div class="adeptus-step-header">
+                <h2><span class="adeptus-step-number">1</span> {{#str}}choose_report_category, report_adeptus_insights{{/str}}</h2>
                 <p>{{#str}}category_select_description, report_adeptus_insights{{/str}}</p>
             </div>
-            
-            <div class="category-grid">
+
+            <div class="adeptus-category-grid">
                 {{#categories}}
-                <div class="category-card" data-category="{{name}}">
-                    <div class="category-icon">
+                <div class="adeptus-category-card" data-category="{{name}}">
+                    <div class="adeptus-category-icon">
                         <i class="fa-solid {{icon}}"></i>
                     </div>
-                    <div class="category-content">
+                    <div class="adeptus-category-content">
                         <h6>{{name}}</h6>
                         {{#is_free_plan}}
-                        <span class="report-count">{{free_reports_count}} out of {{report_count}} reports on free tier</span>
+                        <span class="adeptus-report-count">{{free_reports_count}} out of {{report_count}} reports on free tier</span>
                         {{/is_free_plan}}
                         {{^is_free_plan}}
-                        <span class="report-count">{{report_count}} reports</span>
+                        <span class="adeptus-report-count">{{report_count}} reports</span>
                         {{/is_free_plan}}
                     </div>
-                    <div class="category-arrow">
+                    <div class="adeptus-category-arrow">
                         <i class="fa-solid fa-chevron-right"></i>
                     </div>
                 </div>
@@ -389,138 +389,138 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
         </div>
 
         <!-- Step 2: Select Specific Report -->
-        <div class="wizard-step" id="step-select-report">
-            <div class="step-header" style="display: flex; justify-content: space-between;">
-                <div class="assistant-header">
-                    <h2><span class="step-number">2</span> {{#str}}choose_your_report, report_adeptus_insights{{/str}}</h2>
+        <div class="adeptus-wizard-step" id="step-select-report">
+            <div class="adeptus-step-header" style="display: flex; justify-content: space-between;">
+                <div class="adeptus-assistant-header">
+                    <h2><span class="adeptus-step-number">2</span> {{#str}}choose_your_report, report_adeptus_insights{{/str}}</h2>
                     <p id="selected-category-name">{{#str}}reports_in_category, report_adeptus_insights{{/str}}</p>
                </div>
-               <div class="back-to-categories-btn">
-                    <button class="btn-back" id="back-to-categories">
+               <div class="adeptus-back-to-categories-btn">
+                    <button class="adeptus-btn-back" id="back-to-categories">
                         <i class="fa-solid fa-arrow-left"></i> {{#str}}back_to_categories, report_adeptus_insights{{/str}}
                     </button>
-                </div> 
+                </div>
             </div>
-            
-            <div class="reports-grid" id="reports-grid">
+
+            <div class="adeptus-reports-grid" id="reports-grid">
                 <!-- Reports will be populated dynamically -->
             </div>
         </div>
 
         <!-- Step 3: Configure Parameters -->
-        <div class="wizard-step" id="step-configure">
-            <div class="step-header" style="display: flex; justify-content: space-between;">
-                <div class="assistant-header"> 
-                    <h2><span class="step-number">3</span> {{#str}}configure_report, report_adeptus_insights{{/str}}</h2>
+        <div class="adeptus-wizard-step" id="step-configure">
+            <div class="adeptus-step-header" style="display: flex; justify-content: space-between;">
+                <div class="adeptus-assistant-header">
+                    <h2><span class="adeptus-step-number">3</span> {{#str}}configure_report, report_adeptus_insights{{/str}}</h2>
                     <p id="selected-report-name">{{#str}}configure_parameters, report_adeptus_insights{{/str}}</p>
-                
+
                 </div>
-               <div class="back-to-categories-btn">
-                    <button class="btn-back" id="back-to-reports">
+               <div class="adeptus-back-to-categories-btn">
+                    <button class="adeptus-btn-back" id="back-to-reports">
                         <i class="fa-solid fa-arrow-left"></i> {{#str}}back_to_reports, report_adeptus_insights{{/str}}
                     </button>
                 </div>
             </div>
-            
-            <div class="configuration-container">
-                <div class="config-form" id="config-form">
+
+            <div class="adeptus-configuration-container">
+                <div class="adeptus-config-form" id="config-form">
                     <!-- Parameters will be populated dynamically -->
                 </div>
-                
-                <div class="config-preview">
+
+                <div class="adeptus-config-preview">
                     <h3>{{#str}}report_preview, report_adeptus_insights{{/str}}</h3>
-                    <div class="preview-content" id="preview-content">
-                        <div class="preview-placeholder">
+                    <div class="adeptus-preview-content" id="preview-content">
+                        <div class="adeptus-preview-placeholder">
                             <i class="fa-solid fa-eye"></i>
                             <p>{{#str}}configure_for_preview, report_adeptus_insights{{/str}}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="step-actions">
-                <button class="btn-primary btn-generate-report" id="generate-report">
+
+            <div class="adeptus-step-actions">
+                <button class="adeptus-btn-primary adeptus-btn-generate-report" id="generate-report">
                     <i class="fa-solid fa-play"></i> {{#str}}generate_report, report_adeptus_insights{{/str}}
                 </button>
-                <button class="btn-secondary btn-save-config" id="save-config">
+                <button class="adeptus-btn-secondary adeptus-btn-save-config" id="save-config">
                     <i class="fa-solid fa-bookmark"></i> {{#str}}bookmark_configuration, report_adeptus_insights{{/str}}
                 </button>
             </div>
         </div>
 
         <!-- Step 4: View Results -->
-        <div class="wizard-step" id="step-results">
-            <div class="step-header" style="display: flex; justify-content: space-between;">
-                <div class="assistant-header">
-                    <h2><span class="step-number">4</span> {{#str}}report_results, report_adeptus_insights{{/str}}</h2>
+        <div class="adeptus-wizard-step" id="step-results">
+            <div class="adeptus-step-header" style="display: flex; justify-content: space-between;">
+                <div class="adeptus-assistant-header">
+                    <h2><span class="adeptus-step-number">4</span> {{#str}}report_results, report_adeptus_insights{{/str}}</h2>
                     <p id="results-report-name">{{#str}}your_generated_report, report_adeptus_insights{{/str}}</p>
                 </div>
-               <div class="back-to-categories-btn">
-                     <button class="btn-back" id="back-to-config">
+               <div class="adeptus-back-to-categories-btn">
+                     <button class="adeptus-btn-back" id="back-to-config">
                     <i class="fa-solid fa-arrow-left"></i> {{#str}}back_to_configuration, report_adeptus_insights{{/str}}
                      </button>
                 </div>
             </div>
-            
-            <div class="results-container">
-                <div class="results-toolbar">
-                    <div class="results-info">
+
+            <div class="adeptus-results-container">
+                <div class="adeptus-results-toolbar">
+                    <div class="adeptus-results-info">
                         <span id="results-count">{{#str}}loading, report_adeptus_insights{{/str}}</span>
                     </div>
-                    <div class="results-actions">
-                        <div class="export-dropdown">
-                            <button class="btn-export" id="export-btn">
+                    <div class="adeptus-results-actions">
+                        <div class="adeptus-export-dropdown">
+                            <button class="adeptus-btn-export" id="export-btn">
                                 <i class="fa-solid fa-download"></i> {{#str}}export, report_adeptus_insights{{/str}}
                                 <i class="fa-solid fa-chevron-down"></i>
                             </button>
-                            <div class="export-menu" id="export-menu">
-                                <a href="#" data-format="csv" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                            <div class="adeptus-export-menu" id="export-menu">
+                                <a href="#" data-format="csv" class="{{#is_free_plan}}adeptus-export-premium{{/is_free_plan}}">
                                     <i class="fa-regular fa-file-lines"></i> CSV
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
+                                    {{#is_free_plan}}<span class="adeptus-premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
-                                <a href="#" data-format="excel" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                                <a href="#" data-format="excel" class="{{#is_free_plan}}adeptus-export-premium{{/is_free_plan}}">
                                     <i class="fa-regular fa-file-excel"></i> Excel
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
+                                    {{#is_free_plan}}<span class="adeptus-premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
                                 <a href="#" data-format="pdf"><i class="fa-regular fa-file-pdf"></i> PDF</a>
-                                <a href="#" data-format="json" class="{{#is_free_plan}}export-premium{{/is_free_plan}}">
+                                <a href="#" data-format="json" class="{{#is_free_plan}}adeptus-export-premium{{/is_free_plan}}">
                                     <i class="fa-solid fa-code"></i> JSON
-                                    {{#is_free_plan}}<span class="premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
+                                    {{#is_free_plan}}<span class="adeptus-premium-badge-small"><i class="fa-solid fa-crown"></i></span>{{/is_free_plan}}
                                 </a>
                             </div>
                         </div>
-                        <button class="btn-bookmark" id="bookmark-report">
+                        <button class="adeptus-btn-bookmark" id="bookmark-report">
                             <i class="fa-regular fa-star"></i> {{#str}}bookmark, report_adeptus_insights{{/str}}
                         </button>
-                        <button class="btn-regenerate" id="regenerate-report">
+                        <button class="adeptus-btn-regenerate" id="regenerate-report">
                             <i class="fa-solid fa-rotate"></i> {{#str}}regenerate, report_adeptus_insights{{/str}}
                         </button>
                     </div>
                 </div>
-                
-                <div class="results-content">
-                    <div class="results-view-header">
-                        <div class="view-toggle btn-group" role="group">
-                            <button type="button" class="btn btn-sm view-toggle-btn active" data-view="table">
+
+                <div class="adeptus-results-content">
+                    <div class="adeptus-results-view-header">
+                        <div class="adeptus-view-toggle btn-group" role="group">
+                            <button type="button" class="btn btn-sm adeptus-view-toggle-btn active" data-view="table">
                                 <i class="fa-solid fa-table"></i> {{#str}}table, report_adeptus_insights{{/str}}
                             </button>
-                            <button type="button" class="btn btn-sm view-toggle-btn" data-view="chart">
+                            <button type="button" class="btn btn-sm adeptus-view-toggle-btn" data-view="chart">
                                 <i class="fa-solid fa-chart-bar"></i> {{#str}}chart, report_adeptus_insights{{/str}}
                             </button>
                         </div>
                     </div>
 
-                    <div class="results-data">
-                        <div class="view-panel" id="table-view">
-                            <div class="table-container" id="results-table">
+                    <div class="adeptus-results-data">
+                        <div class="adeptus-view-panel" id="table-view">
+                            <div class="adeptus-table-container" id="results-table">
                                 <!-- Table will be populated dynamically -->
                             </div>
                         </div>
-                        <div class="view-panel d-none" id="chart-view">
-                            <div class="chart-controls-wrapper" id="chart-controls">
+                        <div class="adeptus-view-panel d-none" id="chart-view">
+                            <div class="adeptus-chart-controls-wrapper" id="chart-controls">
                                 <!-- Chart controls will be populated dynamically -->
                             </div>
-                            <div class="chart-container" id="results-chart">
+                            <div class="adeptus-chart-container" id="results-chart">
                                 <!-- Chart will be populated dynamically -->
                             </div>
                         </div>
@@ -531,69 +531,69 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
     </div>
 
     <!-- Generated Reports Section -->
-    <div class="wizard-section" id="generated-reports-section" style="display: none;">
-        <div class="step-header">
-            <h2><span class="step-number">📊</span> {{#str}}generated_reports_section, report_adeptus_insights{{/str}}</h2>
+    <div class="adeptus-wizard-section" id="generated-reports-section" style="display: none;">
+        <div class="adeptus-step-header">
+            <h2><span class="adeptus-step-number">📊</span> {{#str}}generated_reports_section, report_adeptus_insights{{/str}}</h2>
             <p>{{#str}}generated_reports_section_desc, report_adeptus_insights{{/str}}</p>
         </div>
-        
-        <div class="category-grid" id="generated-reports-grid">
+
+        <div class="adeptus-category-grid" id="generated-reports-grid">
             <!-- Generated report cards will be populated by JavaScript -->
         </div>
     </div>
 
     <!-- Recent Reports Section -->
-    <div class="wizard-section" id="recent-reports-section" style="display: none;">
-        <div class="step-header">
-            <h2><span class="step-number">🕒</span> {{#str}}recent_reports, report_adeptus_insights{{/str}}</h2>
+    <div class="adeptus-wizard-section" id="recent-reports-section" style="display: none;">
+        <div class="adeptus-step-header">
+            <h2><span class="adeptus-step-number">🕒</span> {{#str}}recent_reports, report_adeptus_insights{{/str}}</h2>
             <p>{{#str}}recent_reports_desc, report_adeptus_insights{{/str}}</p>
-            <div class="section-actions">
-                <button class="btn-toggle-recent" id="toggle-recent-reports">
+            <div class="adeptus-section-actions">
+                <button class="adeptus-btn-toggle-recent" id="toggle-recent-reports">
                     <i class="fa-solid fa-eye"></i> {{#str}}show_all, report_adeptus_insights{{/str}}
                 </button>
-                <button class="btn-clear-recent" id="clear-recent-reports">
+                <button class="adeptus-btn-clear-recent" id="clear-recent-reports">
                     <i class="fa-solid fa-trash"></i> {{#str}}clear_all, report_adeptus_insights{{/str}}
                 </button>
             </div>
         </div>
-        
-        <div class="category-grid" id="recent-reports-grid">
+
+        <div class="adeptus-category-grid" id="recent-reports-grid">
             <!-- Recent report cards will be populated by JavaScript -->
         </div>
     </div>
 
     <!-- Bookmarks Section -->
-    <div class="wizard-section" id="bookmarks-section" style="display: none;">
-        <div class="step-header">
-            <h2><span class="step-number">⭐</span> {{#str}}bookmarked_reports, report_adeptus_insights{{/str}}</h2>
+    <div class="adeptus-wizard-section" id="bookmarks-section" style="display: none;">
+        <div class="adeptus-step-header">
+            <h2><span class="adeptus-step-number">⭐</span> {{#str}}bookmarked_reports, report_adeptus_insights{{/str}}</h2>
             <p>{{#str}}bookmarked_reports_desc, report_adeptus_insights{{/str}}</p>
-            <div class="section-actions">
-                <button class="btn-clear-bookmarks" id="clear-bookmarked-reports">
+            <div class="adeptus-section-actions">
+                <button class="adeptus-btn-clear-bookmarks" id="clear-bookmarked-reports">
                     <i class="fa-solid fa-trash"></i> {{#str}}clear_all, report_adeptus_insights{{/str}}
                 </button>
             </div>
         </div>
-        
-        <div class="category-grid" id="bookmarks-grid">
+
+        <div class="adeptus-category-grid" id="bookmarks-grid">
             <!-- Bookmark cards will be populated by JavaScript -->
         </div>
     </div>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
+    <div class="adeptus-loading-overlay" id="loading-overlay">
+        <div class="adeptus-loading-content">
+            <div class="adeptus-loading-spinner"></div>
             <h3>{{#str}}generating_report, report_adeptus_insights{{/str}}</h3>
             <p>{{#str}}processing_request, report_adeptus_insights{{/str}}</p>
         </div>
     </div>
 
     <!-- Success/Error Popup -->
-    <div class="popup-overlay" id="popup-overlay">
-        <div class="popup-content" id="popup-content">
+    <div class="adeptus-popup-overlay" id="popup-overlay">
+        <div class="adeptus-popup-content" id="popup-content">
             <h3 id="popup-title">{{#str}}message, report_adeptus_insights{{/str}}</h3>
             <p id="popup-message"></p>
-            <button class="btn-close" id="popup-close">{{#str}}ok, report_adeptus_insights{{/str}}</button>
+            <button class="adeptus-btn-close" id="popup-close">{{#str}}ok, report_adeptus_insights{{/str}}</button>
         </div>
     </div>
 

@@ -7,20 +7,20 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{{config.wwwroot}}/report/adeptus_insights/styles/assistant.css">
 
-<div class="generated-reports-container">
+<div class="adeptus-generated-reports-container">
     <!-- Toast Container for notifications -->
     <div id="adeptus-toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000;"></div>
 
     <!-- Header Banner -->
-    <div class="page-header-banner">
-        <div class="page-header-content">
-            <h1 class="page-header-title">
-                <i class="fa fa-chart-bar page-header-icon"></i>
+    <div class="adeptus-page-header-banner">
+        <div class="adeptus-page-header-content">
+            <h1 class="adeptus-page-header-title">
+                <i class="fa fa-chart-bar adeptus-page-header-icon"></i>
                 {{#str}}generated_reports_title, report_adeptus_insights{{/str}}
             </h1>
-            <p class="page-header-subtitle">{{#str}}generated_reports_desc, report_adeptus_insights{{/str}}</p>
+            <p class="adeptus-page-header-subtitle">{{#str}}generated_reports_desc, report_adeptus_insights{{/str}}</p>
         </div>
-        <div class="page-header-actions">
+        <div class="adeptus-page-header-actions">
             <button type="button" class="btn btn-outline-light" id="manage-categories-btn">
                 <i class="fa fa-tags"></i> {{#str}}manage_categories, report_adeptus_insights{{/str}}
             </button>
@@ -78,24 +78,24 @@
             <div class="col-md-8">
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0 report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
-                        <div class="report-category-selector d-none" id="report-category-selector">
-                            <div class="category-dropdown-wrapper">
-                                <button type="button" class="category-current-btn" id="category-current-btn">
-                                    <span class="category-dot" id="category-dot"></span>
-                                    <span class="category-name" id="category-name">{{#str}}general, report_adeptus_insights{{/str}}</span>
+                        <h5 class="card-title mb-0 adeptus-report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
+                        <div class="adeptus-report-category-selector d-none" id="report-category-selector">
+                            <div class="adeptus-category-dropdown-wrapper">
+                                <button type="button" class="adeptus-category-current-btn" id="category-current-btn">
+                                    <span class="adeptus-category-dot" id="category-dot"></span>
+                                    <span class="adeptus-category-name" id="category-name">{{#str}}general, report_adeptus_insights{{/str}}</span>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </button>
-                                <div class="category-dropdown-menu" id="category-dropdown-menu">
+                                <div class="adeptus-category-dropdown-menu" id="category-dropdown-menu">
                                     <!-- Categories will be injected here -->
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger delete-report-header-btn" id="delete-report-header-btn" title="Delete Report">
+                            <button type="button" class="btn btn-sm btn-outline-danger adeptus-delete-report-header-btn" id="delete-report-header-btn" title="Delete Report">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="card-body p-4 report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
+                    <div class="card-body p-4 adeptus-report-view-body" style="height: calc(100vh - 280px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                         <div id="report-placeholder" class="text-center py-5">
                             <i class="fa fa-file-alt fa-4x text-muted mb-3"></i>
                             <h5 class="text-muted">{{#str}}select_report_to_view, report_adeptus_insights{{/str}}</h5>

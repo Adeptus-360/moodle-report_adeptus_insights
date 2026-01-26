@@ -216,7 +216,7 @@
     text-align: center;
 }
 
-.success-icon {
+.adeptus-success-icon {
     font-size: 48px;
     color: #28a745;
     margin-bottom: 20px;
@@ -229,13 +229,13 @@
     font-weight: 600;
 }
 
-.connection-details {
+.adeptus-connection-details {
     text-align: left;
     max-width: 400px;
     margin: 0 auto;
 }
 
-.detail-row {
+.adeptus-detail-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -243,17 +243,17 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-.detail-row:last-child {
+.adeptus-detail-row:last-child {
     border-bottom: none;
 }
 
-.detail-row .label {
+.adeptus-detail-row .label {
     font-weight: 600;
     color: #555;
     font-size: 14px;
 }
 
-.detail-row .value {
+.adeptus-detail-row .value {
     color: #333;
     font-size: 14px;
     font-family: monospace;
@@ -266,7 +266,7 @@
     white-space: nowrap;
 }
 
-.status-connected {
+.adeptus-status-connected {
     color: #28a745 !important;
     font-weight: 600;
 }
@@ -335,7 +335,7 @@
     padding: 20px;
 }
 
-.installation-header {
+.adeptus-installation-header {
     background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
     color: white;
     padding: 40px;
@@ -345,31 +345,31 @@
     box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
 }
 
-.installation-header h1 {
+.adeptus-installation-header h1 {
     margin: 0;
     font-size: 32px;
     font-weight: 600;
 }
 
-.installation-header p {
+.adeptus-installation-header p {
     margin: 15px 0 0 0;
     opacity: 0.9;
     font-size: 18px;
 }
 
-.installation-progress {
+.adeptus-installation-progress {
     display: flex;
     justify-content: center;
     margin-bottom: 30px;
 }
 
-.progress-step {
+.adeptus-progress-step {
     display: flex;
     align-items: center;
     margin: 0 20px;
 }
 
-.progress-step .step-number {
+.adeptus-progress-step .adeptus-step-number {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -380,46 +380,46 @@
     margin-right: 10px;
 }
 
-.progress-step.completed .step-number {
+.adeptus-progress-step.completed .adeptus-step-number {
     background: #28a745;
     color: white;
 }
 
-.progress-step.current .step-number {
+.adeptus-progress-step.current .adeptus-step-number {
     background: #2563eb;
     color: white;
 }
 
-.progress-step.pending .step-number {
+.adeptus-progress-step.pending .adeptus-step-number {
     background: #e9ecef;
     color: #6c757d;
 }
 
-.progress-step .step-label {
+.adeptus-progress-step .adeptus-step-label {
     font-weight: 500;
     color: #333;
 }
 
-.progress-step.completed .step-label {
+.adeptus-progress-step.completed .adeptus-step-label {
     color: #28a745;
 }
 
-.progress-step.current .step-label {
+.adeptus-progress-step.current .adeptus-step-label {
     color: #2563eb;
 }
 
-.progress-step.pending .step-label {
+.adeptus-progress-step.pending .adeptus-step-label {
     color: #6c757d;
 }
 
-.progress-connector {
+.adeptus-progress-connector {
     width: 60px;
     height: 2px;
     background: #e9ecef;
     margin: 0 10px;
 }
 
-.progress-connector.completed {
+.adeptus-progress-connector.completed {
     background: #28a745;
 }
 
@@ -435,26 +435,26 @@
     
     <div class="adeptus-success-content">
         <div class="adeptus-success-card">
-            <div class="success-icon">
+            <div class="adeptus-success-icon">
                 <i class="fa fa-link"></i>
             </div>
             <h3>{{#str}}connection_status, report_adeptus_insights{{/str}}</h3>
-            <div class="connection-details">
-                <div class="detail-row">
+            <div class="adeptus-connection-details">
+                <div class="adeptus-detail-row">
                     <span class="label">{{#str}}installation_id, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{installation_id}}</span>
                 </div>
-                <div class="detail-row">
+                <div class="adeptus-detail-row">
                     <span class="label">{{#str}}api_key, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{api_key}}</span>
                 </div>
-                <div class="detail-row">
+                <div class="adeptus-detail-row">
                     <span class="label">{{#str}}site_name_label, report_adeptus_insights{{/str}}:</span>
                     <span class="value">{{site_name}}</span>
                 </div>
-                <div class="detail-row">
+                <div class="adeptus-detail-row">
                     <span class="label">{{#str}}status, report_adeptus_insights{{/str}}:</span>
-                    <span class="value status-connected">{{#str}}connected, report_adeptus_insights{{/str}}</span>
+                    <span class="value adeptus-status-connected">{{#str}}connected, report_adeptus_insights{{/str}}</span>
                 </div>
             </div>
         </div>
@@ -486,26 +486,26 @@
     {{/site_already_exists}}
 
     <!-- Installation Header -->
-    <div class="installation-header">
+    <div class="adeptus-installation-header">
        <h1><i class="fa fa-rocket"></i> {{#str}}adeptus_insights_registration, report_adeptus_insights{{/str}}</h1>
         <p>{{#str}}complete_registration_activate, report_adeptus_insights{{/str}}</p>
     </div>
 
     <!-- Installation Progress -->
-    <div class="installation-progress">
-        <div class="progress-step current">
-            <div class="step-number">1</div>
-            <div class="step-label">{{#str}}step_plugin_registration, report_adeptus_insights{{/str}}</div>
+    <div class="adeptus-installation-progress">
+        <div class="adeptus-progress-step current">
+            <div class="adeptus-step-number">1</div>
+            <div class="adeptus-step-label">{{#str}}step_plugin_registration, report_adeptus_insights{{/str}}</div>
         </div>
-        <div class="progress-connector"></div>
-        <div class="progress-step pending">
-            <div class="step-number">2</div>
-            <div class="step-label">{{#str}}step_subscription_setup, report_adeptus_insights{{/str}}</div>
+        <div class="adeptus-progress-connector"></div>
+        <div class="adeptus-progress-step pending">
+            <div class="adeptus-step-number">2</div>
+            <div class="adeptus-step-label">{{#str}}step_subscription_setup, report_adeptus_insights{{/str}}</div>
         </div>
-        <div class="progress-connector"></div>
-        <div class="progress-step pending">
-            <div class="step-number">3</div>
-            <div class="step-label">{{#str}}step_installation_complete, report_adeptus_insights{{/str}}</div>
+        <div class="adeptus-progress-connector"></div>
+        <div class="adeptus-progress-step pending">
+            <div class="adeptus-step-number">3</div>
+            <div class="adeptus-step-label">{{#str}}step_installation_complete, report_adeptus_insights{{/str}}</div>
         </div>
     </div>
 

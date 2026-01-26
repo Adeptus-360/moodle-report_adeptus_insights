@@ -11,7 +11,7 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
-.installation-header {
+.adeptus-installation-header {
     background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
     color: white;
     padding: 40px;
@@ -21,20 +21,20 @@
     box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
 }
 
-.installation-header h1 {
+.adeptus-installation-header h1 {
     margin: 0;
     font-size: 32px;
     font-weight: 700;
 }
 
-.installation-header p {
+.adeptus-installation-header p {
     margin: 15px 0 0 0;
     opacity: 0.9;
     font-size: 18px;
 }
 
 /* Progress Steps */
-.installation-progress {
+.adeptus-installation-progress {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -43,13 +43,13 @@
     gap: 10px;
 }
 
-.progress-step {
+.adeptus-progress-step {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.progress-step .step-number {
+.adeptus-progress-step .adeptus-step-number {
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -61,35 +61,35 @@
     transition: all 0.3s ease;
 }
 
-.progress-step.completed .step-number {
+.adeptus-progress-step.completed .adeptus-step-number {
     background: #10b981;
     color: white;
 }
 
-.progress-step.current .step-number {
+.adeptus-progress-step.current .adeptus-step-number {
     background: #2563eb;
     color: white;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
 }
 
-.progress-step.pending .step-number {
+.adeptus-progress-step.pending .adeptus-step-number {
     background: #e5e7eb;
     color: #9ca3af;
 }
 
-.progress-step .step-label {
+.adeptus-progress-step .adeptus-step-label {
     font-weight: 500;
     font-size: 14px;
 }
 
-.progress-connector {
+.adeptus-progress-connector {
     width: 40px;
     height: 2px;
     background: #e5e7eb;
     margin: 0 5px;
 }
 
-.progress-connector.completed {
+.adeptus-progress-connector.completed {
     background: #10b981;
 }
 
@@ -370,12 +370,12 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-    .installation-progress {
+    .adeptus-installation-progress {
         flex-direction: column;
         gap: 15px;
     }
 
-    .progress-connector {
+    .adeptus-progress-connector {
         display: none;
     }
 
@@ -396,26 +396,26 @@
 
 <div class="adeptus-installation-container">
     <!-- Installation Header -->
-    <div class="installation-header">
+    <div class="adeptus-installation-header">
         <h1><i class="fa fa-rocket"></i> {{#str}}choose_your_plan, report_adeptus_insights{{/str}}</h1>
         <p>{{#str}}select_plan_fits, report_adeptus_insights{{/str}}</p>
     </div>
 
     <!-- Installation Progress -->
-    <div class="installation-progress">
-        <div class="progress-step completed">
-            <div class="step-number"><i class="fa fa-check"></i></div>
-            <div class="step-label">{{#str}}step_registration, report_adeptus_insights{{/str}}</div>
+    <div class="adeptus-installation-progress">
+        <div class="adeptus-progress-step completed">
+            <div class="adeptus-step-number"><i class="fa fa-check"></i></div>
+            <div class="adeptus-step-label">{{#str}}step_registration, report_adeptus_insights{{/str}}</div>
         </div>
-        <div class="progress-connector completed"></div>
-        <div class="progress-step current">
-            <div class="step-number">2</div>
-            <div class="step-label">{{#str}}step_choose_plan, report_adeptus_insights{{/str}}</div>
+        <div class="adeptus-progress-connector completed"></div>
+        <div class="adeptus-progress-step current">
+            <div class="adeptus-step-number">2</div>
+            <div class="adeptus-step-label">{{#str}}step_choose_plan, report_adeptus_insights{{/str}}</div>
         </div>
-        <div class="progress-connector"></div>
-        <div class="progress-step pending">
-            <div class="step-number">3</div>
-            <div class="step-label">{{#str}}step_complete, report_adeptus_insights{{/str}}</div>
+        <div class="adeptus-progress-connector"></div>
+        <div class="adeptus-progress-step pending">
+            <div class="adeptus-step-number">3</div>
+            <div class="adeptus-step-label">{{#str}}step_complete, report_adeptus_insights{{/str}}</div>
         </div>
     </div>
 

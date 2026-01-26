@@ -2,17 +2,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
 
-<div class="support-container">
+<div class="adeptus-support-container">
     <!-- Header Banner -->
-    <div class="page-header-banner">
-        <div class="page-header-content">
-            <h1 class="page-header-title">
-                <i class="fa fa-history page-header-icon"></i>
+    <div class="adeptus-page-header-banner">
+        <div class="adeptus-page-header-content">
+            <h1 class="adeptus-page-header-title">
+                <i class="fa fa-history adeptus-page-header-icon"></i>
                 {{#str}}changelog_title, report_adeptus_insights{{/str}}
             </h1>
-            <p class="page-header-subtitle">{{#str}}changelog_subtitle, report_adeptus_insights{{/str}}</p>
+            <p class="adeptus-page-header-subtitle">{{#str}}changelog_subtitle, report_adeptus_insights{{/str}}</p>
         </div>
-        <div class="page-header-actions">
+        <div class="adeptus-page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
                 <i class="fa fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
             </a>
@@ -107,9 +107,9 @@
                     </div>
                     <div class="card-body">
                         {{#has_changelogs}}
-                        <div class="changelog-list">
+                        <div class="adeptus-changelog-list">
                             {{#changelogs}}
-                            <div class="changelog-item mb-4 pb-4 border-bottom">
+                            <div class="adeptus-changelog-item mb-4 pb-4 border-bottom">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <div>
                                         <h5 class="mb-1">
@@ -122,7 +122,7 @@
                                         </small>
                                     </div>
                                 </div>
-                                <div class="changelog-content mt-3">
+                                <div class="adeptus-changelog-content mt-3">
                                     {{{content}}}
                                 </div>
                             </div>
@@ -145,16 +145,16 @@
 </div>
 
 <style>
-.changelog-content {
+.adeptus-changelog-content {
     line-height: 1.7;
 }
-.changelog-content ul {
+.adeptus-changelog-content ul {
     padding-left: 1.5rem;
 }
-.changelog-content li {
+.adeptus-changelog-content li {
     margin-bottom: 0.5rem;
 }
-.changelog-item:last-child {
+.adeptus-changelog-item:last-child {
     border-bottom: none !important;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;

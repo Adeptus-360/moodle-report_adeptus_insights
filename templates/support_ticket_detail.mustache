@@ -2,17 +2,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="{{wwwroot}}/report/adeptus_insights/styles/support.css">
 
-<div class="support-container">
+<div class="adeptus-support-container">
     <!-- Header Banner -->
-    <div class="page-header-banner">
-        <div class="page-header-content">
-            <h1 class="page-header-title">
-                <i class="fa fa-ticket-alt page-header-icon"></i>
+    <div class="adeptus-page-header-banner">
+        <div class="adeptus-page-header-content">
+            <h1 class="adeptus-page-header-title">
+                <i class="fa fa-ticket-alt adeptus-page-header-icon"></i>
                 {{#str}}ticket_number, report_adeptus_insights{{/str}} {{ticket.ticket_number}}
             </h1>
-            <p class="page-header-subtitle">{{ticket.subject}}</p>
+            <p class="adeptus-page-header-subtitle">{{ticket.subject}}</p>
         </div>
-        <div class="page-header-actions">
+        <div class="adeptus-page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
                 <i class="fa fa-arrow-left"></i> {{#str}}back_to_tickets, report_adeptus_insights{{/str}}
             </a>
@@ -76,7 +76,7 @@
                         {{#has_replies}}
                         <div class="replies-list">
                             {{#replies}}
-                            <div class="reply-item p-3 mb-3 rounded {{#is_support}}bg-info-light border-left-info{{/is_support}}{{#is_customer}}bg-light{{/is_customer}}">
+                            <div class="adeptus-reply-item p-3 mb-3 rounded {{#is_support}}bg-info-light border-left-info{{/is_support}}{{#is_customer}}bg-light{{/is_customer}}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <strong>
                                         {{#is_support}}<i class="fa fa-headset text-info"></i>{{/is_support}}
@@ -149,25 +149,25 @@
                                 <label class="form-label">
                                     <i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}} (Optional)
                                 </label>
-                                <div class="file-upload-container">
-                                    <div class="file-dropzone file-dropzone-compact" id="replyFileDropzone">
-                                        <input type="file" name="reply_attachments[]" id="reply_attachments" class="file-input-hidden"
+                                <div class="adeptus-file-upload-container">
+                                    <div class="adeptus-file-dropzone adeptus-file-dropzone-compact" id="replyFileDropzone">
+                                        <input type="file" name="reply_attachments[]" id="reply_attachments" class="adeptus-file-input-hidden"
                                                multiple accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.txt,.log,.csv,.json,.zip">
-                                        <div class="dropzone-content">
-                                            <div class="dropzone-icon">
+                                        <div class="adeptus-dropzone-content">
+                                            <div class="adeptus-dropzone-icon">
                                                 <i class="fa fa-cloud-upload-alt"></i>
                                             </div>
-                                            <div class="dropzone-text">
-                                                <p class="dropzone-title">{{#str}}drag_drop_or_browse, report_adeptus_insights{{/str}}</p>
+                                            <div class="adeptus-dropzone-text">
+                                                <p class="adeptus-dropzone-title">{{#str}}drag_drop_or_browse, report_adeptus_insights{{/str}}</p>
                                             </div>
                                         </div>
-                                        <div class="dropzone-overlay">
+                                        <div class="adeptus-dropzone-overlay">
                                             <i class="fa fa-download"></i>
                                             <span>{{#str}}drop_files, report_adeptus_insights{{/str}}</span>
                                         </div>
                                     </div>
-                                    <div class="file-preview-list" id="replyFilePreviewList"></div>
-                                    <div class="upload-info upload-info-compact">
+                                    <div class="adeptus-file-preview-list" id="replyFilePreviewList"></div>
+                                    <div class="adeptus-upload-info adeptus-upload-info-compact">
                                         <span><i class="fa fa-info-circle text-muted"></i> {{#str}}max_files_info, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
@@ -411,7 +411,7 @@
 
     function addFilePreview(file, index) {
         const preview = document.createElement('div');
-        preview.className = 'file-preview-item';
+        preview.className = 'adeptus-file-preview-item';
         preview.dataset.index = index;
 
         const isImage = file.type.startsWith('image/');
@@ -420,29 +420,29 @@
         const size = formatFileSize(file.size);
 
         let thumbnailHtml = isImage
-            ? '<div class="file-thumbnail loading"><i class="fa fa-spinner fa-spin"></i></div>'
-            : '<div class="file-thumbnail file-icon"><i class="' + icon + '"></i></div>';
+            ? '<div class="adeptus-file-thumbnail loading"><i class="fa fa-spinner fa-spin"></i></div>'
+            : '<div class="adeptus-file-thumbnail adeptus-file-icon"><i class="' + icon + '"></i></div>';
 
         preview.innerHTML = thumbnailHtml +
-            '<div class="file-info">' +
-                '<div class="file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(truncateFilename(file.name, 25)) + '</div>' +
-                '<div class="file-meta"><span class="file-size">' + size + '</span><span class="file-ext">.' + ext.toUpperCase() + '</span></div>' +
+            '<div class="adeptus-file-info">' +
+                '<div class="adeptus-file-name" title="' + escapeHtml(file.name) + '">' + escapeHtml(truncateFilename(file.name, 25)) + '</div>' +
+                '<div class="adeptus-file-meta"><span class="adeptus-file-size">' + size + '</span><span class="adeptus-file-ext">.' + ext.toUpperCase() + '</span></div>' +
             '</div>' +
-            '<button type="button" class="file-remove" title="Remove"><i class="fa fa-times"></i></button>';
+            '<button type="button" class="adeptus-file-remove" title="Remove"><i class="fa fa-times"></i></button>';
 
         previewList.appendChild(preview);
 
         if (isImage) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                const thumb = preview.querySelector('.file-thumbnail');
+                const thumb = preview.querySelector('.adeptus-file-thumbnail');
                 thumb.classList.remove('loading');
                 thumb.innerHTML = '<img src="' + e.target.result + '" alt="">';
             };
             reader.readAsDataURL(file);
         }
 
-        preview.querySelector('.file-remove').addEventListener('click', function(e) {
+        preview.querySelector('.adeptus-file-remove').addEventListener('click', function(e) {
             e.stopPropagation();
             removeFile(index);
         });
@@ -458,7 +458,7 @@
         }
         selectedFiles[index] = null;
         selectedFiles = selectedFiles.filter(f => f !== null);
-        previewList.querySelectorAll('.file-preview-item').forEach((item, i) => { item.dataset.index = i; });
+        previewList.querySelectorAll('.adeptus-file-preview-item').forEach((item, i) => { item.dataset.index = i; });
         updateFileInput();
         updateDropzoneState();
     }
@@ -504,10 +504,10 @@
     }
 
     function showError(message) {
-        let toast = document.querySelector('.upload-toast');
+        let toast = document.querySelector('.adeptus-upload-toast');
         if (!toast) {
             toast = document.createElement('div');
-            toast.className = 'upload-toast';
+            toast.className = 'adeptus-upload-toast';
             document.body.appendChild(toast);
         }
         toast.innerHTML = '<i class="fa fa-exclamation-circle"></i> ' + escapeHtml(message);

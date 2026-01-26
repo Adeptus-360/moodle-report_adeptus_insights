@@ -29,9 +29,9 @@ require(['jquery'], function($) {
         <div class="row">
             <!-- Generated Reports Card -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/generated_reports.php';">
+                <div class="card h-100 adeptus-report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/generated_reports.php';">
                     <div class="card-body text-center">
-                        <div class="lottie-container mb-3">
+                        <div class="adeptus-lottie-container mb-3">
                             <div data-lottie-path="report/adeptus_insights/amd/lottie/generated_reports.json"></div>
                         </div>
                         <h5 class="card-title">{{#str}}generated_reports, report_adeptus_insights{{/str}}</h5>
@@ -43,9 +43,9 @@ require(['jquery'], function($) {
 
             <!-- Report Wizard Card -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/wizard.php';">
+                <div class="card h-100 adeptus-report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/wizard.php';">
                     <div class="card-body text-center">
-                        <div class="lottie-container mb-3">
+                        <div class="adeptus-lottie-container mb-3">
                             <div data-lottie-path="report/adeptus_insights/amd/lottie/report_wizard.json"></div>
                         </div>
                         <h5 class="card-title">{{#str}}report_wizard, report_adeptus_insights{{/str}}</h5>
@@ -57,9 +57,9 @@ require(['jquery'], function($) {
 
             <!-- AI Assistant Card -->
             <div class="col-md-4 mb-4">
-                <div class="card h-100 report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/assistant.php';">
+                <div class="card h-100 adeptus-report-card" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/assistant.php';">
                 <div class="card-body text-center">
-                        <div class="lottie-container mb-3">
+                        <div class="adeptus-lottie-container mb-3">
                             <div data-lottie-path="report/adeptus_insights/amd/lottie/ai_assistant.json"></div>
                         </div>
                         <h5 class="card-title">{{#str}}ai_driven_assistant, report_adeptus_insights{{/str}}</h5>
@@ -74,43 +74,43 @@ require(['jquery'], function($) {
         {{#subscription}}
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card analytics-card">
-                    <div class="card-header analytics-header d-flex align-items-center justify-content-between">
+                <div class="card adeptus-analytics-card">
+                    <div class="card-header adeptus-analytics-header d-flex align-items-center justify-content-between">
                         <h4 class="m-0">{{#str}}current_subscription, report_adeptus_insights{{/str}}</h4>
-                        <span class="status-pill" aria-live="polite">
+                        <span class="adeptus-status-pill" aria-live="polite">
                             <i class="icon fa fa-check-circle"></i>
-                            <span class="status-text text-capitalize">{{status}}</span>
+                            <span class="adeptus-status-text text-capitalize">{{status}}</span>
                         </span>
                     </div>
 
                     <div class="card-body">
-                        <div class="stats-grid">
+                        <div class="adeptus-stats-grid">
                             <!-- Plan -->
-                            <div class="stat-card" role="group" aria-label="Plan">
-                                <div class="stat-icon icon-plan"><i class="icon fa fa-cubes" aria-hidden="true"></i></div>
-                                <div class="stat-label">{{#str}}plan, report_adeptus_insights{{/str}}</div>
-                                <div class="stat-value stat-text no-animate" data-raw="{{plan_name}}">{{plan_name}}</div>
+                            <div class="adeptus-stat-card" role="group" aria-label="Plan">
+                                <div class="adeptus-stat-icon adeptus-icon-plan"><i class="icon fa fa-cubes" aria-hidden="true"></i></div>
+                                <div class="adeptus-stat-label">{{#str}}plan, report_adeptus_insights{{/str}}</div>
+                                <div class="adeptus-stat-value adeptus-stat-text no-animate" data-raw="{{plan_name}}">{{plan_name}}</div>
                             </div>
 
                             <!-- Status -->
-                            <div class="stat-card" role="group" aria-label="Status">
-                                <div class="stat-icon icon-status"><i class="icon fa fa-bolt" aria-hidden="true"></i></div>
-                                <div class="stat-label">{{#str}}status, report_adeptus_insights{{/str}}</div>
-                                <div class="stat-value stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
+                            <div class="adeptus-stat-card" role="group" aria-label="Status">
+                                <div class="adeptus-stat-icon adeptus-icon-status"><i class="icon fa fa-bolt" aria-hidden="true"></i></div>
+                                <div class="adeptus-stat-label">{{#str}}status, report_adeptus_insights{{/str}}</div>
+                                <div class="adeptus-stat-value adeptus-stat-text no-animate text-capitalize" data-raw="{{status}}">{{status}}</div>
                             </div>
 
                             <!-- AI tokens remaining -->
-                            <div class="stat-card" role="group" aria-label="AI tokens remaining">
-                                <div class="stat-icon icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
-                                <div class="stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
-                                <div class="stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
+                            <div class="adeptus-stat-card" role="group" aria-label="AI tokens remaining">
+                                <div class="adeptus-stat-icon adeptus-icon-credits"><i class="icon fa fa-code" aria-hidden="true"></i></div>
+                                <div class="adeptus-stat-label">{{#str}}ai_tokens_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="adeptus-stat-value" data-raw="{{tokens_remaining_formatted}}">{{tokens_remaining_formatted}}</div>
                             </div>
 
                             <!-- Exports remaining -->
-                            <div class="stat-card" role="group" aria-label="Exports remaining">
-                                <div class="stat-icon icon-exports"><i class="icon fa fa-cloud-download" aria-hidden="true"></i></div>
-                                <div class="stat-label">{{#str}}exports_remaining, report_adeptus_insights{{/str}}</div>
-                                <div class="stat-value" data-count-to="{{exports_remaining}}">0</div>
+                            <div class="adeptus-stat-card" role="group" aria-label="Exports remaining">
+                                <div class="adeptus-stat-icon adeptus-icon-exports"><i class="icon fa fa-cloud-download" aria-hidden="true"></i></div>
+                                <div class="adeptus-stat-label">{{#str}}exports_remaining, report_adeptus_insights{{/str}}</div>
+                                <div class="adeptus-stat-value" data-count-to="{{exports_remaining}}">0</div>
                             </div>
                         </div>
                     </div>
@@ -123,16 +123,16 @@ require(['jquery'], function($) {
         <div class="row mt-2">
             <!-- Subscription Management Banner -->
             <div class="col-md-6 mb-3 mb-md-0">
-                <div class="subscription-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
-                    <div class="subscription-banner-content">
-                        <div class="subscription-banner-icon">
+                <div class="adeptus-subscription-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/subscription.php';">
+                    <div class="adeptus-subscription-banner-content">
+                        <div class="adeptus-subscription-banner-icon">
                             <i class="fa fa-credit-card"></i>
                         </div>
-                        <div class="subscription-banner-text">
+                        <div class="adeptus-subscription-banner-text">
                             <h6 class="mb-0">{{#str}}subscription_management, report_adeptus_insights{{/str}}</h6>
-                            <small class="text-muted-light">{{#str}}subscription_management_desc, report_adeptus_insights{{/str}}</small>
+                            <small class="adeptus-text-muted-light">{{#str}}subscription_management_desc, report_adeptus_insights{{/str}}</small>
                         </div>
-                        <div class="subscription-banner-action">
+                        <div class="adeptus-subscription-banner-action">
                             <a href="{{config.wwwroot}}/report/adeptus_insights/subscription.php" class="btn btn-light btn-sm">
                                 {{#str}}manage_subscription, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
                             </a>
@@ -143,16 +143,16 @@ require(['jquery'], function($) {
 
             <!-- Support & Updates Banner -->
             <div class="col-md-6">
-                <div class="support-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/support.php';">
-                    <div class="support-banner-content">
-                        <div class="support-banner-icon">
+                <div class="adeptus-support-banner" onclick="location.href='{{config.wwwroot}}/report/adeptus_insights/support.php';">
+                    <div class="adeptus-support-banner-content">
+                        <div class="adeptus-support-banner-icon">
                             <i class="fa fa-life-ring"></i>
                         </div>
-                        <div class="support-banner-text">
+                        <div class="adeptus-support-banner-text">
                             <h6 class="mb-0">{{#str}}support_updates, report_adeptus_insights{{/str}}</h6>
-                            <small class="text-muted-light">{{#str}}support_updates_desc, report_adeptus_insights{{/str}}</small>
+                            <small class="adeptus-text-muted-light">{{#str}}support_updates_desc, report_adeptus_insights{{/str}}</small>
                         </div>
-                        <div class="support-banner-action">
+                        <div class="adeptus-support-banner-action">
                             <a href="{{config.wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light btn-sm">
                                 {{#str}}view_tickets, report_adeptus_insights{{/str}} <i class="fa fa-arrow-right ms-1"></i>
                             </a>
@@ -211,7 +211,7 @@ require(['jquery'], function($) {
     }
 
     /* Subscription Banner Styles */
-    .subscription-banner {
+    .adeptus-subscription-banner {
         background: linear-gradient(135deg, #2fa4e9 0%, #2f63eb 100%);
         border-radius: 0.75rem;
         padding: 1rem 1.5rem;
@@ -221,12 +221,12 @@ require(['jquery'], function($) {
         height: 100%;
     }
 
-    .subscription-banner:hover {
+    .adeptus-subscription-banner:hover {
         transform: translateY(-3px);
         box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
     }
 
-    .subscription-banner-content {
+    .adeptus-subscription-banner-content {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -234,7 +234,7 @@ require(['jquery'], function($) {
         gap: 1rem;
     }
 
-    .subscription-banner-icon {
+    .adeptus-subscription-banner-icon {
         width: 48px;
         height: 48px;
         background: rgba(255,255,255,0.2);
@@ -246,31 +246,31 @@ require(['jquery'], function($) {
         font-size: 1.25rem;
     }
 
-    .subscription-banner-text {
+    .adeptus-subscription-banner-text {
         flex: 1;
         min-width: 150px;
     }
 
-    .subscription-banner-text h6 {
+    .adeptus-subscription-banner-text h6 {
         color: white;
         font-weight: 600;
     }
 
-    .subscription-banner-text .text-muted-light {
+    .adeptus-subscription-banner-text .adeptus-text-muted-light {
         color: rgba(255,255,255,0.85);
     }
 
-    .subscription-banner-action .btn {
+    .adeptus-subscription-banner-action .btn {
         white-space: nowrap;
     }
 
-    .subscription-banner-action .btn:hover {
+    .adeptus-subscription-banner-action .btn:hover {
         background-color: white;
         color: #2f63eb;
     }
 
     /* Support Banner Styles */
-    .support-banner {
+    .adeptus-support-banner {
         background: linear-gradient(135deg, #2f63eb 0%, #2fa4e9 100%);
         border-radius: 0.75rem;
         padding: 1rem 1.5rem;
@@ -280,12 +280,12 @@ require(['jquery'], function($) {
         height: 100%;
     }
 
-    .support-banner:hover {
+    .adeptus-support-banner:hover {
         transform: translateY(-3px);
         box-shadow: 0 0.5rem 1rem rgba(47,99,235,0.3);
     }
 
-    .support-banner-content {
+    .adeptus-support-banner-content {
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -293,7 +293,7 @@ require(['jquery'], function($) {
         gap: 1rem;
     }
 
-    .support-banner-icon {
+    .adeptus-support-banner-icon {
         width: 48px;
         height: 48px;
         background: rgba(255,255,255,0.2);
@@ -305,38 +305,38 @@ require(['jquery'], function($) {
         font-size: 1.25rem;
     }
 
-    .support-banner-text {
+    .adeptus-support-banner-text {
         flex: 1;
         min-width: 150px;
     }
 
-    .support-banner-text h6 {
+    .adeptus-support-banner-text h6 {
         color: white;
         font-weight: 600;
     }
 
-    .support-banner-text .text-muted-light {
+    .adeptus-support-banner-text .adeptus-text-muted-light {
         color: rgba(255,255,255,0.85);
     }
 
-    .support-banner-action .btn {
+    .adeptus-support-banner-action .btn {
         white-space: nowrap;
     }
 
-    .support-banner-action .btn:hover {
+    .adeptus-support-banner-action .btn:hover {
         background-color: white;
         color: #2f63eb;
     }
 
     @media (max-width: 768px) {
-        .subscription-banner-content,
-        .support-banner-content {
+        .adeptus-subscription-banner-content,
+        .adeptus-support-banner-content {
             flex-direction: column;
             text-align: center;
         }
 
-        .subscription-banner-text,
-        .support-banner-text {
+        .adeptus-subscription-banner-text,
+        .adeptus-support-banner-text {
             min-width: 100%;
         }
     }
@@ -345,7 +345,7 @@ require(['jquery'], function($) {
         /* padding: 2rem 0; */
     }
     
-    .report-card {
+    .adeptus-report-card {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         cursor: pointer;
         border: none;
@@ -354,24 +354,24 @@ require(['jquery'], function($) {
         box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
     }
-    
-    .report-card:hover {
+
+    .adeptus-report-card:hover {
         transform: translateY(-8px);
         box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15);
     }
-    
-    .report-card .card-body {
+
+    .adeptus-report-card .card-body {
         padding: 2rem 1.5rem;
     }
-    
-    .lottie-container {
+
+    .adeptus-lottie-container {
         height: 200px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
-    .lottie-container div {
+
+    .adeptus-lottie-container div {
         width: 100%;
         height: 100%;
         background: none;
@@ -423,19 +423,19 @@ require(['jquery'], function($) {
         font-weight: 600;
     }
     /* Analytics strip */
-    .analytics-card {
+    .adeptus-analytics-card {
     border: none;
     border-radius: 0.75rem;
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(0,0,0,.06);
     background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
     }
-    .analytics-header {
+    .adeptus-analytics-header {
     background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
     color: #fff;
     border: none;
     }
-    .status-pill {
+    .adeptus-status-pill {
     display: inline-flex; align-items: center; gap: .5rem;
     padding: .35rem .75rem; border-radius: 999px;
     background: rgba(255,255,255,.15);
@@ -443,17 +443,17 @@ require(['jquery'], function($) {
     font-weight: 600; letter-spacing: .2px;
     animation: pillPulse 3s ease-in-out infinite;
     }
-    .status-pill .icon { margin-right: .25rem; }
+    .adeptus-status-pill .icon { margin-right: .25rem; }
 
-    .stats-grid {
+    .adeptus-stats-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
     }
-    @media (max-width: 992px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 576px) { .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 992px) { .adeptus-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 576px) { .adeptus-stats-grid { grid-template-columns: 1fr; } }
 
-    .stat-card {
+    .adeptus-stat-card {
     position: relative;
     border-radius: .75rem;
     padding: 1.25rem 1rem 1rem 1rem;
@@ -463,43 +463,43 @@ require(['jquery'], function($) {
     transition: transform .2s ease, box-shadow .2s ease;
     overflow: hidden;
     }
-    .stat-card::after {
+    .adeptus-stat-card::after {
     content:"";
     position:absolute; inset:-1px;
     background: linear-gradient(120deg, rgba(37,99,235,.08), rgba(14,165,233,.06));
     opacity: 0; transition: opacity .2s ease;
     }
-    .stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(2,6,23,.08); }
-    .stat-card:hover::after { opacity: 1; }
+    .adeptus-stat-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(2,6,23,.08); }
+    .adeptus-stat-card:hover::after { opacity: 1; }
 
-    .stat-icon {
+    .adeptus-stat-icon {
     width: 40px; height: 40px; border-radius: 10px;
     display:flex; align-items:center; justify-content:center;
     margin-bottom: .5rem;
     color:#0b67ff; background: rgba(37,99,235,.12);
     animation: iconFloat .9s ease-out both;
     }
-    .icon-status { color:#16a34a; background: rgba(22,163,74,.12); }
-    .icon-credits { color:#f59e0b; background: rgba(245,158,11,.14); }
-    .icon-exports { color:#8b5cf6; background: rgba(139,92,246,.14); }
+    .adeptus-icon-status { color:#16a34a; background: rgba(22,163,74,.12); }
+    .adeptus-icon-credits { color:#f59e0b; background: rgba(245,158,11,.14); }
+    .adeptus-icon-exports { color:#8b5cf6; background: rgba(139,92,246,.14); }
 
-    .stat-label {
+    .adeptus-stat-label {
     font-size: .85rem; color: #64748b; letter-spacing: .2px;
     margin-bottom: .15rem;
     }
-    .stat-value {
+    .adeptus-stat-value {
     font-size: 1.75rem; font-weight: 700; color: #0f172a;
     line-height: 1.1;
     min-height: 2rem;
     }
-    .stat-text { font-size: 1.1rem; font-weight: 600; color: #0f172a; }
+    .adeptus-stat-text { font-size: 1.1rem; font-weight: 600; color: #0f172a; }
 
     /* Micro animations */
     @keyframes iconFloat { from { transform: translateY(6px); opacity: .0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes pillPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.035); } }
 
     @media (prefers-reduced-motion: reduce) {
-    .stat-card, .stat-card::after, .stat-icon, .status-pill { animation: none !important; transition: none !important; }
+    .adeptus-stat-card, .adeptus-stat-card::after, .adeptus-stat-icon, .adeptus-status-pill { animation: none !important; transition: none !important; }
     }
 
 </style>
@@ -549,7 +549,7 @@ require(['jquery'], function($) {
   }
 
   function bootCounters(){
-    var nodes = [].slice.call(document.querySelectorAll('.stat-value[data-count-to]'));
+    var nodes = [].slice.call(document.querySelectorAll('.adeptus-stat-value[data-count-to]'));
     if (!nodes.length) return;
 
     // Fallback if no IO
