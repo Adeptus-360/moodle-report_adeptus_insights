@@ -26,13 +26,11 @@
 
 require(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/classes/api_config.php');
+require_once(__DIR__ . '/classes/util.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
 header('Content-Type: application/json');
-
-// Access Moodle session for storing token
-global $SESSION;
 
 // Parse JSON input
 $input = json_decode(file_get_contents('php://input'), true);
@@ -64,7 +62,7 @@ if ($action === 'login') {
     }
     $resultdata = json_decode($result, true);
     if (!empty($resultdata['token'])) {
-        $SESSION->ai_token = $resultdata['token'];
+        \report_adeptus_insights\util::set_ai_token($resultdata['token']);
         echo json_encode(['success' => true]);
         exit;
     }
@@ -74,7 +72,7 @@ if ($action === 'login') {
 }
 
 // Ensure user is authenticated with AI backend
-$token = $SESSION->ai_token ?? '';
+$token = \report_adeptus_insights\util::get_ai_token();
 if (!$token) {
     http_response_code(401);
     echo json_encode(['error' => 'not_authenticated']);

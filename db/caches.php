@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the Adeptus Insights report plugin.
+ * Cache definitions for report_adeptus_insights.
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
@@ -24,8 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026012600;
-$plugin->requires  = 2022112800; // Moodle 4.1
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.1.0';
+$definitions = [
+    // Session cache for storing temporary user-specific data.
+    'session' => [
+        'mode' => cache_store::MODE_SESSION,
+        'simplekeys' => true,
+        'simpledata' => true,
+    ],
+];
