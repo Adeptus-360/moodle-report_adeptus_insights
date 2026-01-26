@@ -404,7 +404,7 @@ try {
     $historyrecord->resultpath = ''; // Could save to file if needed
     // Note: Usage tracking is handled via backend API, not local database flag
 
-    $DB->insert_record('adeptus_report_history', $historyrecord);
+    $DB->insert_record('report_adeptus_insights_history', $historyrecord);
 
     // Save to generated reports via backend API (for Generated Reports section) - only save if report has data
     if ($reportgenerated && $hasdata) {

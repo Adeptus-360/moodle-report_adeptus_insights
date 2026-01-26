@@ -52,7 +52,7 @@ try {
 
     if ($action === 'clear_all') {
         // Clear all recent reports for this user
-        $DB->delete_records('adeptus_report_history', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_history', ['userid' => $userid]);
 
         echo json_encode([
             'success' => true,
@@ -66,7 +66,7 @@ try {
         }
 
         // Remove all history entries for this specific report for this user
-        $deleted = $DB->delete_records('adeptus_report_history', [
+        $deleted = $DB->delete_records('report_adeptus_insights_history', [
             'userid' => $userid,
             'reportid' => $reportid,
         ]);

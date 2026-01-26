@@ -47,7 +47,7 @@ try {
 
     // Get installation data for the login form
     global $DB;
-    $installsettings = $DB->get_record('adeptus_install_settings', ['id' => 1]);
+    $installsettings = $DB->get_record('report_adeptus_insights_settings', ['id' => 1]);
 
     if ($installsettings) {
         // Extract site URL from Moodle configuration

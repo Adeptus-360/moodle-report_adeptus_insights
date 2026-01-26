@@ -78,7 +78,7 @@ class stripe_service {
         global $DB;
 
         try {
-            $this->config = $DB->get_record('adeptus_stripe_config', ['id' => 1]);
+            $this->config = $DB->get_record('report_adeptus_insights_stripe', ['id' => 1]);
             if (!$this->config) {
                 // Create default config
                 $this->create_default_config();
@@ -92,7 +92,7 @@ class stripe_service {
     /**
      * Create default Stripe configuration.
      *
-     * Note: The adeptus_stripe_config table is created by install.xml for new installations
+     * Note: The report_adeptus_insights_stripe table is created by install.xml for new installations
      * and by upgrade.php for existing installations.
      */
     private function create_default_config() {
@@ -110,7 +110,7 @@ class stripe_service {
 
         try {
             $dbman = $DB->get_manager();
-            if (!$dbman->table_exists('adeptus_stripe_config')) {
+            if (!$dbman->table_exists('report_adeptus_insights_stripe')) {
                 // Table should exist from install.xml or upgrade.php.
                 // If not, Stripe features are unavailable until upgrade runs.
                 debugging('Stripe config table not found. Please run Moodle upgrade.', DEBUG_DEVELOPER);
@@ -118,7 +118,7 @@ class stripe_service {
                 return;
             }
 
-            $DB->insert_record('adeptus_stripe_config', $record);
+            $DB->insert_record('report_adeptus_insights_stripe', $record);
             $this->config = (object) $record;
         } catch (\Exception $e) {
             // Ignore config creation errors - Stripe may not be configured yet.
@@ -150,7 +150,7 @@ class stripe_service {
             'timemodified' => time(),
         ];
 
-        $DB->update_record('adeptus_stripe_config', $record);
+        $DB->update_record('report_adeptus_insights_stripe', $record);
         $this->config = (object)$record;
         $this->is_test_mode = (bool)$record['is_test_mode'];
 

@@ -89,5 +89,39 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026012602, 'report', 'adeptus_insights');
     }
 
+    // Upgrade to version 2026012701: Rename tables to use frankenstyle prefix.
+    if ($oldversion < 2026012701) {
+        // Table rename mapping: old name => new name.
+        $tablerenames = [
+            'ai_analytics_base' => 'report_adeptus_insights_analytics',
+            'ai_report_cache' => 'report_adeptus_insights_cache',
+            'ai_report_config' => 'report_adeptus_insights_config',
+            'adeptus_reports' => 'report_adeptus_insights_reports',
+            'adeptus_report_history' => 'report_adeptus_insights_history',
+            'adeptus_report_bookmarks' => 'report_adeptus_insights_bookmarks',
+            'adeptus_install_settings' => 'report_adeptus_insights_settings',
+            'adeptus_subscription_status' => 'report_adeptus_insights_subscription',
+            'adeptus_stripe_webhooks' => 'report_adeptus_insights_webhooks',
+            'adeptus_usage_tracking' => 'report_adeptus_insights_usage',
+            'adeptus_export_tracking' => 'report_adeptus_insights_exports',
+            'adeptus_generated_reports' => 'report_adeptus_insights_generated',
+            'adeptus_stripe_config' => 'report_adeptus_insights_stripe',
+            'adeptus_stripe_plans' => 'report_adeptus_insights_plans',
+        ];
+
+        // Rename each table if old name exists and new name doesn't.
+        foreach ($tablerenames as $oldname => $newname) {
+            $oldtable = new xmldb_table($oldname);
+            $newtable = new xmldb_table($newname);
+
+            if ($dbman->table_exists($oldtable) && !$dbman->table_exists($newtable)) {
+                $dbman->rename_table($oldtable, $newname);
+            }
+        }
+
+        // Adeptus Insights savepoint reached.
+        upgrade_plugin_savepoint(true, 2026012701, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

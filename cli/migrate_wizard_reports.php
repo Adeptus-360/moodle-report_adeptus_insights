@@ -76,7 +76,7 @@ cli_writeln("Dry run: " . ($dryrun ? 'Yes' : 'No'));
 cli_writeln("");
 
 // Fetch all local wizard reports
-$localreports = $DB->get_records('adeptus_generated_reports', null, 'generatedat DESC');
+$localreports = $DB->get_records('report_adeptus_insights_generated', null, 'generatedat DESC');
 $total = count($localreports);
 
 cli_writeln("Found {$total} local wizard reports to migrate.");
@@ -147,7 +147,7 @@ foreach ($localreports as $report) {
 
             // Delete local record if requested
             if ($deleteafter) {
-                $DB->delete_records('adeptus_generated_reports', ['id' => $report->id]);
+                $DB->delete_records('report_adeptus_insights_generated', ['id' => $report->id]);
                 cli_writeln("  -> Deleted local record");
             }
         } else {

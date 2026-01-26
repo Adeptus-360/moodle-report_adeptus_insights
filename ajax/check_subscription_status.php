@@ -70,7 +70,7 @@ try {
     // For free plan users, count actual reports from database
     if ($isfreeplan) {
         try {
-            $reportsgeneratedthismonth = $DB->count_records('adeptus_generated_reports', ['userid' => $USER->id]);
+            $reportsgeneratedthismonth = $DB->count_records('report_adeptus_insights_generated', ['userid' => $USER->id]);
         } catch (Exception $e) {
             $reportsgeneratedthismonth = 0;
         }
@@ -83,7 +83,7 @@ try {
     if ($isfreeplan) {
         // For free plan users, count exports from tracking table
         try {
-            $exportsused = $DB->count_records('adeptus_export_tracking', ['userid' => $USER->id]);
+            $exportsused = $DB->count_records('report_adeptus_insights_exports', ['userid' => $USER->id]);
         } catch (Exception $e) {
             $exportsused = 0;
         }

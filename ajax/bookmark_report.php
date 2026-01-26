@@ -47,7 +47,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Clear all bookmarks for this user.
     if ($action === 'clear_all') {
-        $DB->delete_records('adeptus_report_bookmarks', ['userid' => $USER->id]);
+        $DB->delete_records('report_adeptus_insights_bookmarks', ['userid' => $USER->id]);
         echo json_encode([
             'success' => true,
             'message' => get_string('bookmarks_cleared', 'report_adeptus_insights'),
@@ -57,7 +57,7 @@ try {
     }
 
     // Check if already bookmarked.
-    $existing = $DB->get_record('adeptus_report_bookmarks', [
+    $existing = $DB->get_record('report_adeptus_insights_bookmarks', [
         'userid' => $USER->id,
         'reportid' => $reportid,
     ]);
@@ -65,7 +65,7 @@ try {
     if ($action === 'toggle') {
         if ($existing) {
             // Remove bookmark.
-            $DB->delete_records('adeptus_report_bookmarks', [
+            $DB->delete_records('report_adeptus_insights_bookmarks', [
                 'userid' => $USER->id,
                 'reportid' => $reportid,
             ]);
@@ -83,7 +83,7 @@ try {
             $bookmark->reportid = $reportid;
             $bookmark->createdat = time();
 
-            $bookmarkid = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+            $bookmarkid = $DB->insert_record('report_adeptus_insights_bookmarks', $bookmark);
 
             if ($bookmarkid) {
                 echo json_encode([
@@ -102,7 +102,7 @@ try {
         }
     } else if ($action === 'remove') {
         if ($existing) {
-            $DB->delete_records('adeptus_report_bookmarks', [
+            $DB->delete_records('report_adeptus_insights_bookmarks', [
                 'userid' => $USER->id,
                 'reportid' => $reportid,
             ]);
@@ -135,7 +135,7 @@ try {
         $bookmark->reportid = $reportid;
         $bookmark->createdat = time();
 
-        $bookmarkid = $DB->insert_record('adeptus_report_bookmarks', $bookmark);
+        $bookmarkid = $DB->insert_record('report_adeptus_insights_bookmarks', $bookmark);
 
         if ($bookmarkid) {
             echo json_encode([

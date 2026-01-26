@@ -60,7 +60,7 @@ class installation_manager {
         // Load existing settings
         try {
             // Get ANY existing record (not just id=1, as insert_record auto-generates IDs)
-            $settings = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+            $settings = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($settings) {
                 $this->api_key = $settings->api_key;
                 $this->api_url = $settings->api_url;
@@ -429,13 +429,13 @@ class installation_manager {
         global $DB;
 
         try {
-            // Check if adeptus_subscription_status table exists
-            if (!$DB->table_exists('adeptus_subscription_status')) {
+            // Check if report_adeptus_insights_subscription table exists
+            if (!$DB->table_exists('report_adeptus_insights_subscription')) {
                 $this->create_subscription_status_table();
             }
 
-            // Check if adeptus_install_settings table exists.
-            if (!$DB->table_exists('adeptus_install_settings')) {
+            // Check if report_adeptus_insights_settings table exists.
+            if (!$DB->table_exists('report_adeptus_insights_settings')) {
                 $this->create_install_settings_table();
             }
         } catch (\Exception $e) {
@@ -445,13 +445,13 @@ class installation_manager {
     }
 
     /**
-     * Create adeptus_subscription_status table if it doesn't exist.
+     * Create report_adeptus_insights_subscription table if it doesn't exist.
      */
     private function create_subscription_status_table() {
         global $DB;
 
         try {
-            $table = new \xmldb_table('adeptus_subscription_status');
+            $table = new \xmldb_table('report_adeptus_insights_subscription');
 
             if (!$DB->table_exists($table)) {
                 $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -467,7 +467,7 @@ class installation_manager {
                 $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
                 $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-                $table->add_key('installation', XMLDB_KEY_FOREIGN, ['installation_id'], 'adeptus_install_settings', ['id']);
+                $table->add_key('installation', XMLDB_KEY_FOREIGN, ['installation_id'], 'report_adeptus_insights_settings', ['id']);
 
                 $DB->create_table($table);
             }
@@ -478,13 +478,13 @@ class installation_manager {
     }
 
     /**
-     * Create adeptus_install_settings table if it doesn't exist.
+     * Create report_adeptus_insights_settings table if it doesn't exist.
      */
     private function create_install_settings_table() {
         global $DB;
 
         try {
-            $table = new \xmldb_table('adeptus_install_settings');
+            $table = new \xmldb_table('report_adeptus_insights_settings');
 
             if (!$DB->table_exists($table)) {
                 $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -1247,20 +1247,20 @@ class installation_manager {
             ];
 
             // Check if table exists
-            if (!$DB->get_manager()->table_exists('adeptus_install_settings')) {
+            if (!$DB->get_manager()->table_exists('report_adeptus_insights_settings')) {
                 return;
             }
 
             // Try to find ANY existing record (not just id=1)
-            $existing = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+            $existing = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
 
             if ($existing) {
                 // Update existing record
                 $record->id = $existing->id;
-                $DB->update_record('adeptus_install_settings', $record);
+                $DB->update_record('report_adeptus_insights_settings', $record);
             } else {
                 // Insert new record - let Moodle auto-generate the ID
-                $newid = $DB->insert_record('adeptus_install_settings', $record);
+                $newid = $DB->insert_record('report_adeptus_insights_settings', $record);
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the registration.
@@ -1276,9 +1276,9 @@ class installation_manager {
 
         try {
             // Find the existing record
-            $existing = $DB->get_record('adeptus_install_settings', [], '*', IGNORE_MULTIPLE);
+            $existing = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($existing) {
-                $DB->set_field('adeptus_install_settings', 'last_sync', time(), ['id' => $existing->id]);
+                $DB->set_field('report_adeptus_insights_settings', 'last_sync', time(), ['id' => $existing->id]);
             }
         } catch (\Exception $e) {
             // Ignore sync timestamp update errors - non-critical.
@@ -1325,7 +1325,7 @@ class installation_manager {
 
         try {
             // Check if table exists
-            if (!$DB->get_manager()->table_exists('adeptus_subscription_status')) {
+            if (!$DB->get_manager()->table_exists('report_adeptus_insights_subscription')) {
                 return;
             }
 
@@ -1346,12 +1346,12 @@ class installation_manager {
             ];
 
             // Find ANY existing record (not just id=1)
-            $existing = $DB->get_record('adeptus_subscription_status', [], '*', IGNORE_MULTIPLE);
+            $existing = $DB->get_record('report_adeptus_insights_subscription', [], '*', IGNORE_MULTIPLE);
             if ($existing) {
                 $record->id = $existing->id;
-                $DB->update_record('adeptus_subscription_status', $record);
+                $DB->update_record('report_adeptus_insights_subscription', $record);
             } else {
-                $newid = $DB->insert_record('adeptus_subscription_status', $record);
+                $newid = $DB->insert_record('report_adeptus_insights_subscription', $record);
             }
         } catch (\Exception $e) {
             // Log the error but don't fail the operation.

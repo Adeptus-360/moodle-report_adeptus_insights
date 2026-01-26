@@ -35,7 +35,7 @@ function xmldb_report_adeptus_insights_uninstall() {
     // First, try to notify the backend that this installation is being uninstalled
     try {
         // Get API key and URL before dropping the settings table
-        $settings = $DB->get_record('adeptus_install_settings', ['id' => 1]);
+        $settings = $DB->get_record('report_adeptus_insights_settings', ['id' => 1]);
         if ($settings && !empty($settings->api_key) && !empty($settings->api_url)) {
             $url = rtrim($settings->api_url, '/') . '/installation/uninstall';
 
@@ -76,19 +76,20 @@ function xmldb_report_adeptus_insights_uninstall() {
 
     // Drop all plugin tables.
     $tables = [
-        'adeptus_export_tracking',
-        'adeptus_generated_reports',
-        'adeptus_stripe_config',
-        'ai_analytics_base',
-        'ai_report_cache',
-        'ai_report_config',
-        'adeptus_reports',
-        'adeptus_report_history',
-        'adeptus_report_bookmarks',
-        'adeptus_install_settings',
-        'adeptus_subscription_status',
-        'adeptus_stripe_webhooks',
-        'adeptus_usage_tracking',
+        'report_adeptus_insights_exports',
+        'report_adeptus_insights_generated',
+        'report_adeptus_insights_stripe',
+        'report_adeptus_insights_analytics',
+        'report_adeptus_insights_cache',
+        'report_adeptus_insights_config',
+        'report_adeptus_insights_reports',
+        'report_adeptus_insights_history',
+        'report_adeptus_insights_bookmarks',
+        'report_adeptus_insights_settings',
+        'report_adeptus_insights_subscription',
+        'report_adeptus_insights_webhooks',
+        'report_adeptus_insights_usage',
+        'report_adeptus_insights_plans',
     ];
 
     foreach ($tables as $tablename) {

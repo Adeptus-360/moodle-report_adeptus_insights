@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="report/adeptus_insights/db" VERSION="2024050801" COMMENT="Adeptus Insights DB schema with Stripe integration">
+<XMLDB PATH="report/adeptus_insights/db" VERSION="2026012701" COMMENT="Adeptus Insights DB schema with Stripe integration">
     <TABLES>
 
         <!-- 1. Materialized Base Table -->
-        <TABLE NAME="ai_analytics_base" COMMENT="Nightly flattened snapshot of user-course interactions">
+        <TABLE NAME="report_adeptus_insights_analytics" COMMENT="Nightly flattened snapshot of user-course interactions">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -23,7 +23,7 @@
         </TABLE>
 
         <!-- 2. Report Result Cache -->
-        <TABLE NAME="ai_report_cache" COMMENT="Cached report results by user/session for fast reloads">
+        <TABLE NAME="report_adeptus_insights_cache" COMMENT="Cached report results by user/session for fast reloads">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -40,7 +40,7 @@
         </TABLE>
 
         <!-- 3. Report Configurations -->
-        <TABLE NAME="ai_report_config" COMMENT="User-created report metadata (fields, filters, questions)">
+        <TABLE NAME="report_adeptus_insights_config" COMMENT="User-created report metadata (fields, filters, questions)">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -59,7 +59,7 @@
         </TABLE>
 
         <!-- 4. Predefined and Custom Reports Table for Report Wizard -->
-        <TABLE NAME="adeptus_reports" COMMENT="Predefined and custom reports for the wizard">
+        <TABLE NAME="report_adeptus_insights_reports" COMMENT="Predefined and custom reports for the wizard">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
@@ -78,7 +78,7 @@
         </TABLE>
 
         <!-- 5. User Report History Table for Report Wizard -->
-        <TABLE NAME="adeptus_report_history" COMMENT="User report generation history for wizard">
+        <TABLE NAME="report_adeptus_insights_history" COMMENT="User report generation history for wizard">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -93,7 +93,7 @@
         </TABLE>
 
         <!-- 6. User Bookmarks Table for Report Wizard -->
-        <TABLE NAME="adeptus_report_bookmarks" COMMENT="User report bookmarks for wizard">
+        <TABLE NAME="report_adeptus_insights_bookmarks" COMMENT="User report bookmarks for wizard">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -106,7 +106,7 @@
         </TABLE>
 
         <!-- 7. Installation Settings Table -->
-        <TABLE NAME="adeptus_install_settings" COMMENT="Plugin installation settings and API configuration">
+        <TABLE NAME="report_adeptus_insights_settings" COMMENT="Plugin installation settings and API configuration">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="api_key" TYPE="char" LENGTH="64" NOTNULL="true"/>
@@ -126,7 +126,7 @@
         </TABLE>
 
         <!-- 8. Enhanced Subscription Status Table with Stripe Integration -->
-        <TABLE NAME="adeptus_subscription_status" COMMENT="Local subscription status tracking with Stripe integration">
+        <TABLE NAME="report_adeptus_insights_subscription" COMMENT="Local subscription status tracking with Stripe integration">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="stripe_customer_id" TYPE="char" LENGTH="100" NOTNULL="false"/>
@@ -150,7 +150,7 @@
         </TABLE>
 
         <!-- 9. Stripe Webhook Events Table -->
-        <TABLE NAME="adeptus_stripe_webhooks" COMMENT="Stripe webhook event tracking">
+        <TABLE NAME="report_adeptus_insights_webhooks" COMMENT="Stripe webhook event tracking">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="stripe_event_id" TYPE="char" LENGTH="100" NOTNULL="true"/>
@@ -168,7 +168,7 @@
         </TABLE>
 
         <!-- 10. Usage Tracking Table -->
-        <TABLE NAME="adeptus_usage_tracking" COMMENT="Track AI credits and export usage">
+        <TABLE NAME="report_adeptus_insights_usage" COMMENT="Track AI credits and export usage">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -184,8 +184,8 @@
             </KEYS>
         </TABLE>
 
-        <!-- Export Tracking for Free Plan Users -->
-        <TABLE NAME="adeptus_export_tracking" COMMENT="Track exports for free plan users">
+        <!-- 11. Export Tracking for Free Plan Users -->
+        <TABLE NAME="report_adeptus_insights_exports" COMMENT="Track exports for free plan users">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -203,7 +203,7 @@
         </TABLE>
 
         <!-- 12. Generated Reports Table -->
-        <TABLE NAME="adeptus_generated_reports" COMMENT="Stores generated report metadata for the Generated Reports section">
+        <TABLE NAME="report_adeptus_insights_generated" COMMENT="Stores generated report metadata for the Generated Reports section">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -223,7 +223,7 @@
         </TABLE>
 
         <!-- 13. Stripe Configuration Table -->
-        <TABLE NAME="adeptus_stripe_config" COMMENT="Stripe payment gateway configuration">
+        <TABLE NAME="report_adeptus_insights_stripe" COMMENT="Stripe payment gateway configuration">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="publishable_key" TYPE="char" LENGTH="255" NOTNULL="true"/>

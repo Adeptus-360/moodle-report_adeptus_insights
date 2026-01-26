@@ -50,91 +50,91 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
     public static function get_metadata(collection $collection): collection {
         // Analytics base table - aggregated user activity data.
         $collection->add_database_table(
-            'ai_analytics_base',
+            'report_adeptus_insights_analytics',
             [
-                'userid' => 'privacy:metadata:ai_analytics_base:userid',
-                'courseid' => 'privacy:metadata:ai_analytics_base:courseid',
-                'logins' => 'privacy:metadata:ai_analytics_base:logins',
-                'assignments_submitted' => 'privacy:metadata:ai_analytics_base:assignments_submitted',
-                'forum_posts' => 'privacy:metadata:ai_analytics_base:forum_posts',
-                'resource_clicks' => 'privacy:metadata:ai_analytics_base:resource_clicks',
-                'last_login' => 'privacy:metadata:ai_analytics_base:last_login',
-                'average_grade' => 'privacy:metadata:ai_analytics_base:average_grade',
+                'userid' => 'privacy:metadata:report_adeptus_insights_analytics:userid',
+                'courseid' => 'privacy:metadata:report_adeptus_insights_analytics:courseid',
+                'logins' => 'privacy:metadata:report_adeptus_insights_analytics:logins',
+                'assignments_submitted' => 'privacy:metadata:report_adeptus_insights_analytics:assignments_submitted',
+                'forum_posts' => 'privacy:metadata:report_adeptus_insights_analytics:forum_posts',
+                'resource_clicks' => 'privacy:metadata:report_adeptus_insights_analytics:resource_clicks',
+                'last_login' => 'privacy:metadata:report_adeptus_insights_analytics:last_login',
+                'average_grade' => 'privacy:metadata:report_adeptus_insights_analytics:average_grade',
             ],
-            'privacy:metadata:ai_analytics_base'
+            'privacy:metadata:report_adeptus_insights_analytics'
         );
 
         // Report cache table - cached report results.
         $collection->add_database_table(
-            'ai_report_cache',
+            'report_adeptus_insights_cache',
             [
-                'userid' => 'privacy:metadata:ai_report_cache:userid',
-                'reportid' => 'privacy:metadata:ai_report_cache:reportid',
-                'jsondata' => 'privacy:metadata:ai_report_cache:jsondata',
-                'timecreated' => 'privacy:metadata:ai_report_cache:timecreated',
+                'userid' => 'privacy:metadata:report_adeptus_insights_cache:userid',
+                'reportid' => 'privacy:metadata:report_adeptus_insights_cache:reportid',
+                'jsondata' => 'privacy:metadata:report_adeptus_insights_cache:jsondata',
+                'timecreated' => 'privacy:metadata:report_adeptus_insights_cache:timecreated',
             ],
-            'privacy:metadata:ai_report_cache'
+            'privacy:metadata:report_adeptus_insights_cache'
         );
 
         // Report config table - user-created reports.
         $collection->add_database_table(
-            'ai_report_config',
+            'report_adeptus_insights_config',
             [
-                'userid' => 'privacy:metadata:ai_report_config:userid',
-                'name' => 'privacy:metadata:ai_report_config:name',
-                'question' => 'privacy:metadata:ai_report_config:question',
-                'fields' => 'privacy:metadata:ai_report_config:fields',
-                'filters' => 'privacy:metadata:ai_report_config:filters',
-                'timecreated' => 'privacy:metadata:ai_report_config:timecreated',
+                'userid' => 'privacy:metadata:report_adeptus_insights_config:userid',
+                'name' => 'privacy:metadata:report_adeptus_insights_config:name',
+                'question' => 'privacy:metadata:report_adeptus_insights_config:question',
+                'fields' => 'privacy:metadata:report_adeptus_insights_config:fields',
+                'filters' => 'privacy:metadata:report_adeptus_insights_config:filters',
+                'timecreated' => 'privacy:metadata:report_adeptus_insights_config:timecreated',
             ],
-            'privacy:metadata:ai_report_config'
+            'privacy:metadata:report_adeptus_insights_config'
         );
 
         // Report history table - report generation history.
         $collection->add_database_table(
-            'adeptus_report_history',
+            'report_adeptus_insights_history',
             [
-                'userid' => 'privacy:metadata:adeptus_report_history:userid',
-                'reportid' => 'privacy:metadata:adeptus_report_history:reportid',
-                'parameters' => 'privacy:metadata:adeptus_report_history:parameters',
-                'generatedat' => 'privacy:metadata:adeptus_report_history:generatedat',
+                'userid' => 'privacy:metadata:report_adeptus_insights_history:userid',
+                'reportid' => 'privacy:metadata:report_adeptus_insights_history:reportid',
+                'parameters' => 'privacy:metadata:report_adeptus_insights_history:parameters',
+                'generatedat' => 'privacy:metadata:report_adeptus_insights_history:generatedat',
             ],
-            'privacy:metadata:adeptus_report_history'
+            'privacy:metadata:report_adeptus_insights_history'
         );
 
         // Report bookmarks table - user bookmarks.
         $collection->add_database_table(
-            'adeptus_report_bookmarks',
+            'report_adeptus_insights_bookmarks',
             [
-                'userid' => 'privacy:metadata:adeptus_report_bookmarks:userid',
-                'reportid' => 'privacy:metadata:adeptus_report_bookmarks:reportid',
-                'createdat' => 'privacy:metadata:adeptus_report_bookmarks:createdat',
+                'userid' => 'privacy:metadata:report_adeptus_insights_bookmarks:userid',
+                'reportid' => 'privacy:metadata:report_adeptus_insights_bookmarks:reportid',
+                'createdat' => 'privacy:metadata:report_adeptus_insights_bookmarks:createdat',
             ],
-            'privacy:metadata:adeptus_report_bookmarks'
+            'privacy:metadata:report_adeptus_insights_bookmarks'
         );
 
         // Usage tracking table - AI credit usage.
         $collection->add_database_table(
-            'adeptus_usage_tracking',
+            'report_adeptus_insights_usage',
             [
-                'userid' => 'privacy:metadata:adeptus_usage_tracking:userid',
-                'usage_type' => 'privacy:metadata:adeptus_usage_tracking:usage_type',
-                'credits_used' => 'privacy:metadata:adeptus_usage_tracking:credits_used',
-                'timecreated' => 'privacy:metadata:adeptus_usage_tracking:timecreated',
+                'userid' => 'privacy:metadata:report_adeptus_insights_usage:userid',
+                'usage_type' => 'privacy:metadata:report_adeptus_insights_usage:usage_type',
+                'credits_used' => 'privacy:metadata:report_adeptus_insights_usage:credits_used',
+                'timecreated' => 'privacy:metadata:report_adeptus_insights_usage:timecreated',
             ],
-            'privacy:metadata:adeptus_usage_tracking'
+            'privacy:metadata:report_adeptus_insights_usage'
         );
 
         // Export tracking table - export history.
         $collection->add_database_table(
-            'adeptus_export_tracking',
+            'report_adeptus_insights_exports',
             [
-                'userid' => 'privacy:metadata:adeptus_export_tracking:userid',
-                'reportname' => 'privacy:metadata:adeptus_export_tracking:reportname',
-                'format' => 'privacy:metadata:adeptus_export_tracking:format',
-                'exportedat' => 'privacy:metadata:adeptus_export_tracking:exportedat',
+                'userid' => 'privacy:metadata:report_adeptus_insights_exports:userid',
+                'reportname' => 'privacy:metadata:report_adeptus_insights_exports:reportname',
+                'format' => 'privacy:metadata:report_adeptus_insights_exports:format',
+                'exportedat' => 'privacy:metadata:report_adeptus_insights_exports:exportedat',
             ],
-            'privacy:metadata:adeptus_export_tracking'
+            'privacy:metadata:report_adeptus_insights_exports'
         );
 
         // External system - Adeptus 360 API.
@@ -166,7 +166,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         // Check if user has any data in our tables.
         $sql = "SELECT DISTINCT ctx.id
                   FROM {context} ctx
-                  JOIN {ai_analytics_base} aab ON aab.userid = :userid1
+                  JOIN {report_adeptus_insights_analytics} aab ON aab.userid = :userid1
                  WHERE ctx.contextlevel = :contextlevel";
 
         $params = [
@@ -178,12 +178,12 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         // Also check other tables.
         $tables = [
-            'ai_report_cache',
-            'ai_report_config',
-            'adeptus_report_history',
-            'adeptus_report_bookmarks',
-            'adeptus_usage_tracking',
-            'adeptus_export_tracking',
+            'report_adeptus_insights_cache',
+            'report_adeptus_insights_config',
+            'report_adeptus_insights_history',
+            'report_adeptus_insights_bookmarks',
+            'report_adeptus_insights_usage',
+            'report_adeptus_insights_exports',
         ];
 
         foreach ($tables as $table) {
@@ -217,13 +217,13 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         // Get users from all our tables.
         $tables = [
-            'ai_analytics_base',
-            'ai_report_cache',
-            'ai_report_config',
-            'adeptus_report_history',
-            'adeptus_report_bookmarks',
-            'adeptus_usage_tracking',
-            'adeptus_export_tracking',
+            'report_adeptus_insights_analytics',
+            'report_adeptus_insights_cache',
+            'report_adeptus_insights_config',
+            'report_adeptus_insights_history',
+            'report_adeptus_insights_bookmarks',
+            'report_adeptus_insights_usage',
+            'report_adeptus_insights_exports',
         ];
 
         foreach ($tables as $table) {
@@ -244,7 +244,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $context = \context_system::instance();
 
         // Export analytics base data.
-        $analytics = $DB->get_records('ai_analytics_base', ['userid' => $userid]);
+        $analytics = $DB->get_records('report_adeptus_insights_analytics', ['userid' => $userid]);
         if ($analytics) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:analytics', 'report_adeptus_insights')],
@@ -253,7 +253,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export report cache data.
-        $cache = $DB->get_records('ai_report_cache', ['userid' => $userid]);
+        $cache = $DB->get_records('report_adeptus_insights_cache', ['userid' => $userid]);
         if ($cache) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:reportcache', 'report_adeptus_insights')],
@@ -262,7 +262,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export report config data.
-        $configs = $DB->get_records('ai_report_config', ['userid' => $userid]);
+        $configs = $DB->get_records('report_adeptus_insights_config', ['userid' => $userid]);
         if ($configs) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:reportconfig', 'report_adeptus_insights')],
@@ -271,7 +271,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export report history data.
-        $history = $DB->get_records('adeptus_report_history', ['userid' => $userid]);
+        $history = $DB->get_records('report_adeptus_insights_history', ['userid' => $userid]);
         if ($history) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:reporthistory', 'report_adeptus_insights')],
@@ -280,7 +280,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export bookmarks data.
-        $bookmarks = $DB->get_records('adeptus_report_bookmarks', ['userid' => $userid]);
+        $bookmarks = $DB->get_records('report_adeptus_insights_bookmarks', ['userid' => $userid]);
         if ($bookmarks) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:bookmarks', 'report_adeptus_insights')],
@@ -289,7 +289,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export usage tracking data.
-        $usage = $DB->get_records('adeptus_usage_tracking', ['userid' => $userid]);
+        $usage = $DB->get_records('report_adeptus_insights_usage', ['userid' => $userid]);
         if ($usage) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:usagetracking', 'report_adeptus_insights')],
@@ -298,7 +298,7 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Export export tracking data.
-        $exports = $DB->get_records('adeptus_export_tracking', ['userid' => $userid]);
+        $exports = $DB->get_records('report_adeptus_insights_exports', ['userid' => $userid]);
         if ($exports) {
             writer::with_context($context)->export_data(
                 [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:exporttracking', 'report_adeptus_insights')],
@@ -320,13 +320,13 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         }
 
         // Delete all user data from our tables.
-        $DB->delete_records('ai_analytics_base');
-        $DB->delete_records('ai_report_cache');
-        $DB->delete_records('ai_report_config');
-        $DB->delete_records('adeptus_report_history');
-        $DB->delete_records('adeptus_report_bookmarks');
-        $DB->delete_records('adeptus_usage_tracking');
-        $DB->delete_records('adeptus_export_tracking');
+        $DB->delete_records('report_adeptus_insights_analytics');
+        $DB->delete_records('report_adeptus_insights_cache');
+        $DB->delete_records('report_adeptus_insights_config');
+        $DB->delete_records('report_adeptus_insights_history');
+        $DB->delete_records('report_adeptus_insights_bookmarks');
+        $DB->delete_records('report_adeptus_insights_usage');
+        $DB->delete_records('report_adeptus_insights_exports');
     }
 
     /**
@@ -340,13 +340,13 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
         $userid = $contextlist->get_user()->id;
 
         // Delete user data from all our tables.
-        $DB->delete_records('ai_analytics_base', ['userid' => $userid]);
-        $DB->delete_records('ai_report_cache', ['userid' => $userid]);
-        $DB->delete_records('ai_report_config', ['userid' => $userid]);
-        $DB->delete_records('adeptus_report_history', ['userid' => $userid]);
-        $DB->delete_records('adeptus_report_bookmarks', ['userid' => $userid]);
-        $DB->delete_records('adeptus_usage_tracking', ['userid' => $userid]);
-        $DB->delete_records('adeptus_export_tracking', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_analytics', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_cache', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_config', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_history', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_bookmarks', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_usage', ['userid' => $userid]);
+        $DB->delete_records('report_adeptus_insights_exports', ['userid' => $userid]);
     }
 
     /**
@@ -373,13 +373,13 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
 
         // Delete from all tables.
         $tables = [
-            'ai_analytics_base',
-            'ai_report_cache',
-            'ai_report_config',
-            'adeptus_report_history',
-            'adeptus_report_bookmarks',
-            'adeptus_usage_tracking',
-            'adeptus_export_tracking',
+            'report_adeptus_insights_analytics',
+            'report_adeptus_insights_cache',
+            'report_adeptus_insights_config',
+            'report_adeptus_insights_history',
+            'report_adeptus_insights_bookmarks',
+            'report_adeptus_insights_usage',
+            'report_adeptus_insights_exports',
         ];
 
         foreach ($tables as $table) {

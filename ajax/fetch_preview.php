@@ -51,7 +51,7 @@ try {
     global $DB;
     $fieldlist = implode(', ', array_map(fn($f) => $f, $validfields));
 
-    $sql     = "SELECT $fieldlist FROM {ai_analytics_base} ORDER BY timecreated DESC LIMIT 20";
+    $sql     = "SELECT $fieldlist FROM {report_adeptus_insights_analytics} ORDER BY timecreated DESC LIMIT 20";
     $results = $DB->get_records_sql($sql);
 
     echo json_encode(array_values($results));

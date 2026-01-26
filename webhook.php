@@ -89,7 +89,7 @@ function report_adeptus_insights_process_webhook_event($event) {
             'timecreated' => time(),
         ];
 
-        $DB->insert_record('adeptus_stripe_webhooks', $eventrecord);
+        $DB->insert_record('report_adeptus_insights_webhooks', $eventrecord);
 
         // Process based on event type
         switch ($event->type) {
@@ -110,7 +110,7 @@ function report_adeptus_insights_process_webhook_event($event) {
 
             default:
                 // Mark as processed for unhandled events
-                $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+                $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
                 return ['success' => true];
         }
     } catch (\Exception $e) {
@@ -132,7 +132,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
 
     // Get plan details from Stripe
     $priceid = $subscription->items->data[0]->price->id;
-    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $priceid]);
+    $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
         return ['success' => false, 'error' => 'Plan not found'];
@@ -165,17 +165,17 @@ function report_adeptus_insights_handle_subscription_created($event) {
     }
 
     // Update local subscription status
-    $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
+    $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
     if ($existing) {
         $subscriptiondata['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     } else {
         $subscriptiondata['id'] = 1;
-        $DB->insert_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->insert_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
     // Mark event as processed
-    $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+    $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
 }
@@ -194,7 +194,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
 
     // Get plan details from Stripe
     $priceid = $subscription->items->data[0]->price->id;
-    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_price_id' => $priceid]);
+    $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
     if (!$plan) {
         return ['success' => false, 'error' => 'Plan not found'];
@@ -217,7 +217,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
 
     // Preserve existing credits if subscription is active
     if ($subscription->status === 'active') {
-        $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
+        $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
         if ($existing) {
             $subscriptiondata['ai_credits_remaining'] = $existing->ai_credits_remaining;
             $subscriptiondata['ai_credits_pro_remaining'] = $existing->ai_credits_pro_remaining;
@@ -227,17 +227,17 @@ function report_adeptus_insights_handle_subscription_updated($event) {
     }
 
     // Update local subscription status
-    $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
+    $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
     if ($existing) {
         $subscriptiondata['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     } else {
         $subscriptiondata['id'] = 1;
-        $DB->insert_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->insert_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
     // Mark event as processed
-    $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+    $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
 }
@@ -259,14 +259,14 @@ function report_adeptus_insights_handle_subscription_deleted($event) {
         'current_period_end' => $subscription->current_period_end,
     ];
 
-    $existing = $DB->get_record('adeptus_subscription_status', ['id' => 1]);
+    $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
     if ($existing) {
         $subscriptiondata['id'] = 1;
-        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
     // Mark event as processed
-    $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+    $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
 }
@@ -289,13 +289,13 @@ function report_adeptus_insights_handle_payment_succeeded($event) {
     }
 
     // Get subscription details
-    $subscription = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscriptionid]);
+    $subscription = $DB->get_record('report_adeptus_insights_subscription', ['stripe_subscription_id' => $subscriptionid]);
     if (!$subscription) {
         return ['success' => false, 'error' => 'Subscription not found'];
     }
 
     // Get plan details
-    $plan = $DB->get_record('adeptus_stripe_plans', ['stripe_product_id' => $subscription->plan_id]);
+    $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_product_id' => $subscription->plan_id]);
     if (!$plan) {
         return ['success' => false, 'error' => 'Plan not found'];
     }
@@ -310,10 +310,10 @@ function report_adeptus_insights_handle_payment_succeeded($event) {
     ];
 
     $subscriptiondata['id'] = $subscription->id;
-    $DB->update_record('adeptus_subscription_status', $subscriptiondata);
+    $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
 
     // Mark event as processed
-    $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+    $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
 }
@@ -340,14 +340,14 @@ function report_adeptus_insights_handle_payment_failed($event) {
         'status' => 'past_due',
     ];
 
-    $existing = $DB->get_record('adeptus_subscription_status', ['stripe_subscription_id' => $subscriptionid]);
+    $existing = $DB->get_record('report_adeptus_insights_subscription', ['stripe_subscription_id' => $subscriptionid]);
     if ($existing) {
         $subscriptiondata['id'] = $existing->id;
-        $DB->update_record('adeptus_subscription_status', $subscriptiondata);
+        $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
     // Mark event as processed
-    $DB->set_field('adeptus_stripe_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
+    $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
 }
