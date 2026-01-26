@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class notification_manager {
     /** @var error_handler Error handler instance. */
-    private $errorhandler;
+    private $error_handler;
 
     /** @var array Array of notification messages. */
     private $notifications;
@@ -58,10 +58,10 @@ class notification_manager {
      */
     public function display_error($errorcode, $additionaldata = [], $logerror = true) {
         if ($logerror) {
-            $this->error_handler->logError($errorcode, $additionaldata);
+            $this->error_handler->log_error($errorcode, $additionaldata);
         }
 
-        $errormessage = $this->error_handler->createErrorMessage($errorcode, $additionaldata);
+        $errormessage = $this->error_handler->create_error_message($errorcode, $additionaldata);
         $html = $this->render_error_message($errormessage);
 
         // Store notification for potential reuse

@@ -442,8 +442,8 @@ class external extends \external_api {
         // Capability checking
         require_capability('report_adeptus_insights:view', $context);
 
-        // Get auth status using the auth manager
-        $authmanager = new \report_adeptus_insights\auth_manager();
+        // Get auth status using the token auth manager
+        $authmanager = new \report_adeptus_insights\token_auth_manager();
         $authstatus = $authmanager->get_auth_status();
 
         return [

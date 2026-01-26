@@ -132,4 +132,48 @@ class api_config {
     public static function get_branding_endpoint() {
         return self::get_backend_url() . '/branding/logo';
     }
+
+    /**
+     * Get the AI login endpoint URL.
+     *
+     * Used for authenticating with the AI service.
+     *
+     * @return string The AI login endpoint URL.
+     */
+    public static function get_ai_login_endpoint() {
+        return self::get_backend_url() . '/auth/login';
+    }
+
+    /**
+     * Get the AI report endpoint URL.
+     *
+     * Used for AI-powered report generation.
+     *
+     * @return string The AI report endpoint URL.
+     */
+    public static function get_ai_report_endpoint() {
+        return self::get_backend_url() . '/ai/report';
+    }
+
+    /**
+     * Get the CORS origin for API requests.
+     *
+     * Returns the Moodle site URL for use in CORS headers.
+     *
+     * @return string The CORS origin URL.
+     */
+    public static function get_cors_origin() {
+        return self::get_site_url();
+    }
+
+    /**
+     * Get the legacy API URL.
+     *
+     * Provides backward compatibility for older API calls.
+     *
+     * @return string The legacy API URL (same as backend URL).
+     */
+    public static function get_legacy_api_url() {
+        return self::get_backend_url();
+    }
 }
