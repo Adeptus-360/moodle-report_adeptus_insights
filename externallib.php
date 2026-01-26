@@ -1006,25 +1006,27 @@ class external extends \external_api {
             throw new \moodle_exception('Backend URL not configured');
         }
 
-        $ch = curl_init($backendurl . '/chat');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+        $curl = new \curl();
+        $curl->setHeader('Content-Type: application/json');
+        $curl->setHeader('Accept: application/json');
+
+        $postdata = json_encode([
             'message' => $message,
             'user_id' => get_config('report_adeptus_insights', 'user_id'),
-        'token' => get_config('report_adeptus_insights', 'api_token'),
-        ]));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: application/json',
+            'token' => get_config('report_adeptus_insights', 'api_token'),
         ]);
 
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        $options = [
+            'CURLOPT_RETURNTRANSFER' => true,
+        ];
+
+        $response = $curl->post($backendurl . '/chat', $postdata, $options);
+        $info = $curl->get_info();
+        $httpcode = $info['http_code'] ?? 0;
 
         if ($httpcode !== 200) {
-            throw new \moodle_exception('Failed to communicate with backend: ' . $response);
+            $error = $curl->get_errno() ? $curl->error : $response;
+            throw new \moodle_exception('Failed to communicate with backend: ' . $error);
         }
 
         return json_decode($response, true);

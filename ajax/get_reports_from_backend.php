@@ -84,20 +84,22 @@ try {
 
     // Fetch reports from backend API
     // Use the reports/definitions endpoint
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Follow redirects
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 5); // Limit redirects
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $curl = new \curl();
+    foreach ($headers as $header) {
+        $curl->setHeader($header);
+    }
+    $options = [
+        'CURLOPT_TIMEOUT' => $apitimeout,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+        'CURLOPT_FOLLOWLOCATION' => true,
+        'CURLOPT_MAXREDIRS' => 5,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    $finalurl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-    curl_close($ch);
+    $response = $curl->get($backendapiurl . '/reports/definitions', [], $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
+    $finalurl = $info['url'] ?? '';
 
     if ($debugmode) {
         debugging('Backend reports fetch completed, HTTP: ' . $httpcode, DEBUG_DEVELOPER);

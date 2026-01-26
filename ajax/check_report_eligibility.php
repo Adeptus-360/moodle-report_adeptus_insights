@@ -63,23 +63,19 @@ try {
 
     $postdata = json_encode(new stdClass()); // Empty object
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $endpoint);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $apikey,
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    curl_close($ch);
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('X-API-Key: ' . $apikey);
+    $options = [
+        'CURLOPT_TIMEOUT' => 15,
+        'CURLOPT_CONNECTTIMEOUT' => 10,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
+    $response = $curl->post($endpoint, $postdata, $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
 
     // Handle connection errors - FAIL CLOSED (deny if backend unreachable)
     if ($response === false || !empty($curlerror)) {

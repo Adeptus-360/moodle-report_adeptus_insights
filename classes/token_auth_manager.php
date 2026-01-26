@@ -267,30 +267,25 @@ class token_auth_manager {
             $backendurl = $this->installation_manager->get_api_url();
             $statusendpoint = $backendurl . '/installation/status';
 
-            $headers = [
-                'Content-Type: application/json',
-                'Accept: application/json',
-            ];
-
-            $data = [
+            $postdata = json_encode([
                 'api_key' => $apikey,
+            ]);
+
+            $curl = new \curl();
+            $curl->setHeader('Content-Type: application/json');
+            $curl->setHeader('Accept: application/json');
+
+            $options = [
+                'CURLOPT_TIMEOUT' => 10,
+                'CURLOPT_SSL_VERIFYPEER' => true,
             ];
 
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $statusendpoint);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+            $response = $curl->post($statusendpoint, $postdata, $options);
+            $info = $curl->get_info();
+            $httpcode = $info['http_code'] ?? 0;
+            $error = $curl->get_errno() ? $curl->error : '';
 
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $error = curl_error($ch);
-            curl_close($ch);
-
-            if ($response === false) {
+            if ($response === false || !empty($error)) {
                 return null;
             }
 

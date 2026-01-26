@@ -62,22 +62,19 @@ try {
 
             if ($source === 'assistant') {
                 // Delete AI/assistant report from backend using DELETE method
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/ai-reports/' . urlencode($slug));
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'Accept: application/json',
-                    'Authorization: Bearer ' . $apikey,
-                ]);
-
-                $response = curl_exec($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlerror = curl_error($ch);
-                curl_close($ch);
+                $curl = new \curl();
+                $curl->setHeader('Content-Type: application/json');
+                $curl->setHeader('Accept: application/json');
+                $curl->setHeader('Authorization: Bearer ' . $apikey);
+                $options = [
+                    'CURLOPT_TIMEOUT' => 15,
+                    'CURLOPT_SSL_VERIFYPEER' => true,
+                    'CURLOPT_CUSTOMREQUEST' => 'DELETE',
+                ];
+                $response = $curl->get($backendapiurl . '/ai-reports/' . urlencode($slug), [], $options);
+                $info = $curl->get_info();
+                $httpcode = $info['http_code'] ?? 0;
+                $curlerror = $curl->get_errno() ? $curl->error : '';
 
                 if ($curlerror) {
                     echo json_encode(['success' => false, 'message' => get_string('error_connection', 'report_adeptus_insights', $curlerror)]);
@@ -90,21 +87,18 @@ try {
                 }
             } else {
                 // Delete wizard report from backend
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'Accept: application/json',
-                    'Authorization: Bearer ' . $apikey,
-                ]);
-
-                $response = curl_exec($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
+                $curl = new \curl();
+                $curl->setHeader('Content-Type: application/json');
+                $curl->setHeader('Accept: application/json');
+                $curl->setHeader('Authorization: Bearer ' . $apikey);
+                $options = [
+                    'CURLOPT_TIMEOUT' => 10,
+                    'CURLOPT_SSL_VERIFYPEER' => true,
+                    'CURLOPT_CUSTOMREQUEST' => 'DELETE',
+                ];
+                $response = $curl->get($backendapiurl . '/wizard-reports/' . urlencode($slug) . '?user_id=' . $userid, [], $options);
+                $info = $curl->get_info();
+                $httpcode = $info['http_code'] ?? 0;
 
                 if ($httpcode === 200) {
                     $data = json_decode($response, true);
@@ -118,22 +112,19 @@ try {
 
         case 'clear_all':
             // Delete all wizard reports for the user from backend
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['user_id' => $userid]));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Accept: application/json',
-                'Authorization: Bearer ' . $apikey,
-            ]);
-
-            $response = curl_exec($ch);
-            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+            $curl = new \curl();
+            $curl->setHeader('Content-Type: application/json');
+            $curl->setHeader('Accept: application/json');
+            $curl->setHeader('Authorization: Bearer ' . $apikey);
+            $options = [
+                'CURLOPT_TIMEOUT' => 15,
+                'CURLOPT_SSL_VERIFYPEER' => true,
+                'CURLOPT_CUSTOMREQUEST' => 'DELETE',
+            ];
+            $postdata = json_encode(['user_id' => $userid]);
+            $response = $curl->post($backendapiurl . '/wizard-reports', $postdata, $options);
+            $info = $curl->get_info();
+            $httpcode = $info['http_code'] ?? 0;
 
             if ($httpcode === 200) {
                 $data = json_decode($response, true);

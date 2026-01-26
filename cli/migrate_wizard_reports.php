@@ -118,24 +118,21 @@ foreach ($localreports as $report) {
         continue;
     }
 
-    // Call backend API to save the wizard report
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizardreportdata));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'Authorization: Bearer ' . $apikey,
-    ]);
+    // Call backend API to save the wizard report using Moodle's curl wrapper.
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('Authorization: Bearer ' . $apikey);
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    curl_close($ch);
+    $options = [
+        'CURLOPT_TIMEOUT' => 30,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
+
+    $response = $curl->post($backendapiurl . '/wizard-reports', json_encode($wizardreportdata), $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
 
     if ($httpcode === 201 || $httpcode === 200) {
         $data = json_decode($response, true);

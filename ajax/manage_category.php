@@ -102,25 +102,37 @@ try {
             throw new Exception(get_string('error_invalid_action', 'report_adeptus_insights'));
     }
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $endpoint);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    if ($postdata !== null) {
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
-    }
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'Authorization: Bearer ' . $apikey,
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('Authorization: Bearer ' . $apikey);
+    $options = [
+        'CURLOPT_TIMEOUT' => 15,
+        'CURLOPT_CONNECTTIMEOUT' => 10,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    curl_close($ch);
+    // Execute request based on HTTP method.
+    switch ($method) {
+        case 'GET':
+            $response = $curl->get($endpoint, [], $options);
+            break;
+        case 'POST':
+            $response = $curl->post($endpoint, $postdata, $options);
+            break;
+        case 'PUT':
+            $response = $curl->put($endpoint, $postdata, $options);
+            break;
+        case 'DELETE':
+            $response = $curl->delete($endpoint, [], $options);
+            break;
+        default:
+            throw new Exception(get_string('error_invalid_action', 'report_adeptus_insights'));
+    }
+
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
 
     // Handle connection errors.
     if ($response === false || !empty($curlerror)) {

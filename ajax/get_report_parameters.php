@@ -62,21 +62,19 @@ try {
     $apikey = $installationmanager->get_api_key();
 
     // Fetch all reports from backend to find the requested one
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $apikey,
-    ]);
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('X-API-Key: ' . $apikey);
+    $options = [
+        'CURLOPT_TIMEOUT' => $apitimeout,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    curl_close($ch);
+    $response = $curl->get($backendapiurl . '/reports/definitions', [], $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
 
     if (!$response || $httpcode !== 200 || !empty($curlerror)) {
         echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
@@ -134,10 +132,15 @@ try {
         if (false) {
             try {
                 // Call backend API to get enhanced parameter data
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/adeptus-reports/process-parameter');
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                $paramcurl = new \curl();
+                $paramcurl->setHeader('Content-Type: application/json');
+                $paramcurl->setHeader('Accept: application/json');
+                $paramoptions = [
+                    'CURLOPT_TIMEOUT' => $apitimeout,
+                    'CURLOPT_SSL_VERIFYPEER' => true,
+                ];
+
+                $postdata = json_encode([
                     'paramName' => $param['name'],
                     'paramConfig' => [
                         'type' => $param['type'] ?? 'text',
@@ -145,35 +148,32 @@ try {
                         'description' => $param['description'] ?? null,
                         'required' => $param['required'] ?? true,
                     ],
-                ]));
-                curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/json',
-                    'Accept: application/json',
                 ]);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 
-                $response = curl_exec($ch);
-                $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                $curlerror = curl_error($ch);
-                curl_close($ch);
+                $paramresponse = $paramcurl->post(
+                    $backendapiurl . '/adeptus-reports/process-parameter',
+                    $postdata,
+                    $paramoptions
+                );
+                $paraminfo = $paramcurl->get_info();
+                $paramhttpcode = $paraminfo['http_code'] ?? 0;
+                $paramcurlerror = $paramcurl->get_errno() ? $paramcurl->error : '';
 
                 if ($debugmode) {
-                    debugging('Backend parameter fetch HTTP: ' . $httpcode, DEBUG_DEVELOPER);
+                    debugging('Backend parameter fetch HTTP: ' . $paramhttpcode, DEBUG_DEVELOPER);
                 }
 
-                if ($response && $httpcode === 200 && empty($curlerror)) {
-                    $backenddata = json_decode($response, true);
-                    if ($backenddata && $backenddata['success']) {
-                        $enhancedparam = $backenddata['data'];
+                if ($paramresponse && $paramhttpcode === 200 && empty($paramcurlerror)) {
+                    $parambackenddata = json_decode($paramresponse, true);
+                    if ($parambackenddata && $parambackenddata['success']) {
+                        $enhancedparam = $parambackenddata['data'];
                         if ($debugmode) {
                             debugging('Backend enhancement successful', DEBUG_DEVELOPER);
                         }
                     }
                 } else {
                     if ($debugmode) {
-                        debugging('Backend enhancement request failed: HTTP ' . $httpcode, DEBUG_DEVELOPER);
+                        debugging('Backend enhancement request failed: HTTP ' . $paramhttpcode, DEBUG_DEVELOPER);
                     }
                 }
             } catch (Exception $e) {

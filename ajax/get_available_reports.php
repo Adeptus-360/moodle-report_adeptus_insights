@@ -49,20 +49,18 @@ try {
     $apikey = $installationmanager->get_api_key();
 
     // Fetch all reports from backend
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $apikey,
-    ]);
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('X-API-Key: ' . $apikey);
+    $options = [
+        'CURLOPT_TIMEOUT' => $apitimeout,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+    $response = $curl->get($backendapiurl . '/reports/definitions', [], $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
 
     if (!$response || $httpcode !== 200) {
         echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);

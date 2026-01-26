@@ -66,21 +66,19 @@ try {
     $apikey = $installationmanager->get_api_key();
 
     // Fetch all reports from backend to find the requested one
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/reports/definitions');
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_TIMEOUT, $apitimeout);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $apikey,
-    ]);
+    $curl = new \curl();
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
+    $curl->setHeader('X-API-Key: ' . $apikey);
+    $options = [
+        'CURLOPT_TIMEOUT' => $apitimeout,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $curlerror = curl_error($ch);
-    curl_close($ch);
+    $response = $curl->get($backendapiurl . '/reports/definitions', [], $options);
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $curlerror = $curl->get_errno() ? $curl->error : '';
 
     if (!$response || $httpcode !== 200 || !empty($curlerror)) {
         echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
@@ -143,23 +141,20 @@ try {
     if (!$isreexecution) {
         // Check report creation eligibility with backend (cumulative limits)
         $limitsendpoint = rtrim($backendapiurl, '/') . '/report-limits/check';
-        $chlimits = curl_init();
-        curl_setopt($chlimits, CURLOPT_URL, $limitsendpoint);
-        curl_setopt($chlimits, CURLOPT_POST, true);
-        curl_setopt($chlimits, CURLOPT_POSTFIELDS, json_encode(new stdClass()));
-        curl_setopt($chlimits, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Accept: application/json',
-        'X-API-Key: ' . $apikey,
-        ]);
-        curl_setopt($chlimits, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($chlimits, CURLOPT_TIMEOUT, 15);
-        curl_setopt($chlimits, CURLOPT_CONNECTTIMEOUT, 10);
+        $curllimits = new \curl();
+        $curllimits->setHeader('Content-Type: application/json');
+        $curllimits->setHeader('Accept: application/json');
+        $curllimits->setHeader('X-API-Key: ' . $apikey);
+        $limitsoptions = [
+            'CURLOPT_TIMEOUT' => 15,
+            'CURLOPT_CONNECTTIMEOUT' => 10,
+            'CURLOPT_SSL_VERIFYPEER' => true,
+        ];
 
-        $limitsresponse = curl_exec($chlimits);
-        $limitshttpcode = curl_getinfo($chlimits, CURLINFO_HTTP_CODE);
-        $limitscurlerror = curl_error($chlimits);
-        curl_close($chlimits);
+        $limitsresponse = $curllimits->post($limitsendpoint, json_encode(new stdClass()), $limitsoptions);
+        $limitsinfo = $curllimits->get_info();
+        $limitshttpcode = $limitsinfo['http_code'] ?? 0;
+        $limitscurlerror = $curllimits->get_errno() ? $curllimits->error : '';
 
         // FAIL CLOSED: If we can't verify limits, deny the request
         if ($limitsresponse === false || !empty($limitscurlerror)) {
@@ -416,23 +411,19 @@ try {
         ];
 
         // Call backend API to save the wizard report
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $backendapiurl . '/wizard-reports');
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($wizardreportdata));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Accept: application/json',
-            'Authorization: Bearer ' . $apikey,
-        ]);
+        $curlsave = new \curl();
+        $curlsave->setHeader('Content-Type: application/json');
+        $curlsave->setHeader('Accept: application/json');
+        $curlsave->setHeader('Authorization: Bearer ' . $apikey);
+        $saveoptions = [
+            'CURLOPT_TIMEOUT' => 10,
+            'CURLOPT_SSL_VERIFYPEER' => true,
+        ];
 
-        $saveresponse = curl_exec($ch);
-        $savehttpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $savecurlerror = curl_error($ch);
-        curl_close($ch);
+        $saveresponse = $curlsave->post($backendapiurl . '/wizard-reports', json_encode($wizardreportdata), $saveoptions);
+        $saveinfo = $curlsave->get_info();
+        $savehttpcode = $saveinfo['http_code'] ?? 0;
+        $savecurlerror = $curlsave->get_errno() ? $curlsave->error : '';
 
         if ($savehttpcode === 201 || $savehttpcode === 200) {
             $savedata = json_decode($saveresponse, true);

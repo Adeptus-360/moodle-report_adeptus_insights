@@ -211,22 +211,25 @@ class support_manager {
         $apikey = $this->installation_manager->get_api_key();
         $url = $apiurl . '/' . $endpoint;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // Use Moodle's curl wrapper.
+        $curl = new \curl();
 
-        // Build multipart form data
+        // Set authorization header if API key is available.
+        if ($apikey) {
+            $curl->setHeader('Authorization: Bearer ' . $apikey);
+        }
+
+        // Build multipart form data.
         $postdata = $data;
 
-        // Add files to the request
+        // Add files to the request.
         if (isset($files['tmp_name']) && is_array($files['tmp_name'])) {
             foreach ($files['tmp_name'] as $index => $tmpname) {
                 if (!empty($tmpname) && is_uploaded_file($tmpname)) {
                     $filename = $files['name'][$index] ?? 'attachment_' . $index;
                     $mimetype = $files['type'][$index] ?? 'application/octet-stream';
 
-                    // Validate file
+                    // Validate file.
                     $validation = $this->validate_attachment([
                         'tmp_name' => $tmpname,
                         'name' => $filename,
@@ -240,7 +243,7 @@ class support_manager {
                 }
             }
         } else if (isset($files['tmp_name']) && !empty($files['tmp_name']) && is_uploaded_file($files['tmp_name'])) {
-            // Single file upload
+            // Single file upload.
             $filename = $files['name'] ?? 'attachment';
             $mimetype = $files['type'] ?? 'application/octet-stream';
 
@@ -250,26 +253,21 @@ class support_manager {
             }
         }
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
+        // Set curl options for file uploads.
+        $options = [
+            'CURLOPT_TIMEOUT' => 60, // Longer timeout for file uploads.
+            'CURLOPT_SSL_VERIFYPEER' => true,
+        ];
 
-        // Headers for multipart (don't set Content-Type, let cURL handle it)
-        $headers = [];
-        if ($apikey) {
-            $headers[] = 'Authorization: Bearer ' . $apikey;
-        }
-        if (!empty($headers)) {
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        }
+        $response = $curl->post($url, $postdata, $options);
 
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60); // Longer timeout for file uploads
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        // Get response info.
+        $info = $curl->get_info();
+        $httpcode = $info['http_code'] ?? 0;
+        $error = $curl->get_errno() ? $curl->error : '';
 
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
-        curl_close($ch);
-
-        if ($response === false) {
+        if ($response === false || $curl->get_errno()) {
+            debugging('Support manager curl error: ' . $error, DEBUG_DEVELOPER);
             return null;
         }
 

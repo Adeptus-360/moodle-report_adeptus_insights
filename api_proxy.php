@@ -141,6 +141,8 @@ switch ($endpoint) {
 /**
  * Forward request to Laravel backend.
  *
+ * Uses Moodle's curl wrapper for proper proxy support.
+ *
  * @param string $endpoint The API endpoint.
  * @param array $data Request data.
  * @param string $method HTTP method.
@@ -152,33 +154,41 @@ function report_adeptus_insights_forward_to_backend($endpoint, $data = [], $meth
 
     $url = $backendurl . '/' . $endpoint;
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    // Use Moodle's curl wrapper for proxy support.
+    $curl = new \curl();
 
-    // Forward headers from the original request
-    $headers = [
-        'Content-Type: application/json',
-        'Accept: application/json',
-    ];
+    // Set headers.
+    $curl->setHeader('Content-Type: application/json');
+    $curl->setHeader('Accept: application/json');
 
     // Forward API key header if present.
     if (isset($_SERVER['HTTP_X_API_KEY'])) {
-        $headers[] = 'X-API-Key: ' . clean_param($_SERVER['HTTP_X_API_KEY'], PARAM_ALPHANUMEXT);
+        $curl->setHeader('X-API-Key: ' . clean_param($_SERVER['HTTP_X_API_KEY'], PARAM_ALPHANUMEXT));
     }
 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+    // Set curl options.
+    $options = [
+        'CURLOPT_TIMEOUT' => 30,
+        'CURLOPT_SSL_VERIFYPEER' => true,
+    ];
 
-    $response = curl_exec($ch);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $error = curl_error($ch);
-    curl_close($ch);
+    // Make request based on method.
+    if ($method === 'GET') {
+        $response = $curl->get($url, [], $options);
+    } else if ($method === 'POST') {
+        $response = $curl->post($url, json_encode($data), $options);
+    } else {
+        // For PUT, DELETE, PATCH etc.
+        $options['CURLOPT_CUSTOMREQUEST'] = $method;
+        $response = $curl->post($url, json_encode($data), $options);
+    }
 
-    if ($response === false) {
+    // Get response info.
+    $info = $curl->get_info();
+    $httpcode = $info['http_code'] ?? 0;
+    $error = $curl->get_errno() ? $curl->error : '';
+
+    if ($response === false || $error) {
         throw new Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
     }
 

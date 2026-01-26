@@ -39,25 +39,24 @@ function xmldb_report_adeptus_insights_uninstall() {
         if ($settings && !empty($settings->api_key) && !empty($settings->api_url)) {
             $url = rtrim($settings->api_url, '/') . '/installation/uninstall';
 
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_POST => true,
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => [
-                    'Authorization: Bearer ' . $settings->api_key,
-                    'Content-Type: application/json',
-                    'Accept: application/json',
-                ],
-                CURLOPT_POSTFIELDS => json_encode([
-                    'site_url' => $CFG->wwwroot,
-                    'reason' => 'plugin_uninstalled',
-                ]),
-                CURLOPT_TIMEOUT => 10,
-                CURLOPT_CONNECTTIMEOUT => 5,
+            // Use Moodle's curl wrapper instead of direct curl_init.
+            $curl = new \curl();
+            $curl->setHeader('Authorization: Bearer ' . $settings->api_key);
+            $curl->setHeader('Content-Type: application/json');
+            $curl->setHeader('Accept: application/json');
+
+            $options = [
+                'CURLOPT_TIMEOUT' => 10,
+                'CURLOPT_CONNECTTIMEOUT' => 5,
+                'CURLOPT_SSL_VERIFYPEER' => true,
+            ];
+
+            $postdata = json_encode([
+                'site_url' => $CFG->wwwroot,
+                'reason' => 'plugin_uninstalled',
             ]);
 
-            curl_exec($ch);
-            curl_close($ch);
+            $curl->post($url, $postdata, $options);
         }
     } catch (Exception $e) {
         // Silently fail - don't prevent uninstall if backend notification fails.

@@ -1166,6 +1166,8 @@ class installation_manager {
     /**
      * Make an API request to the backend.
      *
+     * Uses Moodle's curl wrapper for proper proxy support.
+     *
      * @param string $endpoint The API endpoint.
      * @param array $data Request data.
      * @param string $method HTTP method (POST, GET, etc.).
@@ -1175,47 +1177,45 @@ class installation_manager {
     public function make_api_request($endpoint, $data = [], $method = 'POST') {
         $url = $this->api_url . '/' . $endpoint;
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        // Use Moodle's curl wrapper for proxy support.
+        $curl = new \curl();
 
-        // Only set POSTFIELDS for non-GET requests
-        if ($method !== 'GET' && !empty($data)) {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        }
+        // Set headers.
+        $curl->setHeader('Content-Type: application/json');
+        $curl->setHeader('Accept: application/json');
 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        // Add API key to headers for authenticated endpoints
-        $headers = ['Content-Type: application/json'];
+        // Add API key to headers for authenticated endpoints.
         if ($this->api_key && !in_array($endpoint, ['subscription/config'])) {
-            $headers[] = 'Authorization: Bearer ' . $this->api_key;
+            $curl->setHeader('Authorization: Bearer ' . $this->api_key);
         }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
 
-        // Capture verbose output for debugging
-        $verbose = fopen('php://temp', 'w+');
-        curl_setopt($ch, CURLOPT_STDERR, $verbose);
+        // Set curl options.
+        $options = [
+            'CURLOPT_TIMEOUT' => 30,
+            'CURLOPT_SSL_VERIFYPEER' => true,
+        ];
 
-        $response = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error = curl_error($ch);
+        // Make request based on method.
+        if ($method === 'GET') {
+            $response = $curl->get($url, [], $options);
+        } else if ($method === 'POST') {
+            $response = $curl->post($url, json_encode($data), $options);
+        } else {
+            // For PUT, DELETE, PATCH etc.
+            $options['CURLOPT_CUSTOMREQUEST'] = $method;
+            $response = $curl->post($url, json_encode($data), $options);
+        }
 
-        // Get verbose output
-        rewind($verbose);
-        $verboselog = stream_get_contents($verbose);
-        fclose($verbose);
+        // Get response info.
+        $info = $curl->get_info();
+        $httpcode = $info['http_code'] ?? 0;
+        $error = $curl->get_errno() ? $curl->error : '';
 
-        curl_close($ch);
-
-        if ($response === false) {
+        if ($response === false || $error) {
             throw new \Exception('API request failed: ' . $error . ' (URL: ' . $url . ')');
         }
 
-        // Accept both 200 OK and 201 Created as success responses
+        // Accept both 200 OK and 201 Created as success responses.
         if ($httpcode !== 200 && $httpcode !== 201) {
             throw new \Exception('API request failed: HTTP ' . $httpcode . ' - Response: ' . $response . ' (URL: ' . $url . ')');
         }

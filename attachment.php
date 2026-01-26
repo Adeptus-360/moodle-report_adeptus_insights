@@ -48,45 +48,38 @@ $apikey = $installationmanager->get_api_key();
 // Try the download endpoint - include ticket_id for authorization
 $downloadurl = $apiurl . '/support/tickets/' . $ticketid . '/attachments/' . $attachmentid . '/download';
 
-// Variables to capture response headers
-$responseheaders = [];
+// Initialize Moodle curl wrapper.
+$curl = new \curl();
 
-// Header callback to capture headers
-$headercallback = function ($ch, $header) use (&$responseheaders) {
-    $len = strlen($header);
-    $header = explode(':', $header, 2);
-    if (count($header) < 2) {
-        return $len;
-    }
-    $name = strtolower(trim($header[0]));
-    $value = trim($header[1]);
-    $responseheaders[$name] = $value;
-    return $len;
-};
-
-// Initialize cURL
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $downloadurl);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-curl_setopt($ch, CURLOPT_HEADERFUNCTION, $headercallback);
-
-// Set authorization header
-$headers = [];
+// Set authorization header.
 if ($apikey) {
-    $headers[] = 'Authorization: Bearer ' . $apikey;
-}
-if (!empty($headers)) {
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    $curl->setHeader('Authorization: Bearer ' . $apikey);
 }
 
-$filecontent = curl_exec($ch);
-$httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$contenttype = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-$error = curl_error($ch);
-curl_close($ch);
+// Set curl options.
+$options = [
+    'CURLOPT_FOLLOWLOCATION' => true,
+    'CURLOPT_SSL_VERIFYPEER' => true,
+    'CURLOPT_TIMEOUT' => 120,
+];
+
+// Execute the request.
+$filecontent = $curl->get($downloadurl, [], $options);
+
+// Get response info.
+$info = $curl->get_info();
+$httpcode = $info['http_code'] ?? 0;
+$contenttype = $info['content_type'] ?? '';
+$error = $curl->get_errno() ? $curl->error : '';
+
+// Parse response headers from the curl wrapper.
+$responseheaders = [];
+$rawheaders = $curl->getResponse();
+if (is_array($rawheaders)) {
+    foreach ($rawheaders as $name => $value) {
+        $responseheaders[strtolower($name)] = $value;
+    }
+}
 
 // Check for errors
 if ($filecontent === false) {
