@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
+        <location>lib/stripe-php</location>
+        <name>Stripe PHP</name>
+        <version>16.3.0</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
         <location>lib/chart.umd.min.js</location>
         <name>Chart.js</name>
         <version>4.4.1</version>

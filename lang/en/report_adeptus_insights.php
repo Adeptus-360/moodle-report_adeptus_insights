@@ -227,6 +227,7 @@ $string['api_timeout_desc'] = 'Timeout in seconds for API requests to the backen
 $string['stripe_configuration'] = 'Stripe Configuration';
 $string['stripe_configuration_desc'] = 'Configure Stripe payment processing for subscription management.';
 $string['configure_stripe'] = 'Configure Stripe';
+$string['stripesdknotfound'] = 'Stripe SDK not found. The payment library is missing from the plugin installation.';
 
 // Privacy API strings
 $string['privacy:metadata:ai_analytics_base'] = 'Analytics data aggregated for each user-course combination.';

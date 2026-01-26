@@ -49,23 +49,17 @@ class stripe_service {
      * Constructor.
      */
     public function __construct() {
-        global $DB;
+        global $CFG, $DB;
 
-        // Load Stripe configuration
+        // Load Stripe configuration.
         $this->load_config();
 
-        // Initialize Stripe SDK
+        // Initialize Stripe SDK.
         if (!class_exists('\Stripe\Stripe')) {
-            // Try to autoload Stripe
-            $stripepath = $CFG->dirroot . '/report/adeptus_insights/vendor/stripe/stripe-php/init.php';
+            // Load Stripe from bundled library.
+            $stripepath = $CFG->dirroot . '/report/adeptus_insights/lib/stripe-php/init.php';
             if (file_exists($stripepath)) {
                 require_once($stripepath);
-            } else {
-                // Fallback to Composer autoload
-                $composerautoload = $CFG->dirroot . '/report/adeptus_insights/vendor/autoload.php';
-                if (file_exists($composerautoload)) {
-                    require_once($composerautoload);
-                }
             }
         }
 
@@ -73,7 +67,7 @@ class stripe_service {
             \Stripe\Stripe::setApiKey($this->config->secret_key);
             $this->stripe = new \Stripe\StripeClient($this->config->secret_key);
         } else {
-            throw new \Exception('Stripe SDK not found. Please install via Composer.');
+            throw new \moodle_exception('stripesdknotfound', 'report_adeptus_insights');
         }
     }
 
@@ -96,14 +90,17 @@ class stripe_service {
     }
 
     /**
-     * Create default Stripe configuration
+     * Create default Stripe configuration.
+     *
+     * Note: The adeptus_stripe_config table is created by install.xml for new installations
+     * and by upgrade.php for existing installations.
      */
     private function create_default_config() {
         global $DB;
 
         $record = [
-            'publishable_key' => 'pk_test_...', // Placeholder
-            'secret_key' => 'sk_test_...', // Placeholder
+            'publishable_key' => 'pk_test_placeholder',
+            'secret_key' => 'sk_test_placeholder',
             'webhook_secret' => '',
             'is_test_mode' => 1,
             'currency' => 'GBP',
@@ -112,26 +109,21 @@ class stripe_service {
         ];
 
         try {
-            if (!$DB->get_manager()->table_exists('adeptus_stripe_config')) {
-                $sql = "CREATE TABLE IF NOT EXISTS {adeptus_stripe_config} (
-                    id INT(10) NOT NULL AUTO_INCREMENT,
-                    publishable_key CHAR(255) NOT NULL,
-                    secret_key CHAR(255) NOT NULL,
-                    webhook_secret CHAR(255) NULL,
-                    is_test_mode INT(1) NOT NULL DEFAULT 1,
-                    currency CHAR(3) NOT NULL DEFAULT 'GBP',
-                    timecreated INT(10) NOT NULL,
-                    timemodified INT(10) NOT NULL,
-                    PRIMARY KEY (id)
-                )";
-                $DB->execute($sql);
+            $dbman = $DB->get_manager();
+            if (!$dbman->table_exists('adeptus_stripe_config')) {
+                // Table should exist from install.xml or upgrade.php.
+                // If not, Stripe features are unavailable until upgrade runs.
+                debugging('Stripe config table not found. Please run Moodle upgrade.', DEBUG_DEVELOPER);
+                $this->config = (object) $record;
+                return;
             }
 
             $DB->insert_record('adeptus_stripe_config', $record);
-            $this->config = (object)$record;
+            $this->config = (object) $record;
         } catch (\Exception $e) {
             // Ignore config creation errors - Stripe may not be configured yet.
             debugging('Stripe config creation failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            $this->config = (object) $record;
         }
     }
 

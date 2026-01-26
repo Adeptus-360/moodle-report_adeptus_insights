@@ -74,10 +74,11 @@ function xmldb_report_adeptus_insights_uninstall() {
         set_config('customusermenuitems', implode("\n", $lines));
     }
 
-    // Drop all plugin tables
+    // Drop all plugin tables.
     $tables = [
         'adeptus_export_tracking',
         'adeptus_generated_reports',
+        'adeptus_stripe_config',
         'ai_analytics_base',
         'ai_report_cache',
         'ai_report_config',

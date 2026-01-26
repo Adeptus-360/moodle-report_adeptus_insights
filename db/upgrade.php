@@ -62,5 +62,32 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026012601, 'report', 'adeptus_insights');
     }
 
+    // Upgrade to version 2026012602: Add adeptus_stripe_config table and Stripe SDK.
+    if ($oldversion < 2026012602) {
+        // Define table adeptus_stripe_config to be created.
+        $table = new xmldb_table('adeptus_stripe_config');
+
+        // Adding fields to table adeptus_stripe_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('publishable_key', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('secret_key', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('webhook_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('is_test_mode', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('currency', XMLDB_TYPE_CHAR, '3', null, XMLDB_NOTNULL, null, 'GBP');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table adeptus_stripe_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally create the table (if it doesn't already exist).
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Adeptus Insights savepoint reached.
+        upgrade_plugin_savepoint(true, 2026012602, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

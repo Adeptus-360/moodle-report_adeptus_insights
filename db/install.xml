@@ -222,5 +222,22 @@
             </INDEXES>
         </TABLE>
 
+        <!-- 13. Stripe Configuration Table -->
+        <TABLE NAME="adeptus_stripe_config" COMMENT="Stripe payment gateway configuration">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="publishable_key" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="secret_key" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="webhook_secret" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="is_test_mode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+                <FIELD NAME="currency" TYPE="char" LENGTH="3" NOTNULL="true" DEFAULT="GBP"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+
     </TABLES>
 </XMLDB>
