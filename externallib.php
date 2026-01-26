@@ -155,6 +155,9 @@ class external extends \external_api {
     public static function get_history() {
         global $USER;
 
+        // Parameter validation (even with no params, call for consistency).
+        $params = self::validate_parameters(self::get_history_parameters(), []);
+
         // Context validation
         $context = \context_system::instance();
         self::validate_context($context);
@@ -440,7 +443,7 @@ class external extends \external_api {
         self::validate_context($context);
 
         // Capability checking
-        require_capability('report_adeptus_insights:view', $context);
+        require_capability('report/adeptus_insights:view', $context);
 
         // Get auth status using the token auth manager
         $authmanager = new \report_adeptus_insights\token_auth_manager();
@@ -584,17 +587,25 @@ class external extends \external_api {
      * @return array Portal session result.
      */
     public static function create_product_portal_session($productid, $returnurl, $sesskey) {
-        global $USER, $DB;
+        global $USER;
 
-        // Validate session key
-        if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
-        }
+        // Parameter validation.
+        $params = self::validate_parameters(self::create_product_portal_session_parameters(), [
+            'product_id' => $productid,
+            'return_url' => $returnurl,
+            'sesskey' => $sesskey,
+        ]);
 
-        // Check user capabilities
+        // Context validation.
         $context = \context_system::instance();
-        if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
+        self::validate_context($context);
+
+        // Capability checking.
+        require_capability('report/adeptus_insights:view', $context);
+
+        // Validate session key.
+        if (!confirm_sesskey($params['sesskey'])) {
+            throw new \moodle_exception('invalidsesskey');
         }
 
         try {
@@ -701,11 +712,15 @@ class external extends \external_api {
     public static function get_subscription_details() {
         global $USER;
 
-        // Check user capabilities
+        // Parameter validation (even with no params, call for consistency).
+        $params = self::validate_parameters(self::get_subscription_details_parameters(), []);
+
+        // Context validation.
         $context = \context_system::instance();
-        if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
-        }
+        self::validate_context($context);
+
+        // Capability checking.
+        require_capability('report/adeptus_insights:view', $context);
 
         try {
             $installationmanager = new \report_adeptus_insights\installation_manager();
@@ -769,15 +784,24 @@ class external extends \external_api {
     public static function create_billing_portal_session($returnurl, $sesskey, $planid = null, $action = null) {
         global $USER;
 
-        // Validate session key
-        if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
-        }
+        // Parameter validation.
+        $params = self::validate_parameters(self::create_billing_portal_session_parameters(), [
+            'return_url' => $returnurl,
+            'sesskey' => $sesskey,
+            'plan_id' => $planid,
+            'action' => $action,
+        ]);
 
-        // Check user capabilities
+        // Context validation.
         $context = \context_system::instance();
-        if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
+        self::validate_context($context);
+
+        // Capability checking.
+        require_capability('report/adeptus_insights:view', $context);
+
+        // Validate session key.
+        if (!confirm_sesskey($params['sesskey'])) {
+            throw new \moodle_exception('invalidsesskey');
         }
 
         try {
@@ -844,15 +868,24 @@ class external extends \external_api {
     public static function create_checkout_session($planid, $stripepriceid, $returnurl, $sesskey) {
         global $USER;
 
-        // Validate session key
-        if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
-        }
+        // Parameter validation.
+        $params = self::validate_parameters(self::create_checkout_session_parameters(), [
+            'plan_id' => $planid,
+            'stripe_price_id' => $stripepriceid,
+            'return_url' => $returnurl,
+            'sesskey' => $sesskey,
+        ]);
 
-        // Check user capabilities
+        // Context validation.
         $context = \context_system::instance();
-        if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
+        self::validate_context($context);
+
+        // Capability checking.
+        require_capability('report/adeptus_insights:view', $context);
+
+        // Validate session key.
+        if (!confirm_sesskey($params['sesskey'])) {
+            throw new \moodle_exception('invalidsesskey');
         }
 
         try {
@@ -917,15 +950,22 @@ class external extends \external_api {
     public static function verify_checkout_session($sessionid, $sesskey) {
         global $USER;
 
-        // Validate session key
-        if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
-        }
+        // Parameter validation.
+        $params = self::validate_parameters(self::verify_checkout_session_parameters(), [
+            'session_id' => $sessionid,
+            'sesskey' => $sesskey,
+        ]);
 
-        // Check user capabilities
+        // Context validation.
         $context = \context_system::instance();
-        if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
+        self::validate_context($context);
+
+        // Capability checking.
+        require_capability('report/adeptus_insights:view', $context);
+
+        // Validate session key.
+        if (!confirm_sesskey($params['sesskey'])) {
+            throw new \moodle_exception('invalidsesskey');
         }
 
         try {
