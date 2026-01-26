@@ -227,7 +227,7 @@ try {
      * @param array $prioritykeywords Priority keyword configuration.
      * @return int Priority value (1=high, 2=medium, 3=low).
      */
-    function calculate_report_priority($report, $prioritykeywords) {
+    function report_adeptus_insights_calculate_report_priority($report, $prioritykeywords) {
         $text = strtolower($report['name'] . ' ' . ($report['description'] ?? ''));
 
         foreach ($prioritykeywords['high'] as $keyword) {
@@ -266,8 +266,8 @@ try {
 
         // Sort reports by priority (1 = highest priority)
         usort($categories[$catkey]['reports'], function ($a, $b) use ($prioritykeywords) {
-            $prioritya = calculate_report_priority($a, $prioritykeywords);
-            $priorityb = calculate_report_priority($b, $prioritykeywords);
+            $prioritya = report_adeptus_insights_calculate_report_priority($a, $prioritykeywords);
+            $priorityb = report_adeptus_insights_calculate_report_priority($b, $prioritykeywords);
             return $prioritya <=> $priorityb;
         });
 

@@ -104,9 +104,13 @@ $prioritykeywords = [
 ];
 
 /**
- * Calculate report priority based on name and description
+ * Calculate report priority based on name and description.
+ *
+ * @param object $report The report object.
+ * @param array $prioritykeywords Priority keyword configuration.
+ * @return int Priority value (1=high, 2=medium, 3=low).
  */
-function calculate_report_priority($report, $prioritykeywords) {
+function report_adeptus_insights_calculate_report_priority($report, $prioritykeywords) {
     $text = strtolower($report->name . ' ' . ($report->description ?? ''));
 
     foreach ($prioritykeywords['high'] as $keyword) {

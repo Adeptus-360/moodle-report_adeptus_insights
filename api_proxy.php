@@ -101,33 +101,33 @@ $backendurl = \report_adeptus_insights\api_config::get_legacy_api_url();
 // Handle different endpoints
 switch ($endpoint) {
     case 'register':
-        handle_registration();
+        report_adeptus_insights_handle_registration();
         break;
     case 'plans':
-        handle_plans();
+        report_adeptus_insights_handle_plans();
         break;
     case 'stripe-config':
-        handle_stripe_config();
+        report_adeptus_insights_handle_stripe_config();
         break;
     case 'config':
-        handle_stripe_config();
+        report_adeptus_insights_handle_stripe_config();
         break;
     case 'create':
-        handle_create_subscription();
+        report_adeptus_insights_handle_create_subscription();
         break;
     case 'show':
-        handle_show_subscription();
+        report_adeptus_insights_handle_show_subscription();
         break;
     case 'cancel':
-        handle_cancel_subscription();
+        report_adeptus_insights_handle_cancel_subscription();
         break;
     case 'update':
-        handle_update_subscription();
+        report_adeptus_insights_handle_update_subscription();
         break;
     default:
         // Check if this is an installation endpoint
         if (in_array('installation', $pathparts)) {
-            handle_registration();
+            report_adeptus_insights_handle_registration();
         } else {
             http_response_code(404);
             echo json_encode([
@@ -147,7 +147,7 @@ switch ($endpoint) {
  * @return array Decoded response.
  * @throws Exception On connection or response errors.
  */
-function forward_to_backend($endpoint, $data = [], $method = 'POST') {
+function report_adeptus_insights_forward_to_backend($endpoint, $data = [], $method = 'POST') {
     global $backendurl;
 
     $url = $backendurl . '/' . $endpoint;
@@ -197,7 +197,7 @@ function forward_to_backend($endpoint, $data = [], $method = 'POST') {
 /**
  * Handle plugin registration endpoint.
  */
-function handle_registration() {
+function report_adeptus_insights_handle_registration() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -251,7 +251,7 @@ function handle_registration() {
 
     try {
         // Forward to Laravel backend
-        $response = forward_to_backend('installation/register', $input);
+        $response = report_adeptus_insights_forward_to_backend('installation/register', $input);
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -265,7 +265,7 @@ function handle_registration() {
 /**
  * Handle subscription plans endpoint.
  */
-function handle_plans() {
+function report_adeptus_insights_handle_plans() {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -277,7 +277,7 @@ function handle_plans() {
 
     try {
         // Forward to Laravel backend
-        $response = forward_to_backend('subscription/plans', [], 'GET');
+        $response = report_adeptus_insights_forward_to_backend('subscription/plans', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -294,7 +294,7 @@ function handle_plans() {
  * @param object $plan The plan object.
  * @return array List of feature descriptions.
  */
-function get_plan_features($plan) {
+function report_adeptus_insights_get_plan_features($plan) {
     $features = [];
 
     if ($plan->is_free) {
@@ -327,7 +327,7 @@ function get_plan_features($plan) {
 /**
  * Handle Stripe configuration endpoint.
  */
-function handle_stripe_config() {
+function report_adeptus_insights_handle_stripe_config() {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -339,7 +339,7 @@ function handle_stripe_config() {
 
     try {
         // Forward to Laravel backend
-        $response = forward_to_backend('subscription/config', [], 'GET');
+        $response = report_adeptus_insights_forward_to_backend('subscription/config', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -353,7 +353,7 @@ function handle_stripe_config() {
 /**
  * Handle create subscription endpoint.
  */
-function handle_create_subscription() {
+function report_adeptus_insights_handle_create_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -371,7 +371,7 @@ function handle_create_subscription() {
         }
 
         // Forward to Laravel backend
-        $response = forward_to_backend('subscription/create', $input);
+        $response = report_adeptus_insights_forward_to_backend('subscription/create', $input);
         echo json_encode($response);
     } catch (Exception $e) {
         http_response_code(500);
@@ -385,7 +385,7 @@ function handle_create_subscription() {
 /**
  * Handle show subscription details endpoint.
  */
-function handle_show_subscription() {
+function report_adeptus_insights_handle_show_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -422,7 +422,7 @@ function handle_show_subscription() {
 /**
  * Handle cancel subscription endpoint.
  */
-function handle_cancel_subscription() {
+function report_adeptus_insights_handle_cancel_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
@@ -441,7 +441,7 @@ function handle_cancel_subscription() {
 /**
  * Handle update subscription endpoint.
  */
-function handle_update_subscription() {
+function report_adeptus_insights_handle_update_subscription() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([

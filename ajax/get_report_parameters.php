@@ -190,7 +190,7 @@ try {
         }
 
         // Local fallback parameter processing (always available as backup)
-        process_parameter_locally($param);
+        report_adeptus_insights_process_parameter_locally($param);
     }
 
     // Convert parameters from associative array to numeric array for JavaScript
@@ -218,7 +218,7 @@ try {
  *
  * @param array $param The parameter to process (passed by reference).
  */
-function process_parameter_locally(&$param) {
+function report_adeptus_insights_process_parameter_locally(&$param) {
     global $DB;
 
     switch ($param['type']) {

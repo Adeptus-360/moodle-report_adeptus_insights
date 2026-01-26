@@ -54,7 +54,7 @@ try {
     $event = $stripeservice->verify_webhook($payload, $sigheader);
 
     // Process the event
-    $result = process_webhook_event($event);
+    $result = report_adeptus_insights_process_webhook_event($event);
 
     if ($result['success']) {
         http_response_code(200);
@@ -69,9 +69,12 @@ try {
 }
 
 /**
- * Process Stripe webhook events
+ * Process Stripe webhook events.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function process_webhook_event($event) {
+function report_adeptus_insights_process_webhook_event($event) {
     global $DB;
 
     try {
@@ -91,19 +94,19 @@ function process_webhook_event($event) {
         // Process based on event type
         switch ($event->type) {
             case 'customer.subscription.created':
-                return handle_subscription_created($event);
+                return report_adeptus_insights_handle_subscription_created($event);
 
             case 'customer.subscription.updated':
-                return handle_subscription_updated($event);
+                return report_adeptus_insights_handle_subscription_updated($event);
 
             case 'customer.subscription.deleted':
-                return handle_subscription_deleted($event);
+                return report_adeptus_insights_handle_subscription_deleted($event);
 
             case 'invoice.payment_succeeded':
-                return handle_payment_succeeded($event);
+                return report_adeptus_insights_handle_payment_succeeded($event);
 
             case 'invoice.payment_failed':
-                return handle_payment_failed($event);
+                return report_adeptus_insights_handle_payment_failed($event);
 
             default:
                 // Mark as processed for unhandled events
@@ -116,9 +119,12 @@ function process_webhook_event($event) {
 }
 
 /**
- * Handle subscription created event
+ * Handle subscription created event.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function handle_subscription_created($event) {
+function report_adeptus_insights_handle_subscription_created($event) {
     global $DB;
 
     $subscription = $event->data->object;
@@ -175,9 +181,12 @@ function handle_subscription_created($event) {
 }
 
 /**
- * Handle subscription updated event
+ * Handle subscription updated event.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function handle_subscription_updated($event) {
+function report_adeptus_insights_handle_subscription_updated($event) {
     global $DB;
 
     $subscription = $event->data->object;
@@ -234,9 +243,12 @@ function handle_subscription_updated($event) {
 }
 
 /**
- * Handle subscription deleted event
+ * Handle subscription deleted event.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function handle_subscription_deleted($event) {
+function report_adeptus_insights_handle_subscription_deleted($event) {
     global $DB;
 
     $subscription = $event->data->object;
@@ -260,9 +272,12 @@ function handle_subscription_deleted($event) {
 }
 
 /**
- * Handle payment succeeded event
+ * Handle payment succeeded event.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function handle_payment_succeeded($event) {
+function report_adeptus_insights_handle_payment_succeeded($event) {
     global $DB;
 
     $invoice = $event->data->object;
@@ -304,9 +319,12 @@ function handle_payment_succeeded($event) {
 }
 
 /**
- * Handle payment failed event
+ * Handle payment failed event.
+ *
+ * @param object $event The Stripe event object.
+ * @return array Result with success status.
  */
-function handle_payment_failed($event) {
+function report_adeptus_insights_handle_payment_failed($event) {
     global $DB;
 
     $invoice = $event->data->object;

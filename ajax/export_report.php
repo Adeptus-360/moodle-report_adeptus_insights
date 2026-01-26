@@ -261,7 +261,7 @@ try {
      * @param string $header The header to format.
      * @return string Formatted header in title case.
      */
-    function format_header($header) {
+    function report_adeptus_insights_format_header($header) {
         // Convert to title case: capitalize first letter of each word
         return ucwords(str_replace('_', ' ', strtolower($header)));
     }
@@ -270,7 +270,7 @@ try {
     $tabledata = [];
     if (!empty($resultsarray)) {
         // Add headers as first row with title case
-        $formattedheaders = array_map('format_header', $headers);
+        $formattedheaders = array_map('report_adeptus_insights_format_header', $headers);
         $tabledata[] = $formattedheaders;
 
         // Add data rows
@@ -351,7 +351,7 @@ try {
         }, $chartvalues);
 
         // Generate colors based on chart type
-        $colors = generate_chart_colors(count($chartvalues), $report->charttype);
+        $colors = report_adeptus_insights_generate_chart_colors(count($chartvalues), $report->charttype);
 
         // Create chart data structure
         $chartdatastructure = [
@@ -361,7 +361,7 @@ try {
                     'label' => $report->name,
                     'data' => $chartvalues,
                     'backgroundColor' => $colors,
-                    'borderColor' => adjust_colors($colors, -20),
+                    'borderColor' => report_adeptus_insights_adjust_colors($colors, -20),
                     'borderWidth' => 2,
                 ],
             ],
@@ -414,7 +414,7 @@ try {
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
 
-            echo generate_excel_csv($reportid, $tabledata, $chartexportdata, $reportparams);
+            echo report_adeptus_insights_generate_excel_csv($reportid, $tabledata, $chartexportdata, $reportparams);
             break;
 
         case 'json':
@@ -439,7 +439,7 @@ try {
             // PDF: table on page 1, chart on page 2
             // Generate actual PDF using TCPDF
             try {
-                $pdfcontent = generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
+                $pdfcontent = report_adeptus_insights_generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
 
                 if ($pdfcontent === false || empty($pdfcontent)) {
                     throw new Exception(get_string('error_pdf_generation_failed', 'report_adeptus_insights'));
@@ -477,9 +477,13 @@ try {
 }
 
 /**
- * Generate Excel HTML format with multiple sheets
+ * Generate Excel HTML format with multiple sheets.
+ *
+ * @param array $sheetsdata Data for each sheet.
+ * @param string $reportname The report name.
+ * @return string HTML content for Excel.
  */
-function generate_excel_html($sheetsdata, $reportname) {
+function report_adeptus_insights_generate_excel_html($sheetsdata, $reportname) {
     $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">';
     $html .= '<head><meta charset="UTF-8">';
     $html .= '<style>';
@@ -526,7 +530,7 @@ function generate_excel_html($sheetsdata, $reportname) {
  * @return string PDF content.
  * @throws Exception If branding is unavailable or PDF generation fails.
  */
-function generate_pdf($reportname, $tabledata, $chartdata, $reportparams, $chartimage = '') {
+function report_adeptus_insights_generate_pdf($reportname, $tabledata, $chartdata, $reportparams, $chartimage = '') {
     global $CFG;
 
     // Load branding manager and get branding configuration.
@@ -597,9 +601,15 @@ function generate_pdf($reportname, $tabledata, $chartdata, $reportparams, $chart
 }
 
 /**
- * Generate Excel-compatible CSV file with report data
+ * Generate Excel-compatible CSV file with report data.
+ *
+ * @param string $reportname Report title.
+ * @param array $tabledata Table data.
+ * @param array $chartdata Chart data.
+ * @param array $reportparams Report parameters.
+ * @return string CSV content.
  */
-function generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) {
+function report_adeptus_insights_generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) {
     $output = '';
 
     // Add report header
@@ -652,9 +662,13 @@ function generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) 
 
 
 /**
- * Generate colors for charts based on chart type and data count
+ * Generate colors for charts based on chart type and data count.
+ *
+ * @param int $count Number of data points.
+ * @param string $charttype The chart type.
+ * @return array Array of color values.
  */
-function generate_chart_colors($count, $charttype) {
+function report_adeptus_insights_generate_chart_colors($count, $charttype) {
     $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
@@ -677,22 +691,30 @@ function generate_chart_colors($count, $charttype) {
 }
 
 /**
- * Adjust colors (lighten or darken) for border colors
+ * Adjust colors (lighten or darken) for border colors.
+ *
+ * @param array|string $colors Color or array of colors.
+ * @param int $amount Amount to adjust (negative = darken).
+ * @return array|string Adjusted color(s).
  */
-function adjust_colors($colors, $amount) {
+function report_adeptus_insights_adjust_colors($colors, $amount) {
     if (is_array($colors)) {
         return array_map(function ($color) use ($amount) {
-            return adjust_color($color, $amount);
+            return report_adeptus_insights_adjust_color($color, $amount);
         }, $colors);
     } else {
-        return adjust_color($colors, $amount);
+        return report_adeptus_insights_adjust_color($colors, $amount);
     }
 }
 
 /**
- * Adjust a single color by lightening or darkening it
+ * Adjust a single color by lightening or darkening it.
+ *
+ * @param string $color Hex color value.
+ * @param int $amount Amount to adjust (negative = darken).
+ * @return string Adjusted hex color.
  */
-function adjust_color($color, $amount) {
+function report_adeptus_insights_adjust_color($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
 

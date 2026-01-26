@@ -541,7 +541,7 @@ try {
         }, $chartvalues);
 
         // Generate colors based on chart type
-        $colors = generate_chart_colors(count($chartvalues), $report->charttype);
+        $colors = report_adeptus_insights_generate_chart_colors(count($chartvalues), $report->charttype);
 
         $chartdata = [
             'labels' => array_column($resultsarray, $labelcolumn),
@@ -550,7 +550,7 @@ try {
                     'label' => $report->name,
                     'data' => $chartvalues,
                     'backgroundColor' => $colors,
-                    'borderColor' => adjust_colors($colors, -20),
+                    'borderColor' => report_adeptus_insights_adjust_colors($colors, -20),
                     'borderWidth' => 2,
                 ],
             ],
@@ -593,9 +593,13 @@ try {
 }
 
 /**
- * Generate colors for charts based on chart type and data count
+ * Generate colors for charts based on chart type and data count.
+ *
+ * @param int $count Number of data points.
+ * @param string $charttype The chart type.
+ * @return array Array of color values.
  */
-function generate_chart_colors($count, $charttype) {
+function report_adeptus_insights_generate_chart_colors($count, $charttype) {
     $basecolors = [
         '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1',
         '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#17a2b8',
@@ -618,22 +622,30 @@ function generate_chart_colors($count, $charttype) {
 }
 
 /**
- * Adjust colors (lighten or darken) for border colors
+ * Adjust colors (lighten or darken) for border colors.
+ *
+ * @param array|string $colors Color or array of colors.
+ * @param int $amount Amount to adjust (negative = darken).
+ * @return array|string Adjusted color(s).
  */
-function adjust_colors($colors, $amount) {
+function report_adeptus_insights_adjust_colors($colors, $amount) {
     if (is_array($colors)) {
         return array_map(function ($color) use ($amount) {
-            return adjust_color($color, $amount);
+            return report_adeptus_insights_adjust_color($color, $amount);
         }, $colors);
     } else {
-        return adjust_color($colors, $amount);
+        return report_adeptus_insights_adjust_color($colors, $amount);
     }
 }
 
 /**
- * Adjust a single color by lightening or darkening it
+ * Adjust a single color by lightening or darkening it.
+ *
+ * @param string $color Hex color value.
+ * @param int $amount Amount to adjust (negative = darken).
+ * @return string Adjusted hex color.
  */
-function adjust_color($color, $amount) {
+function report_adeptus_insights_adjust_color($color, $amount) {
     // Remove # if present
     $color = ltrim($color, '#');
 
