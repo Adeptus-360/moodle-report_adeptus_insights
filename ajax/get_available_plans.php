@@ -43,7 +43,7 @@ try {
     if (!confirm_sesskey(optional_param('sesskey', '', PARAM_ALPHANUM))) {
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid session key',
+            'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -58,7 +58,7 @@ try {
     if (!$availableplans || !isset($availableplans['success']) || !$availableplans['success']) {
         echo json_encode([
             'success' => false,
-            'message' => $availableplans['message'] ?? 'Failed to fetch plans',
+            'message' => $availableplans['message'] ?? get_string('error_fetch_plans_failed', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -102,7 +102,7 @@ try {
             // Format limit values (handle -1 as unlimited)
             $formatlimit = function ($value, $suffix = '') {
                 if ($value === -1 || $value === null) {
-                    return 'Unlimited';
+                    return get_string('unlimited', 'report_adeptus_insights');
                 }
                 return number_format($value) . $suffix;
             };
@@ -212,6 +212,6 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage(),
+        'message' => get_string('error_occurred', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }

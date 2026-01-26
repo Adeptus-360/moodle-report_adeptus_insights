@@ -1,24 +1,24 @@
 {{! report/adeptus_insights/templates/builder.mustache }}
 <div class="container py-5 animate__animated animate__fadeIn">
     <div class="text-center mb-4">
-        <h2 class="fw-bold">Custom Report Builder</h2>
-        <p class="text-muted">Select filters and build your own report from scratch</p>
+        <h2 class="fw-bold">{{#str}}custom_report_builder, report_adeptus_insights{{/str}}</h2>
+        <p class="text-muted">{{#str}}select_filters_build, report_adeptus_insights{{/str}}</p>
     </div>
 
     <form id="builder-form">
         <div class="card mb-4">
             <div class="card-body d-flex flex-wrap gap-3">
                 <div class="flex-fill">
-                    <label for="builder-category">Category</label>
+                    <label for="builder-category">{{#str}}category, report_adeptus_insights{{/str}}</label>
                     <select id="builder-category" class="form-control">
-                        <option value="">All Categories</option>
+                        <option value="">{{#str}}all_categories, report_adeptus_insights{{/str}}</option>
                         {{#categories}}
                         <option value="{{id}}">{{name}}</option>
                         {{/categories}}
                     </select>
                 </div>
                 <div class="flex-fill">
-                    <label for="builder-courses">Courses</label>
+                    <label for="builder-courses">{{#str}}courses, report_adeptus_insights{{/str}}</label>
                     <select id="builder-courses" class="form-control" multiple>
                         {{#courses}}
                         <option value="{{id}}" data-category="{{categoryid}}">{{fullname}}</option>
@@ -26,7 +26,7 @@
                     </select>
                 </div>
                 <div class="flex-fill">
-                    <label for="builder-students">Students</label>
+                    <label for="builder-students">{{#str}}students, report_adeptus_insights{{/str}}</label>
                     <select id="builder-students" class="form-control" multiple>
                         {{#students}}
                         <option value="{{id}}" data-courseids="{{courseids_csv}}">{{fullname}}</option>
@@ -37,12 +37,12 @@
         </div>
 
         <div class="text-center">
-            <button type="button" id="preview-button" class="btn btn-primary">Preview Report</button>
+            <button type="button" id="preview-button" class="btn btn-primary">{{#str}}preview_report, report_adeptus_insights{{/str}}</button>
         </div>
     </form>
 
     <div id="builder-report-preview" class="mt-5 d-none">
-        <h4 class="fw-bold">Report Preview</h4>
+        <h4 class="fw-bold">{{#str}}report_preview, report_adeptus_insights{{/str}}</h4>
         <div id="builder-report-table"></div>
     </div>
 </div>

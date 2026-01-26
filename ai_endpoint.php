@@ -36,13 +36,13 @@ header('Content-Type: application/json');
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? null;
 
-// Handle login to AI backend
+// Handle login to AI backend.
 if ($action === 'login') {
     $email = trim($input['email'] ?? '');
     $password = trim($input['password'] ?? '');
     if (!$email || !$password) {
         http_response_code(400);
-        echo json_encode(['error' => 'Missing credentials']);
+        echo json_encode(['error' => get_string('error_missing_credentials', 'report_adeptus_insights')]);
         exit;
     }
     $loginurl = \report_adeptus_insights\api_config::get_ai_login_endpoint();
@@ -57,7 +57,7 @@ if ($action === 'login') {
     $result = file_get_contents($loginurl, false, $context);
     if ($result === false) {
         http_response_code(500);
-        echo json_encode(['error' => 'Login request failed']);
+        echo json_encode(['error' => get_string('error_login_failed', 'report_adeptus_insights')]);
         exit;
     }
     $resultdata = json_decode($result, true);
@@ -67,22 +67,22 @@ if ($action === 'login') {
         exit;
     }
     http_response_code(401);
-    echo json_encode(['error' => 'Invalid credentials']);
+    echo json_encode(['error' => get_string('error_invalid_credentials', 'report_adeptus_insights')]);
     exit;
 }
 
-// Ensure user is authenticated with AI backend
+// Ensure user is authenticated with AI backend.
 $token = \report_adeptus_insights\util::get_ai_token();
 if (!$token) {
     http_response_code(401);
-    echo json_encode(['error' => 'not_authenticated']);
+    echo json_encode(['error' => get_string('error_not_authenticated', 'report_adeptus_insights')]);
     exit;
 }
 
-// Process AI prompt
+// Process AI prompt.
 $prompt = trim($input['prompt'] ?? '');
 if (!$prompt) {
-    echo json_encode(['error' => 'Missing prompt']);
+    echo json_encode(['error' => get_string('error_missing_prompt', 'report_adeptus_insights')]);
     exit;
 }
 

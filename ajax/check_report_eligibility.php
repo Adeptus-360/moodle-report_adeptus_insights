@@ -43,7 +43,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'eligible' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'eligible' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -56,7 +56,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Call backend API to check report eligibility
@@ -89,7 +89,7 @@ try {
         echo json_encode([
             'success' => false,
             'eligible' => false,
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             'reason' => 'backend_unreachable',
         ]);
         exit;
@@ -101,7 +101,7 @@ try {
         echo json_encode([
             'success' => false,
             'eligible' => false,
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             'reason' => 'backend_error',
         ]);
         exit;
@@ -115,7 +115,7 @@ try {
         echo json_encode([
             'success' => false,
             'eligible' => false,
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             'reason' => 'invalid_response',
         ]);
         exit;
@@ -129,7 +129,7 @@ try {
     echo json_encode([
         'success' => $backenddata['success'] ?? false,
         'eligible' => $backenddata['eligible'] ?? false,
-        'message' => $backenddata['message'] ?? 'Unknown status',
+        'message' => $backenddata['message'] ?? get_string('unknown_status', 'report_adeptus_insights'),
         'reason' => $backenddata['reason'] ?? null,
         'reports_used' => $reportsused,
         'reports_limit' => $reportslimit,
@@ -141,7 +141,7 @@ try {
     echo json_encode([
         'success' => false,
         'eligible' => false,
-        'message' => 'Unable to verify report eligibility: ' . $e->getMessage(),
+        'message' => get_string('error_verify_eligibility', 'report_adeptus_insights') . ': ' . $e->getMessage(),
         'reason' => 'exception',
     ]);
 }

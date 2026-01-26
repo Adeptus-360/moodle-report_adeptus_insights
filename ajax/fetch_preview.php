@@ -38,14 +38,14 @@ try {
     }
 
     if (empty($fields)) {
-        throw new moodle_exception('No fields selected');
+        throw new moodle_exception('error_no_fields_selected', 'report_adeptus_insights');
     }
 
     $allowed     = ['logins', 'assignments_submitted', 'forum_posts', 'average_grade'];
     $validfields = array_intersect($fields, $allowed);
 
     if (empty($validfields)) {
-        throw new moodle_exception('Invalid or unapproved fields requested');
+        throw new moodle_exception('error_invalid_fields', 'report_adeptus_insights');
     }
 
     global $DB;

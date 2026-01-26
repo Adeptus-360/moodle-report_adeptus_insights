@@ -46,7 +46,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Call backend API to track report deletion
@@ -95,7 +95,7 @@ try {
         debugging('[Adeptus Insights] Report deletion tracking failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
-            'message' => 'Report deleted (tracking pending)',
+            'message' => get_string('report_deleted_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -106,7 +106,7 @@ try {
         debugging('[Adeptus Insights] Report deletion tracking failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
-            'message' => 'Report deleted (tracking pending)',
+            'message' => get_string('report_deleted_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -119,7 +119,7 @@ try {
         debugging('[Adeptus Insights] Report deletion tracking failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
-            'message' => 'Report deleted (tracking pending)',
+            'message' => get_string('report_deleted_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -132,7 +132,7 @@ try {
 
     echo json_encode([
         'success' => $backenddata['success'] ?? true,
-        'message' => $backenddata['message'] ?? 'Report deletion tracked successfully',
+        'message' => $backenddata['message'] ?? get_string('report_deletion_tracked_success', 'report_adeptus_insights'),
         'reports_used' => $reportsused,
         'reports_limit' => $reportslimit,
         'reports_remaining' => $reportsremaining,
@@ -142,7 +142,7 @@ try {
     // Don't fail the user experience for tracking errors
     echo json_encode([
         'success' => true,
-        'message' => 'Report deleted (tracking pending)',
+        'message' => get_string('report_deleted_tracking_pending', 'report_adeptus_insights'),
         'tracking_error' => true,
     ]);
 }

@@ -35,7 +35,7 @@ require_capability('report/adeptus_insights:view', $context);
 // Verify session key
 if (!confirm_sesskey()) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'message' => 'Invalid session']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_session', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -44,7 +44,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid input']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_input', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -54,7 +54,7 @@ $requiredfields = ['plan_id', 'payment_method_id', 'billing_email'];
 foreach ($requiredfields as $field) {
     if (empty($input[$field])) {
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Missing required field: ' . $field]);
+        echo json_encode(['success' => false, 'message' => get_string('error_missing_required_field', 'report_adeptus_insights', $field)]);
         exit;
     }
 }
@@ -62,7 +62,7 @@ foreach ($requiredfields as $field) {
 // Validate email
 if (!filter_var($input['billing_email'], FILTER_VALIDATE_EMAIL)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid email address']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_email', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -104,6 +104,6 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'An error occurred: ' . $e->getMessage(),
+        'message' => get_string('error_occurred', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }

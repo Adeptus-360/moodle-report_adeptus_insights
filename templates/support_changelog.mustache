@@ -10,11 +10,11 @@
                 <i class="fa fa-history page-header-icon"></i>
                 {{#str}}changelog_title, report_adeptus_insights{{/str}}
             </h1>
-            <p class="page-header-subtitle">View release notes and check for plugin updates.</p>
+            <p class="page-header-subtitle">{{#str}}changelog_subtitle, report_adeptus_insights{{/str}}</p>
         </div>
         <div class="page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
-                <i class="fa fa-arrow-left"></i> Back to Dashboard
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -92,7 +92,7 @@
 
                         {{^update_available}}
                         <p class="text-success mb-0 mt-3">
-                            <i class="fa fa-check"></i> You are running the latest version.
+                            <i class="fa fa-check"></i> {{#str}}running_latest_version, report_adeptus_insights{{/str}}
                         </p>
                         {{/update_available}}
                     </div>
@@ -103,7 +103,7 @@
             <div class="col-md-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fa fa-list-alt"></i> Release History</h5>
+                        <h5 class="mb-0"><i class="fa fa-list-alt"></i> {{#str}}release_history, report_adeptus_insights{{/str}}</h5>
                     </div>
                     <div class="card-body">
                         {{#has_changelogs}}
@@ -134,7 +134,7 @@
                         <div class="text-center py-5 text-muted">
                             <i class="fa fa-file-alt fa-4x mb-3"></i>
                             <h5>{{#str}}no_changelog_entries, report_adeptus_insights{{/str}}</h5>
-                            <p>Check back later for release notes and updates.</p>
+                            <p>{{#str}}check_back_later, report_adeptus_insights{{/str}}</p>
                         </div>
                         {{/has_changelogs}}
                     </div>

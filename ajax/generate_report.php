@@ -47,7 +47,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -58,7 +58,7 @@ try {
     $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
     if (!$backendenabled) {
-        echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
+        echo json_encode(['success' => false, 'message' => get_string('error_backend_disabled', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -85,13 +85,13 @@ try {
     curl_close($ch);
 
     if (!$response || $httpcode !== 200 || !empty($curlerror)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
         exit;
     }
 
     $backenddata = json_decode($response, true);
     if (!$backenddata || !$backenddata['success']) {
-        echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_invalid_backend_response', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -109,7 +109,7 @@ try {
     }
 
     if (!$report) {
-        echo json_encode(['success' => false, 'message' => 'Report not found']);
+        echo json_encode(['success' => false, 'message' => get_string('error_report_not_found', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -125,7 +125,7 @@ try {
         echo json_encode([
             'success' => false,
             'error' => 'report_incompatible',
-            'message' => "This report requires Moodle modules or features that are not installed on your system.",
+            'message' => get_string('error_report_incompatible_modules', 'report_adeptus_insights'),
             'details' => $validation['reason'],
             'missing_tables' => $validation['missing_tables'],
         ]);
@@ -170,7 +170,7 @@ try {
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             ]);
             exit;
         }
@@ -180,7 +180,7 @@ try {
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             ]);
             exit;
         }
@@ -191,7 +191,7 @@ try {
             echo json_encode([
             'success' => false,
             'error' => 'limit_check_failed',
-            'message' => 'Unable to verify report eligibility. Please try again later.',
+            'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
             ]);
             exit;
         }
@@ -202,7 +202,7 @@ try {
             'success' => false,
             'error' => 'limit_reached',
             'error_type' => 'limit_reached',
-            'message' => $limitsdata['message'] ?? 'You have reached your report limit. Delete existing reports or upgrade your plan.',
+            'message' => $limitsdata['message'] ?? get_string('error_limit_reached', 'report_adeptus_insights'),
             'reports_used' => $limitsdata['reports_used'] ?? 0,
             'reports_limit' => $limitsdata['reports_limit'] ?? 0,
             'reports_remaining' => $limitsdata['reports_remaining'] ?? 0,
@@ -588,7 +588,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error executing report: ' . $e->getMessage(),
+        'message' => get_string('error_executing_report', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }
 

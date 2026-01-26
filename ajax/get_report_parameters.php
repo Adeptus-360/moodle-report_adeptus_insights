@@ -42,7 +42,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -54,7 +54,7 @@ try {
     $debugmode = isset($CFG->adeptus_debug_mode) ? $CFG->adeptus_debug_mode : false;
 
     if (!$backendenabled) {
-        echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
+        echo json_encode(['success' => false, 'message' => get_string('error_backend_disabled', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -81,13 +81,13 @@ try {
     curl_close($ch);
 
     if (!$response || $httpcode !== 200 || !empty($curlerror)) {
-        echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
         exit;
     }
 
     $backenddata = json_decode($response, true);
     if (!$backenddata || !$backenddata['success']) {
-        echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_invalid_backend_response', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -105,7 +105,7 @@ try {
     }
 
     if (!$report) {
-        echo json_encode(['success' => false, 'message' => 'Report not found']);
+        echo json_encode(['success' => false, 'message' => get_string('error_report_not_found', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -210,7 +210,7 @@ try {
         'backend_enhanced' => $backendenabled && !empty($enhancedparam),
     ]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode(['success' => false, 'message' => get_string('error_database', 'report_adeptus_insights')]);
 }
 
 /**

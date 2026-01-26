@@ -33,13 +33,13 @@ Assistant.init({{authenticated}});
     <div class="assistant-header-content">
         <h1 class="assistant-title">
             <i class="fa fa-robot assistant-icon"></i>
-            AI Report Assistant
+            {{#str}}ai_report_assistant, report_adeptus_insights{{/str}}
         </h1>
-        <p class="assistant-subtitle">Generate custom reports using natural language</p>
+        <p class="assistant-subtitle">{{#str}}assistant_subtitle, report_adeptus_insights{{/str}}</p>
     </div>
     <div class="assistant-header-actions">
         <a href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-light">
-            <i class="fa fa-arrow-left"></i> Back to Dashboard
+            <i class="fa fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
         </a>
     </div>
 </div>
@@ -57,7 +57,7 @@ Assistant.init({{authenticated}});
                         role="tab"
                         aria-controls="assistant-panel"
                         aria-selected="true">
-                    <i class="fa fa-robot"></i>&nbsp;AI Assistant
+                    <i class="fa fa-robot"></i>&nbsp;{{#str}}ai_assistant, report_adeptus_insights{{/str}}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -69,7 +69,7 @@ Assistant.init({{authenticated}});
                         role="tab"
                         aria-controls="reports-panel"
                         aria-selected="false">
-                    <i class="fa fa-file-alt"></i>&nbsp;Reports
+                    <i class="fa fa-file-alt"></i>&nbsp;{{#str}}reports, report_adeptus_insights{{/str}}
                 </button>
             </li>
         </ul>
@@ -84,10 +84,10 @@ Assistant.init({{authenticated}});
                     <div class="col-md-8">
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">AI Report Assistant</h5>
+                                <h5 class="card-title mb-0">{{#str}}ai_report_assistant, report_adeptus_insights{{/str}}</h5>
                                 <div class="btn-group">
                                     <button class="btn btn-primary" id="create-new-chat">
-                                        <i class="fa fa-plus"></i> New Chat
+                                        <i class="fa fa-plus"></i> {{#str}}new_chat, report_adeptus_insights{{/str}}
                                     </button>
                                 </div>
                             </div>
@@ -99,7 +99,7 @@ Assistant.init({{authenticated}});
                                 <!-- Loading Indicator -->
                                 <div id="loading-indicator" class="loading-indicator d-none">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="sr-only">Loading...</span>
+                                        <span class="sr-only">{{#str}}loading, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
                                 <!-- Error Message -->
@@ -115,7 +115,7 @@ Assistant.init({{authenticated}});
                                 <div class="input-group">
                                     <textarea id="message-input"
                                             class="form-control"
-                                            placeholder="Describe the report you need..."
+                                            placeholder="{{#str}}describe_report_placeholder, report_adeptus_insights{{/str}}"
                                             rows="1"></textarea>
                                     <button id="send-button" class="btn btn-primary">
                                         <i class="fa fa-paper-plane"></i>
@@ -128,14 +128,14 @@ Assistant.init({{authenticated}});
                     <div class="col-md-4">
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0" style="padding:12px 0;">Chat History</h5>
+                                <h5 class="card-title mb-0" style="padding:12px 0;">{{#str}}chat_history, report_adeptus_insights{{/str}}</h5>
                             </div>
                             <div class="card-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <ul id="chat-history-list" class="list-group list-group-flush">
                                     <li id="chat-history-loading"
                                         class="list-group-item d-flex justify-content-center">
                                         <div class="spinner-border text-secondary" role="status">
-                                            <span class="visually-hidden">Loading chats…</span>
+                                            <span class="visually-hidden">{{#str}}loading_chats, report_adeptus_insights{{/str}}</span>
                                         </div>
                                     </li>
                                 </ul>
@@ -154,11 +154,11 @@ Assistant.init({{authenticated}});
                     <div class="col-md-8">
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0 report-view-title">Select a Report</h5>
+                                <h5 class="card-title mb-0 report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
                             </div>
                             <div class="card-body p-4 report-view-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <div class="text-center py-4">
-                                    <p class="text-muted">Select a report from history to view details here.</p>
+                                    <p class="text-muted">{{#str}}select_report_instruction, report_adeptus_insights{{/str}}</p>
                                 </div>
                             </div>
                         </div>
@@ -167,21 +167,21 @@ Assistant.init({{authenticated}});
                     <div class="col-md-4">
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0">Report History</h5>
+                                <h5 class="card-title mb-0">{{#str}}report_history, report_adeptus_insights{{/str}}</h5>
                             </div>
                             <div class="card-body p-0 position-relative" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <div id="report-history-loader" class="p-4 d-flex justify-content-center">
                                     <div class="spinner-border text-primary" role="status">
-                                        <span class="sr-only">Loading...</span>
+                                        <span class="sr-only">{{#str}}loading, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
                                 <div class="table-responsive d-none" id="report-history-table-wrapper">
                                     <table id="reports-history-table" class="table mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Report Name</th>
-                                                <th>Date</th>
-                                                <th>Status</th>
+                                                <th>{{#str}}report_name, report_adeptus_insights{{/str}}</th>
+                                                <th>{{#str}}date, report_adeptus_insights{{/str}}</th>
+                                                <th>{{#str}}status, report_adeptus_insights{{/str}}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

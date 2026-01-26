@@ -8,13 +8,13 @@
         <div class="page-header-content">
             <h1 class="page-header-title">
                 <i class="fa fa-exclamation-triangle page-header-icon"></i>
-                Error
+                {{#str}}error, report_adeptus_insights{{/str}}
             </h1>
-            <p class="page-header-subtitle">Something went wrong</p>
+            <p class="page-header-subtitle">{{#str}}error_generic, report_adeptus_insights{{/str}}</p>
         </div>
         <div class="page-header-actions">
             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-light">
-                <i class="fa fa-arrow-left"></i> Back to Tickets
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_tickets, report_adeptus_insights{{/str}}
             </a>
         </div>
     </div>
@@ -26,13 +26,13 @@
                     <div class="card-body text-center py-5">
                         <i class="fa fa-exclamation-circle fa-4x text-danger mb-4"></i>
                         <h4 class="text-danger">{{error_message}}</h4>
-                        <p class="text-muted">Please try again or contact support if the problem persists.</p>
+                        <p class="text-muted">{{#str}}error_try_again, report_adeptus_insights{{/str}}</p>
                         <div class="mt-4">
                             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-primary">
-                                <i class="fa fa-ticket-alt"></i> View All Tickets
+                                <i class="fa fa-ticket-alt"></i> {{#str}}view_tickets, report_adeptus_insights{{/str}}
                             </a>
                             <a href="{{wwwroot}}/report/adeptus_insights/support.php?action=new" class="btn btn-outline-primary ml-2">
-                                <i class="fa fa-plus"></i> Create New Ticket
+                                <i class="fa fa-plus"></i> {{#str}}new_ticket, report_adeptus_insights{{/str}}
                             </a>
                         </div>
                     </div>

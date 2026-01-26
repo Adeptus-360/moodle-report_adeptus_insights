@@ -22,7 +22,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
                 <i class="fa fa-rocket wizard-icon"></i>
                 {{registration_title}}
             </h1>
-            <p class="wizard-subtitle">Set up your Adeptus Insights installation in just a few steps</p>
+            <p class="wizard-subtitle">{{#str}}registration_setup_subtitle, report_adeptus_insights{{/str}}</p>
         </div>
         <div class="wizard-user-info">
             <span class="user-welcome">Welcome, {{user_fullname}}</span>
@@ -35,8 +35,8 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
         <!-- Step 1: Welcome & Overview -->
         <div class="wizard-step active" id="step-welcome">
             <div class="step-header">
-                <h2><span class="step-number">1</span> Welcome to Adeptus Insights</h2>
-                <p>Let's get your installation configured for powerful analytics</p>
+                <h2><span class="step-number">1</span> {{#str}}welcome_to_adeptus, report_adeptus_insights{{/str}}</h2>
+                <p>{{#str}}lets_get_configured, report_adeptus_insights{{/str}}</p>
             </div>
             
             <div class="welcome-content">
@@ -45,30 +45,30 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
                         <div class="welcome-icon">
                             <i class="fa fa-bar-chart"></i>
                         </div>
-                        <h3>Advanced Analytics</h3>
-                        <p>Get deep insights into your Moodle data with AI-powered analysis</p>
+                        <h3>{{#str}}advanced_analytics, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}advanced_analytics_desc, report_adeptus_insights{{/str}}</p>
                     </div>
-                    
+
                     <div class="welcome-card">
                         <div class="welcome-icon">
                             <i class="fa fa-magic"></i>
                         </div>
-                        <h3>Smart Reports</h3>
-                        <p>Generate beautiful reports with our intuitive wizard interface</p>
+                        <h3>{{#str}}smart_reports, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}smart_reports_desc, report_adeptus_insights{{/str}}</p>
                     </div>
-                    
+
                     <div class="welcome-card">
                         <div class="welcome-icon">
                             <i class="fa fa-cloud"></i>
                         </div>
-                        <h3>Cloud Integration</h3>
-                        <p>Seamless integration with our cloud-based analytics platform</p>
+                        <h3>{{#str}}cloud_integration, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}cloud_integration_desc, report_adeptus_insights{{/str}}</p>
                     </div>
                 </div>
                 
                 <div class="welcome-actions">
                     <button class="btn-primary btn-next-step" data-step="admin-info">
-                        <i class="fa fa-arrow-right"></i> Get Started
+                        <i class="fa fa-arrow-right"></i> {{#str}}get_started, report_adeptus_insights{{/str}}
                     </button>
                 </div>
             </div>
@@ -78,47 +78,47 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
         <div class="wizard-step" id="step-admin-info">
             <div class="step-header">
                 <button class="btn-back" id="back-to-welcome">
-                    <i class="fa fa-arrow-left"></i> Back
+                    <i class="fa fa-arrow-left"></i> {{#str}}back, report_adeptus_insights{{/str}}
                 </button>
-                <h2><span class="step-number">2</span> Administrator Information</h2>
-                <p>Tell us about yourself and your installation</p>
+                <h2><span class="step-number">2</span> {{#str}}administrator_information, report_adeptus_insights{{/str}}</h2>
+                <p>{{#str}}tell_us_about_yourself, report_adeptus_insights{{/str}}</p>
             </div>
             
             <div class="admin-form-container">
                 <div class="form-section">
-                    <h3>Personal Information</h3>
+                    <h3>{{#str}}personal_information, report_adeptus_insights{{/str}}</h3>
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="admin_name" class="form-label">Full Name *</label>
+                            <label for="admin_name" class="form-label">{{#str}}full_name, report_adeptus_insights{{/str}} *</label>
                             <input type="text" id="admin_name" name="admin_name" class="form-control" required>
-                            <small class="form-help">Your full name as the administrator</small>
+                            <small class="form-help">{{#str}}your_full_name_admin, report_adeptus_insights{{/str}}</small>
                         </div>
-                        
+
                         <div class="form-group">
-                            <label for="admin_email" class="form-label">Email Address *</label>
+                            <label for="admin_email" class="form-label">{{#str}}email_address, report_adeptus_insights{{/str}} *</label>
                             <input type="email" id="admin_email" name="admin_email" class="form-control" required>
-                            <small class="form-help">We'll use this for important notifications</small>
+                            <small class="form-help">{{#str}}email_notifications_help, report_adeptus_insights{{/str}}</small>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-section">
-                    <h3>Installation Details</h3>
+                    <h3>{{#str}}installation_details, report_adeptus_insights{{/str}}</h3>
                     <div class="installation-info">
                         <div class="info-item">
-                            <span class="info-label">Site URL:</span>
+                            <span class="info-label">{{#str}}site_url_label, report_adeptus_insights{{/str}}</span>
                             <span class="info-value">{{site_url}}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Site Name:</span>
+                            <span class="info-label">{{#str}}site_name_label, report_adeptus_insights{{/str}}</span>
                             <span class="info-value">{{site_name}}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Moodle Version:</span>
+                            <span class="info-label">{{#str}}moodle_version_label, report_adeptus_insights{{/str}}</span>
                             <span class="info-value">{{moodle_version}}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">PHP Version:</span>
+                            <span class="info-label">{{#str}}php_version_label, report_adeptus_insights{{/str}}</span>
                             <span class="info-value">{{php_version}}</span>
                         </div>
                     </div>
@@ -126,10 +126,10 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
                 
                 <div class="step-actions">
                     <button class="btn-secondary btn-prev-step" data-step="welcome">
-                        <i class="fa fa-arrow-left"></i> Back
+                        <i class="fa fa-arrow-left"></i> {{#str}}back, report_adeptus_insights{{/str}}
                     </button>
                     <button class="btn-primary btn-next-step" data-step="verification">
-                        <i class="fa fa-arrow-right"></i> Continue
+                        <i class="fa fa-arrow-right"></i> {{#str}}continue, report_adeptus_insights{{/str}}
                     </button>
                 </div>
             </div>
@@ -139,30 +139,30 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
         <div class="wizard-step" id="step-verification">
             <div class="step-header">
                 <button class="btn-back" id="back-to-admin-info">
-                    <i class="fa fa-arrow-left"></i> Back
+                    <i class="fa fa-arrow-left"></i> {{#str}}back, report_adeptus_insights{{/str}}
                 </button>
-                <h2><span class="step-number">3</span> Verify Information</h2>
-                <p>Please review your information before we register your installation</p>
+                <h2><span class="step-number">3</span> {{#str}}verify_information, report_adeptus_insights{{/str}}</h2>
+                <p>{{#str}}review_before_register, report_adeptus_insights{{/str}}</p>
             </div>
             
             <div class="verification-container">
                 <div class="verification-summary">
-                    <h3>Registration Summary</h3>
+                    <h3>{{#str}}registration_summary, report_adeptus_insights{{/str}}</h3>
                     <div class="summary-grid">
                         <div class="summary-item">
-                            <span class="summary-label">Administrator Name:</span>
+                            <span class="summary-label">{{#str}}administrator_name_label, report_adeptus_insights{{/str}}</span>
                             <span class="summary-value" id="summary-admin-name">-</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Email Address:</span>
+                            <span class="summary-label">{{#str}}email_address_label, report_adeptus_insights{{/str}}</span>
                             <span class="summary-value" id="summary-admin-email">-</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Site URL:</span>
+                            <span class="summary-label">{{#str}}site_url_label, report_adeptus_insights{{/str}}</span>
                             <span class="summary-value">{{site_url}}</span>
                         </div>
                         <div class="summary-item">
-                            <span class="summary-label">Site Name:</span>
+                            <span class="summary-label">{{#str}}site_name_label, report_adeptus_insights{{/str}}</span>
                             <span class="summary-value">{{site_name}}</span>
                         </div>
                     </div>
@@ -173,22 +173,22 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
                         <i class="fa fa-info-circle"></i>
                     </div>
                     <div class="notice-content">
-                        <h4>What happens next?</h4>
+                        <h4>{{#str}}what_happens_next, report_adeptus_insights{{/str}}</h4>
                         <ul>
-                            <li>Your installation will be registered with our secure backend</li>
-                            <li>You'll receive a unique API key for secure communication</li>
-                            <li>You'll be redirected to choose a subscription plan</li>
-                            <li>Your data will be protected with enterprise-grade security</li>
+                            <li>{{#str}}registration_step_1, report_adeptus_insights{{/str}}</li>
+                            <li>{{#str}}registration_step_2, report_adeptus_insights{{/str}}</li>
+                            <li>{{#str}}registration_step_3, report_adeptus_insights{{/str}}</li>
+                            <li>{{#str}}registration_step_4, report_adeptus_insights{{/str}}</li>
                         </ul>
                     </div>
                 </div>
                 
                 <div class="step-actions">
                     <button class="btn-secondary btn-prev-step" data-step="admin-info">
-                        <i class="fa fa-arrow-left"></i> Back
+                        <i class="fa fa-arrow-left"></i> {{#str}}back, report_adeptus_insights{{/str}}
                     </button>
                     <button class="btn-primary btn-register-installation" id="register-installation">
-                        <i class="fa fa-check"></i> Register Installation
+                        <i class="fa fa-check"></i> {{#str}}register_installation, report_adeptus_insights{{/str}}
                     </button>
                 </div>
             </div>
@@ -197,8 +197,8 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
         <!-- Step 4: Success -->
         <div class="wizard-step" id="step-success">
             <div class="step-header">
-                <h2><span class="step-number">4</span> Registration Complete!</h2>
-                <p>Your installation has been successfully registered</p>
+                <h2><span class="step-number">4</span> {{#str}}registration_complete, report_adeptus_insights{{/str}}</h2>
+                <p>{{#str}}installation_registered, report_adeptus_insights{{/str}}</p>
             </div>
             
             <div class="success-container">
@@ -207,26 +207,26 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
                 </div>
                 
                 <div class="success-content">
-                    <h3>Welcome to Adeptus Insights!</h3>
-                    <p>Your installation has been successfully registered and is ready to use.</p>
-                    
+                    <h3>{{#str}}welcome_adeptus_insights, report_adeptus_insights{{/str}}</h3>
+                    <p>{{#str}}installation_ready, report_adeptus_insights{{/str}}</p>
+
                     <div class="success-details">
                         <div class="detail-item">
-                            <span class="detail-label">Installation ID:</span>
+                            <span class="detail-label">{{#str}}installation_id_label, report_adeptus_insights{{/str}}</span>
                             <span class="detail-value" id="success-installation-id">-</span>
                         </div>
                         <div class="detail-item">
-                            <span class="detail-label">API Key:</span>
+                            <span class="detail-label">{{#str}}api_key_label, report_adeptus_insights{{/str}}</span>
                             <span class="detail-value" id="success-api-key">-</span>
                         </div>
                     </div>
-                    
+
                     <div class="success-actions">
                         <button class="btn-primary btn-continue-to-subscription" id="continue-to-subscription">
-                            <i class="fa fa-credit-card"></i> Choose Subscription Plan
+                            <i class="fa fa-credit-card"></i> {{#str}}choose_subscription_plan, report_adeptus_insights{{/str}}
                         </button>
                         <button class="btn-secondary btn-go-to-dashboard" id="go-to-dashboard">
-                            <i class="fa fa-dashboard"></i> Go to Dashboard
+                            <i class="fa fa-dashboard"></i> {{#str}}go_to_dashboard, report_adeptus_insights{{/str}}
                         </button>
                     </div>
                 </div>
@@ -238,17 +238,17 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
     <div class="loading-overlay" id="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <h3>Registering Installation...</h3>
-            <p>Please wait while we set up your account</p>
+            <h3>{{#str}}registering_installation, report_adeptus_insights{{/str}}</h3>
+            <p>{{#str}}setting_up_account, report_adeptus_insights{{/str}}</p>
         </div>
     </div>
 
     <!-- Error Modal -->
     <div class="popup-overlay" id="error-overlay">
         <div class="popup-content error" id="error-content">
-            <h3 id="error-title">Registration Error</h3>
-            <p id="error-message">An error occurred during registration.</p>
-            <button class="btn-close" id="error-close">OK</button>
+            <h3 id="error-title">{{#str}}registration_error, report_adeptus_insights{{/str}}</h3>
+            <p id="error-message">{{#str}}registration_error_message, report_adeptus_insights{{/str}}</p>
+            <button class="btn-close" id="error-close">{{#str}}ok, report_adeptus_insights{{/str}}</button>
         </div>
     </div>
 

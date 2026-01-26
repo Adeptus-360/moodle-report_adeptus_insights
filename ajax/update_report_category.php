@@ -46,7 +46,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key.
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Determine the correct API endpoint based on report source.
@@ -97,7 +97,7 @@ try {
         debugging('[Adeptus Insights] Update report category failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to connect to backend service.',
+            'message' => get_string('error_connect_backend', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -107,7 +107,7 @@ try {
         debugging('[Adeptus Insights] Update report category failed - HTTP ' . $httpcode .
             ' Endpoint: ' . $endpoint . ' Response: ' . substr($response, 0, 500), DEBUG_DEVELOPER);
         $errordata = json_decode($response, true);
-        $errormessage = $errordata['message'] ?? 'Failed to update report category.';
+        $errormessage = $errordata['message'] ?? get_string('category_update_failed', 'report_adeptus_insights');
         echo json_encode([
             'success' => false,
             'message' => $errormessage,
@@ -122,21 +122,21 @@ try {
         debugging('[Adeptus Insights] Update report category failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid response from backend service.',
+            'message' => get_string('error_invalid_backend_json', 'report_adeptus_insights'),
         ]);
         exit;
     }
 
     echo json_encode([
         'success' => $backenddata['success'] ?? true,
-        'message' => $backenddata['message'] ?? 'Category updated successfully',
+        'message' => $backenddata['message'] ?? get_string('category_updated', 'report_adeptus_insights'),
         'data' => $backenddata['data'] ?? null,
     ]);
 } catch (Exception $e) {
     debugging('[Adeptus Insights] Update report category exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
     echo json_encode([
         'success' => false,
-        'message' => 'Error updating category: ' . $e->getMessage(),
+        'message' => get_string('error_managing_category', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }
 

@@ -86,7 +86,7 @@ if (!in_array($endpoint, $publicendpoints)) {
             http_response_code(403);
             echo json_encode([
                 'success' => false,
-                'message' => 'Invalid session key',
+                'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights'),
             ]);
             exit;
         }
@@ -132,7 +132,7 @@ switch ($endpoint) {
             http_response_code(404);
             echo json_encode([
                 'success' => false,
-                'message' => 'Endpoint not found',
+                'message' => get_string('error_endpoint_not_found', 'report_adeptus_insights'),
             ]);
         }
         break;
@@ -202,7 +202,7 @@ function handle_registration() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
@@ -226,7 +226,7 @@ function handle_registration() {
             http_response_code(400);
             echo json_encode([
                 'success' => false,
-                'message' => "Missing required field: $field",
+                'message' => get_string('error_missing_required_field', 'report_adeptus_insights', $field),
             ]);
             return;
         }
@@ -257,7 +257,7 @@ function handle_registration() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Registration failed: ' . $e->getMessage(),
+            'message' => get_string('error_registration_failed', 'report_adeptus_insights', $e->getMessage()),
         ]);
     }
 }
@@ -270,7 +270,7 @@ function handle_plans() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
@@ -283,7 +283,7 @@ function handle_plans() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to load plans: ' . $e->getMessage(),
+            'message' => get_string('error_load_plans_failed', 'report_adeptus_insights', $e->getMessage()),
         ]);
     }
 }
@@ -332,7 +332,7 @@ function handle_stripe_config() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
@@ -345,7 +345,7 @@ function handle_stripe_config() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to get Stripe config: ' . $e->getMessage(),
+            'message' => get_string('error_get_stripe_config_failed', 'report_adeptus_insights', $e->getMessage()),
         ]);
     }
 }
@@ -358,7 +358,7 @@ function handle_create_subscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
@@ -377,7 +377,7 @@ function handle_create_subscription() {
         http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to create subscription: ' . $e->getMessage(),
+            'message' => get_string('error_create_subscription_failed', 'report_adeptus_insights', $e->getMessage()),
         ]);
     }
 }
@@ -390,7 +390,7 @@ function handle_show_subscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
@@ -427,14 +427,14 @@ function handle_cancel_subscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
 
     echo json_encode([
         'success' => true,
-        'message' => 'Subscription cancelled successfully',
+        'message' => get_string('subscription_cancelled_success', 'report_adeptus_insights'),
     ]);
 }
 
@@ -446,13 +446,13 @@ function handle_update_subscription() {
         http_response_code(405);
         echo json_encode([
             'success' => false,
-            'message' => 'Method not allowed',
+            'message' => get_string('error_method_not_allowed', 'report_adeptus_insights'),
         ]);
         return;
     }
 
     echo json_encode([
         'success' => true,
-        'message' => 'Subscription updated successfully',
+        'message' => get_string('subscription_updated_success', 'report_adeptus_insights'),
     ]);
 }

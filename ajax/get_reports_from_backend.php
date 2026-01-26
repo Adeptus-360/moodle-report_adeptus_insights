@@ -41,7 +41,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key.
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key', 'debug' => 'Session validation failed']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights'), 'debug' => 'Session validation failed']);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
 
 
     if (!$backendenabled) {
-        throw new Exception('Backend API is disabled');
+        throw new Exception(get_string('error_backend_disabled', 'report_adeptus_insights'));
     }
 
     // Get API key for authentication (optional since API works without it)
@@ -106,7 +106,7 @@ try {
     }
 
     if ($response === false) {
-        throw new Exception('Failed to fetch reports from backend: cURL Error - ' . $curlerror);
+        throw new Exception(get_string('error_fetch_reports_failed', 'report_adeptus_insights') . ': ' . $curlerror);
     }
 
     if ($httpcode !== 200) {
@@ -117,12 +117,12 @@ try {
         if (!empty($response)) {
             $errordetails .= ", Response: " . substr($response, 0, 100);
         }
-        throw new Exception('Failed to fetch reports from backend: ' . $errordetails);
+        throw new Exception(get_string('error_fetch_reports_failed', 'report_adeptus_insights') . ': ' . $errordetails);
     }
 
     $backenddata = json_decode($response, true);
     if (!$backenddata || !$backenddata['success']) {
-        throw new Exception('Invalid response from backend API');
+        throw new Exception(get_string('error_invalid_backend_response', 'report_adeptus_insights'));
     }
 
     $allreports = $backenddata['data'];
@@ -290,9 +290,9 @@ try {
     // Provide user-friendly error messages.
     $message = $e->getMessage();
     if (strpos($message, 'HTTP 301') !== false || strpos($message, 'HTTP 302') !== false) {
-        $message = 'Authentication required. Please log in to access reports.';
+        $message = get_string('auth_required', 'report_adeptus_insights');
     } else if (strpos($message, 'Invalid session key') !== false) {
-        $message = 'Session expired. Please refresh the page and log in again.';
+        $message = get_string('session_expired', 'report_adeptus_insights');
     }
 
     echo json_encode(['success' => false, 'message' => $message]);

@@ -50,7 +50,7 @@ try {
     if (empty($apikey)) {
         echo json_encode([
             'success' => false,
-            'message' => 'API key not configured',
+            'message' => get_string('error_api_key_not_configured', 'report_adeptus_insights'),
             'reports' => [],
         ]);
         exit;
@@ -76,7 +76,7 @@ try {
     if ($httpcode !== 200) {
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to fetch wizard reports from server',
+            'message' => get_string('error_fetch_wizard_reports_failed', 'report_adeptus_insights'),
             'reports' => [],
         ]);
         exit;
@@ -87,7 +87,7 @@ try {
     if (empty($data['success'])) {
         echo json_encode([
             'success' => false,
-            'message' => $data['message'] ?? 'Failed to fetch wizard reports',
+            'message' => $data['message'] ?? get_string('error_fetch_wizard_reports_generic', 'report_adeptus_insights'),
             'reports' => [],
         ]);
         exit;
@@ -104,7 +104,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error fetching wizard reports: ' . $e->getMessage(),
+        'message' => get_string('error_fetch_wizard_reports_generic', 'report_adeptus_insights') . ': ' . $e->getMessage(),
         'reports' => [],
     ]);
 }

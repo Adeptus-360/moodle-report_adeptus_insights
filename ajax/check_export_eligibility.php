@@ -47,7 +47,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'eligible' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'eligible' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -60,7 +60,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Call backend API to check export eligibility
@@ -92,7 +92,7 @@ try {
     // Handle connection/timeout errors - FAIL CLOSED
     if ($response === false || !empty($curlerror)) {
         debugging('[Adeptus Insights] Export eligibility check failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
-        throw new Exception('Unable to verify export eligibility. Please try again later.');
+        throw new Exception(get_string('error_verify_eligibility', 'report_adeptus_insights'));
     }
 
     // Handle HTTP errors - FAIL CLOSED
@@ -100,15 +100,15 @@ try {
         debugging('[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
 
         if ($httpcode === 401) {
-            throw new Exception('Authentication failed. Please check your plugin configuration.');
+            throw new Exception(get_string('error_auth_failed', 'report_adeptus_insights'));
         } else if ($httpcode === 403) {
-            throw new Exception('Access denied. Your subscription may have expired.');
+            throw new Exception(get_string('error_access_denied', 'report_adeptus_insights'));
         } else if ($httpcode === 404) {
-            throw new Exception('Export verification service unavailable. Please contact support.');
+            throw new Exception(get_string('error_service_unavailable', 'report_adeptus_insights'));
         } else if ($httpcode >= 500) {
-            throw new Exception('Server error. Please try again later.');
+            throw new Exception(get_string('error_server', 'report_adeptus_insights'));
         } else {
-            throw new Exception('Unable to verify export eligibility. Please try again later.');
+            throw new Exception(get_string('error_verify_eligibility', 'report_adeptus_insights'));
         }
     }
 
@@ -117,19 +117,19 @@ try {
 
     if (json_last_error() !== JSON_ERROR_NONE) {
         debugging('[Adeptus Insights] Export eligibility check failed - invalid JSON response', DEBUG_DEVELOPER);
-        throw new Exception('Invalid response from server. Please try again later.');
+        throw new Exception(get_string('error_invalid_server_response', 'report_adeptus_insights'));
     }
 
     if (!isset($backenddata['success'])) {
         debugging('[Adeptus Insights] Export eligibility check failed - missing success field', DEBUG_DEVELOPER);
-        throw new Exception('Invalid response from server. Please try again later.');
+        throw new Exception(get_string('error_invalid_server_response', 'report_adeptus_insights'));
     }
 
     // Return backend response - the backend is authoritative
     echo json_encode([
         'success' => $backenddata['success'],
         'eligible' => $backenddata['eligible'] ?? false,
-        'message' => $backenddata['message'] ?? 'Unknown status',
+        'message' => $backenddata['message'] ?? get_string('unknown_status', 'report_adeptus_insights'),
         'reason' => $backenddata['reason'] ?? null,
         'exports_used' => $backenddata['exports_used'] ?? 0,
         'exports_limit' => $backenddata['exports_limit'] ?? 0,

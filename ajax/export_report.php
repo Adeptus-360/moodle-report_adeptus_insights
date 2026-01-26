@@ -62,7 +62,7 @@ if (!empty($chartimage)) {
 if (!confirm_sesskey($sesskey)) {
     if ($format === 'json') {
         header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+        echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
         exit;
     } else {
         throw new moodle_exception('invalidsesskey');
@@ -123,7 +123,7 @@ try {
         $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
         if (!$backendenabled) {
-            throw new Exception('Backend API is disabled and no data provided');
+            throw new Exception(get_string('error_backend_disabled_no_data', 'report_adeptus_insights'));
         }
 
         // Get API key
@@ -147,12 +147,12 @@ try {
         curl_close($ch);
 
         if (!$response || $httpcode !== 200) {
-            throw new Exception('Failed to fetch report definition from backend');
+            throw new Exception(get_string('error_fetch_report_definition_failed', 'report_adeptus_insights'));
         }
 
         $backenddata = json_decode($response, true);
         if (!$backenddata || !$backenddata['success']) {
-            throw new Exception('Invalid response from backend API');
+            throw new Exception(get_string('error_invalid_backend_response', 'report_adeptus_insights'));
         }
 
         // Find the report
@@ -165,7 +165,7 @@ try {
         }
 
         if (!$backendreport) {
-            throw new Exception('Report not found: ' . $reportid);
+            throw new Exception(get_string('error_report_not_found_name', 'report_adeptus_insights', $reportid));
         }
 
         // Create report object
@@ -218,7 +218,7 @@ try {
         $sqlparamsordered = [];
         foreach ($requiredparams as $paramname) {
             if (!isset($reportparams[$paramname])) {
-                throw new Exception('Missing required parameter: ' . $paramname);
+                throw new Exception(get_string('error_missing_parameter', 'report_adeptus_insights', $paramname));
             }
             $positionalsql = preg_replace('/:' . $paramname . '\b/', '?', $positionalsql, 1);
             $sqlparamsordered[] = $reportparams[$paramname];
@@ -249,10 +249,8 @@ try {
         echo json_encode([
             'success' => false,
             'error' => 'dataset_too_large',
-            'title' => 'Export Restriction',
-            'message' => "This report contains 5000+ rows, which exceeds the PDF export limit of " .
-                "$pdfmaxrows rows. Please use CSV, Excel, or JSON export for large datasets, " .
-                "or add filters to reduce the result set.",
+            'title' => get_string('export_dataset_too_large_title', 'report_adeptus_insights'),
+            'message' => get_string('export_dataset_too_large', 'report_adeptus_insights', (object)['rows' => $rowcount, 'limit' => $pdfmaxrows]),
         ]);
         exit;
     }
@@ -280,7 +278,7 @@ try {
             $tabledata[] = array_values($row);
         }
     } else {
-        $tabledata[] = ['No data found'];
+        $tabledata[] = [get_string('pdf_no_data_found', 'report_adeptus_insights')];
     }
 
     // Generate chart data using the same logic as generate_report.php
@@ -444,7 +442,7 @@ try {
                 $pdfcontent = generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
 
                 if ($pdfcontent === false || empty($pdfcontent)) {
-                    throw new Exception('Failed to generate PDF content');
+                    throw new Exception(get_string('error_pdf_generation_failed', 'report_adeptus_insights'));
                 }
 
 
@@ -459,14 +457,14 @@ try {
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => false,
-                    'message' => 'PDF generation failed: ' . $pdferror->getMessage(),
+                    'message' => get_string('pdf_generation_failed', 'report_adeptus_insights', $pdferror->getMessage()),
                 ]);
             }
             break;
 
         default:
             header('Content-Type: application/json');
-            echo json_encode(['success' => false, 'message' => 'Unsupported export format']);
+            echo json_encode(['success' => false, 'message' => get_string('error_unsupported_format', 'report_adeptus_insights')]);
             break;
     }
 } catch (Exception $e) {
@@ -474,7 +472,7 @@ try {
     header('Content-Type: application/json');
     echo json_encode([
         'success' => false,
-        'message' => 'Error exporting report: ' . $e->getMessage(),
+        'message' => get_string('error_export_report', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }
 
@@ -589,12 +587,12 @@ function generate_pdf($reportname, $tabledata, $chartdata, $reportparams, $chart
         $pdfoutput = $pdf->get_pdf_content();
 
         if (empty($pdfoutput)) {
-            throw new Exception('PDF generation returned empty content');
+            throw new Exception(get_string('error_pdf_generation_failed', 'report_adeptus_insights'));
         }
 
         return $pdfoutput;
     } catch (Exception $e) {
-        throw new Exception('PDF generation failed: ' . $e->getMessage());
+        throw new Exception(get_string('pdf_generation_failed', 'report_adeptus_insights', $e->getMessage()));
     }
 }
 
@@ -628,7 +626,7 @@ function generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) 
             $output .= implode(',', $csvrow) . "\n";
         }
     } else {
-        $output .= '"No table data available"' . "\n";
+        $output .= '"' . get_string('pdf_no_table_data', 'report_adeptus_insights') . '"' . "\n";
     }
 
     // Add separator for chart data
@@ -645,7 +643,7 @@ function generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) 
             $output .= implode(',', $csvrow) . "\n";
         }
     } else {
-        $output .= '"No chart data available"' . "\n";
+        $output .= '"' . get_string('pdf_no_chart_data', 'report_adeptus_insights') . '"' . "\n";
     }
 
     return $output;

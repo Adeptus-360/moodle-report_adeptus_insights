@@ -25,14 +25,14 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                 <i class="fa fa-credit-card subscription-icon"></i>
                 {{#str}}subscription_management, report_adeptus_insights{{/str}}
             </h1>
-            <p class="subscription-subtitle">Manage your subscription and billing</p>
+            <p class="subscription-subtitle">{{#str}}manage_billing_subtitle, report_adeptus_insights{{/str}}</p>
         </div>
         <div class="subscription-header-actions">
             <a style="margin-bottom: 17px;" href="{{config.wwwroot}}/report/adeptus_insights/index.php" class="btn btn-primary">
-                <i class="fa fa-arrow-left"></i> Back to Dashboard
+                <i class="fa fa-arrow-left"></i> {{#str}}back_to_dashboard, report_adeptus_insights{{/str}}
             </a>
             <div class="subscription-user-info">
-                <span class="user-welcome">Welcome, {{user_fullname}}</span>
+                <span class="user-welcome">{{#str}}welcome_user, report_adeptus_insights, {{user_fullname}}{{/str}}</span>
             </div>
         </div>
     </div>
@@ -46,21 +46,21 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <i class="fa fa-code"></i>
                     </div>
                     <div class="analytics-title">
-                        <h3>AI Tokens</h3>
-                        <p>Monthly Usage &amp; Limit</p>
+                        <h3>{{#str}}ai_tokens, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}monthly_usage_limit, report_adeptus_insights{{/str}}</p>
                     </div>
                 </div>
                 <div class="analytics-details">
                     <div class="detail-row">
-                        <span class="detail-label">Monthly Limit:</span>
+                        <span class="detail-label">{{#str}}monthly_limit_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value total numeric">{{#current_subscription}}{{tokens_limit_formatted}}{{/current_subscription}}{{^current_subscription}}50K{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Used:</span>
+                        <span class="detail-label">{{#str}}used_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value used numeric">{{#current_subscription}}{{tokens_used_formatted}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Remaining:</span>
+                        <span class="detail-label">{{#str}}remaining_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value remaining numeric">{{#current_subscription}}{{tokens_remaining_formatted}}{{/current_subscription}}{{^current_subscription}}50K{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
@@ -79,21 +79,21 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <i class="fa fa-file-text-o"></i>
                     </div>
                     <div class="analytics-title">
-                        <h3>Reports &amp; Exports</h3>
-                        <p>Monthly Generation &amp; Remaining</p>
+                        <h3>{{#str}}reports_exports, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}monthly_generation_remaining, report_adeptus_insights{{/str}}</p>
                     </div>
                 </div>
                 <div class="analytics-details">
                     <div class="detail-row">
-                        <span class="detail-label">Monthly Exports:</span>
+                        <span class="detail-label">{{#str}}monthly_exports_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value total numeric">{{#current_subscription}}{{exports_remaining}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Generated:</span>
+                        <span class="detail-label">{{#str}}generated_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value used numeric">{{#current_subscription}}{{reports_total}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Exports Left:</span>
+                        <span class="detail-label">{{#str}}exports_left_label, report_adeptus_insights{{/str}}</span>
                         <span class="detail-value remaining numeric">{{#current_subscription}}{{exports_remaining}}{{/current_subscription}}{{^current_subscription}}0{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
@@ -112,22 +112,22 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <i class="fa fa-calendar"></i>
                     </div>
                     <div class="analytics-title">
-                        <h3>Billing Period</h3>
-                        <p>Current &amp; Next Billing</p>
+                        <h3>{{#str}}billing_period, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}current_next_billing, report_adeptus_insights{{/str}}</p>
                     </div>
                 </div>
                 <div class="analytics-details">
                     <div class="detail-row">
-                        <span class="detail-label">Period Start:</span>
-                        <span class="detail-value total">{{#current_subscription}}{{current_period_start}}{{/current_subscription}}{{^current_subscription}}N/A{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}period_start_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value total">{{#current_subscription}}{{current_period_start}}{{/current_subscription}}{{^current_subscription}}{{#str}}n_a, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Period End:</span>
-                        <span class="detail-value used">{{#current_subscription}}{{current_period_end}}{{/current_subscription}}{{^current_subscription}}N/A{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}period_end_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value used">{{#current_subscription}}{{current_period_end}}{{/current_subscription}}{{^current_subscription}}{{#str}}n_a, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Next Billing:</span>
-                        <span class="detail-value remaining">{{#current_subscription}}{{#next_billing}}{{next_billing}}{{/next_billing}}{{^next_billing}}N/A{{/next_billing}}{{/current_subscription}}{{^current_subscription}}N/A{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}next_billing_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value remaining">{{#current_subscription}}{{#next_billing}}{{next_billing}}{{/next_billing}}{{^next_billing}}{{#str}}n_a, report_adeptus_insights{{/str}}{{/next_billing}}{{/current_subscription}}{{^current_subscription}}{{#str}}n_a, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
                     <div class="analytics-info">
@@ -143,22 +143,22 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                         <i class="fa fa-credit-card"></i>
                     </div>
                     <div class="analytics-title">
-                        <h3>Subscription</h3>
-                        <p>Current Plan &amp; Status</p>
+                        <h3>{{#str}}subscription_label, report_adeptus_insights{{/str}}</h3>
+                        <p>{{#str}}current_plan_status, report_adeptus_insights{{/str}}</p>
                     </div>
                 </div>
                 <div class="analytics-details">
                     <div class="detail-row">
-                        <span class="detail-label">Plan Name:</span>
-                        <span class="detail-value total">{{#current_subscription}}{{plan_name}}{{/current_subscription}}{{^current_subscription}}No Plan{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}plan_name_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value total">{{#current_subscription}}{{plan_name}}{{/current_subscription}}{{^current_subscription}}{{#str}}no_plan, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Status:</span>
-                        <span class="detail-value used status-{{#current_subscription}}{{status}}{{/current_subscription}}{{^current_subscription}}inactive{{/current_subscription}}">{{#current_subscription}}{{status}}{{/current_subscription}}{{^current_subscription}}Inactive{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}status_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value used status-{{#current_subscription}}{{status}}{{/current_subscription}}{{^current_subscription}}inactive{{/current_subscription}}">{{#current_subscription}}{{status}}{{/current_subscription}}{{^current_subscription}}{{#str}}inactive, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">Price:</span>
-                        <span class="detail-value remaining currency">{{#current_subscription}}{{price}} {{billing_cycle}}{{/current_subscription}}{{^current_subscription}}Free{{/current_subscription}}</span>
+                        <span class="detail-label">{{#str}}price_label, report_adeptus_insights{{/str}}</span>
+                        <span class="detail-value remaining currency">{{#current_subscription}}{{price}} {{billing_cycle}}{{/current_subscription}}{{^current_subscription}}{{#str}}free, report_adeptus_insights{{/str}}{{/current_subscription}}</span>
                     </div>
                     {{#current_subscription}}
                     <div class="analytics-status">
@@ -180,18 +180,18 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
             <div class="status-header">
                 <h3>
                     {{#is_active}}
-                        <i class="fa fa-check-circle status-icon-active"></i> Current Plan Details
+                        <i class="fa fa-check-circle status-icon-active"></i> {{#str}}current_plan_details, report_adeptus_insights{{/str}}
                     {{/is_active}}
                     {{^is_active}}
                         {{#is_cancelled}}
-                            <i class="fa fa-times-circle status-icon-cancelled"></i> Cancelled Plan Details
+                            <i class="fa fa-times-circle status-icon-cancelled"></i> {{#str}}cancelled_plan_details, report_adeptus_insights{{/str}}
                         {{/is_cancelled}}
                         {{^is_cancelled}}
                             {{#has_payment_issues}}
-                                <i class="fa fa-exclamation-triangle status-icon-payment-issue"></i> Payment Issue
+                                <i class="fa fa-exclamation-triangle status-icon-payment-issue"></i> {{#str}}payment_issue, report_adeptus_insights{{/str}}
                             {{/has_payment_issues}}
                             {{^has_payment_issues}}
-                                <i class="fa fa-info-circle status-icon-inactive"></i> Inactive Plan Details
+                                <i class="fa fa-info-circle status-icon-inactive"></i> {{#str}}inactive_plan_details, report_adeptus_insights{{/str}}
                             {{/has_payment_issues}}
                         {{/is_cancelled}}
                     {{/is_active}}
@@ -222,7 +222,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{#status_details.can_renew}}
                     <div class="renewal-prompt">
                         <i class="fa fa-refresh"></i>
-                        <span>You can renew your subscription to restore access</span>
+                        <span>{{#str}}renew_subscription_prompt, report_adeptus_insights{{/str}}</span>
                     </div>
                     {{/status_details.can_renew}}
                 </div>
@@ -236,7 +236,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     </div>
                     <div class="info-item">
                         <i class="fa fa-credit-card"></i>
-                        <span>Please update your payment method</span>
+                        <span>{{#str}}update_payment_method_prompt, report_adeptus_insights{{/str}}</span>
                     </div>
                 </div>
                 {{/has_payment_issues}}
@@ -272,14 +272,14 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                 <!-- Report limit policy notice -->
                 <div class="report-policy-notice">
                     <i class="fa fa-info-circle"></i>
-                    <span><strong>Report Policy:</strong> If you downgrade or cancel your subscription, any reports exceeding your new plan's limit will be automatically deleted (oldest first) when the change takes effect.</span>
+                    <span><strong>{{#str}}report_policy, report_adeptus_insights{{/str}}</strong> {{#str}}report_policy_message, report_adeptus_insights{{/str}}</span>
                 </div>
 
                 <!-- Access restrictions notice -->
                 {{#should_disable_api_access}}
                 <div class="access-restriction-notice">
                     <i class="fa fa-lock"></i>
-                    <span>API access is currently restricted due to subscription status</span>
+                    <span>{{#str}}api_access_restricted, report_adeptus_insights{{/str}}</span>
                 </div>
                 {{/should_disable_api_access}}
             </div>
@@ -288,15 +288,15 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                 {{#is_active}}
                     {{#is_free_plan}}
                     <button class="btn btn-success btn-upgrade-plan" id="upgrade-plan">
-                        <i class="fa fa-arrow-up"></i> Upgrade Plan
+                        <i class="fa fa-arrow-up"></i> {{#str}}upgrade_plan, report_adeptus_insights{{/str}}
                     </button>
                     {{/is_free_plan}}
                     {{^is_free_plan}}
                     <button class="btn btn-primary btn-modify-subscription" id="modify-subscription">
-                        <i class="fa fa-cog"></i> Manage Subscription
+                        <i class="fa fa-cog"></i> {{#str}}manage_subscription, report_adeptus_insights{{/str}}
                     </button>
                     <button class="btn btn-outline-danger btn-cancel-subscription" id="cancel-subscription">
-                        <i class="fa fa-times"></i> Cancel Subscription
+                        <i class="fa fa-times"></i> {{#str}}cancel_subscription, report_adeptus_insights{{/str}}
                     </button>
                     {{/is_free_plan}}
                 {{/is_active}}
@@ -304,25 +304,25 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/su
                     {{#is_cancelled}}
                         {{#status_details.can_renew}}
                         <button class="btn btn-success" id="renew-subscription">
-                            <i class="fa fa-refresh"></i> Renew Subscription
+                            <i class="fa fa-refresh"></i> {{#str}}renew_subscription, report_adeptus_insights{{/str}}
                         </button>
                         {{/status_details.can_renew}}
                         <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
-                            <i class="fa fa-eye"></i> View Plans
+                            <i class="fa fa-eye"></i> {{#str}}view_plans, report_adeptus_insights{{/str}}
                         </button>
                     {{/is_cancelled}}
                     {{^is_cancelled}}
                         {{#has_payment_issues}}
                         <button class="btn btn-warning" id="update-payment">
-                            <i class="fa fa-credit-card"></i> Update Payment Method
+                            <i class="fa fa-credit-card"></i> {{#str}}update_payment_method, report_adeptus_insights{{/str}}
                         </button>
                         <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
-                            <i class="fa fa-eye"></i> View Plans
+                            <i class="fa fa-eye"></i> {{#str}}view_plans, report_adeptus_insights{{/str}}
                         </button>
                         {{/has_payment_issues}}
                         {{^has_payment_issues}}
                         <button class="btn btn-outline-primary btn-view-plans" id="view-plans">
-                            <i class="fa fa-eye"></i> View Plans
+                            <i class="fa fa-eye"></i> {{#str}}view_plans, report_adeptus_insights{{/str}}
                         </button>
                         {{/has_payment_issues}}
                     {{/is_cancelled}}

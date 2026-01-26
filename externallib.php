@@ -520,7 +520,7 @@ class external extends \external_api {
             if (!$installationmanager->is_registered()) {
                 return [
                     'success' => false,
-                    'message' => 'Plugin not registered. Please register first.',
+                    'message' => get_string('error_plugin_not_registered', 'report_adeptus_insights'),
                 ];
             }
 
@@ -530,7 +530,7 @@ class external extends \external_api {
             if ($result['success']) {
                 return [
                     'success' => true,
-                    'message' => 'Billing portal session created successfully',
+                    'message' => get_string('billing_portal_created_success', 'report_adeptus_insights'),
                     'data' => [
                         'url' => $result['data']['url'],
                     ],
@@ -538,13 +538,13 @@ class external extends \external_api {
             } else {
                 return [
                     'success' => false,
-                    'message' => $result['message'] ?? 'Failed to create billing portal session',
+                    'message' => $result['message'] ?? get_string('error_billing_portal_failed', 'report_adeptus_insights'),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating billing portal session: ' . $e->getMessage(),
+                'message' => get_string('error_billing_portal_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -588,13 +588,13 @@ class external extends \external_api {
 
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => 'Invalid session key'];
+            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
         }
 
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => 'Insufficient permissions'];
+            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
         }
 
         try {
@@ -615,7 +615,7 @@ class external extends \external_api {
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating portal session: ' . $e->getMessage(),
+                'message' => get_string('error_portal_session_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -704,7 +704,7 @@ class external extends \external_api {
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => 'Insufficient permissions'];
+            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
         }
 
         try {
@@ -719,13 +719,13 @@ class external extends \external_api {
             } else {
                 return [
                     'success' => false,
-                    'message' => 'No subscription found',
+                    'message' => get_string('error_no_subscription_found', 'report_adeptus_insights'),
                 ];
             }
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error getting subscription details: ' . $e->getMessage(),
+                'message' => get_string('error_subscription_details_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -771,13 +771,13 @@ class external extends \external_api {
 
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => 'Invalid session key'];
+            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
         }
 
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => 'Insufficient permissions'];
+            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
         }
 
         try {
@@ -798,7 +798,7 @@ class external extends \external_api {
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating billing portal session: ' . $e->getMessage(),
+                'message' => get_string('error_billing_portal_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -846,13 +846,13 @@ class external extends \external_api {
 
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => 'Invalid session key'];
+            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
         }
 
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => 'Insufficient permissions'];
+            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
         }
 
         try {
@@ -875,7 +875,7 @@ class external extends \external_api {
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error creating checkout session: ' . $e->getMessage(),
+                'message' => get_string('error_checkout_session_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -919,13 +919,13 @@ class external extends \external_api {
 
         // Validate session key
         if (!confirm_sesskey($sesskey)) {
-            return ['success' => false, 'message' => 'Invalid session key'];
+            return ['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')];
         }
 
         // Check user capabilities
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
-            return ['success' => false, 'message' => 'Insufficient permissions'];
+            return ['success' => false, 'message' => get_string('error_insufficient_permissions', 'report_adeptus_insights')];
         }
 
         try {
@@ -948,7 +948,7 @@ class external extends \external_api {
         } catch (\Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Error verifying checkout: ' . $e->getMessage(),
+                'message' => get_string('error_verify_checkout_exception', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }

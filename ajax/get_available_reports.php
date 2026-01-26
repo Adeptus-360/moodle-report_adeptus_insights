@@ -42,7 +42,7 @@ try {
     $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 5;
 
     if (!$backendenabled) {
-        echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
+        echo json_encode(['success' => false, 'message' => get_string('error_backend_disabled', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -68,13 +68,13 @@ try {
     curl_close($ch);
 
     if (!$response || $httpcode !== 200) {
-        echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
         exit;
     }
 
     $backenddata = json_decode($response, true);
     if (!$backenddata || !$backenddata['success']) {
-        echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
+        echo json_encode(['success' => false, 'message' => get_string('error_invalid_backend_response', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -104,6 +104,6 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error fetching available reports: ' . $e->getMessage(),
+        'message' => get_string('error_available_reports', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }

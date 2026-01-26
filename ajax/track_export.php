@@ -45,7 +45,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -58,7 +58,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Call backend API to track export
@@ -94,7 +94,7 @@ try {
         // Still return success to not disrupt user, but log the issue
         echo json_encode([
             'success' => true,
-            'message' => 'Export completed (tracking pending)',
+            'message' => get_string('export_completed_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -106,7 +106,7 @@ try {
         // Still return success to not disrupt user
         echo json_encode([
             'success' => true,
-            'message' => 'Export completed (tracking pending)',
+            'message' => get_string('export_completed_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -119,7 +119,7 @@ try {
         debugging('[Adeptus Insights] Export tracking failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => true,
-            'message' => 'Export completed (tracking pending)',
+            'message' => get_string('export_completed_tracking_pending', 'report_adeptus_insights'),
             'tracking_error' => true,
         ]);
         exit;
@@ -128,7 +128,7 @@ try {
     // Return backend response
     echo json_encode([
         'success' => $backenddata['success'] ?? true,
-        'message' => $backenddata['message'] ?? 'Export tracked successfully',
+        'message' => $backenddata['message'] ?? get_string('export_tracked_success', 'report_adeptus_insights'),
         'exports_used' => $backenddata['exports_used'] ?? 0,
         'exports_remaining' => $backenddata['exports_remaining'] ?? 0,
         'exports_limit' => $backenddata['exports_limit'] ?? 0,
@@ -138,7 +138,7 @@ try {
     // Don't fail the user experience for tracking errors
     echo json_encode([
         'success' => true,
-        'message' => 'Export completed (tracking pending)',
+        'message' => get_string('export_completed_tracking_pending', 'report_adeptus_insights'),
         'tracking_error' => true,
     ]);
 }

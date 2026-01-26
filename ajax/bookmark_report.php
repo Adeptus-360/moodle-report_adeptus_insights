@@ -26,39 +26,37 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 
-// Require login and capability
+// Require login and capability.
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
-// Set content type
+// Set content type.
 header('Content-Type: application/json');
 
-// Get parameters
-$reportid = required_param('reportid', PARAM_TEXT); // Changed to PARAM_TEXT for report names
+// Get parameters.
+$reportid = required_param('reportid', PARAM_TEXT);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
-$action = optional_param('action', 'toggle', PARAM_ALPHA); // toggle, add, remove, clear_all
+$action = optional_param('action', 'toggle', PARAM_ALPHA);
 
-// Validate session key
+// Validate session key.
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
 try {
-    // Clear all bookmarks for this user
+    // Clear all bookmarks for this user.
     if ($action === 'clear_all') {
         $DB->delete_records('adeptus_report_bookmarks', ['userid' => $USER->id]);
         echo json_encode([
             'success' => true,
-            'message' => 'All bookmarks cleared successfully',
+            'message' => get_string('bookmarks_cleared', 'report_adeptus_insights'),
             'action' => 'clear_all',
         ]);
         exit;
     }
-    // Note: We no longer check if report exists locally since reports come from backend
-    // The report name is validated by the frontend before calling this endpoint
 
-    // Check if already bookmarked
+    // Check if already bookmarked.
     $existing = $DB->get_record('adeptus_report_bookmarks', [
         'userid' => $USER->id,
         'reportid' => $reportid,
@@ -66,7 +64,7 @@ try {
 
     if ($action === 'toggle') {
         if ($existing) {
-            // Remove bookmark
+            // Remove bookmark.
             $DB->delete_records('adeptus_report_bookmarks', [
                 'userid' => $USER->id,
                 'reportid' => $reportid,
@@ -74,12 +72,12 @@ try {
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Bookmark removed successfully',
+                'message' => get_string('bookmark_removed', 'report_adeptus_insights'),
                 'action' => 'removed',
                 'bookmarked' => false,
             ]);
         } else {
-            // Add bookmark
+            // Add bookmark.
             $bookmark = new stdClass();
             $bookmark->userid = $USER->id;
             $bookmark->reportid = $reportid;
@@ -90,13 +88,16 @@ try {
             if ($bookmarkid) {
                 echo json_encode([
                     'success' => true,
-                    'message' => 'Report bookmarked successfully',
+                    'message' => get_string('report_bookmarked', 'report_adeptus_insights'),
                     'bookmark_id' => $bookmarkid,
                     'action' => 'added',
                     'bookmarked' => true,
                 ]);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Failed to create bookmark']);
+                echo json_encode([
+                    'success' => false,
+                    'message' => get_string('error_bookmark_failed', 'report_adeptus_insights'),
+                ]);
             }
         }
     } else if ($action === 'remove') {
@@ -108,21 +109,27 @@ try {
 
             echo json_encode([
                 'success' => true,
-                'message' => 'Bookmark removed successfully',
+                'message' => get_string('bookmark_removed', 'report_adeptus_insights'),
                 'action' => 'removed',
                 'bookmarked' => false,
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Bookmark not found']);
+            echo json_encode([
+                'success' => false,
+                'message' => get_string('error_bookmark_not_found', 'report_adeptus_insights'),
+            ]);
         }
     } else {
-        // Legacy 'add' action
+        // Legacy 'add' action.
         if ($existing) {
-            echo json_encode(['success' => false, 'message' => 'Report already bookmarked']);
+            echo json_encode([
+                'success' => false,
+                'message' => get_string('error_already_bookmarked', 'report_adeptus_insights'),
+            ]);
             exit;
         }
 
-        // Create bookmark
+        // Create bookmark.
         $bookmark = new stdClass();
         $bookmark->userid = $USER->id;
         $bookmark->reportid = $reportid;
@@ -132,18 +139,21 @@ try {
 
         if ($bookmarkid) {
             echo json_encode([
-            'success' => true,
-            'message' => 'Report bookmarked successfully',
+                'success' => true,
+                'message' => get_string('report_bookmarked', 'report_adeptus_insights'),
                 'bookmark_id' => $bookmarkid,
                 'action' => 'added',
                 'bookmarked' => true,
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Failed to create bookmark']);
+            echo json_encode([
+                'success' => false,
+                'message' => get_string('error_bookmark_failed', 'report_adeptus_insights'),
+            ]);
         }
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode(['success' => false, 'message' => get_string('error_database', 'report_adeptus_insights')]);
 }
 
 exit;

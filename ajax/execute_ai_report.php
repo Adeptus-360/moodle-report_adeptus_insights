@@ -67,7 +67,7 @@ if (!confirm_sesskey($sesskey)) {
     echo json_encode([
         'success' => false,
         'error' => 'invalid_sesskey',
-        'message' => 'Invalid session key',
+        'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights'),
     ]);
     exit;
 }
@@ -78,7 +78,7 @@ if (empty($sql)) {
     echo json_encode([
         'success' => false,
         'error' => 'missing_sql',
-        'message' => 'SQL query is required',
+        'message' => get_string('error_sql_required', 'report_adeptus_insights'),
     ]);
     exit;
 }
@@ -102,7 +102,7 @@ if ($sqlupper !== 'SELECT') {
     echo json_encode([
         'success' => false,
         'error' => 'invalid_sql',
-        'message' => 'Only SELECT queries are allowed',
+        'message' => get_string('error_sql_only_select', 'report_adeptus_insights'),
     ]);
     exit;
 }
@@ -131,7 +131,7 @@ foreach ($dangerouspatterns as $pattern) {
         echo json_encode([
             'success' => false,
             'error' => 'dangerous_sql',
-            'message' => 'Query contains disallowed SQL commands',
+            'message' => get_string('error_sql_dangerous', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -223,7 +223,7 @@ try {
     echo json_encode([
         'success' => false,
         'error' => 'sql_error',
-        'message' => 'SQL execution failed',
+        'message' => get_string('error_sql_execution_failed', 'report_adeptus_insights'),
         'details' => $e->debuginfo ?? $e->getMessage(),
     ]);
 } catch (\Exception $e) {
@@ -232,7 +232,7 @@ try {
     echo json_encode([
         'success' => false,
         'error' => 'execution_error',
-        'message' => 'Failed to execute report',
+        'message' => get_string('error_report_execution_failed', 'report_adeptus_insights'),
         'details' => $e->getMessage(),
     ]);
 }

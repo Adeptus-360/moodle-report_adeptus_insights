@@ -43,7 +43,7 @@ $action = trim($action);
 
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -56,12 +56,12 @@ try {
 
         echo json_encode([
             'success' => true,
-            'message' => 'All recent reports cleared successfully',
+            'message' => get_string('recent_reports_cleared', 'report_adeptus_insights'),
             'action' => 'clear_all',
         ]);
     } else if ($action === 'remove_single') {
         if (empty($reportid)) {
-            echo json_encode(['success' => false, 'message' => 'Report ID is required']);
+            echo json_encode(['success' => false, 'message' => get_string('error_report_id_required', 'report_adeptus_insights')]);
             exit;
         }
 
@@ -74,21 +74,21 @@ try {
         if ($deleted) {
             echo json_encode([
                 'success' => true,
-                'message' => 'Recent report removed successfully',
+                'message' => get_string('recent_report_removed', 'report_adeptus_insights'),
                 'action' => 'remove_single',
                 'reportid' => $reportid,
             ]);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Recent report not found']);
+            echo json_encode(['success' => false, 'message' => get_string('error_recent_report_not_found', 'report_adeptus_insights')]);
         }
     } else {
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid action: ' . $action . '. Expected: clear_all or remove_single',
+            'message' => get_string('error_invalid_action', 'report_adeptus_insights'),
         ]);
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Database error occurred']);
+    echo json_encode(['success' => false, 'message' => get_string('error_database', 'report_adeptus_insights')]);
 }
 
 exit;

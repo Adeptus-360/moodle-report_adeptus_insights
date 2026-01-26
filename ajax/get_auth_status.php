@@ -75,7 +75,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Failed to get authentication status: ' . $e->getMessage(),
+        'message' => get_string('error_get_auth_status_failed', 'report_adeptus_insights', $e->getMessage()),
         'data' => null,
     ]);
 }

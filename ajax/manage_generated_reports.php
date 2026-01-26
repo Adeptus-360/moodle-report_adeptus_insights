@@ -52,7 +52,7 @@ try {
     if (empty($apikey)) {
         echo json_encode([
             'success' => false,
-            'message' => 'API key not configured',
+            'message' => get_string('error_api_key_not_configured', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -82,13 +82,13 @@ try {
                 curl_close($ch);
 
                 if ($curlerror) {
-                    echo json_encode(['success' => false, 'message' => 'Connection error: ' . $curlerror]);
+                    echo json_encode(['success' => false, 'message' => get_string('error_connection', 'report_adeptus_insights', $curlerror)]);
                 } else if ($httpcode === 200 || $httpcode === 204) {
                     $data = json_decode($response, true);
-                    echo json_encode(['success' => true, 'message' => $data['message'] ?? 'AI report deleted successfully']);
+                    echo json_encode(['success' => true, 'message' => $data['message'] ?? get_string('ai_report_delete_success', 'report_adeptus_insights')]);
                 } else {
                     $data = json_decode($response, true);
-                    echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to delete AI report (HTTP ' . $httpcode . ')']);
+                    echo json_encode(['success' => false, 'message' => $data['message'] ?? get_string('ai_report_delete_failed', 'report_adeptus_insights', $httpcode)]);
                 }
             } else {
                 // Delete wizard report from backend
@@ -110,10 +110,10 @@ try {
 
                 if ($httpcode === 200) {
                     $data = json_decode($response, true);
-                    echo json_encode(['success' => true, 'message' => $data['message'] ?? 'Report removed successfully']);
+                    echo json_encode(['success' => true, 'message' => $data['message'] ?? get_string('report_removed', 'report_adeptus_insights')]);
                 } else {
                     $data = json_decode($response, true);
-                    echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to remove report']);
+                    echo json_encode(['success' => false, 'message' => $data['message'] ?? get_string('report_remove_failed', 'report_adeptus_insights')]);
                 }
             }
             break;
@@ -140,20 +140,20 @@ try {
             if ($httpcode === 200) {
                 $data = json_decode($response, true);
                 $count = $data['deleted_count'] ?? 0;
-                echo json_encode(['success' => true, 'message' => "Deleted {$count} wizard reports"]);
+                echo json_encode(['success' => true, 'message' => get_string('reports_cleared', 'report_adeptus_insights', $count)]);
             } else {
                 $data = json_decode($response, true);
-                echo json_encode(['success' => false, 'message' => $data['message'] ?? 'Failed to clear reports']);
+                echo json_encode(['success' => false, 'message' => $data['message'] ?? get_string('error_clear_failed', 'report_adeptus_insights')]);
             }
             break;
 
         default:
-            echo json_encode(['success' => false, 'message' => 'Invalid action: ' . $action . '. Expected: clear_all or remove_single']);
+            echo json_encode(['success' => false, 'message' => get_string('error_invalid_action', 'report_adeptus_insights')]);
             break;
     }
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error managing generated reports: ' . $e->getMessage(),
+        'message' => get_string('error_managing_reports', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }

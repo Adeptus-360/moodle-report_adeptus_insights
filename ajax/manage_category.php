@@ -46,7 +46,7 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 // Validate session key.
 if (!confirm_sesskey($sesskey)) {
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -59,7 +59,7 @@ try {
     $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
     if (empty($apikey)) {
-        throw new Exception('Installation not configured. Please complete plugin setup.');
+        throw new Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
     }
 
     // Build endpoint and request based on action.
@@ -101,7 +101,7 @@ try {
             break;
 
         default:
-            throw new Exception('Invalid action: ' . $action);
+            throw new Exception(get_string('error_invalid_action', 'report_adeptus_insights'));
     }
 
     $ch = curl_init();
@@ -129,7 +129,7 @@ try {
         debugging('[Adeptus Insights] Category management failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
-            'message' => 'Failed to connect to backend service.',
+            'message' => get_string('error_connect_backend', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -140,7 +140,7 @@ try {
         $errordata = json_decode($response, true);
         echo json_encode([
             'success' => false,
-            'message' => $errordata['message'] ?? 'Failed to manage category.',
+            'message' => $errordata['message'] ?? get_string('category_manage_failed', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -152,7 +152,7 @@ try {
         debugging('[Adeptus Insights] Category management failed - invalid JSON response', DEBUG_DEVELOPER);
         echo json_encode([
             'success' => false,
-            'message' => 'Invalid response from backend service.',
+            'message' => get_string('error_invalid_backend_json', 'report_adeptus_insights'),
         ]);
         exit;
     }
@@ -163,7 +163,7 @@ try {
     debugging('[Adeptus Insights] Category management exception: ' . $e->getMessage(), DEBUG_DEVELOPER);
     echo json_encode([
         'success' => false,
-        'message' => 'Error managing category: ' . $e->getMessage(),
+        'message' => get_string('error_managing_category', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }
 

@@ -46,14 +46,14 @@ $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
 // Validate session key
 if (!confirm_sesskey($sesskey)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid session key']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
     exit;
 }
 
 // Parse report IDs
 $reportids = json_decode($reportidsjson, true);
 if (!is_array($reportids) || empty($reportids)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid report IDs']);
+    echo json_encode(['success' => false, 'message' => get_string('error_invalid_report_ids', 'report_adeptus_insights')]);
     exit;
 }
 
@@ -69,7 +69,7 @@ try {
     $apitimeout = isset($CFG->adeptus_wizard_api_timeout) ? $CFG->adeptus_wizard_api_timeout : 10;
 
     if (!$backendenabled) {
-        echo json_encode(['success' => false, 'message' => 'Backend API is disabled']);
+        echo json_encode(['success' => false, 'message' => get_string('error_backend_disabled', 'report_adeptus_insights')]);
         exit;
     }
 
@@ -98,13 +98,13 @@ try {
         curl_close($ch);
 
         if (!$response || $httpcode !== 200) {
-            echo json_encode(['success' => false, 'message' => 'Failed to fetch reports from backend']);
+            echo json_encode(['success' => false, 'message' => get_string('error_fetch_reports_failed', 'report_adeptus_insights')]);
             exit;
         }
 
         $backenddata = json_decode($response, true);
         if (!$backenddata || !$backenddata['success']) {
-            echo json_encode(['success' => false, 'message' => 'Invalid response from backend']);
+            echo json_encode(['success' => false, 'message' => get_string('error_invalid_backend_response', 'report_adeptus_insights')]);
             exit;
         }
 
@@ -132,7 +132,7 @@ try {
         if (!$report) {
             $results[$reportid] = [
                 'success' => false,
-                'error' => 'Report not found',
+                'error' => get_string('error_report_not_found', 'report_adeptus_insights'),
             ];
             continue;
         }
@@ -142,7 +142,7 @@ try {
         if (!$validation['valid']) {
             $results[$reportid] = [
                 'success' => false,
-                'error' => 'Report incompatible',
+                'error' => get_string('error_report_incompatible', 'report_adeptus_insights'),
                 'details' => $validation['reason'],
             ];
             continue;
@@ -178,7 +178,7 @@ try {
         } catch (Exception $e) {
             $results[$reportid] = [
                 'success' => false,
-                'error' => 'Query error: ' . $e->getMessage(),
+                'error' => get_string('error_query', 'report_adeptus_insights', $e->getMessage()),
             ];
         }
     }
@@ -194,7 +194,7 @@ try {
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'message' => 'Error: ' . $e->getMessage(),
+        'message' => get_string('error_occurred', 'report_adeptus_insights', $e->getMessage()),
     ]);
 }
 

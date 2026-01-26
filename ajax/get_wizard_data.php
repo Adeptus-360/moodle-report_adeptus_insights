@@ -58,7 +58,7 @@ try {
         ],
     ]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'message' => 'Failed to load wizard data']);
+    echo json_encode(['success' => false, 'message' => get_string('error_wizard_data_failed', 'report_adeptus_insights')]);
 }
 
 exit;

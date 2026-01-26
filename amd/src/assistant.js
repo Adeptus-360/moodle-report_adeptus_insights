@@ -1,5 +1,237 @@
-define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'report_adeptus_insights/auth_utils'], function ($, Ajax, Notification, Chart, Templates, AuthUtils) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'core/str', 'report_adeptus_insights/auth_utils'], function ($, Ajax, Notification, Chart, Templates, Str, AuthUtils) {
     var Swal = window.Swal;
+
+    // Language strings storage
+    var strings = {};
+
+    /**
+     * Load all language strings needed for the module
+     * @returns {Promise} Promise that resolves when strings are loaded
+     */
+    var loadStrings = function() {
+        return Str.get_strings([
+            {key: 'js_generating_report', component: 'report_adeptus_insights'},
+            {key: 'js_token_limit_reached', component: 'report_adeptus_insights'},
+            {key: 'js_token_limit_message', component: 'report_adeptus_insights'},
+            {key: 'js_view_usage', component: 'report_adeptus_insights'},
+            {key: 'js_report_limit_reached', component: 'report_adeptus_insights'},
+            {key: 'js_report_limit_message', component: 'report_adeptus_insights'},
+            {key: 'js_view_reports', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_your_plan', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_plan_message', component: 'report_adeptus_insights'},
+            {key: 'js_ai_service_busy', component: 'report_adeptus_insights'},
+            {key: 'js_ai_service_busy_message', component: 'report_adeptus_insights'},
+            {key: 'js_try_again', component: 'report_adeptus_insights'},
+            {key: 'js_loading_usage_data', component: 'report_adeptus_insights'},
+            {key: 'js_fetching_usage_info', component: 'report_adeptus_insights'},
+            {key: 'js_applying_filters', component: 'report_adeptus_insights'},
+            {key: 'js_report_chart', component: 'report_adeptus_insights'},
+            {key: 'js_please_enter_message', component: 'report_adeptus_insights'},
+            {key: 'js_oops', component: 'report_adeptus_insights'},
+            {key: 'js_save_your_report', component: 'report_adeptus_insights'},
+            {key: 'js_report_name_label', component: 'report_adeptus_insights'},
+            {key: 'js_enter_report_name', component: 'report_adeptus_insights'},
+            {key: 'js_category_label', component: 'report_adeptus_insights'},
+            {key: 'js_select_category', component: 'report_adeptus_insights'},
+            {key: 'js_save_report', component: 'report_adeptus_insights'},
+            {key: 'js_report_not_found', component: 'report_adeptus_insights'},
+            {key: 'js_export_not_available', component: 'report_adeptus_insights'},
+            {key: 'js_not_eligible_export', component: 'report_adeptus_insights'},
+            {key: 'js_saving_default_view', component: 'report_adeptus_insights'},
+            {key: 'js_default_view_saved', component: 'report_adeptus_insights'},
+            {key: 'js_save_failed', component: 'report_adeptus_insights'},
+            {key: 'js_could_not_save_view', component: 'report_adeptus_insights'},
+            {key: 'js_unable_verify_eligibility', component: 'report_adeptus_insights'},
+            {key: 'js_unable_verify_export', component: 'report_adeptus_insights'},
+            {key: 'js_authentication_required', component: 'report_adeptus_insights'},
+            {key: 'js_auth_required_message', component: 'report_adeptus_insights'},
+            {key: 'js_refresh_page', component: 'report_adeptus_insights'},
+            {key: 'js_delete_chat', component: 'report_adeptus_insights'},
+            {key: 'js_delete_chat_confirm', component: 'report_adeptus_insights'},
+            {key: 'js_yes_delete', component: 'report_adeptus_insights'},
+            {key: 'js_chat_deleted', component: 'report_adeptus_insights'},
+            {key: 'js_error_deleting_chat', component: 'report_adeptus_insights'},
+            {key: 'js_new_chat', component: 'report_adeptus_insights'},
+            {key: 'js_no_chats_yet', component: 'report_adeptus_insights'},
+            {key: 'js_start_conversation', component: 'report_adeptus_insights'},
+            {key: 'js_error_loading_chats', component: 'report_adeptus_insights'},
+            {key: 'js_report_saved', component: 'report_adeptus_insights'},
+            {key: 'js_report_saved_message', component: 'report_adeptus_insights'},
+            {key: 'js_error_saving_report', component: 'report_adeptus_insights'},
+            {key: 'js_delete_report', component: 'report_adeptus_insights'},
+            {key: 'js_delete_report_confirm', component: 'report_adeptus_insights'},
+            {key: 'js_report_deleted', component: 'report_adeptus_insights'},
+            {key: 'js_error_deleting_report', component: 'report_adeptus_insights'},
+            {key: 'js_no_reports', component: 'report_adeptus_insights'},
+            {key: 'js_generate_reports_message', component: 'report_adeptus_insights'},
+            {key: 'js_error_loading_reports', component: 'report_adeptus_insights'},
+            {key: 'js_no_data_available', component: 'report_adeptus_insights'},
+            {key: 'js_export_success', component: 'report_adeptus_insights'},
+            {key: 'js_export_error', component: 'report_adeptus_insights'},
+            {key: 'js_processing', component: 'report_adeptus_insights'},
+            {key: 'js_please_wait', component: 'report_adeptus_insights'},
+            {key: 'js_success', component: 'report_adeptus_insights'},
+            {key: 'js_error', component: 'report_adeptus_insights'},
+            {key: 'js_warning', component: 'report_adeptus_insights'},
+            {key: 'js_confirm', component: 'report_adeptus_insights'},
+            {key: 'js_yes', component: 'report_adeptus_insights'},
+            {key: 'js_no', component: 'report_adeptus_insights'},
+            {key: 'js_deleted', component: 'report_adeptus_insights'},
+            {key: 'js_saved', component: 'report_adeptus_insights'},
+            {key: 'js_untitled_report', component: 'report_adeptus_insights'},
+            {key: 'js_general_category', component: 'report_adeptus_insights'},
+            {key: 'loading', component: 'report_adeptus_insights'},
+            {key: 'close', component: 'report_adeptus_insights'},
+            {key: 'cancel', component: 'report_adeptus_insights'},
+            {key: 'export_premium_feature', component: 'report_adeptus_insights'},
+            {key: 'export_premium_description', component: 'report_adeptus_insights'},
+            {key: 'export_free_plan_info', component: 'report_adeptus_insights'},
+            {key: 'export_paid_plan_info', component: 'report_adeptus_insights'},
+            {key: 'upgrade_now', component: 'report_adeptus_insights'},
+            {key: 'js_view_plans', component: 'report_adeptus_insights'},
+            {key: 'js_monthly_allowance_used', component: 'report_adeptus_insights'},
+            {key: 'js_tokens_reset_monthly', component: 'report_adeptus_insights'},
+            {key: 'js_used_of_reports', component: 'report_adeptus_insights'},
+            {key: 'js_delete_reports_or_upgrade', component: 'report_adeptus_insights'},
+            {key: 'js_unlock_features', component: 'report_adeptus_insights'},
+            {key: 'js_current_usage', component: 'report_adeptus_insights'},
+            {key: 'js_unlimited', component: 'report_adeptus_insights'},
+            {key: 'js_reports', component: 'report_adeptus_insights'},
+            {key: 'js_report_limit_reached_banner', component: 'report_adeptus_insights'},
+            {key: 'js_manage_reports', component: 'report_adeptus_insights'},
+            {key: 'js_upgrade_plan', component: 'report_adeptus_insights'},
+            {key: 'js_ask_moodle_data', component: 'report_adeptus_insights'},
+            {key: 'js_report_limit_placeholder', component: 'report_adeptus_insights'},
+            {key: 'js_export_premium_feature', component: 'report_adeptus_insights'},
+            {key: 'js_export_premium_description', component: 'report_adeptus_insights'},
+            {key: 'js_free_plan_exports', component: 'report_adeptus_insights'},
+            {key: 'js_paid_plan_exports', component: 'report_adeptus_insights'},
+            {key: 'js_free_plan_label', component: 'report_adeptus_insights'},
+            {key: 'js_paid_plans_label', component: 'report_adeptus_insights'},
+            {key: 'js_no_reports_generated', component: 'report_adeptus_insights'},
+            {key: 'js_ask_ai_create_reports', component: 'report_adeptus_insights'},
+            {key: 'js_compare_report_data', component: 'report_adeptus_insights'},
+            {key: 'js_failed_load_usage', component: 'report_adeptus_insights'},
+            {key: 'js_failed_load_filtered', component: 'report_adeptus_insights'}
+        ]).then(function(results) {
+            strings = {
+                generating_report: results[0],
+                token_limit_reached: results[1],
+                token_limit_message: results[2],
+                view_usage: results[3],
+                report_limit_reached: results[4],
+                report_limit_message: results[5],
+                view_reports: results[6],
+                upgrade_your_plan: results[7],
+                upgrade_plan_message: results[8],
+                ai_service_busy: results[9],
+                ai_service_busy_message: results[10],
+                try_again: results[11],
+                loading_usage_data: results[12],
+                fetching_usage_info: results[13],
+                applying_filters: results[14],
+                report_chart: results[15],
+                please_enter_message: results[16],
+                oops: results[17],
+                save_your_report: results[18],
+                report_name_label: results[19],
+                enter_report_name: results[20],
+                category_label: results[21],
+                select_category: results[22],
+                save_report: results[23],
+                report_not_found: results[24],
+                export_not_available: results[25],
+                not_eligible_export: results[26],
+                saving_default_view: results[27],
+                default_view_saved: results[28],
+                save_failed: results[29],
+                could_not_save_view: results[30],
+                unable_verify_eligibility: results[31],
+                unable_verify_export: results[32],
+                authentication_required: results[33],
+                auth_required_message: results[34],
+                refresh_page: results[35],
+                delete_chat: results[36],
+                delete_chat_confirm: results[37],
+                yes_delete: results[38],
+                chat_deleted: results[39],
+                error_deleting_chat: results[40],
+                new_chat: results[41],
+                no_chats_yet: results[42],
+                start_conversation: results[43],
+                error_loading_chats: results[44],
+                report_saved: results[45],
+                report_saved_message: results[46],
+                error_saving_report: results[47],
+                delete_report: results[48],
+                delete_report_confirm: results[49],
+                report_deleted: results[50],
+                error_deleting_report: results[51],
+                no_reports: results[52],
+                generate_reports_message: results[53],
+                error_loading_reports: results[54],
+                no_data_available: results[55],
+                export_success: results[56],
+                export_error: results[57],
+                processing: results[58],
+                please_wait: results[59],
+                success: results[60],
+                error: results[61],
+                warning: results[62],
+                confirm: results[63],
+                yes: results[64],
+                no: results[65],
+                deleted: results[66],
+                saved: results[67],
+                untitled_report: results[68],
+                general_category: results[69],
+                loading: results[70],
+                close: results[71],
+                cancel: results[72],
+                export_premium_feature: results[73],
+                export_premium_description: results[74],
+                export_free_plan_info: results[75],
+                export_paid_plan_info: results[76],
+                upgrade_now: results[77],
+                view_plans: results[78],
+                monthly_allowance_used: results[79],
+                tokens_reset_monthly: results[80],
+                used_of_reports: results[81],
+                delete_reports_or_upgrade: results[82],
+                unlock_features: results[83],
+                current_usage: results[84],
+                unlimited: results[85],
+                reports: results[86],
+                report_limit_reached_banner: results[87],
+                manage_reports: results[88],
+                upgrade_plan: results[89],
+                ask_moodle_data: results[90],
+                report_limit_placeholder: results[91],
+                export_is_premium: results[92],
+                export_premium_desc: results[93],
+                free_plan_exports: results[94],
+                paid_plan_exports: results[95],
+                free_plan_label: results[96],
+                paid_plans_label: results[97],
+                no_reports_generated: results[98],
+                ask_ai_create_reports: results[99],
+                compare_report_data: results[100],
+                failed_load_usage: results[101],
+                failed_load_filtered: results[102]
+            };
+            return strings;
+        });
+    };
+
+    /**
+     * Get a loaded string, with fallback
+     * @param {string} key - The string key
+     * @param {string} fallback - Fallback value if string not loaded
+     * @returns {string} The string value
+     */
+    var getString = function(key, fallback) {
+        return strings[key] || fallback || key;
+    };
 
     var assistant = {
         currentChatId: 0,
@@ -26,6 +258,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         reportsRemaining: 0,
         reportEligibilityChecked: false,
         init: function (authenticated, isFreePlan) {
+            var self = this;
             this.isFreePlan = isFreePlan !== false; // Default to true if not passed
             if (this._initCalled) return;
             this._initCalled = true;
@@ -38,6 +271,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Initialize loader CSS styles on startup
             this.initializeLoaderStyles();
 
+            // Load language strings first, then initialize
+            loadStrings().then(function() {
+                self._initAfterStrings(getAssistantContainer);
+            }).catch(function() {
+                // Fallback: continue without strings (will use fallbacks)
+                self._initAfterStrings(getAssistantContainer);
+            });
+        },
+
+        _initAfterStrings: function(getAssistantContainer) {
+            var self = this;
             // Initialize authentication system
             try {
                 // Check if user is authenticated
@@ -135,9 +379,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const assistantContainer = $('.assistant-header').siblings('.container-fluid').first();
             assistantContainer.html(`
                 <div class="alert alert-danger">
-                    <h4>Authentication Required</h4>
-                    <p>You need to be authenticated to use the AI Assistant. Please contact your administrator for assistance.</p>
-                    <button class="btn btn-primary" onclick="location.reload()">Refresh Page</button>
+                    <h4>${getString('authentication_required', 'Authentication Required')}</h4>
+                    <p>${getString('auth_required_message', 'You need to be authenticated to use the AI Assistant. Please contact your administrator for assistance.')}</p>
+                    <button class="btn btn-primary" onclick="location.reload()">${getString('refresh_page', 'Refresh Page')}</button>
                 </div>
             `).show();
         },
@@ -418,12 +662,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 }, 100);
                 // Show SweetAlert loader for report generation
                 Swal.fire({
-                    title: 'Generating Report',
+                    title: getString('generating_report', 'Generating Report'),
                     html: `
                         <div class="text-center">
                             <div class="spinner-border text-primary mb-3" role="status">
                             </div>
-                            <p>Please wait while we generate your report...</p>
+                            <p>${getString('please_wait', 'Please wait')}...</p>
                         </div>
                     `,
                     showConfirmButton: false,
@@ -888,17 +1132,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Show upgrade prompt
             Swal.fire({
                 icon: 'warning',
-                title: 'Token Limit Reached',
+                title: getString('token_limit_reached', 'Token Limit Reached'),
                 html: `
                     <div class="text-center">
                         <p>${message}</p>
-                        <p class="text-muted">Your monthly token allowance has been used up.</p>
-                        <p class="text-muted">Tokens reset on the 1st of each month.</p>
+                        <p class="text-muted">${getString('monthly_allowance_used', 'Your monthly token allowance has been used up.')}</p>
+                        <p class="text-muted">${getString('tokens_reset_monthly', 'Tokens reset on the 1st of each month.')}</p>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'View Usage',
-                cancelButtonText: 'Close',
+                confirmButtonText: getString('view_usage', 'View Usage'),
+                cancelButtonText: getString('close', 'Close'),
                 confirmButtonColor: '#007bff'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -982,22 +1226,22 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateReportLimitUI();
 
             // Show user-friendly report limit error in chat
-            this.addMessage(message || 'You have reached your report limit. Delete existing reports or upgrade your plan.', 'error');
+            this.addMessage(message || getString('report_limit_message', 'You have reached your report limit. Delete existing reports or upgrade your plan.'), 'error');
 
             // Show upgrade prompt
             Swal.fire({
                 icon: 'warning',
-                title: 'Report Limit Reached',
+                title: getString('report_limit_reached', 'Report Limit Reached'),
                 html: `
                     <div class="text-center">
-                        <p>${message || 'You have reached your report limit.'}</p>
-                        <p class="text-muted">You have used ${this.reportsUsed} of ${this.reportsLimit} reports.</p>
-                        <p class="text-muted">Delete existing reports to free up slots or upgrade your plan.</p>
+                        <p>${message || getString('report_limit_reached', 'You have reached your report limit.')}</p>
+                        <p class="text-muted">${getString('used_of_reports', 'You have used ' + this.reportsUsed + ' of ' + this.reportsLimit + ' reports.').replace('{$a->used}', this.reportsUsed).replace('{$a->limit}', this.reportsLimit)}</p>
+                        <p class="text-muted">${getString('delete_reports_or_upgrade', 'Delete existing reports to free up slots or upgrade your plan.')}</p>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'View Reports',
-                cancelButtonText: 'Close',
+                confirmButtonText: getString('view_reports', 'View Reports'),
+                cancelButtonText: getString('close', 'Close'),
                 confirmButtonColor: '#007bff'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -1016,16 +1260,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (this.isReportLimitReached && !isUnlimited) {
                 // Disable send button and input
                 $('#send-button').prop('disabled', true).addClass('disabled');
-                $('#message-input').prop('disabled', true).attr('placeholder', 'Report limit reached. Delete reports or upgrade to continue.');
+                $('#message-input').prop('disabled', true).attr('placeholder', getString('report_limit_placeholder', 'Report limit reached. Delete reports or upgrade to continue.'));
 
                 // Show persistent report limit message
                 if (!$('#report-limit-banner').length) {
                     const banner = $(`
                         <div id="report-limit-banner" class="alert alert-warning mb-2" style="margin: 10px; border-radius: 8px;">
                             <i class="fa-solid fa-exclamation-triangle"></i>
-                            <strong>Report limit reached!</strong> You have used ${this.reportsUsed} of ${this.reportsLimit} reports.
-                            <a href="#" class="alert-link" onclick="window.assistant.switchTab('reports'); return false;">Manage reports</a> or
-                            <a href="#" class="alert-link" onclick="window.assistant.showUpgradePrompt(); return false;">upgrade your plan</a>.
+                            <strong>${getString('report_limit_reached_banner', 'Report limit reached!')}</strong> ${getString('used_of_reports', 'You have used ' + this.reportsUsed + ' of ' + this.reportsLimit + ' reports.').replace('{$a->used}', this.reportsUsed).replace('{$a->limit}', this.reportsLimit)}
+                            <a href="#" class="alert-link" onclick="window.assistant.switchTab('reports'); return false;">${getString('manage_reports', 'Manage reports')}</a> or
+                            <a href="#" class="alert-link" onclick="window.assistant.showUpgradePrompt(); return false;">${getString('upgrade_plan', 'upgrade your plan')}</a>.
                         </div>
                     `);
                     $('.chat-input-area').before(banner);
@@ -1034,7 +1278,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Only enable if credit limit is also not exceeded
                 if (!this.isCreditLimitExceeded) {
                     $('#send-button').prop('disabled', false).removeClass('disabled');
-                    $('#message-input').prop('disabled', false).attr('placeholder', 'Ask me anything about your Moodle data...');
+                    $('#message-input').prop('disabled', false).attr('placeholder', getString('ask_moodle_data', 'Ask me anything about your Moodle data...'));
                 }
 
                 // Remove report limit banner
@@ -1046,16 +1290,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Show upgrade prompt for report limits
          */
         showUpgradePrompt: function() {
+            const limitText = this.reportsLimit === -1 ? getString('unlimited', 'Unlimited') : this.reportsLimit;
             Swal.fire({
                 icon: 'info',
-                title: 'Upgrade Your Plan',
+                title: getString('upgrade_your_plan', 'Upgrade Your Plan'),
                 html: `
                     <div class="text-center">
-                        <p>Unlock more reports and features by upgrading your plan.</p>
-                        <p class="text-muted">Current usage: ${this.reportsUsed} / ${this.reportsLimit === -1 ? 'Unlimited' : this.reportsLimit} reports</p>
+                        <p>${getString('unlock_features', 'Unlock more reports and features by upgrading your plan.')}</p>
+                        <p class="text-muted">${getString('current_usage', 'Current usage:')} ${this.reportsUsed} / ${limitText} ${getString('reports', 'reports')}</p>
                     </div>
                 `,
-                confirmButtonText: 'View Plans',
+                confirmButtonText: getString('view_plans', 'View Plans'),
                 confirmButtonColor: '#007bff'
             });
         },
@@ -1090,20 +1335,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         handleTimeoutError: function (message) {
             // Show user-friendly timeout error
             this.addMessage(message, 'error');
-            
+
             // Show retry prompt
             Swal.fire({
                 icon: 'info',
-                title: 'AI Service Busy',
+                title: getString('ai_service_busy', 'AI Service Busy'),
                 html: `
                     <div class="text-center">
                         <p>${message}</p>
-                        <p class="text-muted">The AI service is experiencing high demand. Please try again in a moment.</p>                                                                                       
+                        <p class="text-muted">${getString('ai_service_busy_message', 'The AI service is experiencing high demand. Please try again in a moment.')}</p>
                     </div>
                 `,
                 showCancelButton: true,
-                confirmButtonText: 'Try Again',
-                cancelButtonText: 'Cancel',
+                confirmButtonText: getString('try_again', 'Try Again'),
+                cancelButtonText: getString('cancel', 'Cancel'),
                 confirmButtonColor: '#007bff',
                 cancelButtonColor: '#6c757d'
             }).then((result) => {
@@ -1124,12 +1369,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     <div class="d-flex align-items-center">
 
                         <div class="flex-grow-1">
-                            <strong class="text-danger">Token Limit Reached</strong><br>
+                            <strong class="text-danger">${getString('token_limit_reached', 'Token Limit Reached')}</strong><br>
                             <small class="text-muted">${message}</small>
                         </div>
                         <div class="ms-3">
                             <button type="button" class="btn btn-sm btn-outline-danger me-2" onclick="window.assistant.showCreditUsageModal()">
-                                <i class="fas fa-chart-bar me-1"></i> View Usage
+                                <i class="fas fa-chart-bar me-1"></i> ${getString('view_usage', 'View Usage')}
                             </button>
 
                         </div>
@@ -1160,8 +1405,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         showCreditUsageModal: function () {
             // Show loading modal first
             Swal.fire({
-                title: 'Loading Usage Data...',
-                text: 'Please wait while we fetch your usage information',
+                title: getString('loading_usage_data', 'Loading Usage Data...'),
+                text: getString('fetching_usage_info', 'Please wait while we fetch your usage information'),
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 willOpen: () => {
@@ -1177,11 +1422,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     if (response.success) {
                         this.displayDetailedUsageModal(response.data);
                     } else {
-                        Swal.fire('Error', 'Failed to load usage information', 'error');
+                        Swal.fire(getString('error', 'Error'), getString('failed_load_usage', 'Failed to load usage information'), 'error');
                     }
                 },
                 error: () => {
-                    Swal.fire('Error', 'Failed to load usage information', 'error');
+                    Swal.fire(getString('error', 'Error'), getString('failed_load_usage', 'Failed to load usage information'), 'error');
                 }
             });
         },
@@ -1488,8 +1733,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         loadUsageDataWithFilters: function(filters, page = 1) {
             // Show loading
             Swal.fire({
-                title: 'Loading...',
-                text: 'Applying filters and loading data',
+                title: getString('loading', 'Loading...'),
+                text: getString('applying_filters', 'Applying filters and loading data'),
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 willOpen: () => {
@@ -1513,11 +1758,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     if (response.success) {
                         this.updateUsageModalData(response.data);
                     } else {
-                        Swal.fire('Error', 'Failed to load filtered data', 'error');
+                        Swal.fire(getString('error', 'Error'), getString('failed_load_filtered', 'Failed to load filtered data'), 'error');
                     }
                 },
                 error: () => {
-                    Swal.fire('Error', 'Failed to load filtered data', 'error');
+                    Swal.fire(getString('error', 'Error'), getString('failed_load_filtered', 'Failed to load filtered data'), 'error');
                 }
             });
         },
@@ -2013,7 +2258,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 this.showWelcomeMessage();
                             }
                         } else {
-                            list.append(`<li class="list-group-item text-center">No chats yet</li>`);
+                            list.append(`<li class="list-group-item text-center">${getString('no_chats_yet', 'No chats yet')}</li>`);
                         }
                     } else {
                         response.chats.forEach((chat) => {
@@ -2281,7 +2526,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Use provided message if given, otherwise read from input field
             const rawValue = providedMessage ? String(providedMessage).trim() : (input.val() || '').trim();
             if (!rawValue) {
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Please enter a message' });
+                Swal.fire({ icon: 'error', title: getString('oops', 'Oops...'), text: getString('please_enter_message', 'Please enter a message') });
                 return;
             }
             const message = rawValue.trim();
@@ -3297,21 +3542,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                         // Prompt for report name and category using SweetAlert
                         Swal.fire({
-                            title: 'Save Your Report',
+                            title: getString('save_your_report', 'Save Your Report'),
                             html: `
                                 <div style="text-align: left;">
                                     <div style="margin-bottom: 15px;">
                                         <label for="swal-report-name" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            Report Name
+                                            ${getString('report_name_label', 'Report Name')}
                                         </label>
                                         <input type="text" id="swal-report-name" class="swal2-input"
-                                               placeholder="e.g., Monthly Student Progress Report"
+                                               placeholder="${getString('enter_report_name', 'Enter a name for your report')}"
                                                value="${defaultName.replace(/"/g, '&quot;')}"
                                                style="margin: 0; width: 100%;">
                                     </div>
                                     <div>
                                         <label for="swal-report-category" style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                            Category
+                                            ${getString('category_label', 'Category')}
                                         </label>
                                         <select id="swal-report-category" class="swal2-select"
                                                 style="margin: 0; width: 100%; padding: 8px 12px; border: 1px solid #d9d9d9; border-radius: 4px;">
@@ -3321,8 +3566,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 </div>
                             `,
                             showCancelButton: true,
-                            confirmButtonText: '<i class="fa fa-save"></i> Save Report',
-                            cancelButtonText: 'Cancel',
+                            confirmButtonText: '<i class="fa fa-save"></i> ' + getString('save_report', 'Save Report'),
+                            cancelButtonText: getString('cancel', 'Cancel'),
                             confirmButtonColor: '#28a745',
                             focusConfirm: false,
                             preConfirm: () => {
@@ -3470,7 +3715,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             } else {
                                 // Show error message to user
                                 Notification.addNotification({
-                                    message: 'Report not found. Please check if it still exists in the Reports tab.',
+                                    message: getString('report_not_found', 'Report not found. Please check if it still exists in the Reports tab.'),
                                     type: 'error'
                                 });
                             }
@@ -3992,15 +4237,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             <td colspan="3" class="text-center text-muted">
                                 <div class="py-4">
                                     <i class="fa fa-chart-bar fa-2x mb-2"></i>
-                                    <p class="mb-1">No reports generated yet</p>
-                                    <small>Ask the AI assistant to create reports for you</small>
+                                    <p class="mb-1">${getString('no_reports_generated', 'No reports generated yet')}</p>
+                                    <small>${getString('ask_ai_create_reports', 'Ask the AI assistant to create reports for you')}</small>
                                 </div>
                             </td>
                         </tr>
                     `);
                 } else {
                 tbody.append(
-                    `<tr><td colspan="3" class="text-center text-muted">No reports yet</td></tr>`
+                    `<tr><td colspan="3" class="text-center text-muted">${getString('no_reports', 'No reports yet')}</td></tr>`
                 );
                 }
                 return;
@@ -4857,26 +5102,25 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const formatName = formatNames[format] || format.toUpperCase();
 
             Swal.fire({
-                title: 'Premium Export Format',
+                title: getString('export_premium_feature', 'Premium Export Format'),
                 html: `<div style="text-align: center; padding: 20px;">
                     <div style="font-size: 48px; color: #f39c12; margin-bottom: 15px;">
                         <i class="fa fa-crown"></i>
                     </div>
-                    <h3 style="color: #2c3e50; margin-bottom: 15px;">${formatName} Export is a Premium Feature</h3>
+                    <h3 style="color: #2c3e50; margin-bottom: 15px;">${getString('export_is_premium', formatName + ' Export is a Premium Feature').replace('{$a}', formatName)}</h3>
                     <p style="color: #7f8c8d; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
-                        Export to ${formatName} format is only available with a paid subscription plan.
-                        Upgrade now to unlock all export formats and advanced features.
+                        ${getString('export_premium_desc', 'Export to ' + formatName + ' format is only available with a paid subscription plan. Upgrade now to unlock all export formats and advanced features.').replace('{$a}', formatName)}
                     </p>
                     <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                         <p style="margin: 0; font-size: 14px; color: #34495e;">
-                            <strong>Free Plan:</strong> PDF exports only<br>
-                            <strong>Paid Plans:</strong> CSV, Excel, JSON, and PDF exports
+                            <strong>${getString('free_plan_label', 'Free Plan:')}</strong> ${getString('free_plan_exports', 'PDF exports only')}<br>
+                            <strong>${getString('paid_plans_label', 'Paid Plans:')}</strong> ${getString('paid_plan_exports', 'CSV, Excel, JSON, and PDF exports')}
                         </p>
                     </div>
                 </div>`,
                 showCancelButton: true,
-                confirmButtonText: '<i class="fa fa-arrow-up"></i> Upgrade Now',
-                cancelButtonText: '<i class="fa fa-times"></i> Cancel',
+                confirmButtonText: '<i class="fa fa-arrow-up"></i> ' + getString('upgrade_now', 'Upgrade Now'),
+                cancelButtonText: '<i class="fa fa-times"></i> ' + getString('cancel', 'Cancel'),
                 confirmButtonColor: '#3498db',
                 cancelButtonColor: '#95a5a6',
                 width: 500
@@ -4994,8 +5238,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     } else {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Export Not Available',
-                            text: eligibility.message || 'You are not eligible to export in this format.'
+                            title: getString('export_not_available', 'Export Not Available'),
+                            text: eligibility.message || getString('not_eligible_export', 'You are not eligible to export in this format.')
                         });
                     }
                     return;
@@ -5191,7 +5435,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const self = this;
             // Show SweetAlert loader
             Swal.fire({
-                title: 'Saving default view...',
+                title: getString('saving_default_view', 'Saving default view...'),
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading()
             });
@@ -5202,7 +5446,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 data: JSON.stringify({ display_type: displayType }),
                 success: () => {
                     // Show success toast
-                    Swal.fire({ icon: 'success', title: 'Default view saved', showConfirmButton: false, timer: 1500 });
+                    Swal.fire({ icon: 'success', title: getString('default_view_saved', 'Default view saved'), showConfirmButton: false, timer: 1500 });
                     // Update cache and hide save button
                     const rep = this.cachedReports.find(r => r.slug === reportSlug);
                     if (rep) { rep.display_type = displayType; }
@@ -5210,7 +5454,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 },
                 error: () => {
                     // Show error toast
-                    Swal.fire({ icon: 'error', title: 'Save failed', text: 'Could not save default view. Please try again.' });
+                    Swal.fire({ icon: 'error', title: getString('save_failed', 'Save failed'), text: getString('could_not_save_view', 'Could not save default view. Please try again.') });
                 }
             });
         },
@@ -5687,7 +5931,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Show modal
             Swal.fire({
-                title: `<span class='fw-bold'>Compare Report Data</span>`,
+                title: `<span class='fw-bold'>${getString('compare_report_data', 'Compare Report Data')}</span>`,
                 html: `<div class='d-flex flex-row' style='height:60vh;min-height:400px;max-height:70vh;'>
                     <div id='timeline-sidebar-modal'></div>
                     <div class='flex-fill px-3' style='overflow:auto;max-width:calc(100% - 220px);'>
