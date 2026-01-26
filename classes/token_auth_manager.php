@@ -42,10 +42,9 @@ class token_auth_manager {
      * Constructor.
      */
     public function __construct() {
-        global $CFG, $USER;
+        global $USER;
 
-        require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-        $this->installation_manager = new \report_adeptus_insights\installation_manager();
+        $this->installation_manager = new installation_manager();
         $this->current_user = $USER;
 
         // Initialize cache for API key storage - will be done when needed

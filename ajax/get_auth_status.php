@@ -39,7 +39,6 @@ header('Content-Type: application/json');
 
 try {
     // Include the auth manager
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
 
     // Get authentication status
     $authmanager = new \report_adeptus_insights\token_auth_manager();

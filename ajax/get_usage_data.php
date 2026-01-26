@@ -24,7 +24,6 @@
 
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
 // Check for valid login
 require_login();

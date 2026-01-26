@@ -28,7 +28,6 @@ define('AJAX_SCRIPT', true);
 define('READ_ONLY_SESSION', true); // Allow parallel requests
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/api_config.php');
 
 // Require login and capability
 require_login();
@@ -74,7 +73,6 @@ try {
     }
 
     // Get API key
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
 
@@ -117,7 +115,6 @@ try {
     }
 
     // Load report validator once
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
 
     // Process each report
     $results = [];

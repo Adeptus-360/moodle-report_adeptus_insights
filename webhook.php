@@ -53,8 +53,7 @@ if (empty($sigheader)) {
 }
 
 try {
-    // Load the Stripe service
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/stripe_service.php');
+    // Load the Stripe service (autoloaded).
     $stripeservice = new \report_adeptus_insights\stripe_service();
 
     // Verify the webhook signature

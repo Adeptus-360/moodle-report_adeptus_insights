@@ -115,8 +115,6 @@ try {
     // If no frontend data or frontend data invalid, regenerate from backend
     if (!$hasfrontenddata || empty($resultsarray)) {
         // Fetch report definition from Laravel backend (same as generate_report.php)
-        require_once(__DIR__ . '/../classes/api_config.php');
-        require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
         $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
         $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
@@ -534,8 +532,6 @@ function report_adeptus_insights_generate_pdf($reportname, $tabledata, $chartdat
     global $CFG;
 
     // Load branding manager and get branding configuration.
-    require_once(__DIR__ . '/../classes/branding_manager.php');
-    require_once(__DIR__ . '/../classes/branded_pdf.php');
 
     $brandingmanager = new \report_adeptus_insights\branding_manager();
 

@@ -28,8 +28,6 @@ define('CLI_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/clilib.php');
-require_once(__DIR__ . '/../classes/api_config.php');
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
 // CLI options
 [$options, $unrecognized] = cli_get_params([

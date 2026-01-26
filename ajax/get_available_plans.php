@@ -25,7 +25,6 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/installation_manager.php');
 
 // Set headers early
 @header('Content-Type: application/json; charset=utf-8');

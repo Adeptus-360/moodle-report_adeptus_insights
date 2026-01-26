@@ -24,9 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Ensure the util class is loaded
-require_once(__DIR__ . '/classes/util.php');
-
 if ($hassiteconfig) {
     $settings = new admin_settingpage('report_adeptus_insights', get_string('pluginname', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);

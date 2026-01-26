@@ -41,8 +41,7 @@ $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
 $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
 // $PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights'));
 
-// Check authentication using the new token-based system
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
+// Check authentication using the new token-based system.
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 
 // Try to check auth without redirecting first
@@ -62,8 +61,7 @@ if (!$authmanager->check_auth(false)) {
     exit;
 }
 
-// Load installation manager
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
+// Load installation manager.
 $installationmanager = new \report_adeptus_insights\installation_manager();
 
 // Get authentication status for JavaScript

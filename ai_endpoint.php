@@ -25,8 +25,6 @@
  */
 
 require(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/classes/api_config.php');
-require_once(__DIR__ . '/classes/util.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 

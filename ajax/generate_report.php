@@ -29,7 +29,6 @@ define('AJAX_SCRIPT', true);
 define('READ_ONLY_SESSION', true); // Allow parallel requests
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 
 // Require login and capability
 require_login();
@@ -63,7 +62,6 @@ try {
     }
 
     // Get API key for authentication
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
 
@@ -115,7 +113,6 @@ try {
 
     // VALIDATE REPORT COMPATIBILITY
     // Check if this report can run on current Moodle installation
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
     $validation = \report_adeptus_insights\report_validator::validate_report($report);
 
     if (!$validation['valid']) {
@@ -562,7 +559,6 @@ try {
     }
 
     // Get installation manager for debug info
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $debuginstallationmanager = new \report_adeptus_insights\installation_manager();
 
     // Return success response with debug info

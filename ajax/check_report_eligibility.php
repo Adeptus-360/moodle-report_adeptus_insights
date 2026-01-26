@@ -28,10 +28,8 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/installation_manager.php');
-require_once(__DIR__ . '/../classes/api_config.php');
 
-// Require login and capability
+// Require login and capability.
 require_login();
 $context = context_system::instance();
 $PAGE->set_context($context);

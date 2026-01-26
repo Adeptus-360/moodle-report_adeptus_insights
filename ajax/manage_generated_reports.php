@@ -24,9 +24,8 @@
 
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(__DIR__ . '/../classes/api_config.php');
 
-// Check for valid login
+// Check for valid login.
 require_login();
 
 // Check capabilities
@@ -43,8 +42,7 @@ try {
     $action = required_param('action', PARAM_TEXT);
     $userid = $USER->id;
 
-    // Get API key and backend URL
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
+    // Get API key and backend URL.
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
     $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();

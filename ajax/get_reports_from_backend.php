@@ -25,7 +25,6 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/../classes/api_config.php'); // Load API config
 
 // Require login and capability
 require_login();
@@ -65,7 +64,6 @@ try {
     // Get API key for authentication (optional since API works without it)
     $apikey = '';
     try {
-        require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
         $installationmanager = new \report_adeptus_insights\installation_manager();
         $apikey = $installationmanager->get_api_key();
     } catch (Exception $e) {
@@ -128,7 +126,6 @@ try {
     $allreports = $backenddata['data'];
 
     // Load report validator for table/module compatibility checking
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/report_validator.php');
 
     // Filter reports for Moodle version AND table/module compatibility
     $compatiblereports = [];

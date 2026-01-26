@@ -25,9 +25,8 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
 
-// Require login and capability
+// Require login and capability.
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 

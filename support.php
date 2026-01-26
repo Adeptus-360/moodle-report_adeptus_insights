@@ -41,10 +41,7 @@ $PAGE->set_url(new moodle_url('/report/adeptus_insights/support.php'));
 $PAGE->set_title(get_string('support_updates', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('report');
 
-// Load the support manager
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/support_manager.php');
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-
+// Load the support and installation managers (autoloaded via Moodle's class autoloader).
 $supportmanager = new \report_adeptus_insights\support_manager();
 $installationmanager = new \report_adeptus_insights\installation_manager();
 

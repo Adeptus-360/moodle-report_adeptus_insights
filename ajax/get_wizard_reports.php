@@ -26,7 +26,6 @@ define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(__DIR__ . '/../classes/api_config.php');
 
 // Check for valid login
 require_login();
@@ -42,7 +41,6 @@ try {
     $userid = $USER->id;
 
     // Get API key and backend URL
-    require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
     $installationmanager = new \report_adeptus_insights\installation_manager();
     $apikey = $installationmanager->get_api_key();
     $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();

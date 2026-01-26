@@ -29,11 +29,10 @@ $CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
 
-// Require login
+// Require login.
 require_login();
 
-// Load authentication manager
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
+// Load authentication manager.
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 
 // Check authentication

@@ -37,10 +37,7 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('report');
 
-// Check authentication using the new token-based system
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/token_auth_manager.php');
-require_once($CFG->dirroot . '/report/adeptus_insights/classes/installation_manager.php');
-
+// Check authentication using the new token-based system.
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 $authenticated = $authmanager->check_auth(false); // Don't redirect, just check status
 

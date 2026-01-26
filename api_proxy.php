@@ -30,10 +30,7 @@
 // Load Moodle configuration.
 require_once(__DIR__ . '/../../config.php');
 
-// Load centralized API configuration.
-require_once(__DIR__ . '/classes/api_config.php');
-
-// Get CORS origin from centralized config.
+// Get CORS origin from centralized config (class autoloaded).
 $corsorigin = \report_adeptus_insights\api_config::get_cors_origin();
 
 // Set CORS headers.
