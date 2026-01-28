@@ -256,12 +256,20 @@ $templatecontext = [
     'yearly_plans' => array_values($yearlyplans),
     'has_yearly_plans' => $hasyearlyplans,
     'max_yearly_savings' => $maxyearlysavings,
-    'plans_json' => json_encode([
-        'monthly' => array_values($monthlyplans),
-        'yearly' => array_values($yearlyplans),
-    ]),
     'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2'),
 ];
+
+// Prepare plans data for JavaScript module
+$plansdata = [
+    'monthly' => array_values($monthlyplans),
+    'yearly' => array_values($yearlyplans),
+];
+
+// Load required CSS and AMD module
+$PAGE->requires->css('/report/adeptus_insights/styles/installation.css');
+$PAGE->requires->js_call_amd('report_adeptus_insights/installation_step', 'init', [[
+    'plansData' => $plansdata,
+]]);
 
 // Output the page
 echo $OUTPUT->header();

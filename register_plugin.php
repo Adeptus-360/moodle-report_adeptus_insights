@@ -40,6 +40,9 @@ $PAGE->set_url(new moodle_url('/report/adeptus_insights/register_plugin.php'));
 $PAGE->set_title(get_string('pluginname', 'report_adeptus_insights') . ' - Registration');
 $PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights') . ' - Registration');
 
+// Load external CSS.
+$PAGE->requires->css('/report/adeptus_insights/styles/register.css');
+
 // Load installation manager.
 $installationmanager = new \report_adeptus_insights\installation_manager();
 
@@ -143,6 +146,21 @@ $templatecontext = [
     'site_already_exists' => isset($errormessage) && strpos($errormessage, 'Site already exists') !== false,
     'debug' => debugging(), // Show debug info if debugging is enabled
 ];
+
+// Load AMD module for form validation (only if not registered).
+if (!$isregistered) {
+    $PAGE->requires->js_call_amd('report_adeptus_insights/register_plugin', 'init', [[
+        'fieldValues' => [
+            'siteName' => $sitename,
+            'siteUrl' => $siteurl,
+            'adminName' => $adminname,
+            'adminEmail' => $adminemail,
+            'moodleVersion' => $moodleversion,
+            'phpVersion' => $phpversion,
+            'pluginVersion' => $pluginversion,
+        ],
+    ]]);
+}
 
 // Output the page
 echo $OUTPUT->header();

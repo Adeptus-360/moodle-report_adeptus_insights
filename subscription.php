@@ -151,6 +151,9 @@ if ($lasterror) {
     $installationmanager->clear_last_error();
 }
 
+// Load required CSS
+$PAGE->requires->css('/report/adeptus_insights/styles/subscription.css');
+
 // Start output
 echo $OUTPUT->header();
 

@@ -1,0 +1,1323 @@
+/**
+ * CSS styles for Generated Reports page.
+ *
+ * @package    report_adeptus_insights
+ * @copyright  2026 Adeptus 360 <info@adeptus360.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* =========================================
+   Page Header Banner - Consistent with Wizard/Assistant
+   ========================================= */
+.adeptus-page-header-banner {
+    background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 0.75rem;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.adeptus-page-header-banner::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 100%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Toast notification animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.adeptus-page-header-content {
+    z-index: 1;
+}
+
+.adeptus-page-header-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.adeptus-page-header-icon {
+    font-size: 1.5rem;
+    animation: iconPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(5deg); }
+}
+
+.adeptus-page-header-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin: 10px 0 0 0;
+}
+
+.adeptus-page-header-actions {
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+}
+
+.adeptus-page-header-actions .btn-light {
+    background: white;
+    color: #0f6cbf;
+    border: none;
+    font-weight: 500;
+}
+
+.adeptus-page-header-actions .btn-light:hover {
+    background: #f8f9fa;
+    color: #0a5299;
+}
+
+.adeptus-page-header-actions .btn-outline-light {
+    border: 2px solid rgba(255,255,255,0.8);
+    color: white;
+    font-weight: 500;
+}
+
+.adeptus-page-header-actions .btn-outline-light:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: white;
+}
+
+@media (max-width: 768px) {
+    .adeptus-page-header-banner {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .adeptus-page-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .adeptus-page-header-actions .btn {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   Main Container and Card Styles
+   ========================================= */
+.adeptus-generated-reports-container {
+    padding: 0;
+}
+
+.adeptus-generated-reports-container .card {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+}
+
+.adeptus-generated-reports-container .card-header {
+    border: none;
+}
+
+/* =========================================
+   Report Row Styles
+   ========================================= */
+.adeptus-report-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.adeptus-report-row:hover {
+    background-color: #f8f9fa;
+}
+
+.adeptus-report-row.table-primary {
+    background-color: #e7f3ff !important;
+}
+
+.report-header h4 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.adeptus-report-meta {
+    margin-top: 0.5rem;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+/* =========================================
+   DataTable Styling
+   ========================================= */
+.datatable-wrapper .datatable-top,
+.datatable-wrapper .datatable-bottom {
+    padding: 0.75rem 1rem;
+}
+
+.datatable-wrapper .datatable-search input {
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+/* Export buttons */
+.adeptus-export-csv-btn,
+.adeptus-export-json-btn {
+    border-radius: 0.5rem;
+}
+
+/* Table styling */
+.table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.table tbody td {
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+}
+
+/* =========================================
+   Source Badges (AI / Wizard)
+   ========================================= */
+.adeptus-badge-ai {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.adeptus-badge-wizard {
+    background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.adeptus-badge-ai i,
+.adeptus-badge-wizard i,
+.adeptus-badge-rowcount i {
+    font-size: 10px;
+}
+
+.adeptus-badge-rowcount {
+    background: #6c757d;
+    color: white;
+    font-size: 11px;
+    padding: 0.4rem 0.75rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* =========================================
+   View Toggle Buttons
+   ========================================= */
+.adeptus-view-toggle .adeptus-view-toggle-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    padding: 0.35rem 0.75rem;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.adeptus-view-toggle .adeptus-view-toggle-btn:first-child {
+    border-radius: 6px 0 0 6px;
+}
+
+.adeptus-view-toggle .adeptus-view-toggle-btn:last-child {
+    border-radius: 0 6px 6px 0;
+}
+
+.adeptus-view-toggle .adeptus-view-toggle-btn:hover {
+    background: #e9ecef;
+}
+
+.adeptus-view-toggle .adeptus-view-toggle-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+.adeptus-view-toggle .adeptus-view-toggle-btn i {
+    margin-right: 5px;
+}
+
+/* =========================================
+   Chart Container and Controls
+   ========================================= */
+.adeptus-chart-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.adeptus-chart-controls-wrapper {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.adeptus-chart-controls {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.adeptus-chart-controls .adeptus-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.adeptus-chart-controls .form-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.adeptus-chart-controls .form-select {
+    font-size: 13px;
+    padding: 0.4rem 2rem 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    background-color: white;
+    min-width: 140px;
+}
+
+.adeptus-chart-controls .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* Hide loader completely when d-none is applied */
+#reports-loader.d-none {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* =========================================
+   DataTable Filter Layout
+   ========================================= */
+.datatable-wrapper .datatable-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.datatable-wrapper .datatable-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.datatable-wrapper .datatable-dropdown label {
+    margin: 0;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.datatable-wrapper .datatable-dropdown select {
+    padding: 0.25rem 0.5rem;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    min-width: 60px;
+}
+
+.datatable-wrapper .datatable-search {
+    flex: 1;
+    min-width: 150px;
+    max-width: 250px;
+}
+
+.datatable-wrapper .datatable-search input {
+    width: 100%;
+    padding: 0.35rem 0.75rem;
+    font-size: 13px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.datatable-wrapper .datatable-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 13px;
+}
+
+.datatable-wrapper .datatable-info {
+    color: #6c757d;
+}
+
+.datatable-wrapper .datatable-pagination {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.datatable-wrapper .datatable-pagination a {
+    padding: 0.25rem 0.5rem;
+    font-size: 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #495057;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.datatable-wrapper .datatable-pagination a.active,
+.datatable-wrapper .datatable-pagination a:hover {
+    background: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .adeptus-generated-reports-container .col-md-4,
+    .adeptus-generated-reports-container .col-md-8 {
+        margin-bottom: 1rem;
+    }
+
+    .card-body[style*="calc(100vh"] {
+        height: auto !important;
+        max-height: 400px !important;
+        min-height: 250px !important;
+    }
+}
+
+/* =========================================
+   Category Management Modal - Modern Design
+   ========================================= */
+.adeptus-cat-modal-popup {
+    border-radius: 16px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.adeptus-cat-modal-popup .swal2-title {
+    display: none !important;
+}
+
+.adeptus-cat-modal-popup .swal2-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 24px;
+    transition: all 0.15s ease;
+    z-index: 10;
+}
+
+.adeptus-cat-modal-popup .swal2-close:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.adeptus-cat-modal-popup .swal2-html-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+.adeptus-cat-modal {
+    text-align: left;
+}
+
+/* Add Section */
+.adeptus-cat-add-section {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    overflow: visible;
+}
+
+.adeptus-cat-add-header {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.adeptus-cat-add-form {
+    display: flex;
+    gap: 10px;
+    overflow: visible;
+}
+
+.adeptus-cat-add-input-wrapper {
+    flex: 1;
+    display: flex;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: visible;
+    transition: all 0.15s ease;
+}
+
+.adeptus-cat-add-input-wrapper:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.adeptus-cat-add-input {
+    flex: 1;
+    border: none;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    background: transparent;
+}
+
+.adeptus-cat-add-input::placeholder {
+    color: #94a3b8;
+}
+
+.adeptus-cat-add-input.error {
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.adeptus-cat-add-color-wrapper {
+    position: relative;
+    z-index: 10;
+}
+
+.adeptus-cat-add-color-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-left: 1px solid #e2e8f0;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.adeptus-cat-add-color-btn:hover {
+    background: #f1f5f9;
+}
+
+.adeptus-cat-add-color-btn:focus {
+    background: #f1f5f9;
+    outline: none;
+}
+
+.adeptus-cat-add-color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.adeptus-cat-add-color-btn svg {
+    color: #94a3b8;
+}
+
+/* Color Dropdown */
+.adeptus-cat-color-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.05);
+    padding: 12px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+    min-width: 180px;
+}
+
+.adeptus-cat-color-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.adeptus-cat-color-swatches {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.adeptus-cat-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.adeptus-cat-color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.adeptus-cat-color-custom {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.adeptus-cat-color-custom input[type="color"] {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+}
+
+.adeptus-cat-color-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.adeptus-cat-color-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+}
+
+.adeptus-cat-color-custom span {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Add Button */
+.adeptus-cat-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.adeptus-cat-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.adeptus-cat-add-btn:active {
+    transform: translateY(0);
+}
+
+/* =========================================
+   Category Sections
+   ========================================= */
+.adeptus-cat-section {
+    padding: 20px 24px;
+}
+
+.adeptus-cat-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.adeptus-cat-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.adeptus-cat-section-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    background: #e2e8f0;
+    color: #64748b;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.adeptus-cat-section-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* =========================================
+   Custom Category Cards
+   ========================================= */
+.adeptus-cat-cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.adeptus-cat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+}
+
+.adeptus-cat-card:hover {
+    background: #f1f5f9;
+}
+
+.adeptus-cat-card-color {
+    width: 6px;
+    height: 40px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.adeptus-cat-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.adeptus-cat-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.adeptus-cat-card-meta {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.adeptus-cat-card-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.adeptus-cat-card:hover .adeptus-cat-card-actions {
+    opacity: 1;
+}
+
+.adeptus-cat-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: white;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.adeptus-cat-action-btn:hover {
+    background: white;
+    color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+.adeptus-cat-action-btn-danger:hover {
+    color: #ef4444;
+}
+
+/* Empty State */
+.adeptus-cat-empty-state {
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.adeptus-cat-empty-icon {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.adeptus-cat-empty-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.adeptus-cat-empty-hint {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* System Categories */
+.adeptus-cat-section-system {
+    background: #fafbfc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.adeptus-cat-system-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.adeptus-cat-system-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.adeptus-cat-system-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.adeptus-cat-system-name {
+    color: #475569;
+    font-weight: 500;
+}
+
+.adeptus-cat-system-count {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* Scrollbar styling */
+.adeptus-cat-cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.adeptus-cat-cards-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.adeptus-cat-cards-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.adeptus-cat-cards-list::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* =========================================
+   Edit Category Dialog
+   ========================================= */
+.adeptus-cat-edit-popup {
+    border-radius: 16px !important;
+    padding: 24px !important;
+}
+
+.adeptus-cat-edit-popup .swal2-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 20px;
+}
+
+.adeptus-cat-edit-modal {
+    text-align: left;
+}
+
+.adeptus-cat-edit-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.adeptus-cat-edit-preview-color {
+    width: 8px;
+    height: 36px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.adeptus-cat-edit-preview-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.adeptus-cat-edit-field {
+    margin-bottom: 16px;
+}
+
+.adeptus-cat-edit-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.adeptus-cat-edit-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.adeptus-cat-edit-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.adeptus-cat-edit-colors {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.adeptus-cat-edit-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.adeptus-edit-color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.adeptus-edit-color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.adeptus-edit-color-swatch.selected {
+    border-color: #1e293b;
+    box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+}
+
+.adeptus-cat-edit-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 16px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.adeptus-cat-edit-custom input[type="color"] {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.adeptus-cat-edit-custom input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.adeptus-cat-edit-custom input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+}
+
+.adeptus-cat-edit-custom span {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.adeptus-cat-edit-confirm-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+.adeptus-cat-edit-confirm-btn:hover {
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+}
+
+.adeptus-cat-edit-cancel-btn {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: none !important;
+    border-radius: 10px !important;
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+}
+
+.adeptus-cat-edit-cancel-btn:hover {
+    background: #e2e8f0 !important;
+    color: #475569 !important;
+}
+
+/* =========================================
+   Report Category Selector in Header
+   ========================================= */
+.adeptus-report-category-selector {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Delete button in header */
+.adeptus-delete-report-header-btn {
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: #fff;
+    transition: all 0.15s ease;
+}
+
+.adeptus-delete-report-header-btn:hover {
+    background: rgba(220, 53, 69, 0.9);
+    border-color: rgba(220, 53, 69, 1);
+    color: #fff;
+}
+
+.adeptus-delete-report-header-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
+/* Action separator in action bar */
+.action-separator {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    margin: 0 8px;
+}
+
+/* Delete button in action bar */
+.delete-report-btn {
+    transition: all 0.15s ease;
+}
+
+.delete-report-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.adeptus-category-dropdown-wrapper {
+    position: relative;
+}
+
+.adeptus-category-current-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.adeptus-category-current-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.adeptus-category-current-btn:focus {
+    background: rgba(255, 255, 255, 0.25);
+    outline: none;
+}
+
+.adeptus-category-current-btn .adeptus-category-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.adeptus-category-current-btn .adeptus-category-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adeptus-category-current-btn svg {
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.adeptus-category-current-btn.success-flash {
+    animation: categorySuccessFlash 0.6s ease;
+}
+
+@keyframes categorySuccessFlash {
+    0%, 100% { background: rgba(255, 255, 255, 0.15); }
+    50% { background: rgba(16, 185, 129, 0.5); }
+}
+
+/* =========================================
+   Category Dropdown Menu
+   ========================================= */
+.adeptus-category-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    padding: 6px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+
+.adeptus-category-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.adeptus-category-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #1e293b;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.adeptus-category-menu-item:hover {
+    background: #f1f5f9;
+}
+
+.adeptus-category-menu-item.selected {
+    background: #eff6ff;
+}
+
+.adeptus-category-menu-item.selected .adeptus-category-menu-name {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.adeptus-category-menu-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+}
+
+.adeptus-category-menu-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.adeptus-category-menu-check {
+    color: #2563eb;
+    flex-shrink: 0;
+}
+
+/* Dropdown scrollbar */
+.adeptus-category-dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.adeptus-category-dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.adeptus-category-dropdown-menu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.adeptus-category-dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* =========================================
+   Toast Container
+   ========================================= */
+.adeptus-toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+/* =========================================
+   Reports List Body
+   ========================================= */
+.adeptus-reports-list-body {
+    height: calc(100vh - 280px);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 800px;
+}
+
+.adeptus-reports-loader {
+    min-height: 200px;
+}
+
+/* =========================================
+   Report View Body
+   ========================================= */
+.adeptus-report-view-body {
+    height: calc(100vh - 280px);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 800px;
+}

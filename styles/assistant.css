@@ -559,3 +559,576 @@
     border-radius: 0 6px 6px 0;
     font-size: 0.9em;
 }
+
+/* =====================================================
+   Chat and Message Styles
+   (Migrated from inline styles in assistant.mustache)
+   ===================================================== */
+
+/* Chat Container */
+.path-report-adeptus_insights .adeptus-chat-container {
+    /* Height managed by parent card-body */
+    padding: 1rem;
+    background-color: #f8f9fa;
+}
+
+.path-report-adeptus_insights .mr-auto {
+    width: 100%;
+}
+
+.path-report-adeptus_insights .page-header-headings {
+    width: 100%;
+}
+
+/* Message Styles */
+.path-report-adeptus_insights .adeptus-message {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.path-report-adeptus_insights .adeptus-user-message {
+    align-items: flex-end;
+}
+
+.path-report-adeptus_insights .adeptus-ai-message {
+    align-items: flex-start;
+}
+
+.path-report-adeptus_insights .adeptus-message-content {
+    max-width: 80%;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.path-report-adeptus_insights .adeptus-user-message .adeptus-message-content {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Fix time label visibility in user messages */
+.path-report-adeptus_insights .adeptus-user-message .adeptus-message-time {
+    color: rgba(255, 255, 255, 0.85) !important;
+    opacity: 1;
+}
+
+.path-report-adeptus_insights .adeptus-ai-message .adeptus-message-content {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+}
+
+/* Loading Indicator */
+.path-report-adeptus_insights .adeptus-loading-indicator {
+    padding: 1rem;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    position: absolute;
+    bottom: 70px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Chart Container */
+.path-report-adeptus_insights .adeptus-chart-container {
+    height: 400px;
+    position: relative;
+    width: 100%;
+}
+
+.path-report-adeptus_insights .adeptus-optimization-suggestions {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Metric Items */
+.path-report-adeptus_insights .adeptus-metric-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.path-report-adeptus_insights .adeptus-metric-label {
+    font-weight: 500;
+}
+
+.path-report-adeptus_insights .adeptus-metric-value {
+    color: #6c757d;
+}
+
+/* Chat Input Area */
+.path-report-adeptus_insights .adeptus-chat-input-area {
+    background-color: white;
+    position: relative;
+}
+
+.path-report-adeptus_insights .adeptus-chat-input-area .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.path-report-adeptus_insights #message-input {
+    resize: none;
+    border-radius: 1.5rem;
+    padding: 0.75rem 1rem;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+}
+
+.path-report-adeptus_insights #send-button {
+    margin-left: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 1.5rem;
+}
+
+.path-report-adeptus_insights .table-responsive {
+    height: 600px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+}
+
+/* Animation classes */
+.path-report-adeptus_insights .fade-in {
+    animation: adeptus-fadeIn 0.3s ease-in;
+}
+
+@keyframes adeptus-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* SweetAlert2 custom styles */
+.path-report-adeptus_insights .swal2-popup {
+    font-size: 1rem !important;
+}
+
+.path-report-adeptus_insights .swal2-title {
+    font-size: 1.5rem !important;
+}
+
+.path-report-adeptus_insights .swal2-html-container {
+    font-size: 1rem !important;
+}
+
+.path-report-adeptus_insights .form-group {
+    margin-bottom: 1rem;
+}
+
+.path-report-adeptus_insights .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.path-report-adeptus_insights .form-control {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+/* Error message bubble */
+.path-report-adeptus_insights .adeptus-error-message .adeptus-message-content {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+/* MCQ Container Styles */
+.path-report-adeptus_insights .adeptus-mcq-container {
+    display: none; /* Hidden by default */
+    padding: 1rem;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 1rem;
+    margin: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .adeptus-mcq-question {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .form-check {
+    margin-bottom: 0.5rem;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-input {
+    margin-right: 0.5rem;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-label {
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s ease;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-label:hover {
+    background-color: #f8f9fa;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-container .btn {
+    margin-top: 1rem;
+}
+
+/* Chat History List */
+.path-report-adeptus_insights #chat-history-list li {
+    transition: background-color 0.15s ease;
+}
+
+.path-report-adeptus_insights #chat-history-list li:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+.path-report-adeptus_insights #chat-history-list li.active {
+    background-color: #e2e6ea;
+}
+
+/* Main Tabs Styling */
+.path-report-adeptus_insights #mainTabs {
+    width: 100%;
+    display: flex;
+}
+
+.path-report-adeptus_insights #mainTabs .nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.path-report-adeptus_insights #mainTabs .nav-link {
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.path-report-adeptus_insights .adeptus-message.adeptus-user-message .adeptus-message-content {
+    padding-left: 2.5rem;
+}
+
+/* Chat History - scroll managed by parent card-body */
+.path-report-adeptus_insights #chat-history-list {
+    overflow-y: visible;
+    margin: 0;
+    padding: 0;
+}
+
+/* Card body containers for history sections */
+.path-report-adeptus_insights .card-body {
+    padding: 0;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.path-report-adeptus_insights .card-body .list-group {
+    flex: 1;
+    overflow: hidden;
+}
+
+.path-report-adeptus_insights .card-body .table-responsive {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Report history table container */
+.path-report-adeptus_insights #reports-panel .col-md-4 .table-responsive {
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main report display area */
+.path-report-adeptus_insights #reports-panel .col-md-8 .adeptus-report-view-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main report display table */
+.path-report-adeptus_insights #reports-panel .col-md-8 .table-responsive {
+    margin: 0;
+    padding: 0;
+    overflow: visible !important;
+}
+
+/* Make table headers sticky */
+.path-report-adeptus_insights #reports-panel .col-md-8 table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fff;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure proper scrolling behavior */
+.path-report-adeptus_insights #reports-panel .col-md-8 .card-body.adeptus-report-view-body {
+    overflow-y: auto !important;
+    overflow-x: hidden;
+}
+
+/* Chat history card body - dynamic height */
+.path-report-adeptus_insights #assistant-panel .col-md-4 .card-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Report history card body - dynamic height */
+.path-report-adeptus_insights #reports-panel .col-md-4 .card-body {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Report row hover effects */
+.path-report-adeptus_insights .adeptus-report-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.path-report-adeptus_insights .adeptus-report-row:hover {
+    background-color: #f8f9fa;
+}
+
+.path-report-adeptus_insights .adeptus-report-row.table-primary {
+    background-color: #e7f3ff !important;
+}
+
+/* Report header styling */
+.path-report-adeptus_insights .adeptus-report-header h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.path-report-adeptus_insights .adeptus-report-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Report actions */
+.path-report-adeptus_insights .adeptus-report-actions {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+}
+
+/* Table styling for report data */
+.path-report-adeptus_insights .adeptus-report-data-table {
+    font-size: 0.9rem;
+}
+
+.path-report-adeptus_insights .adeptus-report-data-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Status badges */
+.path-report-adeptus_insights .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Tab styling improvements */
+.path-report-adeptus_insights .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.path-report-adeptus_insights .nav-tabs .nav-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    background-color: transparent;
+}
+
+.path-report-adeptus_insights .nav-tabs .nav-link:hover {
+    border-color: transparent;
+    color: #007bff;
+}
+
+/* Report loading states */
+.path-report-adeptus_insights .adeptus-report-loading {
+    text-align: center;
+    padding: 2rem;
+}
+
+.path-report-adeptus_insights .adeptus-report-loading .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive table */
+.path-report-adeptus_insights .table-responsive {
+    overflow-y: auto;
+}
+
+/* Export button styling */
+.path-report-adeptus_insights .btn-outline-primary {
+    border-color: #fff;
+    color: #007bff;
+}
+
+.path-report-adeptus_insights .btn-outline-primary:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* Report display type controls */
+.path-report-adeptus_insights .adeptus-report-display-wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Report display area for switching between views */
+.path-report-adeptus_insights .adeptus-report-display-area {
+    position: relative;
+    min-height: 300px;
+}
+
+.path-report-adeptus_insights .adeptus-report-content {
+    flex: 1;
+}
+
+/* Chart height */
+.path-report-adeptus_insights #reportChart,
+.path-report-adeptus_insights #reportGraph {
+    max-height: 400px;
+    width: 100%;
+}
+
+.path-report-adeptus_insights .adeptus-display-type-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
+
+.path-report-adeptus_insights .adeptus-display-type-btn.active {
+    outline: 2px solid #333;
+}
+
+.path-report-adeptus_insights .adeptus-save-display-type-btn {
+    align-self: center;
+}
+
+.path-report-adeptus_insights .mr-10 {
+    margin-right: 10px;
+}
+
+/* Multiple choice question styles */
+.path-report-adeptus_insights .adeptus-mcq-question-container {
+    width: 100%;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-options-grid {
+    margin-top: 15px;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button {
+    background: #ffffff;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button:hover:not(:disabled) {
+    background-color: #f8f9fa !important;
+    border-color: #007bff !important;
+    transform: translateX(5px);
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button.selected {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button .adeptus-mcq-option-letter {
+    transition: all 0.3s ease;
+}
+
+.path-report-adeptus_insights .adeptus-mcq-option-button.selected .adeptus-mcq-option-letter {
+    background: #28a745 !important;
+    animation: adeptus-pulse 0.5s ease;
+}
+
+@keyframes adeptus-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Responsive behavior for smaller screens */
+@media (max-width: 768px) {
+    .path-report-adeptus_insights .card-body[style*="calc(100vh"] {
+        height: auto !important;
+        max-height: 500px !important;
+        min-height: 300px !important;
+    }
+
+    .path-report-adeptus_insights .col-md-4,
+    .path-report-adeptus_insights .col-md-8 {
+        width: 100%;
+    }
+}
+
+/* Don't Save button hover styling */
+.path-report-adeptus_insights .adeptus-btn-decline-report.btn-secondary:hover {
+    color: #007bff !important;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* General secondary button hover for consistency */
+.path-report-adeptus_insights .btn-secondary:hover {
+    color: #007bff !important;
+}
+
+/* Layout classes to replace inline styles */
+.path-report-adeptus_insights .adeptus-chat-card-body {
+    height: calc(100vh - 390px);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 710px;
+}
+
+.path-report-adeptus_insights .adeptus-history-card-body {
+    height: calc(100vh - 300px);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 800px;
+}
+
+.path-report-adeptus_insights .adeptus-reports-history-body {
+    height: calc(100vh - 300px);
+    overflow-y: auto;
+    min-height: 400px;
+    max-height: 800px;
+}
+
+.path-report-adeptus_insights .adeptus-chat-history-title {
+    padding: 12px 0;
+}

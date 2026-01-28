@@ -1,0 +1,400 @@
+/**
+ * Subscription Installation Step Styles
+ *
+ * Styles for the subscription installation wizard during plugin setup.
+ *
+ * @package    report_adeptus_insights
+ * @copyright  2026 Adeptus 360 <info@adeptus360.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Installation Container */
+.adeptus-installation-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Installation Header */
+.adeptus-installation-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 40px rgba(37, 99, 235, 0.3);
+}
+
+.adeptus-installation-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.adeptus-installation-header p {
+    margin: 15px 0 0 0;
+    opacity: 0.9;
+    font-size: 18px;
+}
+
+/* Progress Steps */
+.adeptus-installation-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.adeptus-progress-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.adeptus-progress-step .adeptus-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.adeptus-progress-step.completed .adeptus-step-number {
+    background: #10b981;
+    color: white;
+}
+
+.adeptus-progress-step.current .adeptus-step-number {
+    background: #2563eb;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.adeptus-progress-step.pending .adeptus-step-number {
+    background: #e5e7eb;
+    color: #9ca3af;
+}
+
+.adeptus-progress-step .adeptus-step-label {
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.adeptus-progress-connector {
+    width: 40px;
+    height: 2px;
+    background: #e5e7eb;
+    margin: 0 5px;
+}
+
+.adeptus-progress-connector.completed {
+    background: #10b981;
+}
+
+/* Billing Toggle */
+.adeptus-billing-toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.adeptus-billing-toggle {
+    display: inline-flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 50px;
+    padding: 6px;
+    gap: 4px;
+}
+
+.adeptus-billing-toggle-btn {
+    padding: 12px 28px;
+    border: none;
+    background: transparent;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #6b7280;
+}
+
+.adeptus-billing-toggle-btn.active {
+    background: white;
+    color: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.adeptus-billing-toggle-btn:hover:not(.active) {
+    color: #374151;
+}
+
+.adeptus-savings-badge {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-left: 8px;
+    text-transform: uppercase;
+}
+
+/* Plans Grid */
+.adeptus-plans-section {
+    margin-bottom: 40px;
+}
+
+.adeptus-plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Plan Card */
+.adeptus-plan-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 32px 28px;
+    position: relative;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.adeptus-plan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.adeptus-plan-card.popular {
+    border-color: #2563eb;
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.15);
+}
+
+.adeptus-plan-card.current {
+    border-color: #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+/* Plan Badge */
+.adeptus-plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.adeptus-plan-badge.popular {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.adeptus-plan-badge.current {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Plan Header */
+.adeptus-plan-header {
+    text-align: center;
+    margin-bottom: 24px;
+    padding-top: 8px;
+}
+
+.adeptus-plan-name {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.adeptus-plan-description {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Plan Price */
+.adeptus-plan-price {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.adeptus-price-amount {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.adeptus-price-amount .adeptus-currency {
+    font-size: 24px;
+    vertical-align: top;
+    margin-right: 2px;
+}
+
+.adeptus-price-period {
+    color: #6b7280;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.adeptus-price-free {
+    font-size: 48px;
+    font-weight: 800;
+    color: #10b981;
+}
+
+/* Plan Limits */
+.adeptus-plan-limits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.adeptus-limit-item {
+    text-align: center;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.adeptus-limit-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.adeptus-limit-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Plan Features */
+.adeptus-plan-features {
+    flex: 1;
+    margin-bottom: 24px;
+}
+
+.adeptus-plan-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.adeptus-plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    color: #374151;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.adeptus-plan-features li i {
+    color: #10b981;
+    font-size: 14px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+/* Plan Action */
+.adeptus-plan-action {
+    margin-top: auto;
+}
+
+.adeptus-plan-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.adeptus-plan-btn-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.adeptus-plan-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.adeptus-plan-btn-current {
+    background: #e5e7eb;
+    color: #6b7280;
+    cursor: default;
+}
+
+.adeptus-plan-btn-outline {
+    background: white;
+    border: 2px solid #e5e7eb;
+    color: #374151;
+}
+
+.adeptus-plan-btn-outline:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .adeptus-installation-progress {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .adeptus-progress-connector {
+        display: none;
+    }
+
+    .adeptus-plans-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .adeptus-plan-limits {
+        grid-template-columns: 1fr;
+    }
+
+    .adeptus-billing-toggle-btn {
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+}

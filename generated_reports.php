@@ -65,9 +65,14 @@ if ($subscription) {
 // Load required AMD modules and CSS
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authdata]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
+$PAGE->requires->js_call_amd('report_adeptus_insights/generated_reports', 'init', [[
+    'backendUrl' => $backendurl,
+    'isFreePlan' => $isfreeplan,
+]]);
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/readonly-mode.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
+$PAGE->requires->css('/report/adeptus_insights/styles/generated_reports.css');
 $PAGE->requires->css('/report/adeptus_insights/lib/vanilla-table-enhancer.css');
 $PAGE->requires->js('/report/adeptus_insights/lib/vanilla-table-enhancer.js');
 

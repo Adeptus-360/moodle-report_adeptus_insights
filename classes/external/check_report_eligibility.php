@@ -61,93 +61,59 @@ class check_report_eligibility extends external_api {
         require_capability('report/adeptus_insights:view', $context);
 
         try {
-            // Get installation manager and API configuration.
+            // Get installation manager and use get_subscription_with_usage() which
+            // properly fetches subscription data from the backend.
             $installationmanager = new \report_adeptus_insights\installation_manager();
-            $apikey = $installationmanager->get_api_key();
-            $backendurl = \report_adeptus_insights\api_config::get_backend_url();
 
-            if (empty($apikey)) {
-                throw new \Exception(get_string('error_installation_not_configured', 'report_adeptus_insights'));
+            if (!$installationmanager->is_registered()) {
+                // Not registered - return free tier defaults.
+                return [
+                    'success' => true,
+                    'error' => false,
+                    'eligible' => true,
+                    'message' => 'Free tier - limited reports available',
+                    'reason' => '',
+                    'reports_used' => 0,
+                    'reports_limit' => 10,
+                    'reports_remaining' => 10,
+                ];
             }
 
-            // Call backend API to check report eligibility.
-            // The backend is the ONLY authority for report limits.
-            $endpoint = rtrim($backendurl, '/') . '/report-limits/check';
+            // Get subscription with usage data from backend.
+            $subscription = $installationmanager->get_subscription_with_usage();
 
-            $postdata = json_encode(new \stdClass()); // Empty object.
-
-            $curl = new \curl();
-            $curl->setHeader('Content-Type: application/json');
-            $curl->setHeader('Accept: application/json');
-            $curl->setHeader('X-API-Key: ' . $apikey);
-            $options = [
-                'CURLOPT_TIMEOUT' => 15,
-                'CURLOPT_CONNECTTIMEOUT' => 10,
-                'CURLOPT_SSL_VERIFYPEER' => true,
-            ];
-            $response = $curl->post($endpoint, $postdata, $options);
-            $info = $curl->get_info();
-            $httpcode = $info['http_code'] ?? 0;
-            $curlerror = $curl->get_errno() ? $curl->error : '';
-
-            // Handle connection errors - FAIL CLOSED (deny if backend unreachable).
-            if ($response === false || !empty($curlerror)) {
-                debugging('[Adeptus Insights] Report eligibility check failed - curl error: ' . $curlerror, DEBUG_DEVELOPER);
+            if (!$subscription) {
+                debugging('[Adeptus Insights] Report eligibility check - no subscription data', DEBUG_DEVELOPER);
                 return [
                     'success' => false,
                     'error' => true,
                     'eligible' => false,
                     'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
-                    'reason' => 'backend_unreachable',
+                    'reason' => 'no_subscription_data',
                     'reports_used' => 0,
                     'reports_limit' => 0,
                     'reports_remaining' => 0,
                 ];
             }
 
-            // Handle HTTP errors - FAIL CLOSED.
-            if ($httpcode !== 200) {
-                debugging('[Adeptus Insights] Report eligibility check failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
-                return [
-                    'success' => false,
-                    'error' => true,
-                    'eligible' => false,
-                    'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
-                    'reason' => 'backend_error',
-                    'reports_used' => 0,
-                    'reports_limit' => 0,
-                    'reports_remaining' => 0,
-                ];
-            }
+            // Extract report usage data from subscription.
+            $reportslimit = $subscription['reports_limit'] ?? 10;
+            $reportsremaining = $subscription['reports_remaining'] ?? 10;
+            $reportstotal = $subscription['reports_total'] ?? 0;
+            $isoverlimit = $subscription['is_over_report_limit'] ?? false;
 
-            // Parse backend response.
-            $backenddata = json_decode($response, true);
+            // Calculate reports used (total generated minus remaining, or use total directly).
+            $reportsused = $reportstotal;
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                debugging('[Adeptus Insights] Report eligibility check failed - invalid JSON response', DEBUG_DEVELOPER);
-                return [
-                    'success' => false,
-                    'error' => true,
-                    'eligible' => false,
-                    'message' => get_string('error_verify_eligibility', 'report_adeptus_insights'),
-                    'reason' => 'invalid_response',
-                    'reports_used' => 0,
-                    'reports_limit' => 0,
-                    'reports_remaining' => 0,
-                ];
-            }
-
-            // Return backend response - handle alternate field names.
-            $reportsused = $backenddata['reports_used'] ?? $backenddata['used'] ?? 0;
-            $reportslimit = $backenddata['reports_limit'] ?? $backenddata['limit'] ?? 0;
-            $reportsremaining = $backenddata['reports_remaining'] ?? $backenddata['remaining'] ?? 0;
+            // Determine eligibility: -1 means unlimited.
+            $eligible = ($reportslimit === -1) || ($reportsremaining > 0 && !$isoverlimit);
 
             return [
-                'success' => $backenddata['success'] ?? false,
+                'success' => true,
                 'error' => false,
-                'eligible' => $backenddata['eligible'] ?? false,
-                'message' => $backenddata['message'] ?? get_string('unknown_status', 'report_adeptus_insights'),
-                'reason' => $backenddata['reason'] ?? '',
+                'eligible' => $eligible,
+                'message' => $eligible ? 'Eligible to create reports' : 'Report limit reached',
+                'reason' => $eligible ? '' : 'limit_reached',
                 'reports_used' => (int) $reportsused,
                 'reports_limit' => (int) $reportslimit,
                 'reports_remaining' => (int) $reportsremaining,

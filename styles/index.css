@@ -1,0 +1,439 @@
+/**
+ * Dashboard Index Page Styles
+ *
+ * Styles for the main Adeptus Insights dashboard including feature cards,
+ * subscription status analytics, and navigation banners.
+ *
+ * @package    report_adeptus_insights
+ * @copyright  2026 Adeptus 360 <info@adeptus360.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* Button Styles */
+.path-report-adeptus_insights .btn-subscription {
+    background-color: #2f63eb;
+    border-color: #2f63eb;
+    color: #fff;
+}
+
+.path-report-adeptus_insights .btn-generated-reports {
+    background-color: #2fa4e9;
+    border-color: #2fa4e9;
+    color: #fff;
+}
+
+.path-report-adeptus_insights .btn-report-wizard {
+    background-color: #2f85ea;
+    border-color: #2f85ea;
+    color: #fff;
+}
+
+.path-report-adeptus_insights .btn-start-chat {
+    background-color: #2f63eb;
+    border-color: #2f63eb;
+    color: #fff;
+}
+
+.path-report-adeptus_insights .btn-generated-reports:hover {
+    background-color: #fff;
+    border-color: #2fa4e9;
+    color: #2fa4e9;
+}
+
+.path-report-adeptus_insights .btn-subscription:hover {
+    background-color: #fff;
+    border-color: #2f63eb;
+    color: #2f63eb;
+}
+
+.path-report-adeptus_insights .btn-report-wizard:hover {
+    background-color: #fff;
+    border-color: #2f85ea;
+    color: #2f85ea;
+}
+
+.path-report-adeptus_insights .btn-start-chat:hover {
+    background-color: #fff;
+    border-color: #2f63eb;
+    color: #2f63eb;
+}
+
+/* Subscription Banner Styles */
+.path-report-adeptus_insights .adeptus-subscription-banner {
+    background: linear-gradient(135deg, #2fa4e9 0%, #2f63eb 100%);
+    border-radius: 0.75rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    height: 100%;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-text {
+    flex: 1;
+    min-width: 150px;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-text h6 {
+    color: white;
+    font-weight: 600;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-text .adeptus-text-muted-light {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-action .btn {
+    white-space: nowrap;
+}
+
+.path-report-adeptus_insights .adeptus-subscription-banner-action .btn:hover {
+    background-color: white;
+    color: #2f63eb;
+}
+
+/* Support Banner Styles */
+.path-report-adeptus_insights .adeptus-support-banner {
+    background: linear-gradient(135deg, #2f63eb 0%, #2fa4e9 100%);
+    border-radius: 0.75rem;
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    height: 100%;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(47, 99, 235, 0.3);
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-text {
+    flex: 1;
+    min-width: 150px;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-text h6 {
+    color: white;
+    font-weight: 600;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-text .adeptus-text-muted-light {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-action .btn {
+    white-space: nowrap;
+}
+
+.path-report-adeptus_insights .adeptus-support-banner-action .btn:hover {
+    background-color: white;
+    color: #2f63eb;
+}
+
+@media (max-width: 768px) {
+    .path-report-adeptus_insights .adeptus-subscription-banner-content,
+    .path-report-adeptus_insights .adeptus-support-banner-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .path-report-adeptus_insights .adeptus-subscription-banner-text,
+    .path-report-adeptus_insights .adeptus-support-banner-text {
+        min-width: 100%;
+    }
+}
+
+/* Dashboard Layout */
+.path-report-adeptus_insights .adeptus-insights-dashboard {
+    /* padding: 2rem 0; */
+}
+
+/* Report Cards */
+.path-report-adeptus_insights .adeptus-report-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.path-report-adeptus_insights .adeptus-report-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.path-report-adeptus_insights .adeptus-report-card .card-body {
+    padding: 2rem 1.5rem;
+}
+
+.path-report-adeptus_insights .adeptus-lottie-container {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.path-report-adeptus_insights .adeptus-lottie-container div {
+    width: 100%;
+    height: 100%;
+    background: none;
+}
+
+.path-report-adeptus_insights .adeptus-report-card .card-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.path-report-adeptus_insights .adeptus-report-card .card-text {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.path-report-adeptus_insights .adeptus-report-card .btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.path-report-adeptus_insights .adeptus-report-card .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+/* Typography */
+.path-report-adeptus_insights .display-4 {
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.path-report-adeptus_insights .lead {
+    color: #6c757d;
+    font-size: 1.25rem;
+}
+
+.path-report-adeptus_insights .card-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border: none;
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.path-report-adeptus_insights .card-header h4 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Analytics Strip */
+.path-report-adeptus_insights .adeptus-analytics-card {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+}
+
+.path-report-adeptus_insights .adeptus-analytics-header {
+    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    color: #fff;
+    border: none;
+}
+
+.path-report-adeptus_insights .adeptus-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(3px);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    animation: pillPulse 3s ease-in-out infinite;
+}
+
+.path-report-adeptus_insights .adeptus-status-pill .icon {
+    margin-right: 0.25rem;
+}
+
+/* Stats Grid */
+.path-report-adeptus_insights .adeptus-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+@media (max-width: 992px) {
+    .path-report-adeptus_insights .adeptus-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .path-report-adeptus_insights .adeptus-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Stat Cards */
+.path-report-adeptus_insights .adeptus-stat-card {
+    position: relative;
+    border-radius: 0.75rem;
+    padding: 1.25rem 1rem 1rem 1rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(2, 6, 23, 0.06);
+    transform: translateY(0);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.path-report-adeptus_insights .adeptus-stat-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(120deg, rgba(37, 99, 235, 0.08), rgba(14, 165, 233, 0.06));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.path-report-adeptus_insights .adeptus-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08);
+}
+
+.path-report-adeptus_insights .adeptus-stat-card:hover::after {
+    opacity: 1;
+}
+
+/* Stat Icons */
+.path-report-adeptus_insights .adeptus-stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    color: #0b67ff;
+    background: rgba(37, 99, 235, 0.12);
+    animation: iconFloat 0.9s ease-out both;
+}
+
+.path-report-adeptus_insights .adeptus-icon-status {
+    color: #16a34a;
+    background: rgba(22, 163, 74, 0.12);
+}
+
+.path-report-adeptus_insights .adeptus-icon-credits {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.14);
+}
+
+.path-report-adeptus_insights .adeptus-icon-exports {
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.14);
+}
+
+/* Stat Labels and Values */
+.path-report-adeptus_insights .adeptus-stat-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    letter-spacing: 0.2px;
+    margin-bottom: 0.15rem;
+}
+
+.path-report-adeptus_insights .adeptus-stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+    min-height: 2rem;
+}
+
+.path-report-adeptus_insights .adeptus-stat-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* Micro Animations */
+@keyframes iconFloat {
+    from {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pillPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.035);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .path-report-adeptus_insights .adeptus-stat-card,
+    .path-report-adeptus_insights .adeptus-stat-card::after,
+    .path-report-adeptus_insights .adeptus-stat-icon,
+    .path-report-adeptus_insights .adeptus-status-pill {
+        animation: none !important;
+        transition: none !important;
+    }
+}

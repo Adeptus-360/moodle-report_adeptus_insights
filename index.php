@@ -74,9 +74,11 @@ $authstatus = $authmanager->get_auth_status();
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authstatus]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
 $PAGE->requires->js_call_amd('report_adeptus_insights/lottie_loader', 'init');
+$PAGE->requires->js_call_amd('report_adeptus_insights/index_dashboard', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/readonly-mode.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
+$PAGE->requires->css('/report/adeptus_insights/styles/index.css');
 
 
 // If registered, show the main dashboard
