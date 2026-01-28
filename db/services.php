@@ -142,6 +142,53 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 1: Core Reporting External Services.
+    'report_adeptus_insights_get_wizard_data' => [
+        'classname'   => 'report_adeptus_insights\external\get_wizard_data',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get wizard initialization data including user info and session key',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_available_reports' => [
+        'classname'   => 'report_adeptus_insights\external\get_available_reports',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get available reports filtered by Moodle version compatibility',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_wizard_reports' => [
+        'classname'   => 'report_adeptus_insights\external\get_wizard_reports',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get user saved wizard reports from backend',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_report_parameters' => [
+        'classname'   => 'report_adeptus_insights\external\get_report_parameters',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get report parameters with dynamically populated options',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_generate_report' => [
+        'classname'   => 'report_adeptus_insights\external\generate_report',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Generate a report by executing SQL query with parameters',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -161,6 +208,12 @@ $services = [
             'report_adeptus_insights_activate_free_plan',
             'report_adeptus_insights_create_checkout_session',
             'report_adeptus_insights_verify_checkout_session',
+            // Phase 1: Core Reporting.
+            'report_adeptus_insights_get_wizard_data',
+            'report_adeptus_insights_get_available_reports',
+            'report_adeptus_insights_get_wizard_reports',
+            'report_adeptus_insights_get_report_parameters',
+            'report_adeptus_insights_generate_report',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
