@@ -1183,33 +1183,32 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Backend is the single source of truth for report limits
          */
         checkReportEligibility: async function() {
+            var self = this;
             try {
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_report_eligibility.php`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `sesskey=${M.cfg.sesskey}`
-                });
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_check_report_eligibility',
+                    args: {}
+                }]);
 
-                const data = await response.json();
+                var result = await promises[0];
+                var data = result.data ? result.data : result;
 
                 // Update internal state
-                this.reportsUsed = data.reports_used || 0;
-                this.reportsLimit = data.reports_limit || 0;
-                this.reportsRemaining = data.reports_remaining || 0;
-                this.isReportLimitReached = !data.eligible;
-                this.reportEligibilityChecked = true;
+                self.reportsUsed = data.reports_used || 0;
+                self.reportsLimit = data.reports_limit || 0;
+                self.reportsRemaining = data.reports_remaining || 0;
+                self.isReportLimitReached = !data.eligible;
+                self.reportEligibilityChecked = true;
 
                 // Update UI to reflect current state
-                this.updateReportLimitUI();
+                self.updateReportLimitUI();
 
                 return data;
             } catch (error) {
                 // Fail closed - assume limit reached on error
-                this.isReportLimitReached = true;
-                this.reportEligibilityChecked = true;
-                this.updateReportLimitUI();
+                self.isReportLimitReached = true;
+                self.reportEligibilityChecked = true;
+                self.updateReportLimitUI();
                 return { success: false, eligible: false, message: 'Unable to verify eligibility' };
             }
         },
@@ -2854,22 +2853,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         updateSubscriptionInfo: async function() {
             const self = this;
-            
-            // First, fetch latest subscription data from the server (like wizard does)
-            try {
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
 
-                const data = await response.json();
-                
+            // First, fetch latest subscription data from the server using external service
+            try {
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_check_subscription_status',
+                    args: {}
+                }]);
+
+                var result = await promises[0];
+                var data = { success: result.success, data: result.data ? result.data : result };
+
                 // Log exactly what fields we're receiving for debugging
                 if (data.success && data.data) {
-                    
+
                     // Update AuthUtils with fresh data
                     const authStatus = AuthUtils.getAuthStatus() || {};
                     authStatus.subscription = data.data;
@@ -3012,35 +3009,33 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
             
             try {
-                // First, get fresh local subscription data (like wizard does)
-                const localResponse = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Cache-Control': 'no-cache'
-                    }
-                });
+                // First, get fresh local subscription data using external service
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_check_subscription_status',
+                    args: {}
+                }]);
 
-                const localData = await localResponse.json();
+                var result = await promises[0];
+                var localData = { success: result.success, data: result.data ? result.data : result };
 
                 if (localData.success && localData.data) {
                     // Update AuthUtils with fresh data
                     const authStatus = AuthUtils.getAuthStatus() || {};
                     authStatus.subscription = localData.data;
-                    
+
                     // Also update the global auth data
                     if (window.adeptusAuthData) {
                         window.adeptusAuthData.subscription = localData.data;
                     }
                 }
-                
+
                 // Then update the display with fresh data
                 await this.updateSubscriptionInfo();
-                
-                
+
+
                 // Show success feedback
                 this.showRefreshSuccessFeedback();
-                
+
             } catch (error) {
                 this.showRefreshErrorFeedback();
             } finally {
@@ -5163,12 +5158,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         checkExportEligibility: async function(format) {
             try {
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/check_export_eligibility.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `format=${encodeURIComponent(format)}&sesskey=${M.cfg.sesskey}`
-                });
-                return await response.json();
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_check_export_eligibility',
+                    args: { format: format }
+                }]);
+                var result = await promises[0];
+                return result.data ? result.data : result;
             } catch (error) {
                 return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
             }

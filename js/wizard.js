@@ -195,15 +195,8 @@ class AdeptusWizard {
      */
     async checkReportEligibility() {
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_report_eligibility.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `sesskey=${this.wizardData.sesskey}`
-            });
-
-            const data = await response.json();
+            const result = await this.callExternalService('report_adeptus_insights_check_report_eligibility', {});
+            const data = result.data ? result.data : result;
 
             // Update internal state
             this.reportsUsed = data.reports_used || 0;
@@ -2847,15 +2840,10 @@ class AdeptusWizard {
         
         try {
             // First, check if user is eligible to export
-            const eligibilityResponse = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_export_eligibility.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `format=${format}&sesskey=${this.wizardData.sesskey}`
+            const eligibilityResult = await this.callExternalService('report_adeptus_insights_check_export_eligibility', {
+                format: format
             });
-            
-            const eligibilityData = await eligibilityResponse.json();
+            const eligibilityData = eligibilityResult.data ? eligibilityResult.data : eligibilityResult;
             if (!eligibilityData.success || !eligibilityData.eligible) {
                 this.showError(eligibilityData.message || 'You are not eligible to export in this format.');
                 return;
@@ -3269,17 +3257,10 @@ class AdeptusWizard {
         
         this._counterUpdateTimeout = setTimeout(async () => {
             try {
-            
-            // Get current subscription status
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache'
-                }
-            });
 
-            const data = await response.json();
+            // Get current subscription status using external service
+            const result = await this.callExternalService('report_adeptus_insights_check_subscription_status', {});
+            const data = { success: result.success, data: result.data ? result.data : result };
             
             if (data.success && data.data) {
                 
@@ -3457,21 +3438,12 @@ class AdeptusWizard {
         }
         
         try {
-            // Get current subscription status
-            const statusUrl = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/check_subscription_status.php?t=${Date.now()}`;
-            
-            const response = await fetch(statusUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-cache'
-                }
-            });
+            // Get current subscription status using external service
+            const result = await this.callExternalService('report_adeptus_insights_check_subscription_status', {});
+            const data = { success: result.success, data: result.data ? result.data : result };
 
-            const data = await response.json();
-            
             if (data.success && data.data) {
-                
+
                 // Get values directly from data.data (top level)
                 const exportsUsed = data.data.exports_used || 0;
                 const exportsLimit = data.data.plan_exports_limit || 10; // From subscription plan

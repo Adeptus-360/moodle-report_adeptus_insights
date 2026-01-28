@@ -734,35 +734,36 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 allowOutsideClick: false
             });
 
-            // Fetch available plans
-            fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/get_available_plans.php?sesskey=' + M.cfg.sesskey)
-                .then(function(response) { return response.json(); })
-                .then(function(data) {
-                    if (data.success && (data.monthly_plans.length > 0 || data.yearly_plans.length > 0)) {
-                        // Store plans data for toggle switching
-                        Subscription.plansData = {
-                            monthly: data.monthly_plans || [],
-                            yearly: data.yearly_plans || []
-                        };
-                        Subscription.currentInterval = 'monthly';
-                        Subscription.showPlansModal(data);
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: getString('error', 'Error'),
-                            text: data.message || getString('failed_load_plans', 'Failed to load plans. Please try again.'),
-                            confirmButtonColor: '#3085d6'
-                        });
-                    }
-                })
-                .catch(function(error) {
+            // Fetch available plans using external service
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_get_available_plans',
+                args: {}
+            }])[0].done(function(result) {
+                var data = result.data ? result.data : result;
+                if (data.success && (data.monthly_plans.length > 0 || data.yearly_plans.length > 0)) {
+                    // Store plans data for toggle switching
+                    Subscription.plansData = {
+                        monthly: data.monthly_plans || [],
+                        yearly: data.yearly_plans || []
+                    };
+                    Subscription.currentInterval = 'monthly';
+                    Subscription.showPlansModal(data);
+                } else {
                     Swal.fire({
                         icon: 'error',
-                        title: getString('connection_error', 'Connection Error'),
-                        text: getString('failed_load_plans', 'Failed to load plans. Please check your connection and try again.'),
+                        title: getString('error', 'Error'),
+                        text: data.message || getString('failed_load_plans', 'Failed to load plans. Please try again.'),
                         confirmButtonColor: '#3085d6'
                     });
+                }
+            }).fail(function(error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: getString('connection_error', 'Connection Error'),
+                    text: getString('failed_load_plans', 'Failed to load plans. Please check your connection and try again.'),
+                    confirmButtonColor: '#3085d6'
                 });
+            });
         },
 
         /**

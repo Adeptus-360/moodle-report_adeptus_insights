@@ -189,6 +189,62 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 2: Subscription & Eligibility External Services.
+    'report_adeptus_insights_check_subscription_status' => [
+        'classname'   => 'report_adeptus_insights\external\check_subscription_status',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Check subscription status for the current installation',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_check_report_eligibility' => [
+        'classname'   => 'report_adeptus_insights\external\check_report_eligibility',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Check if user is eligible to create reports',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_check_export_eligibility' => [
+        'classname'   => 'report_adeptus_insights\external\check_export_eligibility',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Check if user is eligible to export in specified format',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_usage_data' => [
+        'classname'   => 'report_adeptus_insights\external\get_usage_data',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get usage data for the current installation',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_available_plans' => [
+        'classname'   => 'report_adeptus_insights\external\get_available_plans',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get available subscription plans',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_create_subscription' => [
+        'classname'   => 'report_adeptus_insights\external\create_subscription',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Create a new subscription',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -214,6 +270,13 @@ $services = [
             'report_adeptus_insights_get_wizard_reports',
             'report_adeptus_insights_get_report_parameters',
             'report_adeptus_insights_generate_report',
+            // Phase 2: Subscription & Eligibility.
+            'report_adeptus_insights_check_subscription_status',
+            'report_adeptus_insights_check_report_eligibility',
+            'report_adeptus_insights_check_export_eligibility',
+            'report_adeptus_insights_get_usage_data',
+            'report_adeptus_insights_get_available_plans',
+            'report_adeptus_insights_create_subscription',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
