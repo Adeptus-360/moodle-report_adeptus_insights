@@ -1,6 +1,29 @@
 /**
- * Adeptus Insights Report Wizard JavaScript
- * Modern, interactive wizard for generating reports
+ * This file is part of Moodle - http://moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Adeptus Insights Report Wizard JavaScript.
+ *
+ * Modern, interactive wizard for generating reports.
+ *
+ * @module     report_adeptus_insights/wizard
+ * @package    report_adeptus_insights
+ * @copyright  2026 Adeptus 360 <info@adeptus360.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 class AdeptusWizard {
@@ -25,6 +48,42 @@ class AdeptusWizard {
         this.reportsLimit = 0;
         this.reportsRemaining = 0;
         this.isReexecution = false; // True when loading a saved report (doesn't count against limit)
+    }
+
+    /**
+     * Call a Moodle external service.
+     *
+     * @param {string} methodname The external service method name.
+     * @param {object} args The arguments to pass to the service.
+     * @returns {Promise<object>} The service response data.
+     */
+    async callExternalService(methodname, args = {}) {
+        const url = `${this.wizardData.wwwroot}/lib/ajax/service.php?sesskey=${this.wizardData.sesskey}&info=${methodname}`;
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify([{
+                index: 0,
+                methodname: methodname,
+                args: args
+            }])
+        });
+
+        const results = await response.json();
+
+        // External services return an array of results.
+        if (Array.isArray(results) && results.length > 0) {
+            const result = results[0];
+            if (result.error) {
+                throw new Error(result.exception?.message || result.error);
+            }
+            return result.data !== undefined ? result.data : result;
+        }
+
+        throw new Error('Invalid response from external service');
     }
 
     async init() {
@@ -68,15 +127,11 @@ class AdeptusWizard {
 
         // Backend API URL from template data
         this.backendApiUrl = this.wizardData.backend_api_url || '';
-        
-        // Load additional wizard data from PHP (if needed)
+
+        // Load additional wizard data from external service (if needed)
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/get_wizard_data.php`);
-            const data = await response.json();
-            
-            if (data.success) {
-                this.wizardData = { ...this.wizardData, ...data.data };
-            }
+            const data = await this.callExternalService('report_adeptus_insights_get_wizard_data');
+            this.wizardData = { ...this.wizardData, ...data };
         } catch (error) {
             // Additional wizard data load failed.
         }
@@ -250,9 +305,9 @@ class AdeptusWizard {
 
             // Add disabled overlay to report cards in Step 2
             if (reportsGrid) {
-                reportsGrid.querySelectorAll('.report-card').forEach(card => {
-                    if (!card.classList.contains('report-limit-disabled')) {
-                        card.classList.add('report-limit-disabled');
+                reportsGrid.querySelectorAll('.adeptus-report-card').forEach(card => {
+                    if (!card.classList.contains('adeptus-report-limit-disabled')) {
+                        card.classList.add('adeptus-report-limit-disabled');
                         card.style.opacity = '0.5';
                         card.style.pointerEvents = 'none';
                     }
@@ -285,8 +340,8 @@ class AdeptusWizard {
 
             // Remove disabled state from report cards
             if (reportsGrid) {
-                reportsGrid.querySelectorAll('.report-card.report-limit-disabled').forEach(card => {
-                    card.classList.remove('report-limit-disabled');
+                reportsGrid.querySelectorAll('.adeptus-report-card.adeptus-report-limit-disabled').forEach(card => {
+                    card.classList.remove('adeptus-report-limit-disabled');
                     card.style.opacity = '';
                     card.style.pointerEvents = '';
                 });
@@ -326,7 +381,7 @@ class AdeptusWizard {
 
     renderCategories() {
         
-        const categoryGrid = document.querySelector('.category-grid');
+        const categoryGrid = document.querySelector('.adeptus-category-grid');
         if (!categoryGrid) {
             return;
         }
@@ -371,7 +426,7 @@ class AdeptusWizard {
         generatedReports.forEach((report, index) => {
             const reportCard = this.createSectionReportCard(report, 'generated');
             if (index >= maxVisible) {
-                reportCard.classList.add('hidden-item');
+                reportCard.classList.add('adeptus-hidden-item');
                 reportCard.style.display = 'none';
             }
             grid.appendChild(reportCard);
@@ -408,7 +463,7 @@ class AdeptusWizard {
         this.wizardData.recent_reports.forEach((report, index) => {
             const reportCard = this.createSectionReportCard(report, 'recent');
             if (index >= maxVisible) {
-                reportCard.classList.add('hidden-item');
+                reportCard.classList.add('adeptus-hidden-item');
                 reportCard.style.display = 'none';
             }
             grid.appendChild(reportCard);
@@ -445,7 +500,7 @@ class AdeptusWizard {
         this.wizardData.bookmarks.forEach((bookmark, index) => {
             const reportCard = this.createSectionReportCard(bookmark, 'bookmark');
             if (index >= maxVisible) {
-                reportCard.classList.add('hidden-item');
+                reportCard.classList.add('adeptus-hidden-item');
                 reportCard.style.display = 'none';
             }
             grid.appendChild(reportCard);
@@ -526,31 +581,31 @@ class AdeptusWizard {
 
     createCategoryCard(category) {
         const card = document.createElement('div');
-        card.className = 'category-card';
+        card.className = 'adeptus-category-card';
         card.setAttribute('data-category', category.name);
-        
+
         // Add premium styling if user is on free plan and category has premium reports
         if (this.wizardData.is_free_plan && category.free_reports_count < category.report_count) {
-            card.classList.add('premium-category');
+            card.classList.add('adeptus-premium-category');
         }
-        
+
         // Get dynamic icon based on category name
         const iconClass = this.getCategoryIcon(category.name);
-        
+
         card.innerHTML = `
-            <div class="category-icon">
+            <div class="adeptus-category-icon">
                 <i class="fa-solid ${iconClass}"></i>
             </div>
-            <div class="category-content">
-                <h6 class="category-title">${category.name}</h6>
+            <div class="adeptus-category-content">
+                <h6 class="adeptus-category-title">${category.name}</h6>
                 <p>${category.report_count} reports</p>
-                ${this.wizardData.is_free_plan && category.free_reports_count < category.report_count ? 
-                    `<span class="premium-badge">${category.free_reports_count}/${category.report_count} Free</span>` : 
+                ${this.wizardData.is_free_plan && category.free_reports_count < category.report_count ?
+                    `<span class="adeptus-premium-badge">${category.free_reports_count}/${category.report_count} Free</span>` :
                     ''
                 }
             </div>
         `;
-        
+
         return card;
     }
     
@@ -740,14 +795,14 @@ class AdeptusWizard {
         this.eventsBound = true;
         
         // Debug: Check what category cards are available
-        const categoryCards = document.querySelectorAll('.category-card');
+        const categoryCards = document.querySelectorAll('.adeptus-category-card');
         categoryCards.forEach((card, index) => {
         });
-        
+
         // Category selection
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.category-card')) {
-                const categoryCard = e.target.closest('.category-card');
+            if (e.target.closest('.adeptus-category-card')) {
+                const categoryCard = e.target.closest('.adeptus-category-card');
                 const categoryName = categoryCard.dataset.category;
                 this.selectCategory(categoryName);
             }
@@ -755,12 +810,12 @@ class AdeptusWizard {
 
         // Report selection (only for report selection step, not for section cards)
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.report-card')) {
-                const reportCard = e.target.closest('.report-card');
+            if (e.target.closest('.adeptus-report-card')) {
+                const reportCard = e.target.closest('.adeptus-report-card');
                 
                 // Don't handle click if this is a section card (generated, recent, bookmark)
                 // or if the click is on a button within the card
-                const isButton = e.target.closest('.btn-load-config, .btn-remove');
+                const isButton = e.target.closest('.adeptus-btn-load-config, .adeptus-btn-remove');
                 const isSectionCard = reportCard.dataset.action; // Section cards have data-action attribute
                 
                 if (isButton || isSectionCard) {
@@ -774,10 +829,10 @@ class AdeptusWizard {
 
         // Report cards - Load Config buttons (for all sections)
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-load-config')) {
+            if (e.target.closest('.adeptus-btn-load-config')) {
                 e.preventDefault();
                 e.stopPropagation();
-                const card = e.target.closest('.report-card');
+                const card = e.target.closest('.adeptus-report-card');
                 const reportId = card.dataset.reportId;
                 const action = card.dataset.action;
                 const parameters = card.dataset.parameters || '{}';
@@ -787,11 +842,11 @@ class AdeptusWizard {
 
         // Remove buttons (for all sections)
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-remove')) {
+            if (e.target.closest('.adeptus-btn-remove')) {
                 e.preventDefault();
                 e.stopPropagation();
-                const button = e.target.closest('.btn-remove');
-                const card = button.closest('.report-card');
+                const button = e.target.closest('.adeptus-btn-remove');
+                const card = button.closest('.adeptus-report-card');
                 const reportId = button.dataset.reportId;
                 const action = card.dataset.action;
                 
@@ -874,25 +929,25 @@ class AdeptusWizard {
         });
 
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.export-menu a')) {
+            if (e.target.closest('.adeptus-export-menu a')) {
                 e.preventDefault();
                 const link = e.target.closest('a');
                 const format = link.dataset.format;
-                
+
                 // Check if this is a premium export on free plan
-                if (link.classList.contains('export-premium')) {
+                if (link.classList.contains('adeptus-export-premium')) {
                     this.showExportUpgradePrompt(format);
                     return;
                 }
-                
+
                 this.exportReport(format);
             }
         });
 
         // View toggle switching
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.view-toggle-btn')) {
-                const toggleBtn = e.target.closest('.view-toggle-btn');
+            if (e.target.closest('.adeptus-view-toggle-btn')) {
+                const toggleBtn = e.target.closest('.adeptus-view-toggle-btn');
                 const viewName = toggleBtn.dataset.view;
                 this.switchView(viewName);
             }
@@ -917,7 +972,7 @@ class AdeptusWizard {
         this.quickActionsInitialized = true;
         
         // Add hover animations to quick action cards
-        const quickActionCards = document.querySelectorAll('.quick-action-card');
+        const quickActionCards = document.querySelectorAll('.adeptus-quick-action-card');
         quickActionCards.forEach(card => {
             card.addEventListener('mouseenter', () => {
                 card.style.transform = 'translateY(-2px)';
@@ -936,19 +991,19 @@ class AdeptusWizard {
         this.recentReportsInitialized = true;
         
         // Initially hide all recent reports except the last 4
-        const recentCards = document.querySelectorAll('.quick-action-card[data-action="recent"]');
+        const recentCards = document.querySelectorAll('.adeptus-quick-action-card[data-action="recent"]');
         if (recentCards.length > 4) {
             recentCards.forEach((card, index) => {
                 if (index >= 4) {
                     card.style.display = 'none';
-                    card.classList.add('hidden-recent');
+                    card.classList.add('adeptus-hidden-recent');
                 }
             });
         }
     }
 
     toggleRecentReports() {
-        const recentCards = document.querySelectorAll('.quick-action-card[data-action="recent"]');
+        const recentCards = document.querySelectorAll('.adeptus-quick-action-card[data-action="recent"]');
         const toggleBtn = document.getElementById('toggle-recent-reports');
         
         if (recentCards.length <= 4) {
@@ -964,7 +1019,7 @@ class AdeptusWizard {
             // Show all cards
             recentCards.forEach(card => {
                 card.style.display = '';
-                card.classList.remove('hidden-recent');
+                card.classList.remove('adeptus-hidden-recent');
             });
             toggleBtn.innerHTML = '<i class="fa-solid fa-eye-slash"></i> Hide All';
         } else {
@@ -972,10 +1027,10 @@ class AdeptusWizard {
             recentCards.forEach((card, index) => {
                 if (index >= 4) {
                     card.style.display = 'none';
-                    card.classList.add('hidden-recent');
+                    card.classList.add('adeptus-hidden-recent');
                 } else {
                     card.style.display = '';
-                    card.classList.remove('hidden-recent');
+                    card.classList.remove('adeptus-hidden-recent');
                 }
             });
             toggleBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Show All';
@@ -999,10 +1054,10 @@ class AdeptusWizard {
 
         if (isBookmarked) {
             bookmarkBtn.innerHTML = '<i class="fa-solid fa-star"></i> Remove Bookmark';
-            bookmarkBtn.classList.add('bookmarked');
+            bookmarkBtn.classList.add('adeptus-bookmarked');
         } else {
             bookmarkBtn.innerHTML = '<i class="fa-regular fa-star"></i> Bookmark';
-            bookmarkBtn.classList.remove('bookmarked');
+            bookmarkBtn.classList.remove('adeptus-bookmarked');
         }
         bookmarkBtn.disabled = false;
     }
@@ -1063,7 +1118,7 @@ class AdeptusWizard {
 
         // Add entrance animation
         setTimeout(() => {
-            const reportCards = reportsGrid.querySelectorAll('.report-card');
+            const reportCards = reportsGrid.querySelectorAll('.adeptus-report-card');
             reportCards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '0';
@@ -1071,7 +1126,7 @@ class AdeptusWizard {
                     card.style.transition = 'all 0.3s ease-out';
                     setTimeout(() => {
                         // Only set full opacity if not disabled due to limit
-                        if (!card.classList.contains('report-limit-disabled')) {
+                        if (!card.classList.contains('adeptus-report-limit-disabled')) {
                             card.style.opacity = '1';
                         } else {
                             card.style.opacity = '0.5';
@@ -1085,7 +1140,7 @@ class AdeptusWizard {
 
     createReportCard(report) {
         const card = document.createElement('div');
-        card.className = 'report-card';
+        card.className = 'adeptus-report-card';
         card.dataset.reportId = report.name; // Changed from report.id to report.name
         
         const isBookmarked = this.wizardData.bookmarked_report_ids && 
@@ -1096,7 +1151,7 @@ class AdeptusWizard {
         const isPremiumReport = isFreePlan && !report.is_free_tier;
         
         if (isPremiumReport) {
-            card.classList.add('premium-report');
+            card.classList.add('adeptus-premium-report');
             card.style.opacity = '0.7';
             card.style.cursor = 'not-allowed';
         }
@@ -1104,11 +1159,11 @@ class AdeptusWizard {
         card.innerHTML = `
             <h4>${report.name}</h4>
             <p>${report.description || 'No description available'}</p>
-            <div class="report-meta">
+            <div class="adeptus-report-meta">
                 <span>Name: ${report.name}</span>
-                ${report.charttype ? `<span class="chart-type">${report.charttype}</span>` : ''}
-                ${isBookmarked ? '<span class="bookmark-indicator"><i class="fa-solid fa-star"></i></span>' : ''}
-                ${isPremiumReport ? '<span class="premium-badge"><i class="fa-solid fa-crown"></i> Premium</span>' : ''}
+                ${report.charttype ? `<span class="adeptus-chart-type">${report.charttype}</span>` : ''}
+                ${isBookmarked ? '<span class="adeptus-bookmark-indicator"><i class="fa-solid fa-star"></i></span>' : ''}
+                ${isPremiumReport ? '<span class="adeptus-premium-badge"><i class="fa-solid fa-crown"></i> Premium</span>' : ''}
             </div>
         `;
 
@@ -1126,7 +1181,7 @@ class AdeptusWizard {
 
     createSectionReportCard(report, sectionType) {
         const card = document.createElement('div');
-        card.className = 'report-card';
+        card.className = 'adeptus-report-card';
         card.dataset.reportId = report.reportid || report.name;
         card.dataset.action = sectionType;
         
@@ -1150,20 +1205,20 @@ class AdeptusWizard {
         }
         
         card.innerHTML = `
-            <div class="card-icon" style="background: linear-gradient(135deg, ${iconColor} 0%, ${this.darkenColor(iconColor)} 100%);">
+            <div class="adeptus-card-icon" style="background: linear-gradient(135deg, ${iconColor} 0%, ${this.darkenColor(iconColor)} 100%);">
                 <i class="fa-solid ${iconClass}"></i>
             </div>
-            <div class="card-content">
+            <div class="adeptus-card-content">
                 <h4>${report.name}</h4>
                 <p>${report.category || 'Unknown Category'}</p>
-                <span class="card-date">${report.formatted_date || 'Just now'}</span>
+                <span class="adeptus-card-date">${report.formatted_date || 'Just now'}</span>
             </div>
-            <div class="card-actions">
-                <button class="btn-load-config" title="Load Configuration">
+            <div class="adeptus-card-actions">
+                <button class="adeptus-btn-load-config" title="Load Configuration">
                     <i class="fa-solid fa-gear"></i>
                     <span>Load</span>
                 </button>
-                <button class="btn-remove" data-report-id="${report.reportid || report.name}" title="Remove">
+                <button class="adeptus-btn-remove" data-report-id="${report.reportid || report.name}" title="Remove">
                     <i class="fa-solid fa-trash"></i>
                     <span>Remove</span>
                 </button>
@@ -1225,19 +1280,13 @@ class AdeptusWizard {
 
     async loadReportParameters(reportId, savedParams = null) {
         this.showLoading('Loading report configuration...');
-        
+
         try {
-            // First, get the basic report parameters from the local endpoint
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/get_report_parameters.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `reportid=${reportId}&sesskey=${this.wizardData.sesskey}`
+            // First, get the basic report parameters from the external service
+            const data = await this.callExternalService('report_adeptus_insights_get_report_parameters', {
+                reportid: reportId
             });
 
-            const data = await response.json();
-            
             if (data.success) {
                 // Store saved parameters if provided
                 if (savedParams) {
@@ -1398,7 +1447,7 @@ class AdeptusWizard {
 
     createParameterElement(param) {
         const wrapper = document.createElement('div');
-        wrapper.className = 'parameter-field';
+        wrapper.className = 'adeptus-parameter-field';
 
         let inputHtml = '';
         let inputAttribs = '';
@@ -1449,7 +1498,7 @@ class AdeptusWizard {
             <p><strong>Category:</strong> ${report.category}</p>
             <p><strong>Description:</strong> ${report.description || 'No description available'}</p>
             ${report.charttype ? `<p><strong>Chart Type:</strong> ${report.charttype}</p>` : ''}
-            <div class="preview-sample">
+            <div class="adeptus-preview-sample">
                 <small><em>Sample data will appear here after generation</em></small>
             </div>
         `;
@@ -1488,30 +1537,34 @@ class AdeptusWizard {
 
         this.showLoading('Generating your report...');
 
-        // Collect parameters
-        const formData = new FormData();
-        formData.append('reportid', this.selectedReport);
-        formData.append('sesskey', this.wizardData.sesskey);
-
-        // Mark as re-execution if loading saved report (skips server-side eligibility check)
-        if (isReexecution) {
-            formData.append('reexecution', '1');
-        }
-
+        // Collect parameters from form inputs
+        const parameters = {};
         const paramInputs = document.querySelectorAll('#config-form input, #config-form select');
         paramInputs.forEach(input => {
-            formData.append(input.name, input.value);
+            parameters[input.name] = input.value;
         });
 
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/generate_report.php`, {
-                method: 'POST',
-                body: formData
+            const data = await this.callExternalService('report_adeptus_insights_generate_report', {
+                reportid: this.selectedReport,
+                parameters: JSON.stringify(parameters),
+                reexecution: isReexecution
             });
 
-            const data = await response.json();
-
             if (data.success) {
+                // Transform external service format (cells with key/value) to flat objects
+                if (data.results && Array.isArray(data.results)) {
+                    data.results = data.results.map(row => {
+                        if (row.cells && Array.isArray(row.cells)) {
+                            const flatRow = {};
+                            row.cells.forEach(cell => {
+                                flatRow[cell.key] = cell.value;
+                            });
+                            return flatRow;
+                        }
+                        return row;
+                    });
+                }
                 this.displayResults(data);
                 this.goToStep('step-results');
 
@@ -1930,7 +1983,7 @@ class AdeptusWizard {
         } else {
             // Invalid data format - display error to user.
             chartContainer.innerHTML = `
-                <div class="chart-placeholder">
+                <div class="adeptus-chart-placeholder">
                     <i class="fa-solid fa-exclamation-triangle"></i>
                     <p>Invalid chart data format</p>
                     <small>Chart Type: ${chartType}</small>
@@ -1946,7 +1999,7 @@ class AdeptusWizard {
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             // Chart creation failed - display error to user.
-            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
+            chartContainer.innerHTML = '<div class="adeptus-chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p><small>Chart Type: ' + chartType + '</small></div>';
         }
     }
 
@@ -2270,10 +2323,10 @@ class AdeptusWizard {
 
         const numericCols = this.detectNumericColumns(data, headers);
 
-        let controlsHtml = '<div class="chart-controls d-flex flex-wrap align-items-end gap-3">';
+        let controlsHtml = '<div class="adeptus-chart-controls d-flex flex-wrap align-items-end gap-3">';
 
         // Chart type selector
-        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<div class="adeptus-control-group">';
         controlsHtml += '<label for="wizard-chart-type" class="form-label">Chart Type</label>';
         controlsHtml += '<select id="wizard-chart-type" class="form-select form-select-sm">';
         controlsHtml += '<option value="bar">Bar Chart</option>';
@@ -2283,7 +2336,7 @@ class AdeptusWizard {
         controlsHtml += '</select></div>';
 
         // X-Axis selector
-        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<div class="adeptus-control-group">';
         controlsHtml += '<label for="wizard-chart-x-axis" class="form-label">X-Axis (Labels)</label>';
         controlsHtml += '<select id="wizard-chart-x-axis" class="form-select form-select-sm">';
         headers.forEach((header, idx) => {
@@ -2294,7 +2347,7 @@ class AdeptusWizard {
         controlsHtml += '</select></div>';
 
         // Y-Axis selector (only numeric columns)
-        controlsHtml += '<div class="control-group">';
+        controlsHtml += '<div class="adeptus-control-group">';
         controlsHtml += '<label for="wizard-chart-y-axis" class="form-label">Y-Axis (Values)</label>';
         controlsHtml += '<select id="wizard-chart-y-axis" class="form-select form-select-sm">';
         if (numericCols.length > 0) {
@@ -2313,7 +2366,7 @@ class AdeptusWizard {
         }
         controlsHtml += '</select></div>';
 
-        controlsHtml += '</div>'; // End chart-controls
+        controlsHtml += '</div>'; // End adeptus-chart-controls
 
         chartControls.innerHTML = controlsHtml;
 
@@ -2371,7 +2424,7 @@ class AdeptusWizard {
             window.adeptusResultsChartInstance = new ChartJS(ctx.getContext('2d'), chartConfig);
         } catch (error) {
             // Chart creation failed - display error to user.
-            chartContainer.innerHTML = '<div class="chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
+            chartContainer.innerHTML = '<div class="adeptus-chart-placeholder"><i class="fa-solid fa-exclamation-triangle"></i><p>Chart library not available. Please refresh the page.</p></div>';
         }
     }
 
@@ -2722,7 +2775,7 @@ class AdeptusWizard {
 
     goToStep(stepId) {
         // Hide all steps
-        document.querySelectorAll('.wizard-step').forEach(step => {
+        document.querySelectorAll('.adeptus-wizard-step').forEach(step => {
             step.classList.remove('active');
         });
         
@@ -2777,7 +2830,7 @@ class AdeptusWizard {
         if (exportBtn && (exportBtn.disabled || exportBtn.classList.contains('disabled'))) {
             return;
         }
-        
+
         const exportMenu = document.getElementById('export-menu');
         exportMenu.classList.toggle('show');
     }
@@ -3058,7 +3111,7 @@ class AdeptusWizard {
                 // Update bookmark indicators in report cards if they're currently displayed
                 const reportCards = document.querySelectorAll(`[data-report-id="${reportId}"]`);
                 reportCards.forEach(reportCard => {
-                    const bookmarkIndicator = reportCard.querySelector('.bookmark-indicator');
+                    const bookmarkIndicator = reportCard.querySelector('.adeptus-bookmark-indicator');
                     if (bookmarkIndicator) {
                         bookmarkIndicator.remove();
                     }
@@ -3080,7 +3133,7 @@ class AdeptusWizard {
 
     switchView(viewName) {
         // Update toggle buttons
-        document.querySelectorAll('.view-toggle-btn').forEach(btn => {
+        document.querySelectorAll('.adeptus-view-toggle-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         const activeBtn = document.querySelector(`[data-view="${viewName}"]`);
@@ -3089,7 +3142,7 @@ class AdeptusWizard {
         }
 
         // Update view panels
-        document.querySelectorAll('.view-panel').forEach(panel => {
+        document.querySelectorAll('.adeptus-view-panel').forEach(panel => {
             panel.classList.add('d-none');
         });
         const activePanel = document.getElementById(`${viewName}-view`);
@@ -3255,7 +3308,7 @@ class AdeptusWizard {
                 }
 
                 // Update the indicator styling based on remaining reports
-                const indicator = document.querySelector('.reports-left-indicator');
+                const indicator = document.querySelector('.adeptus-reports-left-indicator');
                 if (indicator) {
                     if (reportsRemaining <= 0) {
                         // No reports left - red styling
@@ -3295,11 +3348,11 @@ class AdeptusWizard {
         const section = document.getElementById(sectionId);
         if (!section) return;
 
-        const stepHeader = section.querySelector('.step-header');
+        const stepHeader = section.querySelector('.adeptus-step-header');
         if (!stepHeader) return;
 
         // Remove existing show all button if present
-        const existingBtn = stepHeader.querySelector('.btn-show-all');
+        const existingBtn = stepHeader.querySelector('.adeptus-btn-show-all');
         if (existingBtn) {
             existingBtn.remove();
         }
@@ -3307,19 +3360,19 @@ class AdeptusWizard {
         // Only add button if there are more than 10 items
         if (hasMore) {
             const showAllBtn = document.createElement('button');
-            showAllBtn.className = 'btn-show-all';
+            showAllBtn.className = 'adeptus-btn-show-all';
             showAllBtn.dataset.section = sectionId;
             showAllBtn.innerHTML = '<i class="fa-solid fa-eye"></i> Show All (' + totalCount + ')';
-            
+
             showAllBtn.addEventListener('click', () => {
                 this.toggleShowAll(sectionId);
             });
 
             // Find section-actions div or create one
-            let actionsDiv = stepHeader.querySelector('.section-actions');
+            let actionsDiv = stepHeader.querySelector('.adeptus-section-actions');
             if (!actionsDiv) {
                 actionsDiv = document.createElement('div');
-                actionsDiv.className = 'section-actions';
+                actionsDiv.className = 'adeptus-section-actions';
                 stepHeader.appendChild(actionsDiv);
             }
 
@@ -3332,12 +3385,12 @@ class AdeptusWizard {
         const section = document.getElementById(sectionId);
         if (!section) return;
 
-        const hiddenItems = section.querySelectorAll('.hidden-item');
-        const showAllBtn = section.querySelector('.btn-show-all');
-        
+        const hiddenItems = section.querySelectorAll('.adeptus-hidden-item');
+        const showAllBtn = section.querySelector('.adeptus-btn-show-all');
+
         if (!showAllBtn) return;
 
-        const isExpanded = showAllBtn.classList.contains('expanded');
+        const isExpanded = showAllBtn.classList.contains('adeptus-expanded');
 
         if (isExpanded) {
             // Hide items
@@ -3345,14 +3398,14 @@ class AdeptusWizard {
                 item.style.display = 'none';
             });
             showAllBtn.innerHTML = showAllBtn.innerHTML.replace('Hide', 'Show All');
-            showAllBtn.classList.remove('expanded');
+            showAllBtn.classList.remove('adeptus-expanded');
         } else {
             // Show all items
             hiddenItems.forEach(item => {
                 item.style.display = '';
             });
             showAllBtn.innerHTML = showAllBtn.innerHTML.replace('Show All', 'Hide');
-            showAllBtn.classList.add('expanded');
+            showAllBtn.classList.add('adeptus-expanded');
         }
     }
 
@@ -3431,7 +3484,7 @@ class AdeptusWizard {
                 }
 
                 // Update indicator styling based on remaining exports
-                const indicator = document.querySelector('.exports-left-indicator');
+                const indicator = document.querySelector('.adeptus-exports-left-indicator');
                 if (indicator) {
                     if (exportsRemaining <= 0) {
                         // No exports left - red styling
@@ -3547,7 +3600,7 @@ class AdeptusWizard {
             cancelButtonColor: '#95a5a6',
             width: 500,
             customClass: {
-                popup: 'upgrade-popup'
+                popup: 'adeptus-upgrade-popup'
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -3593,7 +3646,7 @@ class AdeptusWizard {
             cancelButtonColor: '#95a5a6',
             width: 500,
             customClass: {
-                popup: 'upgrade-popup'
+                popup: 'adeptus-upgrade-popup'
             }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -3821,7 +3874,7 @@ window.testAdeptusWizard = function() {
 
 // Close export menu when clicking outside
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.export-dropdown')) {
+    if (!e.target.closest('.adeptus-export-dropdown')) {
         document.getElementById('export-menu')?.classList.remove('show');
     }
 }); 
