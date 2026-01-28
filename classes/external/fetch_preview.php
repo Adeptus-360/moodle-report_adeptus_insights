@@ -35,7 +35,6 @@ use external_value;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fetch_preview extends external_api {
-
     /**
      * Returns description of method parameters.
      *

@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class notification_manager {
     /** @var error_handler Error handler instance. */
-    private $error_handler;
+    private $errorhandler;
 
     /** @var array Array of notification messages. */
     private $notifications;

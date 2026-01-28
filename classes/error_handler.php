@@ -35,13 +35,13 @@ defined('MOODLE_INTERNAL') || die();
  */
 class error_handler {
     /** @var array Error code definitions. */
-    private $error_codes;
+    private $errorcodes;
 
     /** @var array Recovery action suggestions. */
-    private $recovery_actions;
+    private $recoveryactions;
 
     /** @var array Admin contact information. */
-    private $admin_contact;
+    private $admincontact;
 
     /**
      * Constructor.

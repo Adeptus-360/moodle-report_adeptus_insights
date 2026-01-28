@@ -35,7 +35,6 @@ use external_value;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fetch_students extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -80,7 +79,7 @@ class fetch_students extends external_api {
 
         // Build query to get students enrolled in the specified courses.
         // Students are users with the student role (roleid = 5 by default).
-        list($insql, $inparams) = $DB->get_in_or_equal($params['courseids'], SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($params['courseids'], SQL_PARAMS_NAMED);
 
         $sql = "SELECT DISTINCT u.id, u.firstname, u.lastname, u.email
                 FROM {user} u

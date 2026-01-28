@@ -35,7 +35,6 @@ use external_value;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class generate_report extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -53,17 +52,17 @@ class generate_report extends external_api {
      * Generate a report by executing its SQL query with parameters.
      *
      * @param string $reportid Report name/identifier.
-     * @param string $parametersJson JSON-encoded parameters.
+     * @param string $parametersjson JSON-encoded parameters.
      * @param bool $reexecution Whether this is a re-execution.
      * @return array Report results with data and chart info.
      */
-    public static function execute($reportid, $parametersJson = '{}', $reexecution = false) {
+    public static function execute($reportid, $parametersjson = '{}', $reexecution = false) {
         global $CFG, $DB, $USER;
 
         // Parameter validation.
         $params = self::validate_parameters(self::execute_parameters(), [
             'reportid' => $reportid,
-            'parameters' => $parametersJson,
+            'parameters' => $parametersjson,
             'reexecution' => $reexecution,
         ]);
 

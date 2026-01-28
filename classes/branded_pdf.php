@@ -45,28 +45,28 @@ class branded_pdf extends \TCPDF {
      *
      * @var array
      */
-    protected $branding_config;
+    protected $brandingconfig;
 
     /**
      * Report title for header.
      *
      * @var string
      */
-    protected $report_title = '';
+    protected $reporttitle = '';
 
     /**
      * Generation timestamp.
      *
      * @var string
      */
-    protected $generation_timestamp = '';
+    protected $generationtimestamp = '';
 
     /**
      * Temporary file path for logo.
      *
      * @var string|null
      */
-    protected $logo_temp_file = null;
+    protected $logotempfile = null;
 
     /**
      * Constructor.

@@ -31,7 +31,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class build_materialized_table extends \core\task\scheduled_task {
-
     /**
      * Default retention period in days for usage data.
      */
@@ -116,7 +115,7 @@ class build_materialized_table extends \core\task\scheduled_task {
 
         $orphanedusers = $DB->get_fieldset_sql($sql);
         if (!empty($orphanedusers)) {
-            list($insql, $params) = $DB->get_in_or_equal($orphanedusers);
+            [$insql, $params] = $DB->get_in_or_equal($orphanedusers);
             $DB->delete_records_select('report_adeptus_insights_analytics', "id $insql", $params);
             $removed += count($orphanedusers);
         }
@@ -129,7 +128,7 @@ class build_materialized_table extends \core\task\scheduled_task {
 
         $orphanedcourses = $DB->get_fieldset_sql($sql);
         if (!empty($orphanedcourses)) {
-            list($insql, $params) = $DB->get_in_or_equal($orphanedcourses);
+            [$insql, $params] = $DB->get_in_or_equal($orphanedcourses);
             $DB->delete_records_select('report_adeptus_insights_analytics', "id $insql", $params);
             $removed += count($orphanedcourses);
         }
