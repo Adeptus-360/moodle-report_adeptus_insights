@@ -78,15 +78,6 @@ $functions = [
         'type'        => 'read',
         'ajax'        => true,
     ],
-    'report_adeptus_insights_create_billing_portal' => [
-        'classname'   => 'report_adeptus_insights\external',
-        'methodname'  => 'create_billing_portal',
-        'classpath'   => '',
-        'description' => 'Create billing portal session for subscription management',
-        'type'        => 'write',
-        'ajax'        => true,
-        'capabilities' => 'report/adeptus_insights:view',
-    ],
     'report_adeptus_insights_create_product_portal_session' => [
         'classname'   => 'report_adeptus_insights\external',
         'methodname'  => 'create_product_portal_session',
@@ -371,7 +362,6 @@ $services = [
             'report_adeptus_insights_create_billing_portal_session',
             'report_adeptus_insights_fetch_preview',
             'report_adeptus_insights_get_students',
-            'report_adeptus_insights_create_billing_portal',
             'report_adeptus_insights_create_product_portal_session',
             'report_adeptus_insights_register_installation',
             'report_adeptus_insights_cancel_subscription',

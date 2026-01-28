@@ -313,42 +313,6 @@ function report_adeptus_insights_handle_plans() {
 }
 
 /**
- * Get features for a plan based on its configuration.
- *
- * @param object $plan The plan object.
- * @return array List of feature descriptions.
- */
-function report_adeptus_insights_get_plan_features($plan) {
-    $features = [];
-
-    if ($plan->is_free) {
-        $features[] = 'Basic AI requests (DeepSeek)';
-        $features[] = $plan->exports . ' report exports per month';
-        $features[] = 'Standard support';
-    } else {
-        if ($plan->ai_credits_pro > 0) {
-            $features[] = $plan->ai_credits_pro . ' pro AI requests (OpenAI)';
-        }
-        if ($plan->ai_credits_basic > 0) {
-            $features[] = $plan->ai_credits_basic . ' basic AI requests (DeepSeek)';
-        }
-        $features[] = $plan->exports . ' report exports per month';
-
-        if ($plan->price >= 29.99) {
-            $features[] = 'Priority support';
-            $features[] = 'Top-up credits available';
-        }
-
-        if ($plan->price >= 99.99) {
-            $features[] = '24/7 priority support';
-            $features[] = 'Custom integrations';
-        }
-    }
-
-    return $features;
-}
-
-/**
  * Handle Stripe configuration endpoint.
  */
 function report_adeptus_insights_handle_stripe_config() {

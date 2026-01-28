@@ -514,25 +514,6 @@ class installation_manager {
         }
     }
 
-
-    /**
-     * Verify API key with backend.
-     *
-     * @return bool True if API key is valid, false otherwise.
-     */
-    private function verify_api_key() {
-        if (!$this->api_key) {
-            return false;
-        }
-
-        try {
-            $response = $this->make_api_request('installation/verify', []);
-            return $response && isset($response['success']) && $response['success'];
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
     /**
      * Set notification that registration is required.
      */

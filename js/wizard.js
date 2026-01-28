@@ -774,11 +774,6 @@ class AdeptusWizard {
             return;
         }
         this.eventsBound = true;
-        
-        // Debug: Check what category cards are available
-        const categoryCards = document.querySelectorAll('.adeptus-category-card');
-        categoryCards.forEach((card, index) => {
-        });
 
         // Category selection
         document.addEventListener('click', (e) => {
@@ -1288,10 +1283,6 @@ class AdeptusWizard {
 
                 this.displayReportConfiguration(data.report, enhancedParameters);
                 this.updateBookmarkStates(); // Update bookmark button state
-
-                // Show backend status if debug mode is enabled
-                if (this.debugMode && data.backend_enhanced !== undefined) {
-                }
             } else {
                 this.showError('Failed to load report parameters');
             }
@@ -1323,8 +1314,6 @@ class AdeptusWizard {
                 return parameters;
             }
 
-            const typeMapping = typeMappingData.data;
-            
             // Process each parameter using the backend API
             const enhancedParameters = [];
             
@@ -1366,9 +1355,6 @@ class AdeptusWizard {
                             max: param.max || processData.data.max
                         };
                         enhancedParameters.push(enhancedParam);
-                        
-                        if (this.debugMode) {
-                        }
                     } else {
                         // Fallback to original parameter if backend processing fails.
                         enhancedParameters.push(param);

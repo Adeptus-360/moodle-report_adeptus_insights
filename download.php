@@ -42,9 +42,6 @@ $reportid = required_param('reportid', PARAM_TEXT);
 $format = required_param('format', PARAM_ALPHA);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
-
-$view = optional_param('view', 'table', PARAM_ALPHA);
-
 $chartdata = optional_param('chart_data', '', PARAM_RAW);
 
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
@@ -474,45 +471,6 @@ try {
         'success' => false,
         'message' => get_string('error_export_report', 'report_adeptus_insights', $e->getMessage()),
     ]);
-}
-
-/**
- * Generate Excel HTML format with multiple sheets.
- *
- * @param array $sheetsdata Data for each sheet.
- * @param string $reportname The report name.
- * @return string HTML content for Excel.
- */
-function report_adeptus_insights_generate_excel_html($sheetsdata, $reportname) {
-    $html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">';
-    $html .= '<head><meta charset="UTF-8">';
-    $html .= '<style>';
-    $html .= 'table { border-collapse: collapse; }';
-    $html .= 'th, td { border: 1px solid #000; padding: 5px; }';
-    $html .= 'th { background-color: #f0f0f0; font-weight: bold; }';
-    $html .= 'h2 { color: #333; margin-top: 20px; }';
-    $html .= '</style>';
-    $html .= '</head><body>';
-
-    $html .= '<h1>' . htmlspecialchars($reportname) . '</h1>';
-    $html .= '<p>Generated on: ' . date('Y-m-d H:i:s') . '</p>';
-
-    foreach ($sheetsdata as $sheetname => $data) {
-        $html .= '<h2>' . htmlspecialchars($sheetname) . '</h2>';
-        $html .= '<table>';
-        foreach ($data as $row) {
-            $html .= '<tr>';
-            foreach ($row as $cell) {
-                $html .= '<td>' . htmlspecialchars($cell) . '</td>';
-            }
-            $html .= '</tr>';
-        }
-        $html .= '</table><br><br>';
-    }
-
-    $html .= '</body></html>';
-
-    return $html;
 }
 
 /**

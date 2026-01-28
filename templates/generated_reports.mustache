@@ -349,7 +349,6 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             var chartCanvas = document.getElementById('report-chart');
             if (!chartCanvas) {
-                console.warn('[GeneratedReports] Chart canvas not found');
                 return null;
             }
 
@@ -357,11 +356,10 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             try {
                 var dataUrl = chartCanvas.toDataURL('image/png', 0.8);
                 if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                    console.log('[GeneratedReports] Chart captured via toDataURL, size:', dataUrl.length);
                     return dataUrl;
                 }
             } catch (e) {
-                console.warn('[GeneratedReports] Native canvas capture failed:', e);
+                // Native canvas capture failed, trying fallback.
             }
 
             // Method 2: html2canvas fallback (handles CORS/tainted canvas)
@@ -380,12 +378,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     });
                     var dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
                     if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                        console.log('[GeneratedReports] Chart captured via html2canvas, size:', dataUrl.length);
                         return dataUrl;
                     }
                 }
             } catch (e) {
-                console.warn('[GeneratedReports] html2canvas capture failed:', e);
+                // html2canvas capture failed.
             }
 
             return null;
@@ -467,10 +464,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         report_name: reportName
                     }
                 }])[0].done(function(result) {
-                    var data = result.data ? result.data : result;
-                    console.log('[GeneratedReports] Export tracked:', data);
+                    // Export tracked successfully.
                 }).fail(function(error) {
-                    console.error('[GeneratedReports] Error tracking export:', error);
+                    // Export tracking failed silently.
                 });
             });
         },
@@ -731,7 +727,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                                 self.cachedCategories.push(newCategory);
                             }
                         } catch (e) {
-                            console.warn('[GeneratedReports] Failed to parse category:', e);
+                            // Failed to parse category, silently ignore.
                         }
                         Swal.close();
                         Swal.fire({
@@ -1066,10 +1062,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         is_ai_generated: isAiGenerated ? true : false
                     }
                 }])[0].done(function(result) {
-                    var data = result.data ? result.data : result;
-                    console.log('[GeneratedReports] Report deletion tracked:', data);
+                    // Report deletion tracked successfully.
                 }).fail(function(error) {
-                    console.warn('[GeneratedReports] Failed to track report deletion:', error);
+                    // Report deletion tracking failed silently.
                 });
             });
         },
@@ -1484,7 +1479,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                         }
                     }, 150);
                 } catch (e) {
-                    console.warn('DataTable initialization failed:', e);
+                    // DataTable initialization failed, table will be displayed without enhanced features.
                 }
             }, 100);
         },
@@ -1970,7 +1965,6 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             try {
                 this.chartInstance = new this.Chart(canvas.getContext('2d'), chartConfig);
             } catch (error) {
-                console.error('Error creating chart:', error);
                 $('#report-chart-view .adeptus-chart-container').html(
                     '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' + STRINGS.errorRenderingChart + ': ' + error.message + '</div>'
                 );
@@ -2143,12 +2137,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                         if (chartImage && chartImage.length > 100) {
                             body += '&chart_image=' + encodeURIComponent(chartImage);
-                            console.log('[GeneratedReports] Chart image included in export');
-                        } else {
-                            console.warn('[GeneratedReports] Chart capture returned empty or invalid data');
                         }
                     } catch (e) {
-                        console.warn('[GeneratedReports] Chart capture failed, continuing without chart:', e.message);
+                        // Chart capture failed, continuing without chart.
                     }
                 }
 
