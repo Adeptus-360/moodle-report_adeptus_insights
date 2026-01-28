@@ -292,6 +292,35 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 4: Categories & Generated Reports External Services.
+    'report_adeptus_insights_manage_category' => [
+        'classname'   => 'report_adeptus_insights\external\manage_category',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Manage report categories (list, create, update, delete)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_manage_generated_reports' => [
+        'classname'   => 'report_adeptus_insights\external\manage_generated_reports',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Manage generated reports (remove_single, clear_all)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_update_report_category' => [
+        'classname'   => 'report_adeptus_insights\external\update_report_category',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Update a report\'s category assignment',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -330,6 +359,10 @@ $services = [
             'report_adeptus_insights_track_export',
             'report_adeptus_insights_bookmark_report',
             'report_adeptus_insights_manage_recent_reports',
+            // Phase 4: Categories & Generated Reports.
+            'report_adeptus_insights_manage_category',
+            'report_adeptus_insights_manage_generated_reports',
+            'report_adeptus_insights_update_report_category',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

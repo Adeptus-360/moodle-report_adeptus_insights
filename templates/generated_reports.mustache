@@ -496,23 +496,25 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         loadCategories: function() {
             var self = this;
 
-            // Use PHP proxy to avoid CORS issues
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'list',
-                    sesskey: M.cfg.sesskey
-                },
-                success: function(response) {
-                    if (response.success && response.data) {
-                        self.cachedCategories = response.data;
+            // Use external service to load categories
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_manage_category',
+                    args: {
+                        action: 'list'
                     }
-                },
-                error: function() {
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    if (data.success && data.categories) {
+                        try {
+                            self.cachedCategories = JSON.parse(data.categories);
+                        } catch (e) {
+                            self.cachedCategories = [];
+                        }
+                    }
+                }).fail(function() {
                     self.cachedCategories = [];
-                }
+                });
             });
         },
 
@@ -711,20 +713,26 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         createCategory: function(name, color) {
             var self = this;
 
-            // Use PHP proxy to avoid CORS issues
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'create',
-                    name: name,
-                    color: color,
-                    sesskey: M.cfg.sesskey
-                },
-                success: function(response) {
-                    if (response.success) {
-                        self.cachedCategories.push(response.data);
+            // Use external service to create category
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_manage_category',
+                    args: {
+                        action: 'create',
+                        name: name,
+                        color: color
+                    }
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    if (data.success) {
+                        try {
+                            var newCategory = data.category ? JSON.parse(data.category) : null;
+                            if (newCategory) {
+                                self.cachedCategories.push(newCategory);
+                            }
+                        } catch (e) {
+                            console.warn('[GeneratedReports] Failed to parse category:', e);
+                        }
                         Swal.close();
                         Swal.fire({
                             icon: 'success',
@@ -735,13 +743,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.showValidationMessage(response.message);
+                        Swal.showValidationMessage(data.message);
                     }
-                },
-                error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || 'Failed to create category';
+                }).fail(function(error) {
+                    var msg = error.message || 'Failed to create category';
                     Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
-                }
+                });
             });
         },
 
@@ -827,24 +834,31 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         updateCategory: function(categoryId, name, color) {
             var self = this;
 
-            // Use PHP proxy to avoid CORS issues
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'update',
-                    category_id: categoryId,
-                    name: name,
-                    color: color,
-                    sesskey: M.cfg.sesskey
-                },
-                success: function(response) {
-                    if (response.success) {
+            // Use external service to update category
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_manage_category',
+                    args: {
+                        action: 'update',
+                        category_id: categoryId,
+                        name: name,
+                        color: color
+                    }
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    if (data.success) {
                         // Update cached category
                         var idx = self.cachedCategories.findIndex(function(c) { return c.id == categoryId; });
                         if (idx !== -1) {
-                            self.cachedCategories[idx] = response.data;
+                            try {
+                                var updatedCategory = data.category ? JSON.parse(data.category) : null;
+                                if (updatedCategory) {
+                                    self.cachedCategories[idx] = updatedCategory;
+                                }
+                            } catch (e) {
+                                self.cachedCategories[idx].name = name;
+                                self.cachedCategories[idx].color = color;
+                            }
                         }
                         Swal.fire({
                             icon: 'success',
@@ -855,13 +869,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: STRINGS.error, text: response.message });
+                        Swal.fire({ icon: 'error', title: STRINGS.error, text: data.message });
                     }
-                },
-                error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || '';
+                }).fail(function(error) {
+                    var msg = error.message || '';
                     Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
-                }
+                });
             });
         },
 
@@ -886,18 +899,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         deleteCategory: function(categoryId) {
             var self = this;
 
-            // Use PHP proxy to avoid CORS issues
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'delete',
-                    category_id: categoryId,
-                    sesskey: M.cfg.sesskey
-                },
-                success: function(response) {
-                    if (response.success) {
+            // Use external service to delete category
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_manage_category',
+                    args: {
+                        action: 'delete',
+                        category_id: categoryId
+                    }
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    if (data.success) {
                         // Remove from cache
                         self.cachedCategories = self.cachedCategories.filter(function(c) { return c.id != categoryId; });
                         Swal.fire({
@@ -909,13 +921,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                             self.showCategoryManagementModal();
                         });
                     } else {
-                        Swal.fire({ icon: 'error', title: STRINGS.error, text: response.message });
+                        Swal.fire({ icon: 'error', title: STRINGS.error, text: data.message });
                     }
-                },
-                error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || 'Failed to delete category';
+                }).fail(function(error) {
+                    var msg = error.message || 'Failed to delete category';
                     Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
-                }
+                });
             });
         },
 
@@ -977,75 +988,66 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 }
             });
 
-            // Use PHP proxy for both wizard and AI reports to avoid CORS issues
-            var deletePromise = $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_generated_reports.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    action: 'remove_single',
-                    slug: slug,
-                    source: source,
-                    sesskey: M.cfg.sesskey
-                }
-            });
+            // Use external service for both wizard and AI reports
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_manage_generated_reports',
+                    args: {
+                        action: 'remove_single',
+                        slug: slug,
+                        source: source
+                    }
+                }])[0].done(function(result) {
+                    var response = result.data ? result.data : result;
 
-            deletePromise.then(function(response) {
-                // Check if deletion was successful
-                if (!response.success) {
+                    // Check if deletion was successful
+                    if (!response.success) {
+                        Swal.close();
+                        Swal.fire({
+                            icon: 'error',
+                            title: STRINGS.deleteFailed,
+                            text: response.message
+                        });
+                        return;
+                    }
+
+                    // Track the deletion to update quota
+                    self.trackReportDeleted(reportName, source === 'assistant');
+
+                    // Remove from cached reports
+                    self.cachedReports = self.cachedReports.filter(function(r) {
+                        return r.slug !== slug;
+                    });
+
+                    // Clear current report if it was the deleted one
+                    if (self.currentReport && self.currentReport.slug === slug) {
+                        self.currentReport = null;
+                        self.currentReportData = null;
+                    }
+
+                    // Refresh the reports list
+                    self.renderReportsList(self.cachedReports);
+                    self.updateReportCount(self.cachedReports.length);
+
+                    // Reset the report view
+                    $('#report-content').addClass('d-none');
+                    $('#report-placeholder').removeClass('d-none');
+                    $('#report-category-selector').addClass('d-none');
+                    $('.adeptus-report-view-title').text(STRINGS.selectAReport);
+
                     Swal.close();
+
+                    // Show success toast
+                    self.showToast(STRINGS.reportDeletedSuccess, 'success');
+
+                }).fail(function(error) {
+                    Swal.close();
+                    var errorMsg = error.message || '';
                     Swal.fire({
                         icon: 'error',
                         title: STRINGS.deleteFailed,
-                        text: response.message
+                        text: errorMsg
                     });
-                    return;
-                }
-
-                // Track the deletion to update quota
-                self.trackReportDeleted(reportName, source === 'assistant');
-
-                // Remove from cached reports
-                self.cachedReports = self.cachedReports.filter(function(r) {
-                    return r.slug !== slug;
-                });
-
-                // Clear current report if it was the deleted one
-                if (self.currentReport && self.currentReport.slug === slug) {
-                    self.currentReport = null;
-                    self.currentReportData = null;
-                }
-
-                // Refresh the reports list
-                self.renderReportsList(self.cachedReports);
-                self.updateReportCount(self.cachedReports.length);
-
-                // Reset the report view
-                $('#report-content').addClass('d-none');
-                $('#report-placeholder').removeClass('d-none');
-                $('#report-category-selector').addClass('d-none');
-                $('.adeptus-report-view-title').text(STRINGS.selectAReport);
-
-                Swal.close();
-
-                // Show success toast
-                self.showToast(STRINGS.reportDeletedSuccess, 'success');
-
-            }).catch(function(xhr) {
-                Swal.close();
-                var errorMsg = '';
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    errorMsg = response.message || '';
-                } catch (e) {
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                }
-                Swal.fire({
-                    icon: 'error',
-                    title: STRINGS.deleteFailed,
-                    text: errorMsg
                 });
             });
         },
@@ -1116,24 +1118,26 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             // If categories not loaded yet, load them first
             if (!this.cachedCategories || this.cachedCategories.length === 0) {
-                $.ajax({
-                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
-                    method: 'POST',
-                    dataType: 'json',
-                    data: {
-                        action: 'list',
-                        sesskey: M.cfg.sesskey
-                    },
-                    success: function(response) {
-                        if (response.success && response.data) {
-                            self.cachedCategories = response.data;
+                require(['core/ajax'], function(Ajax) {
+                    Ajax.call([{
+                        methodname: 'report_adeptus_insights_manage_category',
+                        args: {
+                            action: 'list'
+                        }
+                    }])[0].done(function(result) {
+                        var data = result.data ? result.data : result;
+                        if (data.success && data.categories) {
+                            try {
+                                self.cachedCategories = JSON.parse(data.categories);
+                            } catch (e) {
+                                self.cachedCategories = [];
+                            }
                         }
                         buildDropdown();
-                    },
-                    error: function() {
+                    }).fail(function() {
                         self.cachedCategories = [];
                         buildDropdown();
-                    }
+                    });
                 });
             } else {
                 buildDropdown();
@@ -1169,18 +1173,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             $('#category-dot').css('background', categoryColor);
             $('#category-name').text(categoryName);
 
-            // Use PHP proxy to avoid CORS issues (server-to-server call to backend)
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/update_report_category.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    slug: slug,
-                    category_id: categoryId,
-                    source: source,
-                    sesskey: M.cfg.sesskey
-                },
-                success: function(response) {
+            // Use external service to update report category
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_update_report_category',
+                    args: {
+                        slug: slug,
+                        category_id: categoryId,
+                        source: source
+                    }
+                }])[0].done(function(result) {
+                    var response = result.data ? result.data : result;
                     if (response.success) {
                         // Update cached report
                         var cacheIndex = self.cachedReports.findIndex(function(r) { return r.slug === slug; });
@@ -1207,11 +1210,10 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                             text: response.message
                         });
                     }
-                },
-                error: function(xhr) {
-                    var msg = xhr.responseJSON?.message || '';
+                }).fail(function(error) {
+                    var msg = error.message || '';
                     Swal.fire({ icon: 'error', title: STRINGS.error, text: msg });
-                }
+                });
             });
         },
 

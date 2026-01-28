@@ -3748,16 +3748,14 @@ class AdeptusWizard {
         this.showLoading('Removing generated report...');
 
         try {
-            // Create a new endpoint for removing generated reports
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/manage_generated_reports.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=remove_single&reportid=${reportId}&sesskey=${this.wizardData.sesskey}`
+            // Use external service to remove generated reports
+            const result = await this.callExternalService('report_adeptus_insights_manage_generated_reports', {
+                action: 'remove_single',
+                slug: reportId,
+                source: 'wizard'
             });
 
-            const data = await response.json();
+            const data = result.data ? result.data : result;
 
             if (data.success) {
                 this.showSuccess('Generated report removed successfully!');
