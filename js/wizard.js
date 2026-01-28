@@ -150,18 +150,14 @@ class AdeptusWizard {
         }
 
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/get_reports_from_backend.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `sesskey=${this.wizardData.sesskey}`
-            });
-
-            const data = await response.json();
+            const result = await this.callExternalService('report_adeptus_insights_get_reports_from_backend', {});
+            const data = result.data ? result.data : result;
 
             if (data.success) {
-                this.wizardData.categories = data.categories;
+                // Parse categories from JSON string
+                this.wizardData.categories = typeof data.categories === 'string'
+                    ? JSON.parse(data.categories)
+                    : data.categories;
                 this.categoriesLoaded = true;
 
                 // Initialize the wizard with the loaded data
@@ -175,10 +171,10 @@ class AdeptusWizard {
             }
         } catch (error) {
             // Check if this is an authentication error (301/302 redirect to login)
-            if (error.message.includes('HTTP 301') || error.message.includes('HTTP 302')) {
+            if (error.message && (error.message.includes('HTTP 301') || error.message.includes('HTTP 302'))) {
                 this.showError('Your session has expired. Please refresh the page and log in again.');
             } else {
-                this.showError('Failed to load reports from backend: ' + error.message);
+                this.showError('Failed to load reports from backend: ' + (error.message || error));
             }
             throw error;
         }

@@ -5054,61 +5054,53 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * @returns {Promise<Object>} Promise resolving to {data: array, headers: array, error: string|null}
          */
         executeReportLocally: function(sql, params = {}) {
-            const self = this;
+            var self = this;
 
             return new Promise((resolve, reject) => {
                 // Show loading indicator
                 self.showLoading();
 
-                $.ajax({
-                    url: `${M.cfg.wwwroot}/report/adeptus_insights/ajax/execute_ai_report.php`,
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_execute_ai_report',
+                    args: {
                         sql: sql,
-                        params: params,
-                        sesskey: M.cfg.sesskey
-                    }),
-                    timeout: 60000, // 60 second timeout for complex queries
-                    success: function(response) {
-                        self.hideLoading();
-
-                        if (response.success) {
-                            resolve({
-                                data: response.data || [],
-                                headers: response.headers || [],
-                                row_count: response.row_count || 0,
-                                error: null
-                            });
-                        } else {
-                            // SQL error or validation error
-                            resolve({
-                                data: null,
-                                headers: [],
-                                row_count: 0,
-                                error: response.message || response.details || 'Query execution failed'
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        self.hideLoading();
-
-                        let errorMessage = 'Failed to execute report locally';
-
-                        if (xhr.status === 400) {
-                            // Bad request - likely SQL validation error
-                            const response = xhr.responseJSON;
-                            errorMessage = response?.message || response?.details || 'Invalid SQL query';
-                        } else if (xhr.status === 403) {
-                            errorMessage = 'Session expired. Please refresh the page.';
-                        } else if (xhr.status === 0) {
-                            errorMessage = 'Network error. Please check your connection.';
-                        } else if (status === 'timeout') {
-                            errorMessage = 'Query timed out. Try simplifying your request.';
-                        }
-
-                        reject(new Error(errorMessage));
+                        params: JSON.stringify(params)
                     }
+                }]);
+
+                promises[0].done(function(result) {
+                    self.hideLoading();
+                    var response = result.data ? result.data : result;
+
+                    if (response.success) {
+                        // Parse JSON strings if needed
+                        var data = response.data;
+                        var headers = response.headers;
+                        if (typeof data === 'string') {
+                            try { data = JSON.parse(data); } catch (e) { data = []; }
+                        }
+                        if (typeof headers === 'string') {
+                            try { headers = JSON.parse(headers); } catch (e) { headers = []; }
+                        }
+                        resolve({
+                            data: data || [],
+                            headers: headers || [],
+                            row_count: response.row_count || 0,
+                            error: null
+                        });
+                    } else {
+                        // SQL error or validation error
+                        resolve({
+                            data: null,
+                            headers: [],
+                            row_count: 0,
+                            error: response.message || 'Query execution failed'
+                        });
+                    }
+                }).fail(function(error) {
+                    self.hideLoading();
+                    var errorMessage = error.message || 'Failed to execute report locally';
+                    reject(new Error(errorMessage));
                 });
             });
         },

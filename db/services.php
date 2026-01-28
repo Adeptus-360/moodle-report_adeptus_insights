@@ -321,6 +321,44 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 5: Advanced/Backend External Services.
+    'report_adeptus_insights_get_reports_from_backend' => [
+        'classname'   => 'report_adeptus_insights\external\get_reports_from_backend',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get reports from backend API with version filtering',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_execute_ai_report' => [
+        'classname'   => 'report_adeptus_insights\external\execute_ai_report',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Execute AI-generated report SQL locally',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_batch_kpi_data' => [
+        'classname'   => 'report_adeptus_insights\external\batch_kpi_data',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Batch fetch KPI data for multiple reports',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_auth_status' => [
+        'classname'   => 'report_adeptus_insights\external\get_auth_status',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get authentication status',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -363,6 +401,11 @@ $services = [
             'report_adeptus_insights_manage_category',
             'report_adeptus_insights_manage_generated_reports',
             'report_adeptus_insights_update_report_category',
+            // Phase 5: Advanced/Backend.
+            'report_adeptus_insights_get_reports_from_backend',
+            'report_adeptus_insights_execute_ai_report',
+            'report_adeptus_insights_batch_kpi_data',
+            'report_adeptus_insights_get_auth_status',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

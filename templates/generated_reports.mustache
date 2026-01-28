@@ -1692,25 +1692,31 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
          * @returns {Promise} - Resolves with execution result
          */
         executeReportLocally: function(sql, params) {
-            var self = this;
             params = params || {};
 
             return new Promise(function(resolve, reject) {
-                $.ajax({
-                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/execute_ai_report.php',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        sql: sql,
-                        params: params,
-                        sesskey: M.cfg.sesskey
-                    }),
-                    timeout: 60000,
-                    success: function(response) {
+                require(['core/ajax'], function(Ajax) {
+                    Ajax.call([{
+                        methodname: 'report_adeptus_insights_execute_ai_report',
+                        args: {
+                            sql: sql,
+                            params: JSON.stringify(params)
+                        }
+                    }])[0].done(function(result) {
+                        var response = result.data ? result.data : result;
                         if (response.success) {
+                            // Parse JSON strings if needed
+                            var data = response.data;
+                            var headers = response.headers;
+                            if (typeof data === 'string') {
+                                try { data = JSON.parse(data); } catch (e) { data = []; }
+                            }
+                            if (typeof headers === 'string') {
+                                try { headers = JSON.parse(headers); } catch (e) { headers = []; }
+                            }
                             resolve({
-                                data: response.data || [],
-                                headers: response.headers || [],
+                                data: data || [],
+                                headers: headers || [],
                                 row_count: response.row_count || 0,
                                 error: null
                             });
@@ -1722,17 +1728,10 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                                 error: response.message || 'Query execution failed'
                             });
                         }
-                    },
-                    error: function(xhr, status, error) {
-                        var errorMessage = 'Failed to execute report';
-                        try {
-                            var response = JSON.parse(xhr.responseText);
-                            errorMessage = response.message || errorMessage;
-                        } catch (e) {
-                            errorMessage = error || errorMessage;
-                        }
+                    }).fail(function(error) {
+                        var errorMessage = error.message || 'Failed to execute report';
                         reject(new Error(errorMessage));
-                    }
+                    });
                 });
             });
         },

@@ -59,24 +59,39 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * Check authentication status
          */
         checkAuthStatus: function() {
+            var self = this;
             return new Promise((resolve, reject) => {
-                $.ajax({
-                    url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/get_auth_status.php',
-                    method: 'GET',
-                    dataType: 'json',
-                    success: (response) => {
-                        if (response && response.success) {
-                            this.handleAuthSuccess(response.data);
-                            resolve();
-                        } else {
-                            this.handleAuthFailure(response.message || 'Authentication failed');
-                            reject(new Error(response.message || 'Authentication failed'));
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_get_auth_status',
+                    args: {}
+                }]);
+
+                promises[0].done(function(result) {
+                    var response = result.data ? result.data : result;
+                    if (response && response.success) {
+                        // Build auth data from response
+                        var authData = {
+                            is_authenticated: response.is_authenticated,
+                            user_email: response.user_email,
+                            token_expires_at: response.token_expires_at
+                        };
+                        // Parse installation_info if it's a JSON string
+                        if (response.installation_info) {
+                            try {
+                                authData.installation_info = JSON.parse(response.installation_info);
+                            } catch (e) {
+                                authData.installation_info = {};
+                            }
                         }
-                    },
-                    error: (xhr, status, error) => {
-                        this.handleAuthFailure('Failed to check authentication status');
-                        reject(new Error('Failed to check authentication status'));
+                        self.handleAuthSuccess(authData);
+                        resolve();
+                    } else {
+                        self.handleAuthFailure(response.message || 'Authentication failed');
+                        reject(new Error(response.message || 'Authentication failed'));
                     }
+                }).fail(function(error) {
+                    self.handleAuthFailure('Failed to check authentication status');
+                    reject(new Error('Failed to check authentication status'));
                 });
             });
         },
