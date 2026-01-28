@@ -459,20 +459,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
          * Track export for usage monitoring
          */
         trackExport: function(format, reportName) {
-            var self = this;
-            fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_export.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'format=' + encodeURIComponent(format) + '&report_name=' + encodeURIComponent(reportName) + '&sesskey=' + M.cfg.sesskey
-            })
-            .then(function(response) { return response.json(); })
-            .then(function(data) {
-                console.log('[GeneratedReports] Export tracked:', data);
-            })
-            .catch(function(error) {
-                console.error('[GeneratedReports] Error tracking export:', error);
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_track_export',
+                    args: {
+                        format: format,
+                        report_name: reportName
+                    }
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    console.log('[GeneratedReports] Export tracked:', data);
+                }).fail(function(error) {
+                    console.error('[GeneratedReports] Error tracking export:', error);
+                });
             });
         },
 
@@ -1057,19 +1056,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
          * @param {boolean} isAiGenerated - Whether the report was AI-generated
          */
         trackReportDeleted: function(reportName, isAiGenerated) {
-            $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/track_report_deleted.php',
-                method: 'POST',
-                dataType: 'json',
-                data: {
-                    report_name: reportName,
-                    is_ai_generated: isAiGenerated ? 1 : 0,
-                    sesskey: M.cfg.sesskey
-                }
-            }).done(function(response) {
-                console.log('[GeneratedReports] Report deletion tracked:', response);
-            }).fail(function(error) {
-                console.warn('[GeneratedReports] Failed to track report deletion:', error);
+            require(['core/ajax'], function(Ajax) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_track_report_deleted',
+                    args: {
+                        report_name: reportName,
+                        is_ai_generated: isAiGenerated ? true : false
+                    }
+                }])[0].done(function(result) {
+                    var data = result.data ? result.data : result;
+                    console.log('[GeneratedReports] Report deletion tracked:', data);
+                }).fail(function(error) {
+                    console.warn('[GeneratedReports] Failed to track report deletion:', error);
+                });
             });
         },
 

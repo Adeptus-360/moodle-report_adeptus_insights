@@ -1217,24 +1217,26 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Track AI-generated report creation with the backend
          */
         trackReportCreated: async function(reportName) {
+            var self = this;
             try {
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/track_report_created.php`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=1&sesskey=${M.cfg.sesskey}`
-                });
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_track_report_created',
+                    args: {
+                        report_name: reportName,
+                        is_ai_generated: true
+                    }
+                }]);
 
-                const data = await response.json();
+                var result = await promises[0];
+                var data = result.data ? result.data : result;
 
                 if (data.success && !data.tracking_error) {
                     // Update internal state with new counts
-                    this.reportsUsed = data.reports_used || this.reportsUsed;
-                    this.reportsLimit = data.reports_limit || this.reportsLimit;
-                    this.reportsRemaining = data.reports_remaining || this.reportsRemaining;
-                    this.isReportLimitReached = this.reportsRemaining <= 0 && this.reportsLimit !== -1;
-                    this.updateReportLimitUI();
+                    self.reportsUsed = data.reports_used || self.reportsUsed;
+                    self.reportsLimit = data.reports_limit || self.reportsLimit;
+                    self.reportsRemaining = data.reports_remaining || self.reportsRemaining;
+                    self.isReportLimitReached = self.reportsRemaining <= 0 && self.reportsLimit !== -1;
+                    self.updateReportLimitUI();
                 }
 
                 return data;
@@ -5364,15 +5366,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         trackExport: async function(format, reportName) {
             try {
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/track_export.php`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(reportName)}&sesskey=${M.cfg.sesskey}`
-                });
+                var promises = Ajax.call([{
+                    methodname: 'report_adeptus_insights_track_export',
+                    args: {
+                        format: format,
+                        report_name: reportName
+                    }
+                }]);
 
-                const data = await response.json();
+                await promises[0];
                 // Silently handle tracking failures - not critical to user experience.
             } catch (error) {
                 // Tracking failed silently.

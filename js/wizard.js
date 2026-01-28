@@ -221,15 +221,11 @@ class AdeptusWizard {
      */
     async trackReportCreated(reportName, isAiGenerated = false) {
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_report_created.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=${isAiGenerated ? 1 : 0}&sesskey=${this.wizardData.sesskey}`
+            const result = await this.callExternalService('report_adeptus_insights_track_report_created', {
+                report_name: reportName,
+                is_ai_generated: isAiGenerated
             });
-
-            const data = await response.json();
+            const data = result.data ? result.data : result;
 
             if (data.success && !data.tracking_error) {
                 // Update internal state with new counts
@@ -252,15 +248,11 @@ class AdeptusWizard {
      */
     async trackReportDeleted(reportName, isAiGenerated = false) {
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_report_deleted.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `report_name=${encodeURIComponent(reportName)}&is_ai_generated=${isAiGenerated ? 1 : 0}&sesskey=${this.wizardData.sesskey}`
+            const result = await this.callExternalService('report_adeptus_insights_track_report_deleted', {
+                report_name: reportName,
+                is_ai_generated: isAiGenerated
             });
-
-            const data = await response.json();
+            const data = result.data ? result.data : result;
 
             if (data.success && !data.tracking_error) {
                 // Update internal state with new counts
@@ -3035,16 +3027,12 @@ class AdeptusWizard {
     async toggleBookmark() {
         this.showLoading('Updating bookmark...');
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/bookmark_report.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `reportid=${encodeURIComponent(this.selectedReport)}&action=toggle&sesskey=${this.wizardData.sesskey}`
+            const result = await this.callExternalService('report_adeptus_insights_bookmark_report', {
+                reportid: this.selectedReport,
+                action: 'toggle'
             });
+            const data = result.data ? result.data : result;
 
-            const data = await response.json();
-            
             if (data.success) {
                 if (data.action === 'added') {
                 this.showSuccess('Report bookmarked successfully!');
@@ -3077,16 +3065,12 @@ class AdeptusWizard {
     async removeBookmark(reportId) {
         this.showLoading('Removing bookmark...');
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/bookmark_report.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `reportid=${encodeURIComponent(reportId)}&action=remove&sesskey=${this.wizardData.sesskey}`
+            const result = await this.callExternalService('report_adeptus_insights_bookmark_report', {
+                reportid: reportId,
+                action: 'remove'
             });
+            const data = result.data ? result.data : result;
 
-            const data = await response.json();
-            
             if (data.success) {
                 this.showSuccess('Bookmark removed successfully!');
                 // Remove the bookmark card from view
@@ -3398,19 +3382,12 @@ class AdeptusWizard {
         }
 
         try {
-            // Use Moodle endpoint which handles both free and paid plans
-            const url = `${this.wizardData.wwwroot}/report/adeptus_insights/ajax/track_export.php`;
-            const body = `format=${encodeURIComponent(format)}&report_name=${encodeURIComponent(this.selectedReport)}&sesskey=${this.wizardData.sesskey}`;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: body
+            // Use external service to track export
+            const result = await this.callExternalService('report_adeptus_insights_track_export', {
+                format: format,
+                report_name: this.selectedReport
             });
-
-            const data = await response.json();
+            const data = result.data ? result.data : result;
 
             if (data.success) {
                 // Update export counter in UI
@@ -3629,18 +3606,14 @@ class AdeptusWizard {
 
     async removeRecentReport(reportId) {
         this.showLoading('Removing recent report...');
-        
-        try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/manage_recent_reports.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=remove_single&reportid=${reportId}&sesskey=${this.wizardData.sesskey}`
-            });
 
-            const data = await response.json();
-            
+        try {
+            const result = await this.callExternalService('report_adeptus_insights_manage_recent_reports', {
+                action: 'remove_single',
+                reportid: reportId
+            });
+            const data = result.data ? result.data : result;
+
             if (data.success) {
                 this.showSuccess('Report removed successfully!');
                 // Remove from data and re-render all sections
@@ -3650,7 +3623,7 @@ class AdeptusWizard {
                         this.wizardData.recent_reports.splice(index, 1);
                     }
                 }
-                
+
                 // Re-render only recent reports section
                 this.renderRecentReports();
                 // Don't re-render generated reports - they should remain independent
@@ -3669,20 +3642,16 @@ class AdeptusWizard {
         if (!confirm('Are you sure you want to clear all recent reports? This action cannot be undone.')) {
             return;
         }
-        
-        this.showLoading('Clearing all recent reports...');
-        
-        try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/manage_recent_reports.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=clear_all&sesskey=${this.wizardData.sesskey}`
-            });
 
-            const data = await response.json();
-            
+        this.showLoading('Clearing all recent reports...');
+
+        try {
+            const result = await this.callExternalService('report_adeptus_insights_manage_recent_reports', {
+                action: 'clear_all',
+                reportid: ''
+            });
+            const data = result.data ? result.data : result;
+
             if (data.success) {
                 this.showSuccess('All recent reports cleared successfully!');
                 // Clear data and re-render only recent reports section
@@ -3706,14 +3675,11 @@ class AdeptusWizard {
         }
         this.showLoading('Clearing all bookmarks...');
         try {
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/bookmark_report.php`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `action=clear_all&sesskey=${this.wizardData.sesskey}`
+            const result = await this.callExternalService('report_adeptus_insights_bookmark_report', {
+                reportid: '',
+                action: 'clearall'
             });
-            const data = await response.json();
+            const data = result.data ? result.data : result;
             if (data.success) {
                 this.showSuccess('All bookmarks cleared successfully!');
                 // Clear data and re-render bookmarks section

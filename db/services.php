@@ -245,6 +245,53 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 3: Tracking & Management External Services.
+    'report_adeptus_insights_track_report_created' => [
+        'classname'   => 'report_adeptus_insights\external\track_report_created',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Track report creation for usage limits',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_track_report_deleted' => [
+        'classname'   => 'report_adeptus_insights\external\track_report_deleted',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Track report deletion for usage limits',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_track_export' => [
+        'classname'   => 'report_adeptus_insights\external\track_export',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Track export usage',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_bookmark_report' => [
+        'classname'   => 'report_adeptus_insights\external\bookmark_report',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Manage report bookmarks',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_manage_recent_reports' => [
+        'classname'   => 'report_adeptus_insights\external\manage_recent_reports',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Manage recent reports list',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -277,6 +324,12 @@ $services = [
             'report_adeptus_insights_get_usage_data',
             'report_adeptus_insights_get_available_plans',
             'report_adeptus_insights_create_subscription',
+            // Phase 3: Tracking & Management.
+            'report_adeptus_insights_track_report_created',
+            'report_adeptus_insights_track_report_deleted',
+            'report_adeptus_insights_track_export',
+            'report_adeptus_insights_bookmark_report',
+            'report_adeptus_insights_manage_recent_reports',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
