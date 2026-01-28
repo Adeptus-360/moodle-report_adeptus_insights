@@ -89,17 +89,14 @@ if (empty($pluginversion)) {
 }
 
 if (!empty($missingfields)) {
-    $errormessage = 'Missing required Moodle configuration: ' . implode(', ', $missingfields) .
-        '. Please ensure these values are properly set in your Moodle configuration.';
+    $errormessage = get_string('error_missing_moodle_config', 'report_adeptus_insights', implode(', ', $missingfields));
 }
 
 // Handle form submission.
 if (optional_param('action', '', PARAM_ALPHA) === 'register' && confirm_sesskey()) {
     // Check if we have missing fields.
     if (!empty($missingfields)) {
-        $errormessage = 'Cannot register plugin due to missing required information: ' .
-            implode(', ', $missingfields) .
-            '. Please ensure these values are properly set in your Moodle configuration.';
+        $errormessage = get_string('error_missing_registration_info', 'report_adeptus_insights', implode(', ', $missingfields));
     } else {
         try {
             $result = $installationmanager->register_installation($adminemail, $adminname, $siteurl, $sitename);

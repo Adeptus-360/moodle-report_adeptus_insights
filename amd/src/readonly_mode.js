@@ -26,8 +26,28 @@
  */
 
 // jshint ignore:start
-define(['jquery', 'core/notification'], function($, Notification) {
+define(['jquery', 'core/notification', 'core/str'], function($, Notification, Str) {
     'use strict';
+
+    /** @var {Object} strings - Loaded language strings. */
+    var strings = {};
+
+    /**
+     * Load required language strings.
+     * @returns {Promise} Promise that resolves when strings are loaded.
+     */
+    var loadStrings = function() {
+        return Str.get_strings([
+            {key: 'js_plugin_readonly_mode', component: 'report_adeptus_insights'}
+        ]).then(function(results) {
+            strings.readonlyMessage = results[0];
+            return strings;
+        }).catch(function() {
+            // Fallback if string loading fails.
+            strings.readonlyMessage = 'Plugin is in read-only mode due to authentication issues';
+            return strings;
+        });
+    };
 
     /**
      * Read-only mode functionality for Adeptus Insights plugin
@@ -38,20 +58,23 @@ define(['jquery', 'core/notification'], function($, Notification) {
          * Initialize read-only mode
          */
         init: function() {
-            // Listen for read-only mode enable event
-            $(document).on('adeptus:enableReadOnly', function() {
-                ReadonlyMode.enable();
+            // Load strings first, then set up event listeners.
+            loadStrings().then(function() {
+                // Listen for read-only mode enable event.
+                $(document).on('adeptus:enableReadOnly', function() {
+                    ReadonlyMode.enable();
+                });
+
+                // Listen for read-only mode disable event.
+                $(document).on('adeptus:disableReadOnly', function() {
+                    ReadonlyMode.disable();
+                });
+
+                // Check if we should start in read-only mode.
+                if (window.adeptusAuthData) {
+                    ReadonlyMode.checkInitialState();
+                }
             });
-            
-            // Listen for read-only mode disable event
-            $(document).on('adeptus:disableReadOnly', function() {
-                ReadonlyMode.disable();
-            });
-            
-            // Check if we should start in read-only mode
-            if (window.adeptusAuthData) {
-                ReadonlyMode.checkInitialState();
-            }
         },
         
         /**
@@ -212,16 +235,18 @@ define(['jquery', 'core/notification'], function($, Notification) {
          * Show read-only notification
          */
         showReadOnlyNotification: function() {
+            var message = strings.readonlyMessage || 'Plugin is in read-only mode due to authentication issues';
             if (Notification) {
                 this.readOnlyNotification = Notification.addNotification({
-                    message: 'Plugin is in read-only mode due to authentication issues',
+                    message: message,
                     type: 'warning',
                     closebutton: false
                 });
             } else {
-                // Fallback to alert if Notification is not available
+                // Fallback to alert if Notification is not available.
                 if (!this.readOnlyAlertShown) {
-                    alert('Plugin is in read-only mode due to authentication issues');
+                    // eslint-disable-next-line no-alert
+                    alert(message);
                     this.readOnlyAlertShown = true;
                 }
             }
