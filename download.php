@@ -15,7 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Export report data AJAX endpoint.
+ * Export report data download endpoint.
+ *
+ * This endpoint handles binary file exports (CSV, Excel, JSON, PDF) which cannot be
+ * converted to Moodle External Services. External services can only return JSON data,
+ * not binary content with Content-Disposition headers required for file downloads.
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
@@ -24,7 +28,7 @@
 
 define('AJAX_SCRIPT', true);
 
-require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/../../config.php');
 
 // Require login and capability.
 require_login();

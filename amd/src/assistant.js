@@ -5300,8 +5300,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                 }
 
-                // Make the request to the local Moodle endpoint
-                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/ajax/export_report.php`, {
+                // Make the request to the download endpoint (binary files cannot use external services)
+                const response = await fetch(`${M.cfg.wwwroot}/report/adeptus_insights/download.php`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

@@ -2837,7 +2837,7 @@ class AdeptusWizard {
                 return;
             }
             
-            let endpoint = 'export_report.php';
+            // Binary file downloads use download.php (cannot use external services for binary content)
             let body = `reportid=${this.selectedReport}&format=${format}&sesskey=${this.wizardData.sesskey}`;
             
             // Add view type to the request (table or chart)
@@ -2874,7 +2874,7 @@ class AdeptusWizard {
                 }
             }
             
-            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/ajax/${endpoint}`, {
+            const response = await fetch(`${this.wizardData.wwwroot}/report/adeptus_insights/download.php`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

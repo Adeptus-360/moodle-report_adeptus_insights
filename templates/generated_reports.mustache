@@ -2152,7 +2152,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     }
                 }
 
-                var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/export_report.php', {
+                // Binary file downloads use download.php (cannot use external services for binary content)
+                var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/download.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
