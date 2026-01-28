@@ -800,12 +800,12 @@
     outline: none;
 }
 
-.path-report-adeptus_insights #adeptus-results-chart {
+.path-report-adeptus_insights #results-chart {
     min-height: 400px;
     position: relative;
 }
 
-.path-report-adeptus_insights #adeptus-results-chart canvas {
+.path-report-adeptus_insights #results-chart canvas {
     max-height: 450px;
 }
 
@@ -1078,16 +1078,16 @@
 }
 
 /* Bookmark button states */
-.path-report-adeptus_insights .adeptus-btn-bookmark.bookmarked {
+.path-report-adeptus_insights .adeptus-btn-bookmark.adeptus-bookmarked {
     background: #ffc107 !important;
     color: #333 !important;
 }
 
-.path-report-adeptus_insights .adeptus-btn-bookmark.bookmarked i {
+.path-report-adeptus_insights .adeptus-btn-bookmark.adeptus-bookmarked i {
     color: #333 !important;
 }
 
-.path-report-adeptus_insights .adeptus-btn-bookmark.bookmarked:hover {
+.path-report-adeptus_insights .adeptus-btn-bookmark.adeptus-bookmarked:hover {
     background: #e0a800 !important;
 }
 
@@ -1860,4 +1860,96 @@
 
 .path-report-adeptus_insights .adeptus-popup-content .adeptus-btn-close:hover {
     background: var(--adeptus-primary-dark);
+}
+
+/* Parameter field */
+.path-report-adeptus_insights .adeptus-parameter-field {
+    margin-bottom: 20px;
+}
+
+.path-report-adeptus_insights .adeptus-parameter-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--adeptus-text-primary);
+}
+
+.path-report-adeptus_insights .adeptus-parameter-field .form-control {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--adeptus-border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    transition: var(--adeptus-transition);
+}
+
+.path-report-adeptus_insights .adeptus-parameter-field .form-control:focus {
+    border-color: var(--adeptus-primary-color);
+    box-shadow: 0 0 0 3px rgba(15, 108, 191, 0.1);
+    outline: none;
+}
+
+/* Preview sample placeholder */
+.path-report-adeptus_insights .adeptus-preview-sample {
+    background: var(--adeptus-accent-color);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--adeptus-text-secondary);
+    font-style: italic;
+    margin-top: 15px;
+}
+
+/* Premium report card state */
+.path-report-adeptus_insights .adeptus-premium-report {
+    opacity: 0.7;
+    cursor: not-allowed !important;
+}
+
+.path-report-adeptus_insights .adeptus-premium-report:hover {
+    transform: none !important;
+    box-shadow: var(--adeptus-shadow-light) !important;
+}
+
+/* Hidden item state */
+.path-report-adeptus_insights .adeptus-hidden-item {
+    display: none !important;
+}
+
+/* Expanded state for show all button */
+.path-report-adeptus_insights .adeptus-btn-show-all.adeptus-expanded {
+    background: #138496;
+}
+
+/* Upgrade popup (SweetAlert2 custom class) */
+.path-report-adeptus_insights .adeptus-upgrade-popup {
+    border-radius: var(--adeptus-border-radius) !important;
+}
+
+/* Reports left indicator */
+.path-report-adeptus_insights .adeptus-reports-left-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    transition: var(--adeptus-transition);
+}
+
+/* Exports left indicator */
+.path-report-adeptus_insights .adeptus-exports-left-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    transition: var(--adeptus-transition);
 }

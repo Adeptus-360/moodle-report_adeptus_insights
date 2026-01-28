@@ -58,7 +58,7 @@ Assistant.init({{authenticated}});
     </div>
 </div>
 
-<div class="container-fluid">
+<div id="adeptus-assistant-container" class="container-fluid">
     <div class="main-inner position-relative">
         <!-- Top-level tabs: AI Assistant vs. Reports -->
         <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
@@ -107,17 +107,17 @@ Assistant.init({{authenticated}});
                             </div>
                             <div class="card-body p-0 position-relative" style="height: calc(100vh - 390px); overflow-y: auto; min-height: 400px; max-height: 710px;">
                                 <!-- Chat Messages -->
-                                <div id="chat-container" class="chat-container fade-in"></div>
+                                <div id="adeptus-chat-container" class="adeptus-chat-container fade-in"></div>
                                 <!-- MCQ Container -->
-                                <div id="mcq-container" class="mcq-container"></div>
+                                <div id="adeptus-mcq-container" class="adeptus-mcq-container"></div>
                                 <!-- Loading Indicator -->
-                                <div id="loading-indicator" class="loading-indicator d-none">
+                                <div id="adeptus-loading-indicator" class="adeptus-loading-indicator d-none">
                                     <div class="spinner-border text-primary" role="status">
                                         <span class="sr-only">{{#str}}loading, report_adeptus_insights{{/str}}</span>
                                     </div>
                                 </div>
                                 <!-- Error Message -->
-                                <div id="error-message" class="error-message d-none">
+                                <div id="adeptus-error-message" class="adeptus-error-message d-none">
                                     <div class="alert alert-danger m-3">
                                         <i class="fa fa-exclamation-circle"></i>
                                         <span id="error-text"></span>
@@ -125,7 +125,7 @@ Assistant.init({{authenticated}});
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer bg-white chat-input-container border-top">
+                            <div class="card-footer bg-white adeptus-chat-input-area border-top">
                                 <div class="input-group">
                                     <textarea id="message-input"
                                             class="form-control"
@@ -168,9 +168,9 @@ Assistant.init({{authenticated}});
                     <div class="col-md-8">
                         <div class="card shadow-sm mb-4">
                             <div class="card-header bg-primary text-white">
-                                <h5 class="card-title mb-0 report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
+                                <h5 class="card-title mb-0 adeptus-report-view-title">{{#str}}select_a_report, report_adeptus_insights{{/str}}</h5>
                             </div>
-                            <div class="card-body p-4 report-view-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
+                            <div class="card-body p-4 adeptus-report-view-body" style="height: calc(100vh - 300px); overflow-y: auto; min-height: 400px; max-height: 800px;">
                                 <div class="text-center py-4">
                                     <p class="text-muted">{{#str}}select_report_instruction, report_adeptus_insights{{/str}}</p>
                                 </div>
@@ -215,55 +215,55 @@ Assistant.init({{authenticated}});
 <!-- /container-fluid -->
 <!-- Templates -->
 <template id="message-template">
-    <div class="message">
-        <div class="message-content">
-            <div class="message-text"></div>
-            <div class="message-time small text-muted"></div>
+    <div class="adeptus-message">
+        <div class="adeptus-message-content">
+            <div class="adeptus-message-text"></div>
+            <div class="adeptus-message-time small text-muted"></div>
         </div>
     </div>
 </template>
 <template id="optimization-suggestion-template">
     <div class="alert alert-info">
         <i class="fa fa-lightbulb"></i>
-        <span class="suggestion-text"></span>
+        <span class="adeptus-suggestion-text"></span>
     </div>
 </template>
 <template id="metric-template">
-    <div class="metric-item">
-        <span class="metric-label"></span>
-        <span class="metric-value"></span>
+    <div class="adeptus-metric-item">
+        <span class="adeptus-metric-label"></span>
+        <span class="adeptus-metric-value"></span>
     </div>
 </template>
 <style>
-.chat-container {
+.path-report-adeptus_insights .adeptus-chat-container {
     /* Height managed by parent card-body */
     padding: 1rem;
     background-color: #f8f9fa;
 }
 
-.mr-auto {
+.path-report-adeptus_insights .mr-auto {
     width: 100%;
 }
 
-.page-header-headings {
+.path-report-adeptus_insights .page-header-headings {
     width: 100%;
 }
 
-.message {
+.path-report-adeptus_insights .adeptus-message {
     margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
 }
 
-.user-message {
+.path-report-adeptus_insights .adeptus-user-message {
     align-items: flex-end;
 }
 
-.ai-message {
+.path-report-adeptus_insights .adeptus-ai-message {
     align-items: flex-start;
 }
 
-.message-content {
+.path-report-adeptus_insights .adeptus-message-content {
     max-width: 80%;
     padding: 0.75rem 1rem;
     border-radius: 1rem;
@@ -271,23 +271,23 @@ Assistant.init({{authenticated}});
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.user-message .message-content {
+.path-report-adeptus_insights .adeptus-user-message .adeptus-message-content {
     background-color: #007bff;
     color: white;
 }
 
 /* Fix time label visibility in user messages */
-.user-message .message-time {
+.path-report-adeptus_insights .adeptus-user-message .adeptus-message-time {
     color: rgba(255, 255, 255, 0.85) !important;
     opacity: 1;
 }
 
-.ai-message .message-content {
+.path-report-adeptus_insights .adeptus-ai-message .adeptus-message-content {
     background-color: #fff;
     border: 1px solid #dee2e6;
 }
 
-.loading-indicator {
+.path-report-adeptus_insights .adeptus-loading-indicator {
     padding: 1rem;
     text-align: center;
     background-color: rgba(255,255,255,0.9);
@@ -298,48 +298,58 @@ Assistant.init({{authenticated}});
     z-index: 1000;
 }
 
-.chart-container {
+.path-report-adeptus_insights .adeptus-chart-container {
     height: 400px;
     position: relative;
 }
 
-.optimization-suggestions {
+.path-report-adeptus_insights .adeptus-optimization-suggestions {
     max-height: 300px;
     overflow-y: auto;
 }
 
-.metric-item {
+.path-report-adeptus_insights .adeptus-metric-item {
     display: flex;
     justify-content: space-between;
     padding: 0.5rem;
     border-bottom: 1px solid #dee2e6;
 }
 
-.metric-label {
+.path-report-adeptus_insights .adeptus-metric-label {
     font-weight: 500;
 }
 
-.metric-value {
+.path-report-adeptus_insights .adeptus-metric-value {
     color: #6c757d;
 }
 
-.chat-input-container {
+.path-report-adeptus_insights .adeptus-chat-input-area {
     background-color: white;
     position: relative;
 }
 
-#message-input {
+.path-report-adeptus_insights .adeptus-chat-input-area .input-group {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+}
+
+.path-report-adeptus_insights #message-input {
     resize: none;
     border-radius: 1.5rem;
     padding: 0.75rem 1rem;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
 }
 
-#send-button {
-
+.path-report-adeptus_insights #send-button {
     margin-left: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 1.5rem;
 }
 
-.table-responsive {
+.path-report-adeptus_insights .table-responsive {
     height: 600px;
     overflow-y: auto;
     margin: 0;
@@ -347,7 +357,7 @@ Assistant.init({{authenticated}});
 }
 
 /* Animation classes */
-.fade-in {
+.path-report-adeptus_insights .fade-in {
     animation: fadeIn 0.3s ease-in;
 }
 
@@ -375,29 +385,29 @@ Assistant.init({{authenticated}});
 }
 
 /* SweetAlert2 custom styles */
-.swal2-popup {
+.path-report-adeptus_insights .swal2-popup {
     font-size: 1rem !important;
 }
 
-.swal2-title {
+.path-report-adeptus_insights .swal2-title {
     font-size: 1.5rem !important;
 }
 
-.swal2-html-container {
+.path-report-adeptus_insights .swal2-html-container {
     font-size: 1rem !important;
 }
 
-.form-group {
+.path-report-adeptus_insights .form-group {
     margin-bottom: 1rem;
 }
 
-.form-group label {
+.path-report-adeptus_insights .form-group label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
 }
 
-.form-control {
+.path-report-adeptus_insights .form-control {
     width: 100%;
     padding: 0.5rem;
     border: 1px solid #ced4da;
@@ -405,14 +415,14 @@ Assistant.init({{authenticated}});
 }
 
 /* Error message bubble */
-.error-message .message-content {
+.path-report-adeptus_insights .adeptus-error-message .adeptus-message-content {
     background-color: #f8d7da;
     color: #842029;
     border: 1px solid #f5c2c7;
 }
 
 /* MCQ Container Styles */
-.mcq-container {
+.path-report-adeptus_insights .adeptus-mcq-container {
     display: none; /* Hidden by default */
     padding: 1rem;
     background-color: #fff;
@@ -422,72 +432,72 @@ Assistant.init({{authenticated}});
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-.mcq-container .mcq-question {
+.path-report-adeptus_insights .adeptus-mcq-container .adeptus-mcq-question {
     font-weight: 600;
     margin-bottom: 1rem;
     color: #333;
 }
 
-.mcq-container .form-check {
+.path-report-adeptus_insights .adeptus-mcq-container .form-check {
     margin-bottom: 0.5rem;
 }
 
-.mcq-container .form-check-input {
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-input {
     margin-right: 0.5rem;
 }
 
-.mcq-container .form-check-label {
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-label {
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 0.25rem;
     transition: background-color 0.15s ease;
 }
 
-.mcq-container .form-check-label:hover {
+.path-report-adeptus_insights .adeptus-mcq-container .form-check-label:hover {
     background-color: #f8f9fa;
 }
 
-.mcq-container .btn {
+.path-report-adeptus_insights .adeptus-mcq-container .btn {
     margin-top: 1rem;
 }
 
 /* anywhere in your existing <style> block */
 
-#chat-history-list li {
+.path-report-adeptus_insights #chat-history-list li {
     transition: background-color 0.15s ease;
 }
-#chat-history-list li:hover {
+.path-report-adeptus_insights #chat-history-list li:hover {
     background-color: #f1f1f1;
     cursor: pointer;
 }
-#chat-history-list li.active {
+.path-report-adeptus_insights #chat-history-list li.active {
     background-color: #e2e6ea;
 }
 
-.container-fluid{
-    display: none;
-}
-  /* stretch top‐level tabs equally & center their content */
-#mainTabs {
+/* Note: .container-fluid visibility is controlled by JavaScript (assistant.js) */
+/* Do NOT add display:none here as it conflicts with jQuery fadeIn() */
+
+/* stretch top-level tabs equally & center their content */
+.path-report-adeptus_insights #mainTabs {
   width: 100%;
   display: flex;
 }
-#mainTabs .nav-item {
+.path-report-adeptus_insights #mainTabs .nav-item {
   flex: 1;
   text-align: center;
 }
-#mainTabs .nav-link {
+.path-report-adeptus_insights #mainTabs .nav-link {
   width: 100%;
   justify-content: center;  /* Bootstrap 5 flex utility */
   display: flex;
   align-items: center;
 }
-.message.user-message .message-content {
+.path-report-adeptus_insights .adeptus-message.adeptus-user-message .adeptus-message-content {
   padding-left: 2.5rem; /* make room for the retry icon */
 }
 
 /* Chat History - scroll managed by parent card-body */
-#chat-history-list {
+.path-report-adeptus_insights #chat-history-list {
     /* Height managed by parent container */
     overflow-y: visible;
     margin: 0;
@@ -495,19 +505,19 @@ Assistant.init({{authenticated}});
 }
 
 /* Card body containers for history sections */
-.card-body {
+.path-report-adeptus_insights .card-body {
     padding: 0;
     height: 600px;
     display: flex;
     flex-direction: column;
 }
 
-.card-body .list-group {
+.path-report-adeptus_insights .card-body .list-group {
     flex: 1;
     overflow: hidden;
 }
 
-.card-body .table-responsive {
+.path-report-adeptus_insights .card-body .table-responsive {
     flex: 1;
     overflow: hidden;
 }
@@ -515,7 +525,7 @@ Assistant.init({{authenticated}});
 /* Specific styling for chat history - already defined above */
 
 /* Report history table container - scroll managed by parent card-body */
-#reports-panel .col-md-4 .table-responsive {
+.path-report-adeptus_insights #reports-panel .col-md-4 .table-responsive {
     /* Height managed by parent card-body */
     overflow: visible;
     margin: 0;
@@ -523,14 +533,14 @@ Assistant.init({{authenticated}});
 }
 
 /* Main report display area - single scroll container */
-#reports-panel .col-md-8 .report-view-body {
+.path-report-adeptus_insights #reports-panel .col-md-8 .adeptus-report-view-body {
     position: relative;
     display: flex;
     flex-direction: column;
 }
 
 /* Main report display table - no separate scroll */
-#reports-panel .col-md-8 .table-responsive {
+.path-report-adeptus_insights #reports-panel .col-md-8 .table-responsive {
     margin: 0;
     padding: 0;
     overflow: visible !important;
@@ -538,7 +548,7 @@ Assistant.init({{authenticated}});
 }
 
 /* Make table headers sticky within the scrolling container */
-#reports-panel .col-md-8 table thead th {
+.path-report-adeptus_insights #reports-panel .col-md-8 table thead th {
     position: sticky;
     top: 0;
     z-index: 10;
@@ -547,13 +557,13 @@ Assistant.init({{authenticated}});
 }
 
 /* Ensure proper scrolling behavior */
-#reports-panel .col-md-8 .card-body.report-view-body {
+.path-report-adeptus_insights #reports-panel .col-md-8 .card-body.adeptus-report-view-body {
     overflow-y: auto !important;
     overflow-x: hidden;
 }
 
 /* Chat history card body - dynamic height matching reports tab */
-#assistant-panel .col-md-4 .card-body {
+.path-report-adeptus_insights #assistant-panel .col-md-4 .card-body {
     padding: 0;
     /* Height managed by inline styles for consistency */
     display: flex;
@@ -561,7 +571,7 @@ Assistant.init({{authenticated}});
 }
 
 /* Report history card body - dynamic height matching preview */
-#reports-panel .col-md-4 .card-body {
+.path-report-adeptus_insights #reports-panel .col-md-4 .card-body {
     padding: 0;
     /* Height managed by inline styles for consistency */
     display: flex;
@@ -569,156 +579,156 @@ Assistant.init({{authenticated}});
 }
 
 /* Report row hover effects */
-.report-row {
+.path-report-adeptus_insights .adeptus-report-row {
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
 
-.report-row:hover {
+.path-report-adeptus_insights .adeptus-report-row:hover {
     background-color: #f8f9fa;
 }
 
-.report-row.table-primary {
+.path-report-adeptus_insights .adeptus-report-row.table-primary {
     background-color: #e7f3ff !important;
 }
 
 /* Report header styling */
-.report-header h4 {
+.path-report-adeptus_insights .adeptus-report-header h4 {
     color: #333;
     margin-bottom: 0.5rem;
 }
 
-.report-meta {
+.path-report-adeptus_insights .adeptus-report-meta {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
 /* Report actions */
-.report-actions {
+.path-report-adeptus_insights .adeptus-report-actions {
     border-top: 1px solid #dee2e6;
     padding-top: 1rem;
 }
 
 /* Table styling for report data */
-.report-data-table {
+.path-report-adeptus_insights .adeptus-report-data-table {
     font-size: 0.9rem;
 }
 
-.report-data-table th {
+.path-report-adeptus_insights .adeptus-report-data-table th {
     background-color: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #dee2e6;
 }
 
 /* Status badges */
-.badge {
+.path-report-adeptus_insights .badge {
     font-size: 0.75rem;
     padding: 0.25rem 0.5rem;
 }
 
 /* Tab styling improvements */
-.nav-tabs .nav-link {
+.path-report-adeptus_insights .nav-tabs .nav-link {
     border: none;
     border-bottom: 2px solid transparent;
     color: #6c757d;
     font-weight: 500;
 }
 
-.nav-tabs .nav-link.active {
+.path-report-adeptus_insights .nav-tabs .nav-link.active {
     color: #007bff;
     border-bottom-color: #007bff;
     background-color: transparent;
 }
 
-.nav-tabs .nav-link:hover {
+.path-report-adeptus_insights .nav-tabs .nav-link:hover {
     border-color: transparent;
     color: #007bff;
 }
 
 /* Report loading states */
-.report-loading {
+.path-report-adeptus_insights .adeptus-report-loading {
     text-align: center;
     padding: 2rem;
 }
 
-.report-loading .spinner-border {
+.path-report-adeptus_insights .adeptus-report-loading .spinner-border {
     width: 3rem;
     height: 3rem;
 }
 
 /* Responsive table */
-.table-responsive {
-
+.path-report-adeptus_insights .table-responsive {
     overflow-y: auto;
 }
 
 /* Export button styling */
-.btn-outline-primary {
+.path-report-adeptus_insights .btn-outline-primary {
     border-color: #fff;
     color: #007bff;
 }
 
-.btn-outline-primary:hover {
+.path-report-adeptus_insights .btn-outline-primary:hover {
     background-color: #007bff;
     border-color: #007bff;
     color: white;
 }
 
 /* Report display type controls */
-.report-display-wrapper {
+.path-report-adeptus_insights .adeptus-report-display-wrapper {
     display: flex;
     flex-direction: column;
     width: 100%;
 }
 
 /* Report display area for switching between views */
-.report-display-area {
+.path-report-adeptus_insights .adeptus-report-display-area {
     position: relative;
     min-height: 300px;
 }
-.report-content {
+.path-report-adeptus_insights .adeptus-report-content {
     flex: 1;
 }
 
 /* Ensure charts and graphs have reasonable heights */
-.chart-container {
+.path-report-adeptus_insights .adeptus-chart-container {
     height: 400px;
     width: 100%;
     position: relative;
 }
 
-#reportChart, #reportGraph {
+.path-report-adeptus_insights #reportChart,
+.path-report-adeptus_insights #reportGraph {
     max-height: 400px;
     width: 100%;
 }
 
-.display-type-controls {
+.path-report-adeptus_insights .adeptus-display-type-controls {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     margin-left: 1rem;
 }
-.display-type-btn.active {
+.path-report-adeptus_insights .adeptus-display-type-btn.active {
     outline: 2px solid #333;
 }
-.save-display-type-btn {
+.path-report-adeptus_insights .adeptus-save-display-type-btn {
     align-self: center;
 }
-.mr-10{
+.path-report-adeptus_insights .mr-10{
     margin-right: 10px;
 }
 
 /* Multiple choice question styles */
-.mcq-question-container {
+.path-report-adeptus_insights .adeptus-mcq-question-container {
     width: 100%;
 }
 
-.mcq-options-grid {
+.path-report-adeptus_insights .adeptus-mcq-options-grid {
     margin-top: 15px;
 }
 
-.mcq-option-button {
+.path-report-adeptus_insights .adeptus-mcq-option-button {
     background: #ffffff;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
@@ -728,28 +738,28 @@ Assistant.init({{authenticated}});
     text-align: left;
 }
 
-.mcq-option-button:hover:not(:disabled) {
+.path-report-adeptus_insights .adeptus-mcq-option-button:hover:not(:disabled) {
     background-color: #f8f9fa !important;
     border-color: #007bff !important;
     transform: translateX(5px);
 }
 
-.mcq-option-button:disabled {
+.path-report-adeptus_insights .adeptus-mcq-option-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.mcq-option-button.selected {
+.path-report-adeptus_insights .adeptus-mcq-option-button.selected {
     background-color: #e3f2fd !important;
     border-color: #2196f3 !important;
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
 }
 
-.mcq-option-button .mcq-option-letter {
+.path-report-adeptus_insights .adeptus-mcq-option-button .adeptus-mcq-option-letter {
     transition: all 0.3s ease;
 }
 
-.mcq-option-button.selected .mcq-option-letter {
+.path-report-adeptus_insights .adeptus-mcq-option-button.selected .adeptus-mcq-option-letter {
     background: #28a745 !important;
     animation: pulse 0.5s ease;
 }
@@ -763,27 +773,28 @@ Assistant.init({{authenticated}});
 /* Responsive behavior for smaller screens */
 @media (max-width: 768px) {
     /* On mobile, let containers adapt naturally */
-    .card-body[style*="calc(100vh"] {
+    .path-report-adeptus_insights .card-body[style*="calc(100vh"] {
         height: auto !important;
         max-height: 500px !important;
         min-height: 300px !important;
     }
 
     /* Stack columns on mobile */
-    .col-md-4, .col-md-8 {
+    .path-report-adeptus_insights .col-md-4,
+    .path-report-adeptus_insights .col-md-8 {
         width: 100%;
     }
 }
 
 /* Don't Save button hover styling */
-.btn-decline-report.btn-secondary:hover {
+.path-report-adeptus_insights .adeptus-btn-decline-report.btn-secondary:hover {
     color: #007bff !important;
     background-color: #f8f9fa;
     border-color: #dee2e6;
 }
 
 /* General secondary button hover for consistency */
-.btn-secondary:hover {
+.path-report-adeptus_insights .btn-secondary:hover {
     color: #007bff !important;
 }
 </style>

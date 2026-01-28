@@ -70,24 +70,24 @@
                                 </strong>
                                 <small class="text-muted">{{ticket.created_at}}</small>
                             </div>
-                            <div class="message-content">
+                            <div class="adeptus-message-content">
                                 {{{ticket.message}}}
                             </div>
                             {{#ticket.has_attachments}}
                             <div class="ticket-attachments mt-3 pt-3 border-top">
                                 <h6 class="text-muted mb-2"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}}</h6>
-                                <div class="attachment-list">
+                                <div class="adeptus-attachment-list">
                                     {{#ticket.attachments}}
-                                    <a href="{{{download_url}}}" class="attachment-item" target="_blank">
-                                        <span class="attachment-icon">
+                                    <a href="{{{download_url}}}" class="adeptus-attachment-item" target="_blank">
+                                        <span class="adeptus-attachment-icon">
                                             {{#is_image}}<i class="fa fa-file-image text-info"></i>{{/is_image}}
                                             {{^is_image}}<i class="fa fa-file text-secondary"></i>{{/is_image}}
                                         </span>
-                                        <span class="attachment-info">
-                                            <span class="attachment-name">{{filename}}</span>
+                                        <span class="adeptus-attachment-info">
+                                            <span class="adeptus-attachment-name">{{filename}}</span>
                                             <span class="attachment-size text-muted">{{file_size}}</span>
                                         </span>
-                                        <span class="attachment-download"><i class="fa fa-download"></i></span>
+                                        <span class="adeptus-attachment-download"><i class="fa fa-download"></i></span>
                                     </a>
                                     {{/ticket.attachments}}
                                 </div>
@@ -99,7 +99,7 @@
                         <h6 class="mb-3"><i class="fa fa-comments"></i> {{#str}}ticket_replies, report_adeptus_insights{{/str}}</h6>
 
                         {{#has_replies}}
-                        <div class="replies-list">
+                        <div class="adeptus-replies-list">
                             {{#replies}}
                             <div class="adeptus-reply-item p-3 mb-3 rounded {{#is_support}}bg-info-light border-left-info{{/is_support}}{{#is_customer}}bg-light{{/is_customer}}">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -114,21 +114,21 @@
                                     </strong>
                                     <small class="text-muted">{{created_at}}</small>
                                 </div>
-                                <div class="message-content">
+                                <div class="adeptus-message-content">
                                     {{{message}}}
                                 </div>
                                 {{#has_attachments}}
                                 <div class="reply-attachments mt-2 pt-2 border-top">
                                     <small class="text-muted"><i class="fa fa-paperclip"></i> {{#str}}ticket_attachments, report_adeptus_insights{{/str}}:</small>
-                                    <div class="attachment-list attachment-list-compact mt-1">
+                                    <div class="attachment-list adeptus-attachment-list-compact mt-1">
                                         {{#attachments}}
-                                        <a href="{{{download_url}}}" class="attachment-item attachment-item-compact" target="_blank">
-                                            <span class="attachment-icon">
+                                        <a href="{{{download_url}}}" class="attachment-item adeptus-attachment-item-compact" target="_blank">
+                                            <span class="adeptus-attachment-icon">
                                                 {{#is_image}}<i class="fa fa-file-image text-info"></i>{{/is_image}}
                                                 {{^is_image}}<i class="fa fa-file text-secondary"></i>{{/is_image}}
                                             </span>
-                                            <span class="attachment-name">{{filename}}</span>
-                                            <span class="attachment-download"><i class="fa fa-download"></i></span>
+                                            <span class="adeptus-attachment-name">{{filename}}</span>
+                                            <span class="adeptus-attachment-download"><i class="fa fa-download"></i></span>
                                         </a>
                                         {{/attachments}}
                                     </div>
@@ -263,16 +263,16 @@
 .border-left-info {
     border-left: 4px solid #17a2b8;
 }
-.message-content {
+.adeptus-message-content {
     line-height: 1.6;
 }
 /* Attachment list styles */
-.attachment-list {
+.adeptus-attachment-list {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
-.attachment-item {
+.adeptus-attachment-item {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -284,20 +284,20 @@
     color: inherit;
     transition: all 0.15s ease;
 }
-.attachment-item:hover {
+.adeptus-attachment-item:hover {
     border-color: #007bff;
     background: #f8f9fa;
     text-decoration: none;
     color: inherit;
 }
-.attachment-icon {
+.adeptus-attachment-icon {
     font-size: 1.25rem;
 }
-.attachment-info {
+.adeptus-attachment-info {
     display: flex;
     flex-direction: column;
 }
-.attachment-name {
+.adeptus-attachment-name {
     font-size: 0.875rem;
     font-weight: 500;
     color: #333;
@@ -306,28 +306,28 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.attachment-size {
+.adeptus-attachment-size {
     font-size: 0.75rem;
 }
-.attachment-download {
+.adeptus-attachment-download {
     color: #6c757d;
     margin-left: 0.5rem;
 }
-.attachment-item:hover .attachment-download {
+.adeptus-attachment-item:hover .adeptus-attachment-download {
     color: #007bff;
 }
 /* Compact attachment list for replies */
-.attachment-list-compact {
+.adeptus-attachment-list-compact {
     gap: 0.25rem;
 }
-.attachment-item-compact {
+.adeptus-attachment-item-compact {
     padding: 0.25rem 0.5rem;
     font-size: 0.8rem;
 }
-.attachment-item-compact .attachment-icon {
+.adeptus-attachment-item-compact .adeptus-attachment-icon {
     font-size: 1rem;
 }
-.attachment-item-compact .attachment-name {
+.adeptus-attachment-item-compact .adeptus-attachment-name {
     font-size: 0.8rem;
     max-width: 150px;
 }

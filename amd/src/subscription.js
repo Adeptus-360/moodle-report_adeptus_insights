@@ -597,7 +597,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
             var html = '<div class="current-subscription">';
             html += '<h3>' + getString('current_subscription', 'Current Subscription') + '</h3>';
-            html += '<div class="subscription-details">';
+            html += '<div class="adeptus-subscription-details">';
             html += '<p><strong>' + getString('plan_label', 'Plan:') + '</strong> ' + (subscriptionData.plan_name || 'Unknown') + '</p>';
 
             // Display status with appropriate styling and messaging
@@ -773,17 +773,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             var maxYearlySavings = data.max_yearly_savings || 0;
 
             // Build modal HTML with toggle
-            var modalHtml = '<div class="plans-modal-container" style="text-align: left;">';
+            var modalHtml = '<div class="adeptus-plans-modal-container" style="text-align: left;">';
 
             // Billing toggle (only if yearly plans exist)
             if (hasYearlyPlans) {
-                modalHtml += '<div class="billing-toggle-container" style="display: flex; justify-content: center; margin-bottom: 24px;">';
-                modalHtml += '<div class="billing-toggle" style="display: inline-flex; align-items: center; background: #f3f4f6; border-radius: 50px; padding: 6px; gap: 4px;">';
-                modalHtml += '<button type="button" class="billing-toggle-btn active" data-interval="monthly" style="' +
+                modalHtml += '<div class="adeptus-billing-toggle-container" style="display: flex; justify-content: center; margin-bottom: 24px;">';
+                modalHtml += '<div class="adeptus-billing-toggle" style="display: inline-flex; align-items: center; background: #f3f4f6; border-radius: 50px; padding: 6px; gap: 4px;">';
+                modalHtml += '<button type="button" class="adeptus-billing-toggle-btn active" data-interval="monthly" style="' +
                     'padding: 10px 24px; border: none; background: white; border-radius: 50px; ' +
                     'font-weight: 600; font-size: 14px; cursor: pointer; color: #1f2937; ' +
                     'box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.3s ease;">' + getString('monthly', 'Monthly') + '</button>';
-                modalHtml += '<button type="button" class="billing-toggle-btn" data-interval="yearly" style="' +
+                modalHtml += '<button type="button" class="adeptus-billing-toggle-btn" data-interval="yearly" style="' +
                     'padding: 10px 24px; border: none; background: transparent; border-radius: 50px; ' +
                     'font-weight: 600; font-size: 14px; cursor: pointer; color: #6b7280; transition: all 0.3s ease;">' +
                     getString('annual', 'Annual');
@@ -836,7 +836,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 var borderColor = plan.is_current ? '#10b981' : (plan.is_popular ? '#2563eb' : '#e5e7eb');
                 var bgColor = plan.is_current ? 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' : 'white';
 
-                html += '<div class="plan-card" style="' +
+                html += '<div class="adeptus-plan-card" style="' +
                     'background: ' + bgColor + '; ' +
                     'border: 2px solid ' + borderColor + '; ' +
                     'border-radius: 16px; ' +
@@ -919,12 +919,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 // Action button
                 html += '<div style="margin-top: auto;">';
                 if (plan.is_current) {
-                    html += '<button class="plan-select-btn" disabled style="' +
+                    html += '<button class="adeptus-plan-select-btn" disabled style="' +
                         'display: block; width: 100%; padding: 14px; border: none; border-radius: 10px; ' +
                         'background: #e5e7eb; color: #6b7280; font-weight: 600; font-size: 14px; cursor: default;">' +
                         '<i class="fa fa-check-circle"></i> ' + getString('current_plan', 'Current Plan') + '</button>';
                 } else if (plan.is_free) {
-                    html += '<button class="plan-select-btn" disabled style="' +
+                    html += '<button class="adeptus-plan-select-btn" disabled style="' +
                         'display: block; width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 10px; ' +
                         'background: white; color: #374151; font-weight: 600; font-size: 14px; cursor: default;">' +
                         getString('free_plan', 'Free Plan') + '</button>';
@@ -932,7 +932,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                     // Include stripe_price_id if available for checkout
                     var stripePriceId = plan.stripe_price_id || '';
                     var stripeConfigured = plan.stripe_configured || false;
-                    html += '<button class="plan-select-btn" data-plan-id="' + (plan.id || '') + '" ' +
+                    html += '<button class="adeptus-plan-select-btn" data-plan-id="' + (plan.id || '') + '" ' +
                         'data-plan-name="' + plan.short_name + '" ' +
                         'data-stripe-price-id="' + stripePriceId + '" ' +
                         'data-stripe-configured="' + stripeConfigured + '" style="' +
@@ -943,7 +943,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 }
                 html += '</div>';
 
-                html += '</div>'; // end plan-card
+                html += '</div>'; // end adeptus-plan-card
             });
 
             html += '</div>'; // end plans-grid
@@ -955,13 +955,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          */
         initPlansModalHandlers: function() {
             // Billing toggle handler
-            document.querySelectorAll('.billing-toggle-btn').forEach(function(btn) {
+            document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var interval = this.getAttribute('data-interval');
                     if (interval === Subscription.currentInterval) return;
 
                     // Update toggle UI
-                    document.querySelectorAll('.billing-toggle-btn').forEach(function(b) {
+                    document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(b) {
                         b.classList.remove('active');
                         b.style.background = 'transparent';
                         b.style.color = '#6b7280';
@@ -992,7 +992,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Initialize plan button click handlers
          */
         initPlanButtonHandlers: function() {
-            document.querySelectorAll('.plan-select-btn:not([disabled])').forEach(function(btn) {
+            document.querySelectorAll('.adeptus-plan-select-btn:not([disabled])').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var planName = this.getAttribute('data-plan-name');
                     var planId = this.getAttribute('data-plan-id');

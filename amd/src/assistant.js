@@ -291,8 +291,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this._initCalled = true;
             this.currentChatId = 0;
 
-            // Get the specific AI Assistant container (sibling of .assistant-header)
-            const getAssistantContainer = () => $('.assistant-header').siblings('.container-fluid').first();
+            // Get the specific AI Assistant container by ID (more reliable than sibling selection)
+            const getAssistantContainer = () => $('#adeptus-assistant-container');
             getAssistantContainer().hide();
 
             // Initialize loader CSS styles on startup
@@ -355,11 +355,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if ($('#ai-loader-styles').length === 0) {
                 $('head').append(`
                     <style id="ai-loader-styles">
-                        .ai-thinking-loader-wrapper {
+                        .adeptus-ai-thinking-loader-wrapper {
                             animation: fadeInLoader 0.3s ease-out forwards;
                         }
 
-                        .ai-thinking-loader {
+                        .adeptus-ai-thinking-loader {
                             opacity: 1 !important;
                         }
 
@@ -403,7 +403,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         showAuthenticationError: function() {
             // Show authentication error message in the AI Assistant container
-            const assistantContainer = $('.assistant-header').siblings('.container-fluid').first();
+            const assistantContainer = $('#adeptus-assistant-container');
             assistantContainer.html(`
                 <div class="alert alert-danger">
                     <h4>${getString('authentication_required', 'Authentication Required')}</h4>
@@ -442,7 +442,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         renderMCQ: function(mcq) {
             this.currentMCQ = mcq;
-            var c = $('#mcq-container').empty();
+            var c = $('#adeptus-mcq-container').empty();
             c.append(`<p><strong>${mcq.question}</strong></p>`);
             mcq.options.forEach(opt => {
                 c.append(`
@@ -460,7 +460,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         clearMCQ: function() {
             this.currentMCQ = null;
-            $('#mcq-container').empty().hide();
+            $('#adeptus-mcq-container').empty().hide();
             // re-enable text input and send button
             $('#message-input').prop('disabled', false);
             $('#send-button').prop('disabled', false);
@@ -510,16 +510,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Render MCQ history view (disabled, showing selected answer if available)
          */
         renderMCQHistory: function(questions, selectedAnswer = null) {
-            let html = '<div class="mcq-history-container" style="display:flex; flex-direction:column; gap:15px;">';
+            let html = '<div class="adeptus-mcq-history-container" style="display:flex; flex-direction:column; gap:15px;">';
             
             questions.forEach((mcq, idx) => {
                 // Each MCQ gets its own separate container with border and background
                 html += `
-                    <div class="mcq-history-item" style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #dee2e6; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                    <div class="adeptus-mcq-history-item" style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #dee2e6; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                         <p style="font-weight:600; margin-bottom:12px; color:#333; font-size:14px;">
                             <i class="fa fa-question-circle" style="color:#007bff; margin-right:8px;"></i>${mcq.question}
                         </p>
-                        <div class="mcq-options" style="margin-left:24px;">
+                        <div class="adeptus-mcq-options" style="margin-left:24px;">
                 `;
                 
                 mcq.options.forEach((option, optIdx) => {
@@ -740,7 +740,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             
             // Create a temporary notification for credit usage
             const notification = $(`
-                <div class="credit-usage-notification" style="
+                <div class="adeptus-credit-usage-notification" style="
                     position: fixed;
                     top: 20px;
                     right: 20px;
@@ -757,7 +757,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     transition: all 0.3s ease;
                 ">
                     <i class="fa fa-coins me-2"></i>
-                    <span class="credit-text">Credits used: ${creditInfo.credits_charged || 0} (${creditInfo.credit_type || 'basic'})</span>
+                    <span class="adeptus-credit-text">Credits used: ${creditInfo.credits_charged || 0} (${creditInfo.credit_type || 'basic'})</span>
                 </div>
             `);
             
@@ -823,20 +823,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             
             if ($counter.length) {
                 // Add highlight animation
-                $counter.addClass('credit-update-highlight');
+                $counter.addClass('adeptus-credit-update-highlight');
                 
                 // Remove highlight after animation
                 setTimeout(() => {
-                    $counter.removeClass('credit-update-highlight');
+                    $counter.removeClass('adeptus-credit-update-highlight');
                 }, 1000);
             }
             
             // Also animate total credits counter
-            const $totalCounter = $('.total-credits-counter');
+            const $totalCounter = $('.adeptus-total-credits-counter');
             if ($totalCounter.length) {
-                $totalCounter.addClass('credit-update-highlight');
+                $totalCounter.addClass('adeptus-credit-update-highlight');
                 setTimeout(() => {
-                    $totalCounter.removeClass('credit-update-highlight');
+                    $totalCounter.removeClass('adeptus-credit-update-highlight');
                 }, 1000);
             }
         },
@@ -849,8 +849,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             const template = document.getElementById('message-template');
             const frag = template.content.cloneNode(true);
-            const messageEl = frag.querySelector('.message');
-            messageEl.classList.add(type + '-message');
+            const messageEl = frag.querySelector('.adeptus-message');
+            messageEl.classList.add('adeptus-' + type + '-message');
             if (messageId) {
                 messageEl.setAttribute('data-message-id', messageId);
             }
@@ -861,12 +861,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (mcqData && mcqData.questions.length > 0) {
                 // Render as disabled MCQ view
                 const mcqHtml = this.renderMCQHistory(mcqData.questions, mcqData.selectedAnswer);
-                frag.querySelector('.message-text').innerHTML = mcqHtml;
+                frag.querySelector('.adeptus-message-text').innerHTML = mcqHtml;
             } else if (isReportLink && reportData) {
                 // Create a clickable report link
-                frag.querySelector('.message-text').innerHTML = `
+                frag.querySelector('.adeptus-message-text').innerHTML = `
                     <a href="javascript:void(0)"
-                       class="report-link"
+                       class="adeptus-report-link"
                        data-report-slug="${reportData.slug}"
                        style="color: #007bff; text-decoration: none; cursor:pointer; padding:4px 8px; border:1px solid #dee2e6; border-radius:4px; background:#f8f9fa; display:inline-block; transition:all 0.2s;">
                         📊 ${text}
@@ -874,16 +874,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 `;
                 const self = this;
                 setTimeout(() => {
-                    const link = messageEl.querySelector('.report-link');
+                    const link = messageEl.querySelector('.adeptus-report-link');
                     link.onclick = function() { self.openReportFromLink(link.getAttribute('data-report-slug')); };
                     link.onmouseenter = function() { $(this).css({'background-color':'#e9ecef','border-color':'#adb5bd','transform':'translateY(-1px)'}); };
                     link.onmouseleave = function() { $(this).css({'background-color':'#f8f9fa','border-color':'#dee2e6','transform':'translateY(0)'}); };
                 }, 0);
             } else if (type === 'report-preview' || type === 'system-action') {
                 // Render HTML content directly for report previews and system actions
-                frag.querySelector('.message-text').innerHTML = text;
+                frag.querySelector('.adeptus-message-text').innerHTML = text;
                 // Remove the message bubble styling for these types
-                messageEl.classList.add(type + '-message');
+                messageEl.classList.add('adeptus-' + type + '-message');
                 if (type === 'report-preview') {
                     messageEl.style.background = 'transparent';
                     messageEl.style.padding = '0';
@@ -899,9 +899,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Check if this is a multiple choice question from AI
                 if (type === 'ai' && this.isMultipleChoiceQuestion(text)) {
                     const mcqHtml = this.renderMultipleChoiceOptions(text);
-                    frag.querySelector('.message-text').innerHTML = mcqHtml;
+                    frag.querySelector('.adeptus-message-text').innerHTML = mcqHtml;
                 } else {
-                    frag.querySelector('.message-text').textContent = text;
+                    frag.querySelector('.adeptus-message-text').textContent = text;
                 }
             }
             
@@ -910,17 +910,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 this.addCreditInfoToMessage(frag, creditInfo);
             }
             
-            const timeEl = frag.querySelector('.message-time');
+            const timeEl = frag.querySelector('.adeptus-message-time');
             timeEl.textContent = this.formatTimestamp(timestamp || new Date().toISOString());
-            $('#chat-container').append(frag);
+            $('#adeptus-chat-container').append(frag);
             this.scrollToBottom();
             return $(messageEl);
         },
 
         addCreditInfoToMessage: function (frag, creditInfo) {
-            const messageEl = frag.querySelector('.message');
+            const messageEl = frag.querySelector('.adeptus-message');
             const creditBadge = document.createElement('div');
-            creditBadge.className = 'credit-info-badge';
+            creditBadge.className = 'adeptus-credit-info-badge';
             creditBadge.style.cssText = `
                 display: inline-block;
                 margin-left: 8px;
@@ -947,7 +947,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             creditBadge.title = `${creditInfo.credit_type.toUpperCase()} Response\nTokens: ${creditInfo.tokens_used}\nCredits: ${creditInfo.credits_charged}\nProvider: ${creditInfo.provider}`;
             
             // Insert after message text
-            const messageText = messageEl.querySelector('.message-text');
+            const messageText = messageEl.querySelector('.adeptus-message-text');
             messageText.appendChild(creditBadge);
         },
 
@@ -1028,21 +1028,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
 
             // Build the HTML
-            let html = '<div class="mcq-question-container">';
+            let html = '<div class="adeptus-mcq-question-container">';
 
             // Add the question text
-            html += '<div class="mcq-question-text" style="margin-bottom: 15px; white-space: pre-wrap;">';
+            html += '<div class="adeptus-mcq-question-text" style="margin-bottom: 15px; white-space: pre-wrap;">';
             html += this.escapeHtml(questionText.join('\n'));
             html += '</div>';
 
             // Add the options as buttons
             if (options.length > 0) {
-                html += '<div class="mcq-options-grid" style="display: grid; gap: 10px; grid-template-columns: 1fr;">';
+                html += '<div class="adeptus-mcq-options-grid" style="display: grid; gap: 10px; grid-template-columns: 1fr;">';
 
                 options.forEach(option => {
-                    const optionId = 'mcq-option-' + Date.now() + '-' + option.letter;
+                    const optionId = 'adeptus-mcq-option-' + Date.now() + '-' + option.letter;
                     html += `
-                        <button class="mcq-option-button"
+                        <button class="adeptus-mcq-option-button"
                                 data-option="${option.letter}"
                                 id="${optionId}"
                                 style="
@@ -1055,7 +1055,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     color: #333;
                                     min-height: 50px;
                                 ">
-                            <span class="mcq-option-letter" style="
+                            <span class="adeptus-mcq-option-letter" style="
                                 background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
                                 color: white;
                                 width: 32px;
@@ -1067,7 +1067,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 font-weight: bold;
                                 flex-shrink: 0;
                             ">${option.letter}</span>
-                            <span class="mcq-option-text" style="flex: 1;">${this.escapeHtml(option.text)}</span>
+                            <span class="adeptus-mcq-option-text" style="flex: 1;">${this.escapeHtml(option.text)}</span>
                         </button>
                     `;
                 });
@@ -1079,8 +1079,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Attach click handlers after DOM insertion
             setTimeout(() => {
-                const container = document.querySelector('#chat-container');
-                const latestButtons = container.querySelectorAll('.mcq-option-button:not([data-handler-attached])');
+                const container = document.querySelector('#adeptus-chat-container');
+                const latestButtons = container.querySelectorAll('.adeptus-mcq-option-button:not([data-handler-attached])');
 
                 latestButtons.forEach(button => {
                     button.setAttribute('data-handler-attached', 'true');
@@ -1092,8 +1092,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         const selectedText = options.find(o => o.letter === selectedOption);
 
                         // Disable all buttons in this question to prevent double-clicking
-                        const parentContainer = this.closest('.mcq-question-container');
-                        const allButtons = parentContainer.querySelectorAll('.mcq-option-button');
+                        const parentContainer = this.closest('.adeptus-mcq-question-container');
+                        const allButtons = parentContainer.querySelectorAll('.adeptus-mcq-option-button');
 
                         allButtons.forEach(btn => {
                             btn.disabled = true;
@@ -1104,7 +1104,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         this.classList.add('selected');
 
                         // Add checkmark to selected option
-                        const letterSpan = this.querySelector('.mcq-option-letter');
+                        const letterSpan = this.querySelector('.adeptus-mcq-option-letter');
                         letterSpan.innerHTML = '✓';
 
                         // Format and send the answer
@@ -1299,7 +1299,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             <a href="#" class="alert-link" onclick="window.assistant.showUpgradePrompt(); return false;">${getString('upgrade_plan', 'upgrade your plan')}</a>.
                         </div>
                     `);
-                    $('.chat-input-area').before(banner);
+                    $('.adeptus-chat-input-area').before(banner);
                 }
             } else {
                 // Only enable if credit limit is also not exceeded
@@ -1388,11 +1388,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         showPersistentCreditLimitMessage: function (message) {
             // Remove any existing limit message
-            $('.credit-limit-alert').remove();
+            $('.adeptus-credit-limit-alert').remove();
 
             // Create persistent token limit message
             const alertHtml = `
-                <div class="alert alert-danger credit-limit-alert" role="alert" style="margin: 10px 0; border-left: 4px solid #dc3545; background-color: #f8d7da; border-color: #f5c6cb;">
+                <div class="alert alert-danger adeptus-credit-limit-alert" role="alert" style="margin: 10px 0; border-left: 4px solid #dc3545; background-color: #f8d7da; border-color: #f5c6cb;">
                     <div class="d-flex align-items-center">
 
                         <div class="flex-grow-1">
@@ -1424,7 +1424,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         hidePersistentCreditLimitMessage: function () {
-            $('.credit-limit-alert').fadeOut(300, function() {
+            $('.adeptus-credit-limit-alert').fadeOut(300, function() {
                 $(this).remove();
             });
         },
@@ -1478,14 +1478,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Create the comprehensive modal HTML with optimized styling
             const modalHtml = `
-                <div class="detailed-usage-modal" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                <div class="adeptus-detailed-usage-modal" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
                     <!-- Header with close button -->
-                    <div class="usage-modal-header mb-3" style="background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%); padding: 16px 20px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div class="adeptus-usage-modal-header mb-3" style="background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%); padding: 16px 20px; border-radius: 10px; color: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0" style="color: white; font-weight: 600;">
                                 <i class="fas fa-chart-line me-2"></i> Token Usage Dashboard
                             </h5>
-                            <button type="button" class="usage-modal-close-btn" onclick="Swal.close()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+                            <button type="button" class="adeptus-usage-modal-close-btn" onclick="Swal.close()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
                                 <i class="fas fa-times" style="font-size: 14px;"></i>
                             </button>
                         </div>
@@ -1719,7 +1719,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
 
             // Quick filter buttons
-            $('.quick-filter').on('click', function() {
+            $('.adeptus-quick-filter').on('click', function() {
                 const period = $(this).data('period');
                 const today = new Date();
                 let startDate = '';
@@ -1880,7 +1880,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         updateVisualizations: function (visualizations) {
-            const container = $('#chart-container');
+            const container = $('#adeptus-chart-container');
             container.empty();
 
             // Create canvas for chart
@@ -2083,14 +2083,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         showLoading: function () {
             // Remove any existing loader first (use wrapper class for complete cleanup)
-            $('.ai-thinking-loader-wrapper').remove();
+            $('.adeptus-ai-thinking-loader-wrapper').remove();
 
             // Track when loader was shown for minimum display time
             this.loaderShownAt = Date.now();
             // Create the loader element with proper message wrapper structure
             const loaderHtml = `
-                <div class="message-wrapper ai-message-wrapper ai-thinking-loader-wrapper" style="margin: 10px 0;">
-                    <div class="message ai-message ai-thinking-loader" style="
+                <div class="adeptus-message-wrapper adeptus-ai-message-wrapper adeptus-ai-thinking-loader-wrapper" style="margin: 10px 0;">
+                    <div class="adeptus-message adeptus-ai-message adeptus-ai-thinking-loader" style="
                         max-width: 70%;
                         margin-left: 20px;
                         padding: 15px 20px;
@@ -2101,7 +2101,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         align-items: center;
                         gap: 12px;
                     ">
-                        <div class="ai-avatar-loader" style="
+                        <div class="adeptus-ai-avatar-loader" style="
                             padding: 8px 12px;
                             background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
                             border-radius: 20px;
@@ -2116,18 +2116,18 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             font-family: system-ui, -apple-system, sans-serif;
                             letter-spacing: 0.5px;
                         ">Adeptus AI</div>
-                        <div class="thinking-dots" style="
+                        <div class="adeptus-thinking-dots" style="
                             display: flex;
                             align-items: center;
                             gap: 4px;
                         ">
-                            <span class="thinking-text" style="
+                            <span class="adeptus-thinking-text" style="
                                 color: #6c757d;
                                 font-size: 14px;
                                 margin-right: 8px;
                                 font-style: italic;
                             ">Thinking</span>
-                            <span class="dot dot-1" style="
+                            <span class="adeptus-dot adeptus-dot-1" style="
                                 width: 8px;
                                 height: 8px;
                                 border-radius: 50%;
@@ -2136,7 +2136,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 animation: bounce-loader 1.4s infinite ease-in-out both;
                                 animation-delay: -0.32s;
                             "></span>
-                            <span class="dot dot-2" style="
+                            <span class="adeptus-dot adeptus-dot-2" style="
                                 width: 8px;
                                 height: 8px;
                                 border-radius: 50%;
@@ -2145,7 +2145,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 animation: bounce-loader 1.4s infinite ease-in-out both;
                                 animation-delay: -0.16s;
                             "></span>
-                            <span class="dot dot-3" style="
+                            <span class="adeptus-dot adeptus-dot-3" style="
                                 width: 8px;
                                 height: 8px;
                                 border-radius: 50%;
@@ -2159,7 +2159,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             `;
 
             // Add the loader to chat container
-            const $chatContainer = $('#chat-container');
+            const $chatContainer = $('#adeptus-chat-container');
             if ($chatContainer.length > 0) {
                 $chatContainer.append(loaderHtml);
 
@@ -2177,20 +2177,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Delay removal to ensure minimum display time
             setTimeout(() => {
                 // Remove the thinking loader wrapper with fade animation
-                $('.ai-thinking-loader-wrapper').fadeOut(200, function() {
+                $('.adeptus-ai-thinking-loader-wrapper').fadeOut(200, function() {
                     $(this).remove();
                 });
                 // Also remove just the loader element if wrapper doesn't exist
-                $('.ai-thinking-loader').fadeOut(200, function() {
+                $('.adeptus-ai-thinking-loader').fadeOut(200, function() {
                     $(this).remove();
                 });
                 // Also hide the old loading indicator if it exists
-                $('#loading-indicator').addClass('d-none');
+                $('#adeptus-loading-indicator').addClass('d-none');
             }, remainingTime);
         },
 
         showError: function (message) {
-            const errorDiv = $('#error-message');
+            const errorDiv = $('#adeptus-error-message');
             $('#error-text').text(message);
             errorDiv.removeClass('d-none');
 
@@ -2224,7 +2224,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         scrollToBottom: function () {
-            const container = $('#chat-container');
+            const container = $('#adeptus-chat-container');
             container.scrollTop(container[0].scrollHeight);
         },
 
@@ -2281,7 +2281,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             `);
 
                             // Show welcome message in chat container when no history exists
-                            if ($('#chat-container').children().length === 0) {
+                            if ($('#adeptus-chat-container').children().length === 0) {
                                 this.showWelcomeMessage();
                             }
                         } else {
@@ -2301,13 +2301,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             // Safely handle report count
                             const reportCount = chat.report_count || 0;
                             const badgeHtml = reportCount > 0
-                                ? `<span class="badge bg-primary d-flex align-items-center report-count"><i class="fa fa-chart-bar me-1"></i>${reportCount}</span>`
+                                ? `<span class="badge bg-primary d-flex align-items-center adeptus-report-count"><i class="fa fa-chart-bar me-1"></i>${reportCount}</span>`
                                 : '';
 
                             // Only create item if we have a valid chat ID
                             if (chat.id) {
                                 const item = $(`
-                                    <li class="list-group-item d-flex justify-content-between align-items-start chat-history-item" data-chat-id="${chat.id}">
+                                    <li class="list-group-item d-flex justify-content-between align-items-start adeptus-chat-history-item" data-chat-id="${chat.id}">
                                         <div>
                                             <small class="text-muted">${date}</small><br>
                                             ${snippet}
@@ -2320,7 +2320,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         });
 
                         // Set up click handlers
-                        $('.chat-history-item').on('click', (e) => {
+                        $('.adeptus-chat-history-item').on('click', (e) => {
                             const li = $(e.currentTarget);
                             const chatId = li.data('chat-id');
                             this.loadChatMessages(chatId, li);
@@ -2328,7 +2328,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                         // Don't auto-load any chat - show welcome message on initial page load
                         // Only show welcome message if chat container is empty
-                        if (this.currentChatId === 0 && $('#chat-container').children().length === 0) {
+                        if (this.currentChatId === 0 && $('#adeptus-chat-container').children().length === 0) {
                             this.showWelcomeMessage();
                         }
                     }
@@ -2357,7 +2357,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.currentChatId = chatId;
             $('#chat-history-list li').removeClass('active');
             listItem.addClass('active');
-            $('#chat-container').empty();
+            $('#adeptus-chat-container').empty();
             this.clearMCQ(); // Clear and hide MCQ container when loading different chat
             this.showLoading();
 
@@ -2411,12 +2411,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 // Add as AI message with MCQ HTML
                                 const template = document.getElementById('message-template');
                                 const frag = template.content.cloneNode(true);
-                                const messageEl = frag.querySelector('.message');
-                                messageEl.classList.add('ai-message');
+                                const messageEl = frag.querySelector('.adeptus-message');
+                                messageEl.classList.add('adeptus-ai-message');
                                 messageEl.setAttribute('data-message-id', msg.id);
-                                frag.querySelector('.message-text').innerHTML = mcqHtml;
-                                frag.querySelector('.message-time').textContent = this.formatTimestamp(msg.timestamp);
-                                $('#chat-container').append(frag);
+                                frag.querySelector('.adeptus-message-text').innerHTML = mcqHtml;
+                                frag.querySelector('.adeptus-message-time').textContent = this.formatTimestamp(msg.timestamp);
+                                $('#adeptus-chat-container').append(frag);
                                 return; // Skip the normal addMessage call
                             }
                         }
@@ -2498,26 +2498,26 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Insert a report link into the chat after the corresponding message
          */
         insertReportLinkInChat: function(report) {
-            const $msg = $(`#chat-container .message[data-message-id="${report.message_after_id}"]`);
+            const $msg = $(`#adeptus-chat-container .adeptus-message[data-message-id="${report.message_after_id}"]`);
             if (!$msg.length) return;
             // Build report link message
             const linkHtml = `
-                <div class="message ai-message">
-                  <div class="message-content">
-                    <div class="message-text">
-                      <a href="javascript:void(0)" class="report-link" data-report-slug="${report.slug}" 
+                <div class="adeptus-message adeptus-ai-message">
+                  <div class="adeptus-message-content">
+                    <div class="adeptus-message-text">
+                      <a href="javascript:void(0)" class="adeptus-report-link" data-report-slug="${report.slug}"
                          style="color: #007bff; text-decoration: none; padding:4px 8px; border:1px solid #dee2e6; border-radius:4px; background:#f8f9fa; display:inline-block; transition:all 0.2s;">
                         📊 ${report.description}
                       </a>
                     </div>
-                    <div class="message-time small text-muted">${new Date(report.created_at).toLocaleTimeString()}</div>
+                    <div class="adeptus-message-time small text-muted">${new Date(report.created_at).toLocaleTimeString()}</div>
                   </div>
                 </div>
             `;
             const $linkMsg = $(linkHtml);
             // Bind click and hover
             const self = this;
-            $linkMsg.find('.report-link')
+            $linkMsg.find('.adeptus-report-link')
                 .on('click', function() {
                     const slug = $(this).data('report-slug');
                     self.openReportFromLink(slug);
@@ -2564,7 +2564,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.isSending = true;
 
             // Clear welcome message if it exists
-            $('.welcome-message').remove();
+            $('.adeptus-welcome-message').remove();
 
             // Add user message first
             const $userMsg = this.addMessage(message, 'user');
@@ -2615,7 +2615,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         return;
                     }
                     // Remove any existing resend icons on success (clean up from previous failures)
-                    $('.failed-reload-icon').remove();
+                    $('.adeptus-failed-reload-icon').remove();
                     // update chat_id on first message
                     if (!this.currentChatId && response.chat_id) {
                         this.currentChatId = response.chat_id;
@@ -2676,11 +2676,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 $('#send-button')
                     .prop('disabled', true)
                     .attr('title', 'Credit limit reached. Your credits will reset on the 1st of next month.')
-                    .addClass('credit-limit-disabled');
+                    .addClass('adeptus-credit-limit-disabled');
                 $('#create-new-chat')
                     .prop('disabled', true)
                     .attr('title', 'Credit limit reached. Your credits will reset on the 1st of next month.')
-                    .addClass('credit-limit-disabled');
+                    .addClass('adeptus-credit-limit-disabled');
                 $('#message-input')
                     .prop('disabled', true)
                     .attr('placeholder', 'Credit limit reached. Your credits will reset on the 1st of next month.');
@@ -2688,11 +2688,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 $('#send-button')
                     .prop('disabled', false)
                     .removeAttr('title')
-                    .removeClass('credit-limit-disabled');
+                    .removeClass('adeptus-credit-limit-disabled');
                 $('#create-new-chat')
                     .prop('disabled', false)
                     .removeAttr('title')
-                    .removeClass('credit-limit-disabled');
+                    .removeClass('adeptus-credit-limit-disabled');
                 $('#message-input')
                     .prop('disabled', false)
                     .attr('placeholder', 'Type your message...');
@@ -2702,7 +2702,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         createNewChat: function () {
             this.currentChatId = 0;
             $('#chat-history-list li').removeClass('active');
-            $('#chat-container').empty();
+            $('#adeptus-chat-container').empty();
             this.clearMCQ(); // Clear and hide MCQ container
 
             // Show welcome message in the new empty chat
@@ -2711,7 +2711,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         showWelcomeMessage: function() {
             const welcomeHtml = `
-                <div class="welcome-message text-center p-5">
+                <div class="adeptus-welcome-message text-center p-5">
                     <div style="max-width: 600px; margin: 0 auto;">
                         <h3 class="mb-4">Welcome to Adeptus AI Assistant</h3>
                         <p class="text-muted mb-4">
@@ -2740,7 +2740,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     </div>
                 </div>
             `;
-            $('#chat-container').html(welcomeHtml);
+            $('#adeptus-chat-container').html(welcomeHtml);
         },
 
         addChatToChatHistory(chatId, firstMessage) {
@@ -2759,7 +2759,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 : firstMessage || 'New chat';
 
             const item = $(
-                `<li class="list-group-item d-flex justify-content-between align-items-start chat-history-item" data-chat-id="${chatId}">
+                `<li class="list-group-item d-flex justify-content-between align-items-start adeptus-chat-history-item" data-chat-id="${chatId}">
                     <div>
                         <small class="text-muted">${date}</small><br>
                         ${displayMessage}
@@ -2776,7 +2776,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         initializeCharts: function () {
             // Initialize with empty chart
-            const container = $('#chart-container');
+            const container = $('#adeptus-chart-container');
             const canvas = $('<canvas></canvas>');
             container.append(canvas);
 
@@ -2894,26 +2894,26 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 
                 // Don't remove the template header - it's correctly positioned
                 // Just remove any dynamically added subscription info to prevent duplicates
-                $('.subscription-status-bar').remove();
+                $('.adeptus-subscription-status-bar').remove();
 
                 // Create subscription info display (separate from main header)
                 let subscriptionHtml = `
-                    <div class="subscription-status-bar">
-                        <div class="subscription-bar-row">
-                            <div class="subscription-info-left">
-                                <h6 class="subscription-title">
-                                    <i class="fa fa-chart-line subscription-icon"></i> Subscription Status
+                    <div class="adeptus-subscription-status-bar">
+                        <div class="adeptus-subscription-bar-row">
+                            <div class="adeptus-subscription-info-left">
+                                <h6 class="adeptus-subscription-title">
+                                    <i class="fa fa-chart-line adeptus-subscription-icon"></i> Subscription Status
                                     <button class="btn btn-outline-secondary btn-sm" id="refresh-subscription-btn" title="Refresh subscription data">
                                         <i class="fa fa-refresh"></i>
                                     </button>
                                 </h6>
-                                <div class="subscription-details">
+                                <div class="adeptus-subscription-details">
                                     <span><strong>Plan:</strong> ${subscription.plan_name || 'Unknown'}</span>
                                     <span class="ms-3"><strong>Status:</strong> <span class="badge bg-${subscription.status === 'active' ? 'success' : 'warning'}">${subscription.status || 'Unknown'}</span></span>
                                 </div>
                             </div>
-                            <div class="subscription-actions-right">
-                                <a href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn btn-view-usage">
+                            <div class="adeptus-subscription-actions-right">
+                                <a href="javascript:void(0)" onclick="window.assistant.showCreditUsageModal()" class="btn adeptus-btn-view-usage">
                                     <i class="fa fa-chart-bar"></i> View Usage
                                 </a>
                             </div>
@@ -2925,13 +2925,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 // Insert subscription status bar at the bottom of the page
 
                 // Insert subscription bar at the bottom of the AI Assistant container
-                // Use specific selector to avoid duplicates on multiple .container-fluid elements
-                const assistantContainer = $('.assistant-header').siblings('.container-fluid').first();
+                // Use ID selector for reliability
+                const assistantContainer = $('#adeptus-assistant-container');
                 if (assistantContainer.length) {
                     assistantContainer.append(subscriptionHtml);
                 } else {
                     // Fallback: insert after the template header
-                    const templateHeader = $('.assistant-header');
+                    const templateHeader = $('.adeptus-assistant-header');
                     if (templateHeader.length) {
                         templateHeader.after(subscriptionHtml);
                     }
@@ -2958,7 +2958,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 });
             } else {
                 // Remove subscription info if no data available
-                $('.subscription-info').remove();
+                $('.adeptus-subscription-status-bar').remove();
             }
         },
 
@@ -3057,7 +3057,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         showRefreshSuccessFeedback: function() {
             const notification = $(`
-                <div class="refresh-success-notification" style="
+                <div class="adeptus-refresh-success-notification" style="
                     position: fixed;
                     top: 20px;
                     right: 20px;
@@ -3102,7 +3102,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         showRefreshErrorFeedback: function() {
             const notification = $(`
-                <div class="refresh-error-notification" style="
+                <div class="adeptus-refresh-error-notification" style="
                     position: fixed;
                     top: 20px;
                     right: 20px;
@@ -3268,7 +3268,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         return;
                     }
                     // Remove all resend icons on successful resend
-                    $('.failed-reload-icon').remove();
+                    $('.adeptus-failed-reload-icon').remove();
                     
                     if (!this.currentChatId && response.chat_id) {
                         this.currentChatId = response.chat_id;
@@ -3322,8 +3322,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         renderMCQ: function(question, options) {
             this.currentMCQ = true;
             $('#message-input, #send-button').prop('disabled', true);
-            const c = $('#mcq-container').empty().show();
-            c.append(`<p class="mcq-question"><strong>${question}</strong></p>`);
+            const c = $('#adeptus-mcq-container').empty().show();
+            c.append(`<p class="adeptus-mcq-question"><strong>${question}</strong></p>`);
             options.forEach((opt, idx) => {
                 const key = String.fromCharCode(65 + idx);
                 c.append(`
@@ -3408,7 +3408,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         return;
                     }
                     // Remove any existing resend icons on success
-                    $('.failed-reload-icon').remove();
+                    $('.adeptus-failed-reload-icon').remove();
                     // Handle response using the same logic as regular messages
                     this.handleResponse(response);
                 },
@@ -3449,7 +3449,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         displayReportInChat: function(report, data) {
             // Create a nice table display
-            let tableHtml = '<div class="report-preview-container" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">';
+            let tableHtml = '<div class="adeptus-report-preview-container" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">';
             tableHtml += `<h5 style="margin-bottom: 10px; color: #495057;">${report.name || report.description}</h5>`;
 
             if (data && data.length > 0) {
@@ -3516,7 +3516,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const self = this;
 
             // Check if action buttons for this report already exist
-            const existingActions = document.querySelectorAll('.report-action-container');
+            const existingActions = document.querySelectorAll('.adeptus-report-action-container');
             if (existingActions.length > 0) {
                 // Remove any existing action containers to prevent duplicates
                 existingActions.forEach(container => {
@@ -3533,16 +3533,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Create the action buttons HTML
             const buttonsHtml = `
-                <div class="report-action-container" id="${buttonId}" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+                <div class="adeptus-report-action-container" id="${buttonId}" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
                     <p style="margin-bottom: 15px; font-weight: 500;">Would you like to save this report to your Reports list?</p>
-                    <div class="report-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="btn btn-primary btn-save-report" style="padding: 8px 20px;">
+                    <div class="adeptus-report-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary adeptus-btn-save-report" style="padding: 8px 20px;">
                             <i class="fa fa-check-circle"></i> Save Report
                         </button>
-                        <button class="btn btn-secondary btn-decline-report" style="padding: 8px 20px;">
+                        <button class="btn btn-secondary adeptus-btn-decline-report" style="padding: 8px 20px;">
                             <i class="fa fa-times-circle"></i> Don't Save
                         </button>
-                        <button class="btn btn-outline-secondary btn-decline-feedback" style="padding: 8px 20px;">
+                        <button class="btn btn-outline-secondary adeptus-btn-decline-feedback" style="padding: 8px 20px;">
                             <i class="fa fa-comment"></i> Decline & Give Feedback
                         </button>
                     </div>
@@ -3558,7 +3558,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (!container) return;
 
                 // Save button
-                const saveBtn = container.querySelector('.btn-save-report');
+                const saveBtn = container.querySelector('.adeptus-btn-save-report');
                 if (saveBtn && !saveBtn.hasAttribute('data-handler-attached')) {
                     // Mark that we've attached a handler to prevent duplicates
                     saveBtn.setAttribute('data-handler-attached', 'true');
@@ -3637,7 +3637,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 }
 
                 // Don't save button
-                const declineBtn = container.querySelector('.btn-decline-report');
+                const declineBtn = container.querySelector('.adeptus-btn-decline-report');
                 if (declineBtn && !declineBtn.hasAttribute('data-handler-attached')) {
                     declineBtn.setAttribute('data-handler-attached', 'true');
                     declineBtn.addEventListener('click', function() {
@@ -3654,20 +3654,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 }
 
                 // Decline with feedback button
-                const feedbackBtn = container.querySelector('.btn-decline-feedback');
+                const feedbackBtn = container.querySelector('.adeptus-btn-decline-feedback');
                 if (feedbackBtn && !feedbackBtn.hasAttribute('data-handler-attached')) {
                     feedbackBtn.setAttribute('data-handler-attached', 'true');
                     feedbackBtn.addEventListener('click', function() {
                         // Replace buttons with feedback form
                         container.innerHTML = `
-                            <div class="feedback-form">
+                            <div class="adeptus-feedback-form">
                                 <p style="margin-bottom: 10px;">What would you like to change about this report?</p>
                                 <textarea id="feedback-text-${buttonId}" class="form-control" rows="3" placeholder="Please provide your feedback..."></textarea>
                                 <div style="margin-top: 10px; display: flex; gap: 10px;">
-                                    <button class="btn btn-primary btn-send-feedback">
+                                    <button class="btn btn-primary adeptus-btn-send-feedback">
                                         <i class="fa fa-paper-plane"></i> Send Feedback
                                     </button>
-                                    <button class="btn btn-secondary btn-cancel-feedback">
+                                    <button class="btn btn-secondary adeptus-btn-cancel-feedback">
                                         Cancel
                                     </button>
                                 </div>
@@ -3675,8 +3675,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         `;
 
                         // Attach feedback form handlers
-                        const sendFeedbackBtn = container.querySelector('.btn-send-feedback');
-                        const cancelFeedbackBtn = container.querySelector('.btn-cancel-feedback');
+                        const sendFeedbackBtn = container.querySelector('.adeptus-btn-send-feedback');
+                        const cancelFeedbackBtn = container.querySelector('.adeptus-btn-cancel-feedback');
                         const feedbackText = container.querySelector(`#feedback-text-${buttonId}`);
 
                         if (sendFeedbackBtn) {
@@ -3727,7 +3727,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Give the tab time to render
             setTimeout(() => {
                 // Find the report row with the matching slug
-                const reportRow = $(`.report-row[data-report-slug="${slug}"]`);
+                const reportRow = $(`.adeptus-report-row[data-report-slug="${slug}"]`);
 
                 if (reportRow.length) {
                     // Trigger click on the report row
@@ -3736,7 +3736,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     // If not found, try to refresh the reports list
                     this.loadReportsHistory(() => {
                         setTimeout(() => {
-                            const refreshedRow = $(`.report-row[data-report-slug="${slug}"]`);
+                            const refreshedRow = $(`.adeptus-report-row[data-report-slug="${slug}"]`);
                             if (refreshedRow.length) {
                                 refreshedRow.click();
                             } else {
@@ -3758,8 +3758,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         displayReportLink: function(msg) {
             const template = document.getElementById('message-template');
             const frag = template.content.cloneNode(true);
-            const messageEl = frag.querySelector('.message');
-            messageEl.classList.add('ai-message');
+            const messageEl = frag.querySelector('.adeptus-message');
+            messageEl.classList.add('adeptus-ai-message');
             messageEl.setAttribute('data-message-id', msg.id);
 
             // Create report link HTML
@@ -3768,7 +3768,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const reportDescription = msg.metadata?.report_description || '';
 
             const reportLinkHtml = `
-                <div class="report-link-message">
+                <div class="adeptus-report-link-message">
                     <div style="padding: 15px; background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border-radius: 10px; margin: 10px 0;">
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
                             <div style="flex: 1;">
@@ -3778,7 +3778,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 ${reportDescription ? `<small style="opacity: 0.9;">${reportDescription}</small>` : ''}
                             </div>
                             ${reportSlug ? `
-                                <button class="btn btn-light btn-sm view-saved-report-btn"
+                                <button class="btn btn-light btn-sm adeptus-view-saved-report-btn"
                                         data-slug="${reportSlug}"
                                         style="cursor: pointer; border-radius: 5px; flex-shrink: 0;">
                                     <i class="fa fa-eye"></i> View Report
@@ -3789,16 +3789,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 </div>
             `;
 
-            frag.querySelector('.message-text').innerHTML = reportLinkHtml;
-            frag.querySelector('.message-time').textContent = this.formatTimestamp(msg.timestamp);
-            $('#chat-container').append(frag);
+            frag.querySelector('.adeptus-message-text').innerHTML = reportLinkHtml;
+            frag.querySelector('.adeptus-message-time').textContent = this.formatTimestamp(msg.timestamp);
+            $('#adeptus-chat-container').append(frag);
 
             // Add click handler using the same pattern as the working buttons
             const self = this;
             setTimeout(() => {
-                const viewBtn = $('#chat-container').find('.view-saved-report-btn[data-slug="' + reportSlug + '"]').last();
-                if (viewBtn.length && !viewBtn.hasClass('click-handler-attached')) {
-                    viewBtn.addClass('click-handler-attached');
+                const viewBtn = $('#adeptus-chat-container').find('.adeptus-view-saved-report-btn[data-slug="' + reportSlug + '"]').last();
+                if (viewBtn.length && !viewBtn.hasClass('adeptus-click-handler-attached')) {
+                    viewBtn.addClass('adeptus-click-handler-attached');
                     viewBtn.on('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -3807,7 +3807,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         self.switchToReportsTab();
 
                         // Find and click the report row
-                        const reportRow = $(`.report-row[data-report-slug="${reportSlug}"]`);
+                        const reportRow = $(`.adeptus-report-row[data-report-slug="${reportSlug}"]`);
                         if (reportRow.length > 0) {
                             reportRow.trigger('click');
                         } else {
@@ -3902,7 +3902,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                         // Update any active report action containers to show simple success
                         // The blue gradient card (from sendReportMessage) will have the View Report button
-                        document.querySelectorAll('.report-action-container').forEach(container => {
+                        document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                             container.innerHTML = `
                                 <div style="text-align: center; color: #28a745; padding: 10px;">
                                     <i class="fa fa-check-circle"></i> Report saved successfully!
@@ -3924,7 +3924,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             if (isServiceError) {
                                 // AI service had an issue - show error with retry option
                                 const errorMsg = chatResponse.message || 'The AI service is temporarily unavailable.';
-                                document.querySelectorAll('.report-action-container').forEach(container => {
+                                document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                                     const retryBtnId = 'retry-feedback-' + Date.now();
                                     container.innerHTML = `
                                         <div style="text-align: center; padding: 10px;">
@@ -3961,7 +3961,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                                 if (looksLikeReportGeneration && !hasReportStructure) {
                                     // "Ghost report" - AI says report generated but no structure to display it
-                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                    document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                                         const retryBtnId = 'retry-ghost-' + Date.now();
                                         container.innerHTML = `
                                             <div style="text-align: center; padding: 10px;">
@@ -3985,7 +3985,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     this.addMessage('The report refinement encountered an issue. Please try again using the button above, or start a new request.', 'system');
                                 } else if (hasReportStructure) {
                                     // Normal success with proper report structure
-                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                    document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                                         container.innerHTML = `
                                             <div style="text-align: center; color: #007bff;">
                                                 <i class="fa fa-info-circle"></i> Feedback sent. I'll refine the report based on your input.
@@ -3995,7 +3995,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     this.handleResponse(response.chat_response);
                                 } else {
                                     // Regular response (not a report) - just show the message
-                                    document.querySelectorAll('.report-action-container').forEach(container => {
+                                    document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                                         container.innerHTML = `
                                             <div style="text-align: center; color: #007bff;">
                                                 <i class="fa fa-info-circle"></i> Feedback sent.
@@ -4007,7 +4007,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             }
                         } else {
                             // No chat_response - unexpected, show generic feedback sent
-                            document.querySelectorAll('.report-action-container').forEach(container => {
+                            document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                                 container.innerHTML = `
                                     <div style="text-align: center; color: #007bff;">
                                         <i class="fa fa-info-circle"></i> Feedback sent.
@@ -4045,7 +4045,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
 
                     // Update containers with error and optional retry button
-                    document.querySelectorAll('.report-action-container').forEach(container => {
+                    document.querySelectorAll('.adeptus-report-action-container').forEach(container => {
                         const retryBtnId = 'retry-error-' + Date.now();
                         let retryHtml = '';
                         if (showRetry) {
@@ -4093,8 +4093,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             $('#reports-panel').addClass('show active');
 
             // Reset view placeholder
-            $('.report-view-title').text('Select a Report');
-            $('.report-view-body').html(
+            $('.adeptus-report-view-title').text('Select a Report');
+            $('.adeptus-report-view-body').html(
                 '<div class="text-center py-4"><p class="text-muted">Select a report from history to view details here.</p></div>'
             );
 
@@ -4281,7 +4281,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 const statusBadge = self.getStatusBadge(report.status);
                 const date = new Date(report.created_at).toLocaleDateString();
                 const row = $(`
-                    <tr class="report-row" data-report-slug="${report.slug}">
+                    <tr class="adeptus-report-row" data-report-slug="${report.slug}">
                         <td>${report.description}</td>
                         <td>${date}</td>
                         <td>${statusBadge}</td>
@@ -4293,10 +4293,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Use event delegation for report row clicks to handle filtered/searched results
             // Remove any existing delegated handlers first to avoid duplicates
-            $('#report-history-table-wrapper').off('click', '.report-row');
+            $('#report-history-table-wrapper').off('click', '.adeptus-report-row');
 
             // Attach delegated click handler that will work even after DataTable filtering
-            $('#report-history-table-wrapper').on('click', '.report-row', function() {
+            $('#report-history-table-wrapper').on('click', '.adeptus-report-row', function() {
                 const $row = $(this);
                 const reportSlug = $row.data('report-slug');
 
@@ -4312,7 +4312,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                 // Always show loading spinner in carousel container
                 const reportsView = $('#reports-panel .col-md-8 .card-body');
-                reportsView.find('.report-display-wrapper').html('<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>');
+                reportsView.find('.adeptus-report-display-wrapper').html('<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>');
 
                 // Check if cachedReports exists and has the report WITH DATA
                 if (Array.isArray(self.cachedReports) && self.cachedReports.length > 0) {
@@ -4332,7 +4332,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     self.fetchAndDisplayReport(report.slug, $row);
                 }
                 // Highlight the current report in the history
-                $('.report-row').removeClass('table-primary');
+                $('.adeptus-report-row').removeClass('table-primary');
                 $row.addClass('table-primary');
             });
         },
@@ -4350,7 +4350,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             $('#report-history-table-wrapper').removeClass('d-none');
 
             // Ensure loading spinner is visible
-            reportsView.html('<div class="report-display-wrapper w-100"><div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div></div>');
+            reportsView.html('<div class="adeptus-report-display-wrapper w-100"><div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div></div>');
 
             this.ajaxWithAuth({
                 url: `${this.backendUrl}/ai-reports/${reportSlug}`,
@@ -4375,7 +4375,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         self.executeReportLocally(sqlQuery, report?.params || {})
                             .then((executionResult) => {
                                 if (executionResult.error) {
-                                    reportsView.find('.report-display-wrapper').html(
+                                    reportsView.find('.adeptus-report-display-wrapper').html(
                                         `<div class="w-100 text-center text-danger py-4">
                                             <i class="fa fa-exclamation-triangle"></i>
                                             Failed to execute report: ${executionResult.error}
@@ -4385,7 +4385,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 }
 
                                 if (!executionResult.data || executionResult.data.length === 0) {
-                                    reportsView.find('.report-display-wrapper').html(
+                                    reportsView.find('.adeptus-report-display-wrapper').html(
                                         '<div class="w-100 text-center text-warning py-4">' +
                                         '<i class="fa fa-info-circle"></i> ' +
                                         'Report executed successfully but returned no data.' +
@@ -4397,7 +4397,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 self.displayFetchedReport(report, executionResult.data, rowElem);
                             })
                             .catch((error) => {
-                                reportsView.find('.report-display-wrapper').html(
+                                reportsView.find('.adeptus-report-display-wrapper').html(
                                     `<div class="w-100 text-center text-danger py-4">
                                         <i class="fa fa-exclamation-triangle"></i>
                                         Failed to execute report: ${error.message}
@@ -4408,7 +4408,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
 
                     // No data and no SQL - show warning
-                    reportsView.find('.report-display-wrapper').html(
+                    reportsView.find('.adeptus-report-display-wrapper').html(
                         '<div class="w-100 text-center text-warning py-4">' +
                         '<i class="fa fa-exclamation-triangle"></i> ' +
                         'Report has no data or SQL to execute.' +
@@ -4416,7 +4416,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     );
                 },
                 error: (xhr, status, error) => {
-                    reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-danger py-4">Failed to load report. Please try again.</div>');
+                    reportsView.find('.adeptus-report-display-wrapper').html('<div class="w-100 text-center text-danger py-4">Failed to load report. Please try again.</div>');
                 }
             });
         },
@@ -4442,7 +4442,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateReportsView(report, data);
 
             // Highlight the current report in the history
-            $('.report-row').removeClass('table-primary');
+            $('.adeptus-report-row').removeClass('table-primary');
             if (rowElem) rowElem.addClass('table-primary');
         },
 
@@ -4454,7 +4454,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateReportsView(report);
             
             // Highlight the current report in the history
-            $(`.report-row[data-report-slug="${report.slug}"]`).addClass('table-primary');
+            $(`.adeptus-report-row[data-report-slug="${report.slug}"]`).addClass('table-primary');
         },
 
         /**
@@ -4465,8 +4465,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (rep) {
                 this.updateReportsView(rep, rep.data);
                 // Highlight the current report in the history
-                $('.report-row').removeClass('table-primary');
-                $(`.report-row[data-report-slug="${reportSlug}"]`).addClass('table-primary');
+                $('.adeptus-report-row').removeClass('table-primary');
+                $(`.adeptus-report-row[data-report-slug="${reportSlug}"]`).addClass('table-primary');
             }
         },
 
@@ -4504,7 +4504,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 $('head').append(`
                     <style id="display-type-icon-style">
                         /* View toggle buttons */
-                        .view-toggle .view-toggle-btn {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn {
                             background: #f8f9fa;
                             border: 1px solid #dee2e6;
                             color: #495057;
@@ -4512,42 +4512,42 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             font-size: 13px;
                             transition: all 0.2s ease;
                         }
-                        .view-toggle .view-toggle-btn:first-child {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn:first-child {
                             border-radius: 6px 0 0 6px;
                         }
-                        .view-toggle .view-toggle-btn:last-child {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn:last-child {
                             border-radius: 0 6px 6px 0;
                         }
-                        .view-toggle .view-toggle-btn:hover {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn:hover {
                             background: #e9ecef;
                         }
-                        .view-toggle .view-toggle-btn.active {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn.active {
                             background: #2563eb;
                             border-color: #2563eb;
                             color: white;
                         }
-                        .view-toggle .view-toggle-btn i {
+                        .adeptus-view-toggle .adeptus-view-toggle-btn i {
                             margin-right: 5px;
                         }
 
                         /* Chart controls wrapper */
-                        .chart-controls-wrapper {
+                        .adeptus-chart-controls-wrapper {
                             background: #f8f9fa;
                             border-radius: 8px;
                             padding: 1rem;
                             border: 1px solid #e9ecef;
                         }
-                        .chart-controls {
+                        .adeptus-chart-controls {
                             display: flex;
                             align-items: flex-end;
                             flex-wrap: wrap;
                         }
-                        .chart-controls .control-group {
+                        .adeptus-chart-controls .adeptus-control-group {
                             display: flex;
                             flex-direction: column;
                             gap: 0.25rem;
                         }
-                        .chart-controls .form-label {
+                        .adeptus-chart-controls .form-label {
                             font-size: 11px;
                             font-weight: 600;
                             color: #6c757d;
@@ -4555,7 +4555,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             text-transform: uppercase;
                             letter-spacing: 0.5px;
                         }
-                        .chart-controls .form-select {
+                        .adeptus-chart-controls .form-select {
                             font-size: 13px;
                             padding: 0.4rem 2rem 0.4rem 0.75rem;
                             border-radius: 6px;
@@ -4563,7 +4563,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             background-color: white;
                             min-width: 140px;
                         }
-                        .chart-controls .form-select:focus {
+                        .adeptus-chart-controls .form-select:focus {
                             border-color: #2563eb;
                             box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
                         }
@@ -4592,9 +4592,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 `);
             }
             // Set the report description as the title
-            $('.report-view-title').text(report.description);
+            $('.adeptus-report-view-title').text(report.description);
             if (!Array.isArray(data) || data.length === 0) {
-                reportsView.find('.report-display-wrapper').html('<div class="w-100 text-center text-muted py-4">No data available for this report.</div>');
+                reportsView.find('.adeptus-report-display-wrapper').html('<div class="w-100 text-center text-muted py-4">No data available for this report.</div>');
                 return;
             }
 
@@ -4603,11 +4603,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const numericCols = this.detectNumericColumns(data, headers);
 
             // Build chart controls HTML
-            let chartControlsHtml = '<div class="chart-controls-wrapper mb-3">';
-            chartControlsHtml += '<div class="chart-controls d-flex flex-wrap align-items-end gap-3">';
+            let chartControlsHtml = '<div class="adeptus-chart-controls-wrapper mb-3">';
+            chartControlsHtml += '<div class="adeptus-chart-controls d-flex flex-wrap align-items-end gap-3">';
 
             // Chart type selector
-            chartControlsHtml += '<div class="control-group">';
+            chartControlsHtml += '<div class="adeptus-control-group">';
             chartControlsHtml += '<label for="report-chart-type" class="form-label">Chart Type</label>';
             chartControlsHtml += '<select id="report-chart-type" class="form-select form-select-sm">';
             chartControlsHtml += '<option value="bar">Bar Chart</option>';
@@ -4617,7 +4617,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             chartControlsHtml += '</select></div>';
 
             // X-Axis selector
-            chartControlsHtml += '<div class="control-group">';
+            chartControlsHtml += '<div class="adeptus-control-group">';
             chartControlsHtml += '<label for="report-chart-x-axis" class="form-label">X-Axis (Labels)</label>';
             chartControlsHtml += '<select id="report-chart-x-axis" class="form-select form-select-sm">';
             headers.forEach((header, idx) => {
@@ -4628,7 +4628,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             chartControlsHtml += '</select></div>';
 
             // Y-Axis selector (only numeric columns)
-            chartControlsHtml += '<div class="control-group">';
+            chartControlsHtml += '<div class="adeptus-control-group">';
             chartControlsHtml += '<label for="report-chart-y-axis" class="form-label">Y-Axis (Values)</label>';
             chartControlsHtml += '<select id="report-chart-y-axis" class="form-select form-select-sm">';
             if (numericCols.length > 0) {
@@ -4650,48 +4650,48 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Controls row: export buttons (left), view toggle (right)
             // PDF available for all, CSV/JSON premium on free plan
-            const premiumClass = self.isFreePlan ? ' export-premium' : '';
+            const premiumClass = self.isFreePlan ? ' adeptus-export-premium' : '';
             const premiumIcon = self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '';
             let controlsHtml = `
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-                    <div class="action-buttons d-flex gap-2">
-                        <button class="btn btn-outline-danger btn-sm export-pdf-btn">
+                    <div class="adeptus-action-buttons d-flex gap-2">
+                        <button class="btn btn-outline-danger btn-sm adeptus-export-pdf-btn">
                             <i class="fa fa-file-pdf-o me-1"></i>Export PDF
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm export-csv-btn${premiumClass} mr-10">
+                        <button class="btn btn-outline-secondary btn-sm adeptus-export-csv-btn${premiumClass} mr-10">
                             <i class="fa fa-download me-1"></i>Export CSV${premiumIcon}
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm export-json-btn${premiumClass}">
+                        <button class="btn btn-outline-secondary btn-sm adeptus-export-json-btn${premiumClass}">
                             <i class="fa fa-code me-1"></i>Export JSON${premiumIcon}
                         </button>
                     </div>
-                    <div class="view-toggle btn-group" role="group">
-                        <button type="button" class="btn btn-sm view-toggle-btn${report.display_type !== 'chart' ? ' active' : ''}" data-type="table"><i class="fa fa-table"></i> Table</button>
-                        <button type="button" class="btn btn-sm view-toggle-btn${report.display_type === 'chart' ? ' active' : ''}" data-type="chart"><i class="fa fa-bar-chart"></i> Chart</button>
+                    <div class="adeptus-view-toggle btn-group" role="group">
+                        <button type="button" class="btn btn-sm adeptus-view-toggle-btn${report.display_type !== 'chart' ? ' active' : ''}" data-type="table"><i class="fa fa-table"></i> Table</button>
+                        <button type="button" class="btn btn-sm adeptus-view-toggle-btn${report.display_type === 'chart' ? ' active' : ''}" data-type="chart"><i class="fa fa-bar-chart"></i> Chart</button>
                     </div>
                 </div>
             `;
 
             // Display containers
             const isChartActive = report.display_type === 'chart';
-            let displayHtml = '<div class="report-display-area w-100">';
+            let displayHtml = '<div class="adeptus-report-display-area w-100">';
 
             // Table view
-            displayHtml += `<div class="report-view-panel${!isChartActive ? '' : ' d-none'}" data-type="table">`;
+            displayHtml += `<div class="adeptus-report-view-panel${!isChartActive ? '' : ' d-none'}" data-type="table">`;
             displayHtml += this.renderReportData(data);
             displayHtml += '</div>';
 
             // Chart view with controls
-            displayHtml += `<div class="report-view-panel${isChartActive ? '' : ' d-none'}" data-type="chart">`;
+            displayHtml += `<div class="adeptus-report-view-panel${isChartActive ? '' : ' d-none'}" data-type="chart">`;
             displayHtml += chartControlsHtml;
-            displayHtml += '<div class="chart-container" style="position: relative; height: 400px; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background: #fff;">';
+            displayHtml += '<div class="adeptus-chart-container" style="position: relative; height: 400px; border: 1px solid #e9ecef; border-radius: 8px; padding: 1rem; background: #fff;">';
             displayHtml += '<canvas id="reportChart"></canvas>';
             displayHtml += '</div></div>';
 
             displayHtml += '</div>';
             reportsView.html(`
                 ${controlsHtml}
-                <div class="report-display-wrapper w-100 position-relative">
+                <div class="adeptus-report-display-wrapper w-100 position-relative">
                     ${displayHtml}
                 </div>
             `);
@@ -4735,17 +4735,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
 
             // View toggle button click handler
-            reportsView.find('.view-toggle-btn').on('click', function() {
+            reportsView.find('.adeptus-view-toggle-btn').on('click', function() {
                 const type = $(this).data('type');
-                reportsView.find('.view-toggle-btn').removeClass('active');
+                reportsView.find('.adeptus-view-toggle-btn').removeClass('active');
                 $(this).addClass('active');
 
                 // Track current view for export
                 self._currentReportView = type;
 
                 // Toggle view panels
-                reportsView.find('.report-view-panel').addClass('d-none');
-                reportsView.find(`.report-view-panel[data-type="${type}"]`).removeClass('d-none');
+                reportsView.find('.adeptus-report-view-panel').addClass('d-none');
+                reportsView.find(`.adeptus-report-view-panel[data-type="${type}"]`).removeClass('d-none');
 
                 // Initialize table enhancer if switching to table
                 if (type === 'table' && !self._vteController && self._pendingTableId) {
@@ -4779,12 +4779,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
                 // Save display type if changed
                 if (type !== report.display_type) {
-                    if (reportsView.find('.save-display-type-btn').length === 0) {
-                        reportsView.find('.view-toggle').after('<button class="btn btn-sm btn-outline-primary save-display-type-btn ms-2"><i class="fa fa-save"></i> Save View</button>');
-                        reportsView.find('.save-display-type-btn').on('click', function() { self.saveDisplayType(report.slug, type); });
+                    if (reportsView.find('.adeptus-save-display-type-btn').length === 0) {
+                        reportsView.find('.adeptus-view-toggle').after('<button class="btn btn-sm btn-outline-primary adeptus-save-display-type-btn ms-2"><i class="fa fa-save"></i> Save View</button>');
+                        reportsView.find('.adeptus-save-display-type-btn').on('click', function() { self.saveDisplayType(report.slug, type); });
                     }
                 } else {
-                    reportsView.find('.save-display-type-btn').remove();
+                    reportsView.find('.adeptus-save-display-type-btn').remove();
                 }
             });
 
@@ -4794,16 +4794,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
 
             // Export buttons - with plan-based restrictions
-            reportsView.find('.export-pdf-btn').on('click', () => self.exportReport(report.slug, 'pdf'));
-            reportsView.find('.export-csv-btn').on('click', function() {
-                if ($(this).hasClass('export-premium')) {
+            reportsView.find('.adeptus-export-pdf-btn').on('click', () => self.exportReport(report.slug, 'pdf'));
+            reportsView.find('.adeptus-export-csv-btn').on('click', function() {
+                if ($(this).hasClass('adeptus-export-premium')) {
                     self.showExportUpgradePrompt('csv');
                     return;
                 }
                 self.exportReport(report.slug, 'csv');
             });
-            reportsView.find('.export-json-btn').on('click', function() {
-                if ($(this).hasClass('export-premium')) {
+            reportsView.find('.adeptus-export-json-btn').on('click', function() {
+                if ($(this).hasClass('adeptus-export-premium')) {
                     self.showExportUpgradePrompt('json');
                     return;
                 }
@@ -4835,7 +4835,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             return escaped.replace(urlPattern, function(url) {
                 // Truncate display text if URL is too long
                 const displayUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
-                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="report-url-link" title="${url}">${displayUrl}</a>`;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="adeptus-report-url-link" title="${url}">${displayUrl}</a>`;
             });
         },
 
@@ -4954,7 +4954,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             const self = this;
 
             // Show loading indicator
-            const reportRow = $(`.report-row[data-report-slug="${reportSlug}"]`);
+            const reportRow = $(`.adeptus-report-row[data-report-slug="${reportSlug}"]`);
             const originalContent = reportRow.html();
             reportRow.html('<td colspan="3" class="text-center"><div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Executing...</span></div> Executing report...</td>');
 
@@ -5042,7 +5042,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateReportsView(report, data);
 
             // Highlight the current report
-            $('.report-row').removeClass('table-primary');
+            $('.adeptus-report-row').removeClass('table-primary');
             if (reportRow) reportRow.addClass('table-primary');
 
             this.showSuccess('Report executed successfully!');
@@ -5396,8 +5396,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateReportsHistory(this.cachedReports);
             
             // Highlight the report row
-            $('.report-row').removeClass('table-primary');
-            const reportRow = $(`.report-row[data-report-slug="${reportSlug}"]`);
+            $('.adeptus-report-row').removeClass('table-primary');
+            const reportRow = $(`.adeptus-report-row[data-report-slug="${reportSlug}"]`);
             reportRow.addClass('table-primary');
             
             // Check if report has full data in cache
@@ -5443,14 +5443,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Increment or add report badge count in chat history list
          */
         updateChatHistoryBadge: function(chatId) {
-            const $item = $(`#chat-history-list li.chat-history-item[data-chat-id="${chatId}"]`);
+            const $item = $(`#chat-history-list li.adeptus-chat-history-item[data-chat-id="${chatId}"]`);
             if (!$item.length) return;
-            let $badge = $item.find('.report-count');
+            let $badge = $item.find('.adeptus-report-count');
             if ($badge.length) {
                 const current = parseInt($badge.text(), 10) || 0;
                 $badge.text(current + 1);
             } else {
-                const $newBadge = $(`<span class="badge bg-primary d-flex align-items-center report-count" style="color: white;"><i class="fa fa-chart-bar me-1"></i>1</span>`);
+                const $newBadge = $(`<span class="badge bg-primary d-flex align-items-center adeptus-report-count" style="color: white;"><i class="fa fa-chart-bar me-1"></i>1</span>`);
                 $item.append($newBadge);
             }
         },
@@ -5477,7 +5477,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     // Update cache and hide save button
                     const rep = this.cachedReports.find(r => r.slug === reportSlug);
                     if (rep) { rep.display_type = displayType; }
-                    $('.save-display-type-btn').remove();
+                    $('.adeptus-save-display-type-btn').remove();
                 },
                 error: () => {
                     // Show error toast
@@ -5493,11 +5493,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
             
             // Remove any existing resend icons on this message
-            $messageElement.siblings('.failed-reload-icon').remove();
+            $messageElement.siblings('.adeptus-failed-reload-icon').remove();
                 
                 // Create retry icon
                 const $icon = $(`
-                    <i class="fa fa-refresh failed-reload-icon text-danger"
+                    <i class="fa fa-refresh adeptus-failed-reload-icon text-danger"
                    title="Retry sending this message"
                        style="cursor:pointer; float:left; margin-right:0.5rem;"></i>
                 `);
@@ -5514,10 +5514,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         // Legacy method for backward compatibility - shows resend icon on last user message
         showResendIconOnLastUserMessage: function() {
-            const $lastUserMessage = $('#chat-container .user-message:last');
+            const $lastUserMessage = $('#adeptus-chat-container .adeptus-user-message:last');
             if ($lastUserMessage.length) {
                 // Get the message text from the last user message
-                const messageText = $lastUserMessage.find('.message-text').text();
+                const messageText = $lastUserMessage.find('.adeptus-message-text').text();
                 this.showResendIconOnMessage($lastUserMessage, messageText);
             }
         },
@@ -5679,10 +5679,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 let html = '';
                 const colorA = getSnapshotColor(selectedA);
                 const noteA = getSnapshotNote(selectedA);
-                html += `<div class="w-100 droppable-snapshot compare-section" id="compare-section-a" data-drop-target="a" style="border: 2px solid ${colorA.border}; border-radius: 8px; padding: 12px; background-color: ${colorA.bg}; height: 100%; min-height: 300px; position:relative;">
+                html += `<div class="w-100 adeptus-droppable-snapshot adeptus-compare-section" id="adeptus-compare-section-a" data-drop-target="a" style="border: 2px solid ${colorA.border}; border-radius: 8px; padding: 12px; background-color: ${colorA.bg}; height: 100%; min-height: 300px; position:relative;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="fw-bold" style="color: ${colorA.text};">Snapshot A${noteA ? ': ' + noteA : ''}</span>
-                        <div class="btn-group display-type-switcher-a" role="group" aria-label="Display type switcher">
+                        <div class="btn-group adeptus-display-type-switcher-a" role="group" aria-label="Display type switcher">
                             <button class="btn btn-icon btn-sm${displayTypeA === 'table' ? ' active' : ''}" data-type="table" data-side="a" tabindex="0" aria-label="Table view" title="Table view"><i class="fa fa-table"></i></button>
                             <button class="btn btn-icon btn-sm${displayTypeA === 'chart' ? ' active' : ''}" data-type="chart" data-side="a" tabindex="0" aria-label="Chart view" title="Chart view"><i class="fa fa-bar-chart"></i></button>
                             <button class="btn btn-icon btn-sm${displayTypeA === 'graph' ? ' active' : ''}" data-type="graph" data-side="a" tabindex="0" aria-label="Graph view" title="Graph view"><i class="fa fa-line-chart"></i></button>
@@ -5691,13 +5691,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (loadingA) {
                     html += '<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>';
                 } else if (compareDataA) {
-                    html += `<div class="comparison-fade${displayTypeA ? ' comparison-fade-in' : ''}" style="animation:fadeIn .3s; overflow-x: auto; max-height: calc(100% - 50px);">`;
+                    html += `<div class="adeptus-comparison-fade${displayTypeA ? ' adeptus-comparison-fade-in' : ''}" style="animation:fadeIn .3s; overflow-x: auto; max-height: calc(100% - 50px);">`;
                     if (displayTypeA === 'table') {
                         html += self.renderDiffTable(compareDataA, compareDataB);
                     } else if (displayTypeA === 'chart') {
-                        html += `<div class="chart-container" style="min-height:260px;" tabindex="0" aria-label="Bar chart" role="region"><canvas id="compareChartA"></canvas></div>`;
+                        html += `<div class="adeptus-chart-container" style="min-height:260px;" tabindex="0" aria-label="Bar chart" role="region"><canvas id="compareChartA"></canvas></div>`;
                     } else if (displayTypeA === 'graph') {
-                        html += `<div class="chart-container" style="min-height:260px;" tabindex="0" aria-label="Line graph" role="region"><canvas id="compareGraphA"></canvas></div>`;
+                        html += `<div class="adeptus-chart-container" style="min-height:260px;" tabindex="0" aria-label="Line graph" role="region"><canvas id="compareGraphA"></canvas></div>`;
                     }
                     html += '</div>';
                 } else {
@@ -5711,10 +5711,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 let html = '';
                 const colorB = getSnapshotColor(selectedB);
                 const noteB = getSnapshotNote(selectedB);
-                html += `<div class="w-100 droppable-snapshot compare-section" id="compare-section-b" data-drop-target="b" style="border: 2px solid ${colorB.border}; border-radius: 8px; padding: 12px; background-color: ${colorB.bg}; height: 100%; min-height: 300px; position:relative;">
+                html += `<div class="w-100 adeptus-droppable-snapshot adeptus-compare-section" id="adeptus-compare-section-b" data-drop-target="b" style="border: 2px solid ${colorB.border}; border-radius: 8px; padding: 12px; background-color: ${colorB.bg}; height: 100%; min-height: 300px; position:relative;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="fw-bold" style="color: ${colorB.text};">Snapshot B${noteB ? ': ' + noteB : ''}</span>
-                        <div class="btn-group display-type-switcher-b" role="group" aria-label="Display type switcher B">
+                        <div class="btn-group adeptus-display-type-switcher-b" role="group" aria-label="Display type switcher B">
                             <button class="btn btn-icon btn-sm${displayTypeB === 'table' ? ' active' : ''}" data-type="table" data-side="b" tabindex="0" aria-label="Table view for B" title="Table view"><i class="fa fa-table"></i></button>
                             <button class="btn btn-icon btn-sm${displayTypeB === 'chart' ? ' active' : ''}" data-type="chart" data-side="b" tabindex="0" aria-label="Chart view for B" title="Chart view"><i class="fa fa-bar-chart"></i></button>
                             <button class="btn btn-icon btn-sm${displayTypeB === 'graph' ? ' active' : ''}" data-type="graph" data-side="b" tabindex="0" aria-label="Graph view for B" title="Graph view"><i class="fa fa-line-chart"></i></button>
@@ -5723,13 +5723,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (loadingB) {
                     html += '<div class="w-100 d-flex justify-content-center align-items-center" style="min-height:200px"><div class="spinner-border text-primary" role="status"></div></div>';
                 } else if (compareDataB) {
-                    html += `<div class="comparison-fade${displayTypeB ? ' comparison-fade-in' : ''}" style="animation:fadeIn .3s; overflow-x: auto; max-height: calc(100% - 50px);">`;
+                    html += `<div class="adeptus-comparison-fade${displayTypeB ? ' adeptus-comparison-fade-in' : ''}" style="animation:fadeIn .3s; overflow-x: auto; max-height: calc(100% - 50px);">`;
                     if (displayTypeB === 'table') {
                         html += self.renderDiffTable(compareDataB, compareDataA);
                     } else if (displayTypeB === 'chart') {
-                        html += `<div class="chart-container" style="min-height:260px;" tabindex="0" aria-label="Bar chart for B" role="region"><canvas id="compareChartB"></canvas></div>`;
+                        html += `<div class="adeptus-chart-container" style="min-height:260px;" tabindex="0" aria-label="Bar chart for B" role="region"><canvas id="compareChartB"></canvas></div>`;
                     } else if (displayTypeB === 'graph') {
-                        html += `<div class="chart-container" style="min-height:260px;" tabindex="0" aria-label="Line graph for B" role="region"><canvas id="compareGraphB"></canvas></div>`;
+                        html += `<div class="adeptus-chart-container" style="min-height:260px;" tabindex="0" aria-label="Line graph for B" role="region"><canvas id="compareGraphB"></canvas></div>`;
                     }
                     html += '</div>';
                     } else {
@@ -5741,8 +5741,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Render both sections
             function renderSections() {
-                $('#compare-section-a').replaceWith(renderSectionA());
-                $('#compare-section-b').replaceWith(renderSectionB());
+                $('#adeptus-compare-section-a').replaceWith(renderSectionA());
+                $('#adeptus-compare-section-b').replaceWith(renderSectionB());
                 // Chart.js rendering for A
                 if (displayTypeA === 'chart' && Array.isArray(compareDataA) && compareDataA.length > 0) {
                     const ctxA = document.getElementById('compareChartA');
@@ -5813,20 +5813,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Helper: render timeline sidebar (unchanged)
             function renderTimeline(selectedAId, selectedBId) {
-                let html = '<div class="timeline-sidebar" style="width:220px;max-width:220px;overflow-y:auto;height:100%;background:#f8f9fa;border-right:1.5px solid #e0e0e0;padding:0.5rem 0.25rem;">';
+                let html = '<div class="adeptus-timeline-sidebar" style="width:220px;max-width:220px;overflow-y:auto;height:100%;background:#f8f9fa;border-right:1.5px solid #e0e0e0;padding:0.5rem 0.25rem;">';
                 html += '<div class="d-flex flex-column gap-2 mb-3">';
-                html += `<button class="btn btn-outline-primary btn-sm w-100 mb-1 fetch-current-btn" title="Fetch current data from database" aria-label="Fetch current data"><i class="fa fa-sync"></i> Fetch Current Data</button>`;
+                html += `<button class="btn btn-outline-primary btn-sm w-100 mb-1 adeptus-fetch-current-btn" title="Fetch current data from database" aria-label="Fetch current data"><i class="fa fa-sync"></i> Fetch Current Data</button>`;
                 const isCurrentDataInContext = currentDataFetched && selectedA === 'current';
                 if (isCurrentDataInContext) {
                     html += `<div class="mb-2">
                         <input type="text" id="add-timeline-note" class="form-control form-control-sm mb-1" placeholder="Enter snapshot name (required)" required aria-label="Snapshot name">
                         <div class="invalid-feedback" style="display:none;">Snapshot name is required.</div>
-                        <button class="btn btn-outline-success btn-sm w-100 add-timeline-btn" id="add-timeline-btn" title="Create snapshot from current data" aria-label="Create snapshot from current data" disabled><span class="btn-label"><i class="fa fa-plus"></i> Create Snapshot From Current Data</span><span class="spinner-border spinner-border-sm ms-2" id="snapshot-loading" style="display:none;" role="status" aria-hidden="true"></span></button>
+                        <button class="btn btn-outline-success btn-sm w-100 adeptus-add-timeline-btn" id="adeptus-add-timeline-btn" title="Create snapshot from current data" aria-label="Create snapshot from current data" disabled><span class="adeptus-btn-label"><i class="fa fa-plus"></i> Create Snapshot From Current Data</span><span class="spinner-border spinner-border-sm ms-2" id="snapshot-loading" style="display:none;" role="status" aria-hidden="true"></span></button>
                     </div>`;
                 }
                 html += '<div class="small text-muted text-center px-2 py-1 mb-2" style="border: 1px dashed #dee2e6; border-radius: 4px;">Click or <b>drag</b> snapshots to select for comparison. Each snapshot gets a unique color. You can also drag and drop from the side menu into the snapshot viewer.</div>';
                 html += '</div>';
-                html += '<div class="timeline-list">';
+                html += '<div class="adeptus-timeline-list">';
                 if (timeline.length === 0) {
                     if (error) {
                         html += `<div class="text-danger small text-center py-2">Error: ${error}</div>`;
@@ -5855,10 +5855,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         const isCurrent = snap.is_current_version ? '<span class="badge bg-primary ms-1">Current</span>' : '';
                         // Drag and drop attributes
                         const dragDisabled = isSelected ? 'draggable="false"' : 'draggable="true"';
-                        const dragClass = isSelected ? 'drag-disabled' : 'draggable-snapshot';
+                        const dragClass = isSelected ? 'adeptus-drag-disabled' : 'adeptus-draggable-snapshot';
                         const dragTitle = isSelected ? 'This snapshot is currently selected' : 'Drag to assign to Snapshot A or B';
                         const dragText = isSelected ? '<span class="text-muted small">(Selected)</span>' : '';
-                        html += `<div class="timeline-item p-2 mb-1 rounded border ${dragClass}" 
+                        html += `<div class="adeptus-timeline-item p-2 mb-1 rounded border ${dragClass}" 
                                       style="cursor:pointer; animation:fadeIn .3s; ${selectedStyle}" 
                                       data-snap-id="${snap.id}" 
                                       data-color-bg="${color.bg}" 
@@ -5875,7 +5875,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             </div>
                             <div class="small text-muted">${snap.note ? snap.note : ''} ${dragText}</div>
                             <div class="d-flex gap-1 mt-1">
-                                <button class="btn btn-outline-secondary btn-xs btn-sm set-current-btn" data-snap-id="${snap.id}" title="Set as current version" aria-label="Set as current"><i class="fa fa-check"></i></button>
+                                <button class="btn btn-outline-secondary btn-xs btn-sm adeptus-set-current-btn" data-snap-id="${snap.id}" title="Set as current version" aria-label="Set as current"><i class="fa fa-check"></i></button>
                             </div>
                         </div>`;
                     });
@@ -5888,23 +5888,23 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             function renderModal() {
                 Swal.update({
                     html: `<div class='d-flex flex-row' style='height:70vh;min-height:500px;max-height:80vh;'>
-                        <div id='timeline-sidebar-modal'></div>
+                        <div id='adeptus-timeline-sidebar-modal'></div>
                         <div class='flex-fill px-3' style='overflow:auto;max-width:calc(100% - 220px);'>
                             <div class='d-flex flex-row gap-3 w-100 h-100'>
-                                <div class='flex-fill' id='compare-section-a'></div>
-                                <div class='flex-fill' id='compare-section-b'></div>
+                                <div class='flex-fill' id='adeptus-compare-section-a'></div>
+                                <div class='flex-fill' id='adeptus-compare-section-b'></div>
                             </div>
                         </div>
                     </div>`
                 });
-                $('#timeline-sidebar-modal').html(renderTimeline(selectedA, selectedB));
+                $('#adeptus-timeline-sidebar-modal').html(renderTimeline(selectedA, selectedB));
                 renderSections();
                 // Bind timeline actions
-                $('.fetch-current-btn').off('click').on('click', function() {
+                $('.adeptus-fetch-current-btn').off('click').on('click', function() {
                     fetchCurrent(nextSection);
                 });
                 // Timeline item click handler for alternating selection
-                $('.timeline-item').off('click').on('click', function(e) {
+                $('.adeptus-timeline-item').off('click').on('click', function(e) {
                     const snapId = $(this).data('snap-id');
                     if (nextSection === 'a') {
                         fetchSnapshotData(snapId, 'a', () => {
@@ -5917,33 +5917,33 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                 });
                 // Display type switchers
-                $('.display-type-switcher-a .btn-icon').off('click').on('click', function() {
+                $('.adeptus-display-type-switcher-a .btn-icon').off('click').on('click', function() {
                     displayTypeA = $(this).data('type');
                     renderSections();
                 });
-                $('.display-type-switcher-b .btn-icon').off('click').on('click', function() {
+                $('.adeptus-display-type-switcher-b .btn-icon').off('click').on('click', function() {
                     displayTypeB = $(this).data('type');
                     renderSections();
                 });
                 // Drag and drop logic
-                $('.draggable-snapshot').attr('draggable', true).off('dragstart').on('dragstart', function(e) {
+                $('.adeptus-draggable-snapshot').attr('draggable', true).off('dragstart').on('dragstart', function(e) {
                     e.originalEvent.dataTransfer.setData('text/plain', $(this).data('snap-id'));
-                    $(this).addClass('dragging');
+                    $(this).addClass('adeptus-dragging');
                 });
-                $('.draggable-snapshot').off('dragend').on('dragend', function(e) {
-                    $(this).removeClass('dragging');
+                $('.adeptus-draggable-snapshot').off('dragend').on('dragend', function(e) {
+                    $(this).removeClass('adeptus-dragging');
                 });
                 // Section highlight on drag over
-                $('.compare-section').off('dragover').on('dragover', function(e) {
+                $('.adeptus-compare-section').off('dragover').on('dragover', function(e) {
                     e.preventDefault();
-                    $(this).addClass('drag-over-section');
+                    $(this).addClass('adeptus-drag-over-section');
                 });
-                $('.compare-section').off('dragleave').on('dragleave', function(e) {
-                    $(this).removeClass('drag-over-section');
+                $('.adeptus-compare-section').off('dragleave').on('dragleave', function(e) {
+                    $(this).removeClass('adeptus-drag-over-section');
                 });
-                $('.compare-section').off('drop').on('drop', function(e) {
+                $('.adeptus-compare-section').off('drop').on('drop', function(e) {
                     e.preventDefault();
-                    $(this).removeClass('drag-over-section');
+                    $(this).removeClass('adeptus-drag-over-section');
                     const snapId = e.originalEvent.dataTransfer.getData('text/plain');
                     const target = $(this).data('drop-target');
                     fetchSnapshotData(snapId, target, () => {
@@ -5951,8 +5951,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     });
                 });
                 // Add highlight CSS if not present
-                if ($('#compare-section-highlight-style').length === 0) {
-                    $('head').append('<style id="compare-section-highlight-style">.drag-over-section { box-shadow: 0 0 0 4px #90caf9 !important; border-color: #1976d2 !important; }</style>');
+                if ($('#adeptus-compare-section-highlight-style').length === 0) {
+                    $('head').append('<style id="adeptus-compare-section-highlight-style">.adeptus-drag-over-section { box-shadow: 0 0 0 4px #90caf9 !important; border-color: #1976d2 !important; }</style>');
                 }
             }
 
@@ -5960,11 +5960,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             Swal.fire({
                 title: `<span class='fw-bold'>${getString('compare_report_data', 'Compare Report Data')}</span>`,
                 html: `<div class='d-flex flex-row' style='height:60vh;min-height:400px;max-height:70vh;'>
-                    <div id='timeline-sidebar-modal'></div>
+                    <div id='adeptus-timeline-sidebar-modal'></div>
                     <div class='flex-fill px-3' style='overflow:auto;max-width:calc(100% - 220px);'>
                         <div class='d-flex flex-row gap-3 w-100 h-100'>
-                            <div class='flex-fill' id='compare-section-a'></div>
-                            <div class='flex-fill' id='compare-section-b'></div>
+                            <div class='flex-fill' id='adeptus-compare-section-a'></div>
+                            <div class='flex-fill' id='adeptus-compare-section-b'></div>
                         </div>
                     </div>
                 </div>`,

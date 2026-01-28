@@ -113,39 +113,39 @@
     }
 }
 
-/* Hide DataTable loading indicator */
-.path-report-adeptus_insights .adeptus-dataTable-loading {
+/* Hide DataTable loading indicator (library-generated class) */
+.path-report-adeptus_insights .dataTable-loading {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* Hide loading state from datatable-wrapper */
-.path-report-adeptus_insights .adeptus-datatable-wrapper.adeptus-datatable-loading::before,
-.path-report-adeptus_insights .adeptus-datatable-wrapper.adeptus-datatable-loading::after {
+/* Hide loading state from datatable-wrapper (library-generated class) */
+.path-report-adeptus_insights .datatable-wrapper.datatable-loading::before,
+.path-report-adeptus_insights .datatable-wrapper.datatable-loading::after {
     display: none !important;
     content: none !important;
 }
 
-/* Hide the datatable wrapper spinner completely */
-.path-report-adeptus_insights .adeptus-datatable-wrapper::before,
-.path-report-adeptus_insights .adeptus-datatable-wrapper::after {
+/* Hide the datatable wrapper spinner completely (library-generated class) */
+.path-report-adeptus_insights .datatable-wrapper::before,
+.path-report-adeptus_insights .datatable-wrapper::after {
     display: none !important;
     content: none !important;
 }
 
-/* Ensure datatable-loading class doesn't show any spinner */
-.path-report-adeptus_insights .adeptus-datatable-loading {
+/* Ensure datatable-loading class doesn't show any spinner (library-generated class) */
+.path-report-adeptus_insights .datatable-loading {
     background: none !important;
 }
 
-.path-report-adeptus_insights .adeptus-datatable-loading::before,
-.path-report-adeptus_insights .adeptus-datatable-loading::after {
+.path-report-adeptus_insights .datatable-loading::before,
+.path-report-adeptus_insights .datatable-loading::after {
     display: none !important;
 }
 
 /* Specifically target the report history table wrapper */
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-datatable-wrapper::before,
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-datatable-wrapper::after {
+.path-report-adeptus_insights #report-history-table-wrapper .datatable-wrapper::before,
+.path-report-adeptus_insights #report-history-table-wrapper .datatable-wrapper::after {
     display: none !important;
     content: none !important;
     opacity: 0 !important;
@@ -153,25 +153,25 @@
 }
 
 /* Remove any background images that might show a spinner */
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-datatable-wrapper {
+.path-report-adeptus_insights #report-history-table-wrapper .datatable-wrapper {
     background: none !important;
     background-image: none !important;
 }
 
 /* Hide any element that might be a spinner in the wrapper */
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-spinner,
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-spinner-border,
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-loading {
+.path-report-adeptus_insights #report-history-table-wrapper .spinner,
+.path-report-adeptus_insights #report-history-table-wrapper .spinner-border,
+.path-report-adeptus_insights #report-history-table-wrapper .loading {
     display: none !important;
 }
 
 /* Override any animation on the wrapper */
-.path-report-adeptus_insights #adeptus-report-history-table-wrapper .adeptus-datatable-wrapper {
+.path-report-adeptus_insights #report-history-table-wrapper .datatable-wrapper {
     animation: none !important;
 }
 
 /* Force hide the report-history-loader */
-.path-report-adeptus_insights #adeptus-report-history-loader {
+.path-report-adeptus_insights #report-history-loader {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
@@ -179,19 +179,19 @@
     overflow: hidden !important;
 }
 
-/* Hide pseudo elements that might show loading */
-.path-report-adeptus_insights .adeptus-dataTable-top::before,
-.path-report-adeptus_insights .adeptus-dataTable-top::after,
-.path-report-adeptus_insights .adeptus-dataTable-container::before,
-.path-report-adeptus_insights .adeptus-dataTable-container::after {
+/* Hide pseudo elements that might show loading (library-generated classes) */
+.path-report-adeptus_insights .dataTable-top::before,
+.path-report-adeptus_insights .dataTable-top::after,
+.path-report-adeptus_insights .dataTable-container::before,
+.path-report-adeptus_insights .dataTable-container::after {
     display: none !important;
 }
 
-/* Ensure DataTable info and pagination don't show loading */
-.path-report-adeptus_insights .adeptus-dataTable-info::before,
-.path-report-adeptus_insights .adeptus-dataTable-info::after,
-.path-report-adeptus_insights .adeptus-dataTable-pagination::before,
-.path-report-adeptus_insights .adeptus-dataTable-pagination::after {
+/* Ensure DataTable info and pagination don't show loading (library-generated classes) */
+.path-report-adeptus_insights .dataTable-info::before,
+.path-report-adeptus_insights .dataTable-info::after,
+.path-report-adeptus_insights .dataTable-pagination::before,
+.path-report-adeptus_insights .dataTable-pagination::after {
     display: none !important;
 }
 

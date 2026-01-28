@@ -325,7 +325,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var response = await fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/check_export_eligibility.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: 'format=' + encodeURIComponent(format) + '&sesskey=' + M.cfg.sesskey
+                    body: 'format=' + encodeURIComponent(format) + '&sesskey=' + M.cfg.sesskey,
+                    credentials: 'same-origin'
                 });
                 var data = await response.json();
                 return data;
@@ -476,7 +477,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         bindViewToggle: function() {
             var self = this;
-            $(document).on('click', '.view-toggle-btn', function() {
+            $(document).on('click', '.adeptus-view-toggle-btn', function() {
                 var view = $(this).data('view');
                 self.switchView(view);
             });
@@ -528,98 +529,98 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             // Build custom categories HTML
             var customCategoriesHtml = customCategories.length > 0 ?
                 customCategories.map(function(cat) {
-                    return '<div class="cat-card" data-id="' + cat.id + '">' +
-                        '<div class="cat-card-color" style="background: ' + (cat.color || '#6c757d') + ';"></div>' +
-                        '<div class="cat-card-content">' +
-                            '<div class="cat-card-name">' + cat.name + '</div>' +
-                            '<div class="cat-card-meta">' + (cat.report_count || 0) + ' report' + (cat.report_count !== 1 ? 's' : '') + '</div>' +
+                    return '<div class="adeptus-cat-card" data-id="' + cat.id + '">' +
+                        '<div class="adeptus-cat-card-color" style="background: ' + (cat.color || '#6c757d') + ';"></div>' +
+                        '<div class="adeptus-cat-card-content">' +
+                            '<div class="adeptus-cat-card-name">' + cat.name + '</div>' +
+                            '<div class="adeptus-cat-card-meta">' + (cat.report_count || 0) + ' report' + (cat.report_count !== 1 ? 's' : '') + '</div>' +
                         '</div>' +
-                        '<div class="cat-card-actions">' +
-                            '<button class="cat-action-btn edit-cat-btn" data-id="' + cat.id + '" title="Edit">' +
+                        '<div class="adeptus-cat-card-actions">' +
+                            '<button class="adeptus-cat-action-btn edit-cat-btn" data-id="' + cat.id + '" title="Edit">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>' +
                             '</button>' +
-                            '<button class="cat-action-btn cat-action-btn-danger delete-cat-btn" data-id="' + cat.id + '" title="Delete">' +
+                            '<button class="adeptus-cat-action-btn adeptus-cat-action-btn-danger delete-cat-btn" data-id="' + cat.id + '" title="Delete">' +
                                 '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>' +
                             '</button>' +
                         '</div>' +
                     '</div>';
                 }).join('') :
-                '<div class="cat-empty-state">' +
-                    '<div class="cat-empty-icon">' +
+                '<div class="adeptus-cat-empty-state">' +
+                    '<div class="adeptus-cat-empty-icon">' +
                         '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>' +
                     '</div>' +
-                    '<div class="cat-empty-text">' + STRINGS.noCustomCategories + '</div>' +
-                    '<div class="cat-empty-hint">' + STRINGS.createFirstCategory + '</div>' +
+                    '<div class="adeptus-cat-empty-text">' + STRINGS.noCustomCategories + '</div>' +
+                    '<div class="adeptus-cat-empty-hint">' + STRINGS.createFirstCategory + '</div>' +
                 '</div>';
 
             // Build system categories HTML
             var systemCategoriesHtml = systemCategories.map(function(cat) {
-                return '<div class="cat-system-item">' +
-                    '<span class="cat-system-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
-                    '<span class="cat-system-name">' + cat.name + '</span>' +
-                    '<span class="cat-system-count">' + (cat.report_count || 0) + '</span>' +
+                return '<div class="adeptus-cat-system-item">' +
+                    '<span class="adeptus-cat-system-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                    '<span class="adeptus-cat-system-name">' + cat.name + '</span>' +
+                    '<span class="adeptus-cat-system-count">' + (cat.report_count || 0) + '</span>' +
                 '</div>';
             }).join('');
 
             // Build color swatches HTML
             var colorSwatchesHtml = presetColors.map(function(color) {
-                return '<button type="button" class="cat-color-swatch" data-color="' + color + '" style="background: ' + color + ';"></button>';
+                return '<button type="button" class="adeptus-cat-color-swatch" data-color="' + color + '" style="background: ' + color + ';"></button>';
             }).join('');
 
             Swal.fire({
                 title: STRINGS.categories,
-                html: '<div class="cat-modal">' +
+                html: '<div class="adeptus-cat-modal">' +
                     // Add new category section
-                    '<div class="cat-add-section">' +
-                        '<div class="cat-add-header">' + STRINGS.createNewCategory + '</div>' +
-                        '<div class="cat-add-form">' +
-                            '<div class="cat-add-input-wrapper">' +
-                                '<input type="text" id="new-category-name" class="cat-add-input" placeholder="' + STRINGS.categoryName + '">' +
-                                '<div class="cat-add-color-wrapper">' +
-                                    '<button type="button" class="cat-add-color-btn" id="color-picker-toggle">' +
-                                        '<span class="cat-add-color-preview" id="selected-color-preview" style="background: #3b82f6;"></span>' +
+                    '<div class="adeptus-cat-add-section">' +
+                        '<div class="adeptus-cat-add-header">' + STRINGS.createNewCategory + '</div>' +
+                        '<div class="adeptus-cat-add-form">' +
+                            '<div class="adeptus-cat-add-input-wrapper">' +
+                                '<input type="text" id="new-category-name" class="adeptus-cat-add-input" placeholder="' + STRINGS.categoryName + '">' +
+                                '<div class="adeptus-cat-add-color-wrapper">' +
+                                    '<button type="button" class="adeptus-cat-add-color-btn" id="color-picker-toggle">' +
+                                        '<span class="adeptus-cat-add-color-preview" id="selected-color-preview" style="background: #3b82f6;"></span>' +
                                         '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
                                     '</button>' +
-                                    '<div class="cat-color-dropdown" id="color-dropdown">' +
-                                        '<div class="cat-color-swatches">' + colorSwatchesHtml + '</div>' +
-                                        '<div class="cat-color-custom">' +
+                                    '<div class="adeptus-cat-color-dropdown" id="color-dropdown">' +
+                                        '<div class="adeptus-cat-color-swatches">' + colorSwatchesHtml + '</div>' +
+                                        '<div class="adeptus-cat-color-custom">' +
                                             '<input type="color" id="new-category-color" value="#3b82f6">' +
                                             '<span>' + STRINGS.customColor + '</span>' +
                                         '</div>' +
                                     '</div>' +
                                 '</div>' +
                             '</div>' +
-                            '<button type="button" class="cat-add-btn" id="add-category-btn">' +
+                            '<button type="button" class="adeptus-cat-add-btn" id="add-category-btn">' +
                                 '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>' +
                                 'Add' +
                             '</button>' +
                         '</div>' +
                     '</div>' +
                     // Custom categories section
-                    '<div class="cat-section">' +
-                        '<div class="cat-section-header">' +
-                            '<span class="cat-section-title">' + STRINGS.yourCategories + '</span>' +
-                            '<span class="cat-section-count">' + customCategories.length + '</span>' +
+                    '<div class="adeptus-cat-section">' +
+                        '<div class="adeptus-cat-section-header">' +
+                            '<span class="adeptus-cat-section-title">' + STRINGS.yourCategories + '</span>' +
+                            '<span class="adeptus-cat-section-count">' + customCategories.length + '</span>' +
                         '</div>' +
-                        '<div class="cat-cards-list">' + customCategoriesHtml + '</div>' +
+                        '<div class="adeptus-cat-cards-list">' + customCategoriesHtml + '</div>' +
                     '</div>' +
                     // System categories section
-                    '<div class="cat-section cat-section-system">' +
-                        '<div class="cat-section-header">' +
-                            '<span class="cat-section-title">' + STRINGS.defaultCategories + '</span>' +
-                            '<span class="cat-section-badge">' + STRINGS.readOnly + '</span>' +
+                    '<div class="adeptus-cat-section adeptus-cat-section-system">' +
+                        '<div class="adeptus-cat-section-header">' +
+                            '<span class="adeptus-cat-section-title">' + STRINGS.defaultCategories + '</span>' +
+                            '<span class="adeptus-cat-section-badge">' + STRINGS.readOnly + '</span>' +
                         '</div>' +
-                        '<div class="cat-system-list">' + systemCategoriesHtml + '</div>' +
+                        '<div class="adeptus-cat-system-list">' + systemCategoriesHtml + '</div>' +
                     '</div>' +
                 '</div>',
                 showConfirmButton: false,
                 showCloseButton: true,
                 width: '480px',
                 customClass: {
-                    popup: 'cat-modal-popup',
-                    title: 'cat-modal-title',
-                    closeButton: 'cat-modal-close',
-                    htmlContainer: 'cat-modal-container'
+                    popup: 'adeptus-cat-modal-popup',
+                    title: 'adeptus-cat-modal-title',
+                    closeButton: 'adeptus-cat-modal-close',
+                    htmlContainer: 'adeptus-cat-modal-container'
                 },
                 didOpen: function() {
                     var selectedColor = '#3b82f6';
@@ -639,13 +640,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                     // Close dropdown when clicking outside
                     $(document).on('click.colorDropdown', function(e) {
-                        if (!$(e.target).closest('.cat-add-color-wrapper').length) {
+                        if (!$(e.target).closest('.adeptus-cat-add-color-wrapper').length) {
                             $('#color-dropdown').removeClass('show');
                         }
                     });
 
                     // Color swatch selection
-                    $('.cat-color-swatch').on('click', function(e) {
+                    $('.adeptus-cat-color-swatch').on('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         selectedColor = $(this).data('color');
@@ -750,26 +751,26 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
             var colorSwatchesHtml = presetColors.map(function(color) {
                 var isSelected = color.toLowerCase() === (category.color || '#6c757d').toLowerCase();
-                return '<button type="button" class="edit-color-swatch' + (isSelected ? ' selected' : '') + '" data-color="' + color + '" style="background: ' + color + ';"></button>';
+                return '<button type="button" class="adeptus-edit-color-swatch' + (isSelected ? ' selected' : '') + '" data-color="' + color + '" style="background: ' + color + ';"></button>';
             }).join('');
 
             Swal.fire({
                 title: STRINGS.editCategory,
-                html: '<div class="cat-edit-modal">' +
-                    '<div class="cat-edit-preview" id="edit-preview">' +
-                        '<div class="cat-edit-preview-color" id="edit-preview-color" style="background: ' + (category.color || '#6c757d') + ';"></div>' +
-                        '<span class="cat-edit-preview-name" id="edit-preview-name">' + category.name + '</span>' +
+                html: '<div class="adeptus-cat-edit-modal">' +
+                    '<div class="adeptus-cat-edit-preview" id="edit-preview">' +
+                        '<div class="adeptus-cat-edit-preview-color" id="edit-preview-color" style="background: ' + (category.color || '#6c757d') + ';"></div>' +
+                        '<span class="adeptus-cat-edit-preview-name" id="edit-preview-name">' + category.name + '</span>' +
                     '</div>' +
-                    '<div class="cat-edit-field">' +
-                        '<label class="cat-edit-label">' + STRINGS.name + '</label>' +
-                        '<input type="text" id="edit-cat-name" class="cat-edit-input" value="' + category.name.replace(/"/g, '&quot;') + '">' +
+                    '<div class="adeptus-cat-edit-field">' +
+                        '<label class="adeptus-cat-edit-label">' + STRINGS.name + '</label>' +
+                        '<input type="text" id="edit-cat-name" class="adeptus-cat-edit-input" value="' + category.name.replace(/"/g, '&quot;') + '">' +
                     '</div>' +
-                    '<div class="cat-edit-field">' +
-                        '<label class="cat-edit-label">' + STRINGS.color + '</label>' +
-                        '<div class="cat-edit-colors">' +
-                            '<div class="cat-edit-swatches">' + colorSwatchesHtml + '</div>' +
-                            '<div class="cat-edit-custom">' +
-                                '<input type="color" id="edit-cat-color" value="' + (category.color || '#6c757d') + '">' +
+                    '<div class="adeptus-cat-edit-field">' +
+                        '<label class="adeptus-cat-edit-label">' + STRINGS.color + '</label>' +
+                        '<div class="adeptus-cat-edit-colors">' +
+                            '<div class="adeptus-cat-edit-swatches">' + colorSwatchesHtml + '</div>' +
+                            '<div class="adeptus-cat-edit-custom">' +
+                                '<input type="color" id="edit-adeptus-cat-color" value="' + (category.color || '#6c757d') + '">' +
                                 '<span>' + STRINGS.custom + '</span>' +
                             '</div>' +
                         '</div>' +
@@ -779,9 +780,9 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 confirmButtonText: STRINGS.saveChanges,
                 cancelButtonText: STRINGS.cancel,
                 customClass: {
-                    popup: 'cat-edit-popup',
-                    confirmButton: 'cat-edit-confirm-btn',
-                    cancelButton: 'cat-edit-cancel-btn'
+                    popup: 'adeptus-cat-edit-popup',
+                    confirmButton: 'adeptus-cat-edit-confirm-btn',
+                    cancelButton: 'adeptus-cat-edit-cancel-btn'
                 },
                 didOpen: function() {
                     var selectedColor = category.color || '#6c757d';
@@ -792,24 +793,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     });
 
                     // Color swatch selection
-                    $('.edit-color-swatch').on('click', function() {
+                    $('.adeptus-edit-color-swatch').on('click', function() {
                         selectedColor = $(this).data('color');
-                        $('.edit-color-swatch').removeClass('selected');
+                        $('.adeptus-edit-color-swatch').removeClass('selected');
                         $(this).addClass('selected');
                         $('#edit-preview-color').css('background', selectedColor);
-                        $('#edit-cat-color').val(selectedColor);
+                        $('#edit-adeptus-cat-color').val(selectedColor);
                     });
 
                     // Custom color picker
-                    $('#edit-cat-color').on('input', function() {
+                    $('#edit-adeptus-cat-color').on('input', function() {
                         selectedColor = $(this).val();
-                        $('.edit-color-swatch').removeClass('selected');
+                        $('.adeptus-edit-color-swatch').removeClass('selected');
                         $('#edit-preview-color').css('background', selectedColor);
                     });
                 },
                 preConfirm: function() {
                     var name = document.getElementById('edit-cat-name').value.trim();
-                    var color = document.getElementById('edit-cat-color').value;
+                    var color = document.getElementById('edit-adeptus-cat-color').value;
                     if (!name) {
                         Swal.showValidationMessage(STRINGS.pleaseEnterCategoryName);
                         return false;
@@ -1023,7 +1024,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 $('#report-content').addClass('d-none');
                 $('#report-placeholder').removeClass('d-none');
                 $('#report-category-selector').addClass('d-none');
-                $('.report-view-title').text(STRINGS.selectAReport);
+                $('.adeptus-report-view-title').text(STRINGS.selectAReport);
 
                 Swal.close();
 
@@ -1092,17 +1093,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var menuHtml = self.cachedCategories.map(function(cat) {
                     var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
                                      (!categoryInfo.id && cat.name.toLowerCase() === (categoryInfo.name || 'general').toLowerCase());
-                    return '<button type="button" class="category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
-                        '<span class="category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
-                        '<span class="category-menu-name">' + cat.name + '</span>' +
-                        (isSelected ? '<svg class="category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+                    return '<button type="button" class="adeptus-category-menu-item' + (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name + '" data-color="' + (cat.color || '#6c757d') + '">' +
+                        '<span class="adeptus-category-menu-dot" style="background: ' + (cat.color || '#6c757d') + ';"></span>' +
+                        '<span class="adeptus-category-menu-name">' + cat.name + '</span>' +
+                        (isSelected ? '<svg class="adeptus-category-menu-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
                     '</button>';
                 }).join('');
 
                 $('#category-dropdown-menu').html(menuHtml);
 
                 // Bind click events for menu items
-                $('.category-menu-item').off('click').on('click', function(e) {
+                $('.adeptus-category-menu-item').off('click').on('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     var catId = $(this).data('id');
@@ -1238,8 +1239,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         switchView: function(view) {
             this.currentView = view;
-            $('.view-toggle-btn').removeClass('active');
-            $('.view-toggle-btn[data-view="' + view + '"]').addClass('active');
+            $('.adeptus-view-toggle-btn').removeClass('active');
+            $('.adeptus-view-toggle-btn[data-view="' + view + '"]').addClass('active');
 
             if (view === 'table') {
                 $('#report-table-view').removeClass('d-none');
@@ -1376,7 +1377,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
         updateReportCount: function(count) {
             var countText = count === 1 ? STRINGS.reportCount : count + ' ' + STRINGS.reportsCount;
-            $('.page-header-subtitle').text(STRINGS.youHaveReportsSaved.replace('{count}', countText.toLowerCase()));
+            $('.adeptus-page-header-subtitle').text(STRINGS.youHaveReportsSaved.replace('{count}', countText.toLowerCase()));
         },
 
         renderReportsList: function(reports) {
@@ -1412,17 +1413,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var source = (report.source || 'assistant').toLowerCase();
                 var sourceBadge = '';
                 if (source === 'wizard') {
-                    sourceBadge = '<span class="badge badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
+                    sourceBadge = '<span class="badge adeptus-badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
                 } else {
-                    sourceBadge = '<span class="badge badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
+                    sourceBadge = '<span class="badge adeptus-badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
                 }
 
-                var row = $('<tr class="report-row" data-report-slug="' + report.slug + '" data-report-source="' + source + '"></tr>');
+                var row = $('<tr class="adeptus-report-row" data-report-slug="' + report.slug + '" data-report-source="' + source + '"></tr>');
                 row.html(
                     '<td>' +
-                        '<div class="report-name-cell">' +
-                            '<span class="report-name">' + (report.description || report.name || STRINGS.untitledReport) + '</span>' +
-                            '<div class="report-badges mt-1">' + categoryBadge + rowCountBadge + '</div>' +
+                        '<div class="adeptus-report-name-cell">' +
+                            '<span class="adeptus-report-name">' + (report.description || report.name || STRINGS.untitledReport) + '</span>' +
+                            '<div class="adeptus-report-badges mt-1">' + categoryBadge + rowCountBadge + '</div>' +
                         '</div>' +
                     '</td>' +
                     '<td><small class="text-muted">' + date + '</small></td>' +
@@ -1433,11 +1434,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             });
 
             // Use event delegation for click handlers (survives DataTable re-rendering)
-            $('#reports-table-wrapper').off('click', '.report-row').on('click', '.report-row', function() {
+            $('#reports-table-wrapper').off('click', '.adeptus-report-row').on('click', '.adeptus-report-row', function() {
                 var $row = $(this);
                 var slug = $row.data('report-slug');
 
-                $('.report-row').removeClass('table-primary');
+                $('.adeptus-report-row').removeClass('table-primary');
                 $row.addClass('table-primary');
                 self.loadReportDetails(slug);
             });
@@ -1464,7 +1465,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                     // Auto-select first report after DataTable is ready
                     setTimeout(function() {
-                        var firstRow = $('.report-row').first();
+                        var firstRow = $('.adeptus-report-row').first();
                         if (firstRow.length && !self.currentReport) {
                             firstRow.addClass('table-primary');
                             var firstSlug = firstRow.data('report-slug');
@@ -1492,7 +1493,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var source = cachedReport ? (cachedReport.source || 'assistant') : 'assistant';
 
             if (cachedReport) {
-                $('.report-view-title').text(cachedReport.description || cachedReport.name || STRINGS.reportDetails);
+                $('.adeptus-report-view-title').text(cachedReport.description || cachedReport.name || STRINGS.reportDetails);
                 // Show category selector for all report types (both assistant and wizard)
                 self.showReportCategorySelector(cachedReport);
             }
@@ -1581,25 +1582,58 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
         loadWizardReport: function(cachedReport) {
             var self = this;
 
-            // Build form data for the generate_report.php endpoint
-            // Include reexecution=1 to skip eligibility check (this is a saved report being viewed)
-            var formData = 'reportid=' + encodeURIComponent(cachedReport.name) + '&sesskey=' + M.cfg.sesskey + '&reexecution=1';
+            // Build parameters object for the external service
+            // Include reexecution=true to skip eligibility check (this is a saved report being viewed)
+            var parameters = cachedReport.parameters || {};
 
-            // Add saved parameters if available
-            if (cachedReport.parameters && typeof cachedReport.parameters === 'object') {
-                Object.keys(cachedReport.parameters).forEach(function(key) {
-                    formData += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(cachedReport.parameters[key]);
-                });
-            }
-
+            // Call external service
+            // Use report_template_id (the actual template name) as reportid, not the user's custom name
+            var reportTemplateId = cachedReport.report_template_id || cachedReport.name;
             $.ajax({
-                url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/generate_report.php',
+                url: M.cfg.wwwroot + '/lib/ajax/service.php?sesskey=' + M.cfg.sesskey + '&info=report_adeptus_insights_generate_report',
                 method: 'POST',
-                data: formData,
+                contentType: 'application/json',
+                data: JSON.stringify([{
+                    index: 0,
+                    methodname: 'report_adeptus_insights_generate_report',
+                    args: {
+                        reportid: reportTemplateId,
+                        parameters: JSON.stringify(parameters),
+                        reexecution: true
+                    }
+                }]),
                 timeout: 60000, // Longer timeout for report generation
-                success: function(response) {
+                success: function(results) {
+                    // External services return an array of results
+                    // Moodle wraps the response: {error: false, data: {actual response}}
+                    var result = Array.isArray(results) && results.length > 0 ? results[0] : null;
+
+                    if (result && result.error) {
+                        $('#report-loading').addClass('d-none');
+                        $('#report-content').html(
+                            '<div class="alert alert-danger">' +
+                                '<i class="fa fa-exclamation-circle"></i> ' + (result.exception?.message || result.error) +
+                                '<button class="btn btn-sm btn-outline-danger ms-3" onclick="GeneratedReports.loadReportDetails(\'' + cachedReport.slug + '\')"><i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
+                            '</div>'
+                        ).removeClass('d-none');
+                        return;
+                    }
+
+                    // Extract the actual response from Moodle's wrapper
+                    var response = (result && result.data) ? result.data : (result || {});
                     if (response.success) {
-                        var data = response.results || response.data || [];
+                        // Transform external service format (cells with key/value) to flat objects
+                        var rawResults = response.results || response.data || [];
+                        var data = rawResults.map(function(row) {
+                            if (row.cells && Array.isArray(row.cells)) {
+                                var flatRow = {};
+                                row.cells.forEach(function(cell) {
+                                    flatRow[cell.key] = cell.value;
+                                });
+                                return flatRow;
+                            }
+                            return row; // Already flat format
+                        });
                         var report = {
                             name: cachedReport.name,
                             description: cachedReport.description || cachedReport.name,
@@ -1702,38 +1736,38 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             var rowCount = data ? data.length : 0;
 
             // Report header with enhanced styling
-            contentHtml += '<div class="report-detail-header mb-4">';
+            contentHtml += '<div class="adeptus-report-detail-header mb-4">';
             contentHtml += '<h4 class="mb-2">' + (report.description || report.name || STRINGS.report) + '</h4>';
-            contentHtml += '<div class="report-meta d-flex flex-wrap align-items-center gap-2">';
+            contentHtml += '<div class="adeptus-report-meta d-flex flex-wrap align-items-center gap-2">';
 
             // Source badge
             var reportSource = (report.source || 'assistant').toLowerCase();
             if (reportSource === 'wizard') {
-                contentHtml += '<span class="badge badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
+                contentHtml += '<span class="badge adeptus-badge-wizard"><i class="fa fa-magic"></i> ' + STRINGS.wizard + '</span>';
             } else {
-                contentHtml += '<span class="badge badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
+                contentHtml += '<span class="badge adeptus-badge-ai"><i class="fa fa-robot"></i> ' + STRINGS.ai + '</span>';
             }
 
             // Row count badge
-            contentHtml += '<span class="badge badge-rowcount"><i class="fa fa-table"></i> ' + rowCount + ' ' + STRINGS.rows + '</span>';
+            contentHtml += '<span class="badge adeptus-badge-rowcount"><i class="fa fa-table"></i> ' + rowCount + ' ' + STRINGS.rows + '</span>';
             contentHtml += '</div>';
             contentHtml += '</div>';
 
             // Action bar with view toggle and export buttons
-            contentHtml += '<div class="action-bar d-flex justify-content-between align-items-center mb-3">';
+            contentHtml += '<div class="adeptus-action-bar d-flex justify-content-between align-items-center mb-3">';
 
             // View toggle buttons
-            contentHtml += '<div class="view-toggle btn-group" role="group">';
-            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn active" data-view="table"><i class="fa fa-table"></i> ' + STRINGS.table + '</button>';
-            contentHtml += '<button type="button" class="btn btn-sm view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> ' + STRINGS.chart + '</button>';
+            contentHtml += '<div class="adeptus-view-toggle btn-group" role="group">';
+            contentHtml += '<button type="button" class="btn btn-sm adeptus-view-toggle-btn active" data-view="table"><i class="fa fa-table"></i> ' + STRINGS.table + '</button>';
+            contentHtml += '<button type="button" class="btn btn-sm adeptus-view-toggle-btn" data-view="chart"><i class="fa fa-bar-chart"></i> ' + STRINGS.chart + '</button>';
             contentHtml += '</div>';
 
             // Export buttons - PDF available for all, CSV/JSON premium on free plan
-            var premiumClass = self.isFreePlan ? ' export-premium' : '';
-            contentHtml += '<div class="export-buttons d-flex gap-2">';
-            contentHtml += '<button class="btn btn-outline-danger btn-sm export-pdf-btn"><i class="fa fa-file-pdf-o"></i> ' + STRINGS.exportPdf + '</button>';
-            contentHtml += '<button class="btn btn-outline-primary btn-sm export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> ' + STRINGS.exportCsv + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
-            contentHtml += '<button class="btn btn-outline-secondary btn-sm export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> ' + STRINGS.exportJson + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            var premiumClass = self.isFreePlan ? ' adeptus-export-premium' : '';
+            contentHtml += '<div class="adeptus-export-buttons d-flex gap-2">';
+            contentHtml += '<button class="btn btn-outline-danger btn-sm adeptus-export-pdf-btn"><i class="fa fa-file-pdf-o"></i> ' + STRINGS.exportPdf + '</button>';
+            contentHtml += '<button class="btn btn-outline-primary btn-sm adeptus-export-csv-btn' + premiumClass + '"><i class="fa fa-file-excel-o"></i> ' + STRINGS.exportCsv + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
+            contentHtml += '<button class="btn btn-outline-secondary btn-sm adeptus-export-json-btn' + premiumClass + '"><i class="fa fa-code"></i> ' + STRINGS.exportJson + (self.isFreePlan ? ' <i class="fa fa-crown text-warning" style="font-size: 10px;"></i>' : '') + '</button>';
             contentHtml += '</div>';
             contentHtml += '</div>';
 
@@ -1743,8 +1777,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 var displayLimit = 100;
 
                 // Table View
-                contentHtml += '<div id="report-table-view" class="report-view">';
-                contentHtml += '<div class="report-data-wrapper">';
+                contentHtml += '<div id="report-table-view" class="adeptus-report-view">';
+                contentHtml += '<div class="adeptus-report-data-wrapper">';
                 contentHtml += '<div class="table-responsive report-table-container">';
                 contentHtml += '<table class="table table-striped table-hover table-sm report-data-table">';
                 contentHtml += '<thead class="table-light sticky-header"><tr>';
@@ -1783,12 +1817,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 contentHtml += '</div>'; // Close table view
 
                 // Chart View
-                contentHtml += '<div id="report-chart-view" class="report-view d-none">';
-                contentHtml += '<div class="chart-controls-wrapper mb-3">';
-                contentHtml += '<div class="chart-controls d-flex flex-wrap align-items-center gap-3">';
+                contentHtml += '<div id="report-chart-view" class="adeptus-report-view d-none">';
+                contentHtml += '<div class="adeptus-chart-controls-wrapper mb-3">';
+                contentHtml += '<div class="adeptus-chart-controls d-flex flex-wrap align-items-center gap-3">';
 
                 // Chart type selector
-                contentHtml += '<div class="control-group">';
+                contentHtml += '<div class="adeptus-control-group">';
                 contentHtml += '<label for="chart-type-select" class="form-label">' + STRINGS.chartType + '</label>';
                 contentHtml += '<select id="chart-type-select" class="form-select form-select-sm">';
                 contentHtml += '<option value="bar">' + STRINGS.barChart + '</option>';
@@ -1799,7 +1833,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 contentHtml += '</div>';
 
                 // X-Axis selector
-                contentHtml += '<div class="control-group">';
+                contentHtml += '<div class="adeptus-control-group">';
                 contentHtml += '<label for="chart-x-axis" class="form-label">' + STRINGS.xAxisLabels + '</label>';
                 contentHtml += '<select id="chart-x-axis" class="form-select form-select-sm">';
                 headers.forEach(function(header, idx) {
@@ -1812,7 +1846,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
                 // Y-Axis selector (only numeric columns)
                 var numericCols = self.detectNumericColumns(data, headers);
-                contentHtml += '<div class="control-group">';
+                contentHtml += '<div class="adeptus-control-group">';
                 contentHtml += '<label for="chart-y-axis" class="form-label">' + STRINGS.yAxisValues + '</label>';
                 contentHtml += '<select id="chart-y-axis" class="form-select form-select-sm">';
                 if (numericCols.length > 0) {
@@ -1832,10 +1866,10 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 contentHtml += '</select>';
                 contentHtml += '</div>';
 
-                contentHtml += '</div>'; // End chart-controls
-                contentHtml += '</div>'; // End chart-controls-wrapper
+                contentHtml += '</div>'; // End adeptus-chart-controls
+                contentHtml += '</div>'; // End adeptus-chart-controls-wrapper
 
-                contentHtml += '<div class="chart-container" style="position: relative; height: 400px;">';
+                contentHtml += '<div class="adeptus-chart-container" style="position: relative; height: 400px;">';
                 contentHtml += '<canvas id="report-chart"></canvas>';
                 contentHtml += '</div>';
                 contentHtml += '</div>';
@@ -1854,18 +1888,18 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
             self.currentView = 'table';
 
             // Attach export handlers
-            $('#report-content .export-pdf-btn').on('click', function() {
+            $('#report-content .adeptus-export-pdf-btn').on('click', function() {
                 self.exportReport(report.slug, 'pdf');
             });
-            $('#report-content .export-csv-btn').on('click', function() {
-                if ($(this).hasClass('export-premium')) {
+            $('#report-content .adeptus-export-csv-btn').on('click', function() {
+                if ($(this).hasClass('adeptus-export-premium')) {
                     self.showExportUpgradePrompt('csv');
                     return;
                 }
                 self.exportReport(report.slug, 'csv');
             });
-            $('#report-content .export-json-btn').on('click', function() {
-                if ($(this).hasClass('export-premium')) {
+            $('#report-content .adeptus-export-json-btn').on('click', function() {
+                if ($(this).hasClass('adeptus-export-premium')) {
                     self.showExportUpgradePrompt('json');
                     return;
                 }
@@ -1929,7 +1963,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                 this.chartInstance = new this.Chart(canvas.getContext('2d'), chartConfig);
             } catch (error) {
                 console.error('Error creating chart:', error);
-                $('#report-chart-view .chart-container').html(
+                $('#report-chart-view .adeptus-chart-container').html(
                     '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' + STRINGS.errorRenderingChart + ': ' + error.message + '</div>'
                 );
             }
@@ -2115,7 +2149,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: body
+                    body: body,
+                    credentials: 'same-origin'
                 });
 
                 var contentType = response.headers.get('content-type');
@@ -2195,7 +2230,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
 <style>
 /* Page Header Banner - Consistent with Wizard/Assistant */
-.page-header-banner {
+.adeptus-page-header-banner {
     background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
     color: white;
     padding: 30px;
@@ -2209,7 +2244,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     overflow: hidden;
 }
 
-.page-header-banner::before {
+.adeptus-page-header-banner::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -2248,11 +2283,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     }
 }
 
-.page-header-content {
+.adeptus-page-header-content {
     z-index: 1;
 }
 
-.page-header-title {
+.adeptus-page-header-title {
     font-size: 1.75rem;
     font-weight: 700;
     margin: 0;
@@ -2261,7 +2296,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     gap: 12px;
 }
 
-.page-header-icon {
+.adeptus-page-header-icon {
     font-size: 1.5rem;
     animation: iconPulse 3s ease-in-out infinite;
 }
@@ -2271,83 +2306,83 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     50% { transform: scale(1.1) rotate(5deg); }
 }
 
-.page-header-subtitle {
+.adeptus-page-header-subtitle {
     font-size: 1rem;
     opacity: 0.9;
     margin: 10px 0 0 0;
 }
 
-.page-header-actions {
+.adeptus-page-header-actions {
     display: flex;
     gap: 10px;
     z-index: 1;
 }
 
-.page-header-actions .btn-light {
+.adeptus-page-header-actions .btn-light {
     background: white;
     color: #0f6cbf;
     border: none;
     font-weight: 500;
 }
 
-.page-header-actions .btn-light:hover {
+.adeptus-page-header-actions .btn-light:hover {
     background: #f8f9fa;
     color: #0a5299;
 }
 
-.page-header-actions .btn-outline-light {
+.adeptus-page-header-actions .btn-outline-light {
     border: 2px solid rgba(255,255,255,0.8);
     color: white;
     font-weight: 500;
 }
 
-.page-header-actions .btn-outline-light:hover {
+.adeptus-page-header-actions .btn-outline-light:hover {
     background: rgba(255,255,255,0.15);
     border-color: white;
 }
 
 @media (max-width: 768px) {
-    .page-header-banner {
+    .adeptus-page-header-banner {
         flex-direction: column;
         text-align: center;
         gap: 20px;
     }
 
-    .page-header-actions {
+    .adeptus-page-header-actions {
         flex-direction: column;
         width: 100%;
     }
 
-    .page-header-actions .btn {
+    .adeptus-page-header-actions .btn {
         width: 100%;
     }
 }
 
-.generated-reports-container {
+.adeptus-generated-reports-container {
     padding: 0;
 }
 
-.generated-reports-container .card {
+.adeptus-generated-reports-container .card {
     border: none;
     border-radius: 0.75rem;
     overflow: hidden;
     box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
 }
 
-.generated-reports-container .card-header {
+.adeptus-generated-reports-container .card-header {
     border: none;
 }
 
-.report-row {
+.adeptus-report-row {
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
 
-.report-row:hover {
+.adeptus-report-row:hover {
     background-color: #f8f9fa;
 }
 
-.report-row.table-primary {
+.adeptus-report-row.table-primary {
     background-color: #e7f3ff !important;
 }
 
@@ -2356,7 +2391,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     font-weight: 600;
 }
 
-.report-meta {
+.adeptus-report-meta {
     margin-top: 0.5rem;
 }
 
@@ -2376,7 +2411,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Export buttons */
-.export-csv-btn, .export-json-btn {
+.adeptus-export-csv-btn, .adeptus-export-json-btn {
     border-radius: 0.5rem;
 }
 
@@ -2404,7 +2439,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Source badges */
-.badge-ai {
+.adeptus-badge-ai {
     background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
     color: white;
     font-size: 11px;
@@ -2415,7 +2450,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     gap: 5px;
 }
 
-.badge-wizard {
+.adeptus-badge-wizard {
     background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
     color: white;
     font-size: 11px;
@@ -2426,13 +2461,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     gap: 5px;
 }
 
-.badge-ai i,
-.badge-wizard i,
-.badge-rowcount i {
+.adeptus-badge-ai i,
+.adeptus-badge-wizard i,
+.adeptus-badge-rowcount i {
     font-size: 10px;
 }
 
-.badge-rowcount {
+.adeptus-badge-rowcount {
     background: #6c757d;
     color: white;
     font-size: 11px;
@@ -2444,7 +2479,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* View toggle buttons */
-.view-toggle .view-toggle-btn {
+.adeptus-view-toggle .adeptus-view-toggle-btn {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
     color: #495057;
@@ -2453,56 +2488,56 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     transition: all 0.2s ease;
 }
 
-.view-toggle .view-toggle-btn:first-child {
+.adeptus-view-toggle .adeptus-view-toggle-btn:first-child {
     border-radius: 6px 0 0 6px;
 }
 
-.view-toggle .view-toggle-btn:last-child {
+.adeptus-view-toggle .adeptus-view-toggle-btn:last-child {
     border-radius: 0 6px 6px 0;
 }
 
-.view-toggle .view-toggle-btn:hover {
+.adeptus-view-toggle .adeptus-view-toggle-btn:hover {
     background: #e9ecef;
 }
 
-.view-toggle .view-toggle-btn.active {
+.adeptus-view-toggle .adeptus-view-toggle-btn.active {
     background: #2563eb;
     border-color: #2563eb;
     color: white;
 }
 
-.view-toggle .view-toggle-btn i {
+.adeptus-view-toggle .adeptus-view-toggle-btn i {
     margin-right: 5px;
 }
 
 /* Chart container */
-.chart-container {
+.adeptus-chart-container {
     background: #fff;
     border-radius: 8px;
     padding: 1rem;
     border: 1px solid #e9ecef;
 }
 
-.chart-controls-wrapper {
+.adeptus-chart-controls-wrapper {
     background: #f8f9fa;
     border-radius: 8px;
     padding: 1rem;
     border: 1px solid #e9ecef;
 }
 
-.chart-controls {
+.adeptus-chart-controls {
     display: flex;
     align-items: flex-end;
     flex-wrap: wrap;
 }
 
-.chart-controls .control-group {
+.adeptus-chart-controls .adeptus-control-group {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.chart-controls .form-label {
+.adeptus-chart-controls .form-label {
     font-size: 11px;
     font-weight: 600;
     color: #6c757d;
@@ -2511,7 +2546,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     letter-spacing: 0.5px;
 }
 
-.chart-controls .form-select {
+.adeptus-chart-controls .form-select {
     font-size: 13px;
     padding: 0.4rem 2rem 0.4rem 0.75rem;
     border-radius: 6px;
@@ -2520,7 +2555,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     min-width: 140px;
 }
 
-.chart-controls .form-select:focus {
+.adeptus-chart-controls .form-select:focus {
     border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
@@ -2618,8 +2653,8 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 
 /* Responsive */
 @media (max-width: 768px) {
-    .generated-reports-container .col-md-4,
-    .generated-reports-container .col-md-8 {
+    .adeptus-generated-reports-container .col-md-4,
+    .adeptus-generated-reports-container .col-md-8 {
         margin-bottom: 1rem;
     }
 
@@ -2631,17 +2666,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Category Management Modal - Modern Design */
-.cat-modal-popup {
+.adeptus-cat-modal-popup {
     border-radius: 16px !important;
     padding: 0 !important;
     overflow: visible !important;
 }
 
-.cat-modal-popup .swal2-title {
+.adeptus-cat-modal-popup .swal2-title {
     display: none !important;
 }
 
-.cat-modal-popup .swal2-close {
+.adeptus-cat-modal-popup .swal2-close {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -2655,28 +2690,28 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     z-index: 10;
 }
 
-.cat-modal-popup .swal2-close:hover {
+.adeptus-cat-modal-popup .swal2-close:hover {
     background: #e2e8f0;
     color: #334155;
 }
 
-.cat-modal-popup .swal2-html-container {
+.adeptus-cat-modal-popup .swal2-html-container {
     margin: 0 !important;
     padding: 0 !important;
 }
 
-.cat-modal {
+.adeptus-cat-modal {
     text-align: left;
 }
 
 /* Add Section */
-.cat-add-section {
+.adeptus-cat-add-section {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     padding: 24px;
     border-bottom: 1px solid #e2e8f0;
 }
 
-.cat-add-header {
+.adeptus-cat-add-header {
     font-size: 13px;
     font-weight: 600;
     color: #64748b;
@@ -2685,12 +2720,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     margin-bottom: 12px;
 }
 
-.cat-add-form {
+.adeptus-cat-add-form {
     display: flex;
     gap: 10px;
 }
 
-.cat-add-input-wrapper {
+.adeptus-cat-add-input-wrapper {
     flex: 1;
     display: flex;
     background: white;
@@ -2700,12 +2735,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     transition: all 0.15s ease;
 }
 
-.cat-add-input-wrapper:focus-within {
+.adeptus-cat-add-input-wrapper:focus-within {
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.cat-add-input {
+.adeptus-cat-add-input {
     flex: 1;
     border: none;
     padding: 12px 14px;
@@ -2714,11 +2749,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     background: transparent;
 }
 
-.cat-add-input::placeholder {
+.adeptus-cat-add-input::placeholder {
     color: #94a3b8;
 }
 
-.cat-add-input.error {
+.adeptus-cat-add-input.error {
     animation: shake 0.3s ease;
 }
 
@@ -2728,29 +2763,29 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     75% { transform: translateX(4px); }
 }
 
-.cat-add-color-wrapper {
+.adeptus-cat-add-color-wrapper {
     position: relative;
     z-index: 10;
 }
 
 /* Ensure SweetAlert doesn't clip the dropdown */
-.cat-modal-popup .swal2-html-container {
+.adeptus-cat-modal-popup .swal2-html-container {
     overflow: visible !important;
 }
 
-.cat-add-section {
+.adeptus-cat-add-section {
     overflow: visible;
 }
 
-.cat-add-form {
+.adeptus-cat-add-form {
     overflow: visible;
 }
 
-.cat-add-input-wrapper {
+.adeptus-cat-add-input-wrapper {
     overflow: visible;
 }
 
-.cat-add-color-btn {
+.adeptus-cat-add-color-btn {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -2766,28 +2801,28 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     outline: none;
 }
 
-.cat-add-color-btn:hover {
+.adeptus-cat-add-color-btn:hover {
     background: #f1f5f9;
 }
 
-.cat-add-color-btn:focus {
+.adeptus-cat-add-color-btn:focus {
     background: #f1f5f9;
     outline: none;
 }
 
-.cat-add-color-preview {
+.adeptus-cat-add-color-preview {
     width: 20px;
     height: 20px;
     border-radius: 6px;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-.cat-add-color-btn svg {
+.adeptus-cat-add-color-btn svg {
     color: #94a3b8;
 }
 
 /* Color Dropdown */
-.cat-color-dropdown {
+.adeptus-cat-color-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
@@ -2804,21 +2839,21 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     min-width: 180px;
 }
 
-.cat-color-dropdown.show {
+.adeptus-cat-color-dropdown.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-.cat-color-swatches {
+.adeptus-cat-color-swatches {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
     margin-bottom: 12px;
 }
 
-.cat-color-swatch {
+.adeptus-cat-color-swatch {
     width: 32px;
     height: 32px;
     border-radius: 8px;
@@ -2828,12 +2863,12 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-.cat-color-swatch:hover {
+.adeptus-cat-color-swatch:hover {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-.cat-color-custom {
+.adeptus-cat-color-custom {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -2841,7 +2876,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     border-top: 1px solid #e2e8f0;
 }
 
-.cat-color-custom input[type="color"] {
+.adeptus-cat-color-custom input[type="color"] {
     width: 32px;
     height: 32px;
     border: none;
@@ -2851,22 +2886,22 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     overflow: hidden;
 }
 
-.cat-color-custom input[type="color"]::-webkit-color-swatch-wrapper {
+.adeptus-cat-color-custom input[type="color"]::-webkit-color-swatch-wrapper {
     padding: 0;
 }
 
-.cat-color-custom input[type="color"]::-webkit-color-swatch {
+.adeptus-cat-color-custom input[type="color"]::-webkit-color-swatch {
     border: none;
     border-radius: 8px;
 }
 
-.cat-color-custom span {
+.adeptus-cat-color-custom span {
     font-size: 13px;
     color: #64748b;
 }
 
 /* Add Button */
-.cat-add-btn {
+.adeptus-cat-add-btn {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -2882,34 +2917,34 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
-.cat-add-btn:hover {
+.adeptus-cat-add-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-.cat-add-btn:active {
+.adeptus-cat-add-btn:active {
     transform: translateY(0);
 }
 
 /* Sections */
-.cat-section {
+.adeptus-cat-section {
     padding: 20px 24px;
 }
 
-.cat-section-header {
+.adeptus-cat-section-header {
     display: flex;
     align-items: center;
     gap: 10px;
     margin-bottom: 14px;
 }
 
-.cat-section-title {
+.adeptus-cat-section-title {
     font-size: 14px;
     font-weight: 600;
     color: #1e293b;
 }
 
-.cat-section-count {
+.adeptus-cat-section-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2923,7 +2958,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     font-weight: 600;
 }
 
-.cat-section-badge {
+.adeptus-cat-section-badge {
     font-size: 11px;
     font-weight: 500;
     color: #94a3b8;
@@ -2933,7 +2968,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Custom Category Cards */
-.cat-cards-list {
+.adeptus-cat-cards-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -2941,7 +2976,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     overflow-y: auto;
 }
 
-.cat-card {
+.adeptus-cat-card {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -2951,23 +2986,23 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     transition: all 0.15s ease;
 }
 
-.cat-card:hover {
+.adeptus-cat-card:hover {
     background: #f1f5f9;
 }
 
-.cat-card-color {
+.adeptus-cat-card-color {
     width: 6px;
     height: 40px;
     border-radius: 3px;
     flex-shrink: 0;
 }
 
-.cat-card-content {
+.adeptus-cat-card-content {
     flex: 1;
     min-width: 0;
 }
 
-.cat-card-name {
+.adeptus-cat-card-name {
     font-size: 14px;
     font-weight: 600;
     color: #1e293b;
@@ -2976,24 +3011,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     text-overflow: ellipsis;
 }
 
-.cat-card-meta {
+.adeptus-cat-card-meta {
     font-size: 12px;
     color: #94a3b8;
     margin-top: 2px;
 }
 
-.cat-card-actions {
+.adeptus-cat-card-actions {
     display: flex;
     gap: 4px;
     opacity: 0;
     transition: opacity 0.15s ease;
 }
 
-.cat-card:hover .cat-card-actions {
+.adeptus-cat-card:hover .adeptus-cat-card-actions {
     opacity: 1;
 }
 
-.cat-action-btn {
+.adeptus-cat-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3008,52 +3043,52 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.cat-action-btn:hover {
+.adeptus-cat-action-btn:hover {
     background: white;
     color: #3b82f6;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
 }
 
-.cat-action-btn-danger:hover {
+.adeptus-cat-action-btn-danger:hover {
     color: #ef4444;
 }
 
 /* Empty State */
-.cat-empty-state {
+.adeptus-cat-empty-state {
     text-align: center;
     padding: 32px 20px;
 }
 
-.cat-empty-icon {
+.adeptus-cat-empty-icon {
     color: #cbd5e1;
     margin-bottom: 12px;
 }
 
-.cat-empty-text {
+.adeptus-cat-empty-text {
     font-size: 14px;
     font-weight: 600;
     color: #64748b;
 }
 
-.cat-empty-hint {
+.adeptus-cat-empty-hint {
     font-size: 13px;
     color: #94a3b8;
     margin-top: 4px;
 }
 
 /* System Categories */
-.cat-section-system {
+.adeptus-cat-section-system {
     background: #fafbfc;
     border-top: 1px solid #e2e8f0;
 }
 
-.cat-system-list {
+.adeptus-cat-system-list {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.cat-system-item {
+.adeptus-cat-system-item {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -3064,59 +3099,59 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     font-size: 13px;
 }
 
-.cat-system-dot {
+.adeptus-cat-system-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
-.cat-system-name {
+.adeptus-cat-system-name {
     color: #475569;
     font-weight: 500;
 }
 
-.cat-system-count {
+.adeptus-cat-system-count {
     color: #94a3b8;
     font-size: 12px;
 }
 
 /* Scrollbar styling */
-.cat-cards-list::-webkit-scrollbar {
+.adeptus-cat-cards-list::-webkit-scrollbar {
     width: 6px;
 }
 
-.cat-cards-list::-webkit-scrollbar-track {
+.adeptus-cat-cards-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.cat-cards-list::-webkit-scrollbar-thumb {
+.adeptus-cat-cards-list::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
 
-.cat-cards-list::-webkit-scrollbar-thumb:hover {
+.adeptus-cat-cards-list::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
 /* Edit Category Dialog */
-.cat-edit-popup {
+.adeptus-cat-edit-popup {
     border-radius: 16px !important;
     padding: 24px !important;
 }
 
-.cat-edit-popup .swal2-title {
+.adeptus-cat-edit-popup .swal2-title {
     font-size: 18px;
     font-weight: 600;
     color: #1e293b;
     margin-bottom: 20px;
 }
 
-.cat-edit-modal {
+.adeptus-cat-edit-modal {
     text-align: left;
 }
 
-.cat-edit-preview {
+.adeptus-cat-edit-preview {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -3126,24 +3161,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     margin-bottom: 20px;
 }
 
-.cat-edit-preview-color {
+.adeptus-cat-edit-preview-color {
     width: 8px;
     height: 36px;
     border-radius: 4px;
     flex-shrink: 0;
 }
 
-.cat-edit-preview-name {
+.adeptus-cat-edit-preview-name {
     font-size: 15px;
     font-weight: 600;
     color: #1e293b;
 }
 
-.cat-edit-field {
+.adeptus-cat-edit-field {
     margin-bottom: 16px;
 }
 
-.cat-edit-label {
+.adeptus-cat-edit-label {
     display: block;
     font-size: 13px;
     font-weight: 600;
@@ -3151,7 +3186,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     margin-bottom: 8px;
 }
 
-.cat-edit-input {
+.adeptus-cat-edit-input {
     width: 100%;
     padding: 12px 14px;
     border: 1px solid #e2e8f0;
@@ -3160,24 +3195,24 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     transition: all 0.15s ease;
 }
 
-.cat-edit-input:focus {
+.adeptus-cat-edit-input:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.cat-edit-colors {
+.adeptus-cat-edit-colors {
     display: flex;
     align-items: center;
     gap: 16px;
 }
 
-.cat-edit-swatches {
+.adeptus-cat-edit-swatches {
     display: flex;
     gap: 8px;
 }
 
-.edit-color-swatch {
+.adeptus-edit-color-swatch {
     width: 28px;
     height: 28px;
     border-radius: 8px;
@@ -3187,16 +3222,16 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-.edit-color-swatch:hover {
+.adeptus-edit-color-swatch:hover {
     transform: scale(1.1);
 }
 
-.edit-color-swatch.selected {
+.adeptus-edit-color-swatch.selected {
     border-color: #1e293b;
     box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
 }
 
-.cat-edit-custom {
+.adeptus-cat-edit-custom {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3204,7 +3239,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     border-left: 1px solid #e2e8f0;
 }
 
-.cat-edit-custom input[type="color"] {
+.adeptus-cat-edit-custom input[type="color"] {
     width: 28px;
     height: 28px;
     border: none;
@@ -3213,22 +3248,22 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     padding: 0;
 }
 
-.cat-edit-custom input[type="color"]::-webkit-color-swatch-wrapper {
+.adeptus-cat-edit-custom input[type="color"]::-webkit-color-swatch-wrapper {
     padding: 0;
 }
 
-.cat-edit-custom input[type="color"]::-webkit-color-swatch {
+.adeptus-cat-edit-custom input[type="color"]::-webkit-color-swatch {
     border: none;
     border-radius: 8px;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-.cat-edit-custom span {
+.adeptus-cat-edit-custom span {
     font-size: 13px;
     color: #94a3b8;
 }
 
-.cat-edit-confirm-btn {
+.adeptus-cat-edit-confirm-btn {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
     border: none !important;
     border-radius: 10px !important;
@@ -3237,11 +3272,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
 }
 
-.cat-edit-confirm-btn:hover {
+.adeptus-cat-edit-confirm-btn:hover {
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
 }
 
-.cat-edit-cancel-btn {
+.adeptus-cat-edit-cancel-btn {
     background: #f1f5f9 !important;
     color: #64748b !important;
     border: none !important;
@@ -3250,13 +3285,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     font-weight: 600 !important;
 }
 
-.cat-edit-cancel-btn:hover {
+.adeptus-cat-edit-cancel-btn:hover {
     background: #e2e8f0 !important;
     color: #475569 !important;
 }
 
 /* Report Category Selector in Header */
-.report-category-selector {
+.adeptus-report-category-selector {
     position: relative;
     display: flex;
     align-items: center;
@@ -3264,7 +3299,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Delete button in header */
-.delete-report-header-btn {
+.adeptus-delete-report-header-btn {
     padding: 6px 10px;
     border-radius: 8px;
     background: rgba(220, 53, 69, 0.15);
@@ -3273,13 +3308,13 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     transition: all 0.15s ease;
 }
 
-.delete-report-header-btn:hover {
+.adeptus-delete-report-header-btn:hover {
     background: rgba(220, 53, 69, 0.9);
     border-color: rgba(220, 53, 69, 1);
     color: #fff;
 }
 
-.delete-report-header-btn:focus {
+.adeptus-delete-report-header-btn:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
 }
@@ -3302,11 +3337,11 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
 
-.category-dropdown-wrapper {
+.adeptus-category-dropdown-wrapper {
     position: relative;
 }
 
-.category-current-btn {
+.adeptus-category-current-btn {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3324,17 +3359,17 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     outline: none;
 }
 
-.category-current-btn:hover {
+.adeptus-category-current-btn:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
 }
 
-.category-current-btn:focus {
+.adeptus-category-current-btn:focus {
     background: rgba(255, 255, 255, 0.25);
     outline: none;
 }
 
-.category-current-btn .category-dot {
+.adeptus-category-current-btn .adeptus-category-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -3342,19 +3377,19 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-.category-current-btn .category-name {
+.adeptus-category-current-btn .adeptus-category-name {
     max-width: 120px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.category-current-btn svg {
+.adeptus-category-current-btn svg {
     opacity: 0.7;
     flex-shrink: 0;
 }
 
-.category-current-btn.success-flash {
+.adeptus-category-current-btn.success-flash {
     animation: categorySuccessFlash 0.6s ease;
 }
 
@@ -3364,7 +3399,7 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
 }
 
 /* Category Dropdown Menu */
-.category-dropdown-menu {
+.adeptus-category-dropdown-menu {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
@@ -3383,14 +3418,14 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     pointer-events: none;
 }
 
-.category-dropdown-menu.show {
+.adeptus-category-dropdown-menu.show {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-.category-menu-item {
+.adeptus-category-menu-item {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -3408,20 +3443,20 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     appearance: none;
 }
 
-.category-menu-item:hover {
+.adeptus-category-menu-item:hover {
     background: #f1f5f9;
 }
 
-.category-menu-item.selected {
+.adeptus-category-menu-item.selected {
     background: #eff6ff;
 }
 
-.category-menu-item.selected .category-menu-name {
+.adeptus-category-menu-item.selected .adeptus-category-menu-name {
     color: #2563eb;
     font-weight: 600;
 }
 
-.category-menu-dot {
+.adeptus-category-menu-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -3429,33 +3464,33 @@ require(['jquery', 'core/chartjs'], function($, Chart) {
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
-.category-menu-name {
+.adeptus-category-menu-name {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.category-menu-check {
+.adeptus-category-menu-check {
     color: #2563eb;
     flex-shrink: 0;
 }
 
 /* Dropdown scrollbar */
-.category-dropdown-menu::-webkit-scrollbar {
+.adeptus-category-dropdown-menu::-webkit-scrollbar {
     width: 6px;
 }
 
-.category-dropdown-menu::-webkit-scrollbar-track {
+.adeptus-category-dropdown-menu::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.category-dropdown-menu::-webkit-scrollbar-thumb {
+.adeptus-category-dropdown-menu::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
 
-.category-dropdown-menu::-webkit-scrollbar-thumb:hover {
+.adeptus-category-dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 </style>
