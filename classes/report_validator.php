@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -52,10 +52,10 @@ class report_validator {
             return ['valid' => false, 'reason' => 'No SQL query', 'missing_tables' => []];
         }
 
-        // Extract all table references from SQL
+        // Extract all table references from SQL.
         $tables = self::extract_table_names($sql);
 
-        // Check if all tables exist
+        // Check if all tables exist.
         $missingtables = [];
         foreach ($tables as $table) {
             if (!self::table_exists($table)) {
@@ -63,17 +63,17 @@ class report_validator {
             }
         }
 
-        // Check for MySQL-specific functions that may fail
+        // Check for MySQL-specific functions that may fail.
         $mysqlfunctions = self::check_mysql_functions($sql);
 
-        // Determine if valid
+        // Determine if valid.
         $valid = empty($missingtables);
         $reason = '';
 
         if (!$valid) {
             $reason = 'Missing required tables: ' . implode(', ', $missingtables);
         } else if (!empty($mysqlfunctions)) {
-            // Still valid, but warn about potential issues
+            // Still valid, but warn about potential issues.
             $reason = 'Warning: Uses database-specific functions';
         }
 
@@ -95,13 +95,13 @@ class report_validator {
     private static function extract_table_names($sql) {
         $tables = [];
 
-        // Match {tablename} pattern - Moodle standard
+        // Match {tablename} pattern - Moodle standard.
         preg_match_all('/\{([a-z_][a-z0-9_]*)\}/i', $sql, $matches);
         if (!empty($matches[1])) {
             $tables = array_merge($tables, $matches[1]);
         }
 
-        // Remove duplicates
+        // Remove duplicates.
         $tables = array_unique($tables);
 
         return $tables;
@@ -117,23 +117,23 @@ class report_validator {
     private static function table_exists($table) {
         global $DB;
 
-        // Check cache first
+        // Check cache first.
         if (isset(self::$tablecache[$table])) {
             return self::$tablecache[$table];
         }
 
-        // Check if table exists
+        // Check if table exists.
         try {
             $dbman = $DB->get_manager();
             $tableobj = new \xmldb_table($table);
             $exists = $dbman->table_exists($tableobj);
 
-            // Cache result
+            // Cache result.
             self::$tablecache[$table] = $exists;
 
             return $exists;
         } catch (\Exception $e) {
-            // If check fails, assume table doesn't exist
+            // If check fails, assume table doesn't exist.
             self::$tablecache[$table] = false;
             return false;
         }
@@ -182,7 +182,7 @@ class report_validator {
             return self::$modulecache;
         }
 
-        // Get list of all installed activity modules
+        // Get list of all installed activity modules.
         $modules = \core_component::get_plugin_list('mod');
         self::$modulecache = array_keys($modules);
 
@@ -201,12 +201,12 @@ class report_validator {
         foreach ($reports as $report) {
             $validation = self::validate_report($report);
 
-            // Add validation metadata to report
+            // Add validation metadata to report.
             $report['is_available'] = $validation['valid'];
             $report['unavailable_reason'] = $validation['reason'];
             $report['missing_tables'] = $validation['missing_tables'];
 
-            // Always include report but mark availability
+            // Always include report but mark availability.
             $filtered[] = $report;
         }
 

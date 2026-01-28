@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -47,7 +47,7 @@ $chartdata = optional_param('chart_data', '', PARAM_RAW);
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
 $chartimage = optional_param('chart_image', '', PARAM_RAW);
 
-// Validate chart image if provided
+// Validate chart image if provided.
 if (!empty($chartimage)) {
     if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chartimage)) {
         $chartimage = '';
@@ -72,18 +72,18 @@ if (!confirm_sesskey($sesskey)) {
 
 
 try {
-    // Check if we have report data from frontend
+    // Check if we have report data from frontend.
 
     $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
 
     // SAFETY CHECK: Refuse to process frontend data if it's too large (>10MB)
-    // Large datasets should be regenerated from backend instead
-    $maxfrontenddatasize = 10 * 1024 * 1024; // 10MB
+    // Large datasets should be regenerated from backend instead.
+    $maxfrontenddatasize = 10 * 1024 * 1024; // 10MB.
     $datasize = strlen($reportdatajson);
 
     if ($datasize > $maxfrontenddatasize) {
-        $hasfrontenddata = false; // Force backend regeneration
+        $hasfrontenddata = false; // Force backend regeneration.
     } else {
         $hasfrontenddata = !empty($reportdatajson);
     }
@@ -96,7 +96,7 @@ try {
 
 
 
-    // Try to use frontend data first (preferred for small/medium datasets)
+    // Try to use frontend data first (preferred for small/medium datasets).
     if ($hasfrontenddata) {
         $reportdata = json_decode($reportdatajson, true);
 
@@ -104,18 +104,18 @@ try {
             $resultsarray = $reportdata['results'];
             $headers = $reportdata['headers'];
 
-            // Create report object with metadata from frontend
+            // Create report object with metadata from frontend.
             $report->name = $reportdata['report_name'] ?? $reportid;
             $report->category = $reportdata['report_category'] ?? '';
             $report->charttype = $reportdata['chart_type'] ?? 'bar';
         } else {
-            $hasfrontenddata = false; // Force regeneration
+            $hasfrontenddata = false; // Force regeneration.
         }
     }
 
-    // If no frontend data or frontend data invalid, regenerate from backend
+    // If no frontend data or frontend data invalid, regenerate from backend.
     if (!$hasfrontenddata || empty($resultsarray)) {
-        // Fetch report definition from Laravel backend (same as generate_report.php)
+        // Fetch report definition from Laravel backend (same as generate_report.php).
 
         $backendenabled = isset($CFG->adeptus_wizard_enable_backend_api) ? $CFG->adeptus_wizard_enable_backend_api : true;
         $backendapiurl = \report_adeptus_insights\api_config::get_backend_url();
@@ -125,11 +125,11 @@ try {
             throw new Exception(get_string('error_backend_disabled_no_data', 'report_adeptus_insights'));
         }
 
-        // Get API key
+        // Get API key.
         $installationmanager = new \report_adeptus_insights\installation_manager();
         $apikey = $installationmanager->get_api_key();
 
-        // Fetch report definition
+        // Fetch report definition.
         $curl = new \curl();
         $curl->setHeader('Content-Type: application/json');
         $curl->setHeader('Accept: application/json');
@@ -152,7 +152,7 @@ try {
             throw new Exception(get_string('error_invalid_backend_response', 'report_adeptus_insights'));
         }
 
-        // Find the report
+        // Find the report.
         $backendreport = null;
         foreach ($backenddata['data'] as $r) {
             if (trim($r['name']) === trim($reportid)) {
@@ -165,14 +165,14 @@ try {
             throw new Exception(get_string('error_report_not_found_name', 'report_adeptus_insights', $reportid));
         }
 
-        // Create report object
+        // Create report object.
         $report->name = $backendreport['name'];
         $report->category = $backendreport['category'] ?? '';
         $report->charttype = $backendreport['charttype'] ?? 'bar';
         $report->sqlquery = $backendreport['sqlquery'];
         $report->parameters = json_encode($backendreport['parameters'] ?? []);
 
-        // Collect parameters from request (same logic as generate_report.php)
+        // Collect parameters from request (same logic as generate_report.php).
         if (!empty($backendreport['parameters'])) {
             foreach ($backendreport['parameters'] as $paramdef) {
                 if (isset($paramdef['name'])) {
@@ -184,7 +184,7 @@ try {
             }
         }
 
-        // Collect common parameters
+        // Collect common parameters.
         $commonparams = ['courseid', 'minimum_grade', 'categoryid', 'userid', 'roleid', 'startdate', 'enddate'];
         foreach ($commonparams as $paramname) {
             $paramvalue = optional_param($paramname, '', PARAM_RAW);
@@ -193,24 +193,24 @@ try {
             }
         }
 
-        // Execute SQL query
+        // Execute SQL query.
         $sql = $report->sqlquery;
 
-        // Add safety limit
+        // Add safety limit.
         $safetylimit = 100000;
         $haslimit = preg_match('/\bLIMIT\s+\d+/i', $sql);
         if (!$haslimit) {
             $sql = rtrim(rtrim($sql), ';') . " LIMIT $safetylimit";
         }
 
-        // Extract parameter names and build parameter array
+        // Extract parameter names and build parameter array.
         $requiredparams = [];
         preg_match_all('/:([a-zA-Z_][a-zA-Z0-9_]*)/', $sql, $matches);
         if (!empty($matches[1])) {
             $requiredparams = array_unique($matches[1]);
         }
 
-        // Convert named to positional parameters
+        // Convert named to positional parameters.
         $positionalsql = $sql;
         $sqlparamsordered = [];
         foreach ($requiredparams as $paramname) {
@@ -221,27 +221,27 @@ try {
             $sqlparamsordered[] = $reportparams[$paramname];
         }
 
-        // Execute query
+        // Execute query.
         $results = $DB->get_records_sql($positionalsql, $sqlparamsordered);
 
-        // Convert to array
+        // Convert to array.
         foreach ($results as $row) {
             $resultsarray[] = (array)$row;
         }
 
-        // Get headers
+        // Get headers.
         if (!empty($resultsarray)) {
             $headers = array_keys($resultsarray[0]);
         }
     }
 
-    // PDF-specific row limit check
-    // PDFs cannot realistically render massive datasets due to memory and file size constraints
+    // PDF-specific row limit check.
+    // PDFs cannot realistically render massive datasets due to memory and file size constraints.
     $pdfmaxrows = 5000;
     if ($format === 'pdf' && count($resultsarray) > $pdfmaxrows) {
         $rowcount = count($resultsarray);
 
-        // Return user-friendly error
+        // Return user-friendly error.
         header('Content-Type: application/json');
         echo json_encode([
             'success' => false,
@@ -259,18 +259,18 @@ try {
      * @return string Formatted header in title case.
      */
     function report_adeptus_insights_format_header($header) {
-        // Convert to title case: capitalize first letter of each word
+        // Convert to title case: capitalize first letter of each word.
         return ucwords(str_replace('_', ' ', strtolower($header)));
     }
 
-    // Prepare table data for export
+    // Prepare table data for export.
     $tabledata = [];
     if (!empty($resultsarray)) {
-        // Add headers as first row with title case
+        // Add headers as first row with title case.
         $formattedheaders = array_map('report_adeptus_insights_format_header', $headers);
         $tabledata[] = $formattedheaders;
 
-        // Add data rows
+        // Add data rows.
         foreach ($resultsarray as $row) {
             $tabledata[] = array_values($row);
         }
@@ -278,24 +278,24 @@ try {
         $tabledata[] = [get_string('pdf_no_data_found', 'report_adeptus_insights')];
     }
 
-    // Generate chart data using the same logic as generate_report.php
+    // Generate chart data using the same logic as generate_report.php.
     $chartexportdata = null;
     if (!empty($resultsarray) && !empty($headers)) {
-        // Find the best columns for labels and values
+        // Find the best columns for labels and values.
         $labelcolumn = $headers[0] ?? 'id';
         $valuecolumn = null;
 
-        // Analyze all columns to find numeric ones and their value ranges
+        // Analyze all columns to find numeric ones and their value ranges.
         $numericcolumns = [];
         $columnstats = [];
-        $mbcolumn = null; // For (mb) column priority
+        $mbcolumn = null; // For (mb) column priority.
 
         foreach ($headers as $header) {
             $columnvalues = array_column($resultsarray, $header);
             $numericvalues = [];
             $isnumericcolumn = true;
 
-            // Check if all values in this column are numeric
+            // Check if all values in this column are numeric.
             foreach ($columnvalues as $value) {
                 if (is_numeric($value)) {
                     $numericvalues[] = (float)$value;
@@ -307,7 +307,7 @@ try {
                 }
             }
 
-            // If column is numeric, calculate its statistics
+            // If column is numeric, calculate its statistics.
             if ($isnumericcolumn && !empty($numericvalues)) {
                 $numericcolumns[] = $header;
                 $columnstats[$header] = [
@@ -318,14 +318,14 @@ try {
                     'avg' => array_sum($numericvalues) / count($numericvalues),
                 ];
 
-                // Special case: Check if column name contains "(mb)"
+                // Special case: Check if column name contains "(mb)".
                 if (strpos($header, '(mb)') !== false) {
                     $mbcolumn = $header;
                 }
             }
         }
 
-        // Select the column with priority: (mb) column first, then highest maximum value
+        // Select the column with priority: (mb) column first, then highest maximum value.
         if (!empty($mbcolumn)) {
             $valuecolumn = $mbcolumn;
         } else if (!empty($numericcolumns)) {
@@ -337,20 +337,20 @@ try {
                 }
             }
         } else {
-            // Fallback to second column if no numeric columns found
+            // Fallback to second column if no numeric columns found.
             $valuecolumn = $headers[1] ?? 'value';
         }
 
-        // Convert values to numbers if they're strings
+        // Convert values to numbers if they're strings.
         $chartvalues = array_column($resultsarray, $valuecolumn);
         $chartvalues = array_map(function ($value) {
             return is_numeric($value) ? (float)$value : (is_string($value) && is_numeric(trim($value)) ? (float)trim($value) : 0);
         }, $chartvalues);
 
-        // Generate colors based on chart type
+        // Generate colors based on chart type.
         $colors = report_adeptus_insights_generate_chart_colors(count($chartvalues), $report->charttype);
 
-        // Create chart data structure
+        // Create chart data structure.
         $chartdatastructure = [
             'labels' => array_column($resultsarray, $labelcolumn),
             'datasets' => [
@@ -368,7 +368,7 @@ try {
             ],
         ];
 
-        // Convert chart data to exportable format
+        // Convert chart data to exportable format.
         $chartexportdata = [];
         $chartexportheaders = ['Label', 'Value'];
         $chartexportdata[] = $chartexportheaders;
@@ -384,20 +384,20 @@ try {
         }
     }
 
-    // Generate filename
+    // Generate filename.
     $cleanreportname = preg_replace('/[^a-zA-Z0-9_-]/', '_', $report->name);
     $timestamp = date('Y-m-d_H-i-s');
     $filename = $cleanreportname . '_' . $timestamp;
 
-    // Handle different export formats
+    // Handle different export formats.
     switch ($format) {
         case 'csv':
-            // CSV: table only
+            // CSV: table only.
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
 
-            $output = fopen('php://output', 'w');
+            $output = fopen('php: // Output', 'w');
             foreach ($tabledata as $row) {
                 fputcsv($output, $row);
             }
@@ -405,8 +405,8 @@ try {
             break;
 
         case 'excel':
-            // Excel: Table Data on sheet 1, Chart Visualization on sheet 2
-            // Use CSV format that Excel can open reliably
+            // Excel: Table Data on sheet 1, Chart Visualization on sheet 2.
+            // Use CSV format that Excel can open reliably.
             header('Content-Type: text/csv');
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
@@ -415,7 +415,7 @@ try {
             break;
 
         case 'json':
-            // JSON: as is (current working format)
+            // JSON: as is (current working format).
             header('Content-Type: application/json');
             header('Content-Disposition: attachment; filename="' . $filename . '.json"');
 
@@ -425,7 +425,7 @@ try {
                 'generated_at' => date('Y-m-d H:i:s'),
                 'parameters' => $reportparams,
                 'headers' => $headers,
-                'table_data' => array_slice($tabledata, 1), // Remove header row for JSON
+                'table_data' => array_slice($tabledata, 1), // Remove header row for JSON.
                 'chart_data' => $chartexportdata ? array_slice($chartexportdata, 1) : null,
             ];
 
@@ -433,8 +433,8 @@ try {
             break;
 
         case 'pdf':
-            // PDF: table on page 1, chart on page 2
-            // Generate actual PDF using TCPDF
+            // PDF: table on page 1, chart on page 2.
+            // Generate actual PDF using TCPDF.
             try {
                 $pdfcontent = report_adeptus_insights_generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
 
@@ -568,20 +568,20 @@ function report_adeptus_insights_generate_pdf($reportname, $tabledata, $chartdat
 function report_adeptus_insights_generate_excel_csv($reportname, $tabledata, $chartdata, $reportparams) {
     $output = '';
 
-    // Add report header
+    // Add report header.
     $output .= '"' . str_replace('"', '""', $reportname) . '"' . "\n";
     $output .= '"Generated on: ' . date('Y-m-d H:i:s') . '"' . "\n";
 
-    // Add parameters
+    // Add parameters.
     if (!empty($reportparams)) {
         $output .= '"Parameters:"' . "\n";
         foreach ($reportparams as $key => $value) {
             $output .= '"' . str_replace('"', '""', $key . ': ' . $value) . '"' . "\n";
         }
-        $output .= "\n"; // Empty line for spacing
+        $output .= "\n"; // Empty line for spacing.
     }
 
-    // Add table data
+    // Add table data.
     $output .= '"Table Data:"' . "\n";
     if (!empty($tabledata)) {
         foreach ($tabledata as $row) {
@@ -595,11 +595,11 @@ function report_adeptus_insights_generate_excel_csv($reportname, $tabledata, $ch
         $output .= '"' . get_string('pdf_no_table_data', 'report_adeptus_insights') . '"' . "\n";
     }
 
-    // Add separator for chart data
+    // Add separator for chart data.
     $output .= "\n";
     $output .= '"Chart Data:"' . "\n";
 
-    // Add chart data
+    // Add chart data.
     if (!empty($chartdata)) {
         foreach ($chartdata as $row) {
             $csvrow = [];
@@ -634,14 +634,14 @@ function report_adeptus_insights_generate_chart_colors($count, $charttype) {
     $charttype = strtolower($charttype);
 
     if ($charttype === 'pie' || $charttype === 'donut' || $charttype === 'polar') {
-        // Generate distinct colors for each data point
+        // Generate distinct colors for each data point.
         $colors = [];
         for ($i = 0; $i < $count; $i++) {
             $colors[] = $basecolors[$i % count($basecolors)];
         }
         return $colors;
     } else {
-        // Use single color for bar, line, radar charts
+        // Use single color for bar, line, radar charts.
         return [$basecolors[0]];
     }
 }
@@ -671,20 +671,20 @@ function report_adeptus_insights_adjust_colors($colors, $amount) {
  * @return string Adjusted hex color.
  */
 function report_adeptus_insights_adjust_color($color, $amount) {
-    // Remove # if present
+    // Remove # if present.
     $color = ltrim($color, '#');
 
-    // Convert to RGB
+    // Convert to RGB.
     $r = hexdec(substr($color, 0, 2));
     $g = hexdec(substr($color, 2, 2));
     $b = hexdec(substr($color, 4, 2));
 
-    // Adjust each component
+    // Adjust each component.
     $r = max(0, min(255, $r + $amount));
     $g = max(0, min(255, $g + $amount));
     $b = max(0, min(255, $b + $amount));
 
-    // Convert back to hex
+    // Convert back to hex.
     return sprintf("#%02x%02x%02x", $r, $g, $b);
 }
 

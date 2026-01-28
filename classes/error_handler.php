@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - https://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
@@ -360,9 +360,9 @@ class error_handler {
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? clean_param($_SERVER['HTTP_USER_AGENT'], PARAM_TEXT) : '',
         ];
 
-        // Log to Moodle's debugging system
+        // Log to Moodle's debugging system.
 
-        // Log to plugin-specific log if enabled
+        // Log to plugin-specific log if enabled.
         if (get_config('report_adeptus_insights', 'enable_error_logging')) {
             $this->write_to_plugin_log($logdata);
         }
@@ -379,15 +379,15 @@ class error_handler {
         $logdir = $CFG->dataroot . '/adeptus_insights/logs';
         $logfile = $logdir . '/errors.log';
 
-        // Create log directory if it doesn't exist
+        // Create log directory if it doesn't exist.
         if (!is_dir($logdir)) {
             make_upload_directory('adeptus_insights/logs');
         }
 
-        // Format log entry
+        // Format log entry.
         $logentry = date('Y-m-d H:i:s') . ' - ' . json_encode($logdata) . PHP_EOL;
 
-        // Write to log file
+        // Write to log file.
         file_put_contents($logfile, $logentry, FILE_APPEND | LOCK_EX);
     }
 
@@ -433,15 +433,15 @@ class error_handler {
 
             $totalerrors++;
 
-            // Count by error code
+            // Count by error code.
             $errorcode = $logdata['error_code'] ?? 'UNKNOWN';
             $errorsbycode[$errorcode] = ($errorsbycode[$errorcode] ?? 0) + 1;
 
-            // Count by user
+            // Count by user.
             $useremail = $logdata['user_email'] ?? 'unknown';
             $errorsbyuser[$useremail] = ($errorsbyuser[$useremail] ?? 0) + 1;
 
-            // Recent errors
+            // Recent errors.
             if ($logdata['timestamp'] >= $cutofftime) {
                 $recenterrors[] = $logdata;
             }
@@ -451,7 +451,7 @@ class error_handler {
             'total_errors' => $totalerrors,
             'errors_by_code' => $errorsbycode,
             'errors_by_user' => $errorsbyuser,
-            'recent_errors' => array_slice($recenterrors, -10), // Last 10 errors
+            'recent_errors' => array_slice($recenterrors, -10), // Last 10 errors.
         ];
     }
 

@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -47,7 +47,7 @@ class token_auth_manager {
         $this->installation_manager = new installation_manager();
         $this->current_user = $USER;
 
-        // Initialize cache for API key storage - will be done when needed
+        // Initialize cache for API key storage - will be done when needed.
         $this->cache = null;
     }
 
@@ -61,7 +61,7 @@ class token_auth_manager {
     public function check_auth($redirect = true) {
         global $PAGE, $OUTPUT, $CFG;
 
-        // Check if user is logged into Moodle
+        // Check if user is logged into Moodle.
         if (!isloggedin()) {
             if ($redirect) {
                 redirect(new \moodle_url('/login/index.php'));
@@ -69,7 +69,7 @@ class token_auth_manager {
             return false;
         }
 
-        // Check if user has required capability
+        // Check if user has required capability.
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
             if ($redirect) {
@@ -78,7 +78,7 @@ class token_auth_manager {
             return false;
         }
 
-        // Check if plugin is registered and has valid API key
+        // Check if plugin is registered and has valid API key.
         if (!$this->installation_manager->is_registered()) {
             if ($redirect) {
                 redirect(new \moodle_url('/report/adeptus_insights/register_plugin.php'));
@@ -94,8 +94,8 @@ class token_auth_manager {
             return false;
         }
 
-        // Skip email validation - any admin can use the plugin
-        // Authentication is based on API key and site URL only
+        // Skip email validation - any admin can use the plugin.
+        // Authentication is based on API key and site URL only.
 
         return true;
     }
@@ -136,15 +136,15 @@ class token_auth_manager {
                 $authstatus['api_key'] = $apikey;
                 $authstatus['installation_id'] = $installationid;
 
-                // Skip email validation - any admin can use the plugin
+                // Skip email validation - any admin can use the plugin.
                 $authstatus['user_authorized'] = true;
 
-                // Get subscription details directly from Laravel backend
+                // Get subscription details directly from Laravel backend.
                 $backenddata = $this->get_backend_subscription_data($apikey);
                 if ($backenddata && $backenddata['success']) {
                     $data = $backenddata['data'];
 
-                    // Structure to match Laravel backend subscription/show response
+                    // Structure to match Laravel backend subscription/show response.
                     if (isset($data['subscription']) && isset($data['plan'])) {
                         $subscription = $data['subscription'];
                         $plan = $data['plan'];
@@ -160,21 +160,21 @@ class token_auth_manager {
                             'plan_exports_limit' => $plan['exports'] ?? 0,
                         ];
 
-                        // Add plan details to match Laravel structure
+                        // Add plan details to match Laravel structure.
                         $authstatus['plan'] = [
                             'name' => $plan['name'] ?? 'Unknown',
                             'ai_credits' => $plan['ai_credits'] ?? 0,
                             'exports' => $plan['exports'] ?? 0,
                         ];
 
-                        // Add usage data for JavaScript compatibility
+                        // Add usage data for JavaScript compatibility.
                         $authstatus['usage'] = [
                             'ai_credits_used_this_month' => $subscription['ai_credits_used'] ?? 0,
                             'reports_generated_this_month' => $subscription['exports_used'] ?? 0,
                         ];
                     }
                 } else {
-                    // Fallback to local data if backend fails
+                    // Fallback to local data if backend fails.
                     $subscription = $this->installation_manager->get_subscription_details();
                     if ($subscription) {
                         $authstatus['subscription'] = [
@@ -211,7 +211,7 @@ class token_auth_manager {
      * @return array Validation result
      */
     private function validate_user_email($showerror = true) {
-        // Email validation disabled - always return valid
+        // Email validation disabled - always return valid.
         return [
             'valid' => true,
             'installation_id' => null,
@@ -228,7 +228,7 @@ class token_auth_manager {
      * @return array Validation result
      */
     private function validate_with_backend($apikey, $siteurl, $useremail) {
-        // Email validation disabled - always return valid
+        // Email validation disabled - always return valid.
         return [
             'valid' => true,
             'installation_id' => null,
@@ -242,8 +242,8 @@ class token_auth_manager {
      * @param string $apikey
      */
     private function cache_api_key($apikey) {
-        // For now, we'll skip caching to avoid dependency issues
-        // The API key is already available from installation_manager
+        // For now, we'll skip caching to avoid dependency issues.
+        // The API key is already available from installation_manager.
     }
 
     /**
@@ -252,7 +252,7 @@ class token_auth_manager {
      * @return string|null
      */
     public function get_cached_api_key() {
-        // For now, return null to force getting from installation_manager
+        // For now, return null to force getting from installation_manager.
         return null;
     }
 
@@ -391,7 +391,7 @@ class token_auth_manager {
     public function should_enable_readonly_mode() {
         $authstatus = $this->get_auth_status();
 
-        // Only check API key availability - email validation removed
+        // Only check API key availability - email validation removed.
         return !$authstatus['has_api_key'];
     }
 }

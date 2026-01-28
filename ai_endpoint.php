@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -30,8 +30,8 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 
 header('Content-Type: application/json');
 
-// Parse JSON input
-$input = json_decode(file_get_contents('php://input'), true);
+// Parse JSON input.
+$input = json_decode(file_get_contents('php: // Input'), true);
 $action = $input['action'] ?? null;
 
 // Handle login to AI backend.
@@ -84,7 +84,7 @@ if (!$prompt) {
     exit;
 }
 
-// Proxy request to AI backend, including auth header
+// Proxy request to AI backend, including auth header.
 $backendurl = \report_adeptus_insights\api_config::get_ai_report_endpoint() . '?prompt=' . urlencode($prompt);
 $opts = [
     'http' => [

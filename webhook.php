@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -26,7 +26,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// phpcs:disable moodle.Files.RequireLogin.Missing
+// phpcs:disable moodle.Files.RequireLogin.Missing.
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -38,7 +38,7 @@ if ($requestmethod !== 'POST') {
 }
 
 // Get the webhook payload.
-$payload = file_get_contents('php://input');
+$payload = file_get_contents('php: // Input');
 // Get Stripe signature header and clean it (base64 chars, timestamps, commas, equals).
 $sigheader = isset($_SERVER['HTTP_STRIPE_SIGNATURE']) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : '';
 // Stripe signatures contain special characters (t=,v1=) so we validate format rather than cleaning.
@@ -56,10 +56,10 @@ try {
     // Load the Stripe service (autoloaded).
     $stripeservice = new \report_adeptus_insights\stripe_service();
 
-    // Verify the webhook signature
+    // Verify the webhook signature.
     $event = $stripeservice->verify_webhook($payload, $sigheader);
 
-    // Process the event
+    // Process the event.
     $result = report_adeptus_insights_process_webhook_event($event);
 
     if ($result['success']) {
@@ -84,7 +84,7 @@ function report_adeptus_insights_process_webhook_event($event) {
     global $DB;
 
     try {
-        // Log the event
+        // Log the event.
         $eventrecord = [
             'stripe_event_id' => $event->id,
             'event_type' => $event->type,
@@ -97,7 +97,7 @@ function report_adeptus_insights_process_webhook_event($event) {
 
         $DB->insert_record('report_adeptus_insights_webhooks', $eventrecord);
 
-        // Process based on event type
+        // Process based on event type.
         switch ($event->type) {
             case 'customer.subscription.created':
                 return report_adeptus_insights_handle_subscription_created($event);
@@ -115,7 +115,7 @@ function report_adeptus_insights_process_webhook_event($event) {
                 return report_adeptus_insights_handle_payment_failed($event);
 
             default:
-                // Mark as processed for unhandled events
+                // Mark as processed for unhandled events.
                 $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
                 return ['success' => true];
         }
@@ -136,7 +136,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
     $subscription = $event->data->object;
     $customerid = $subscription->customer;
 
-    // Get plan details from Stripe
+    // Get plan details from Stripe.
     $priceid = $subscription->items->data[0]->price->id;
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
@@ -144,7 +144,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
         return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
-    // Update subscription status
+    // Update subscription status.
     $subscriptiondata = [
         'stripe_customer_id' => $customerid,
         'stripe_subscription_id' => $subscription->id,
@@ -157,10 +157,10 @@ function report_adeptus_insights_handle_subscription_created($event) {
         'ai_credits_pro_remaining' => $plan->ai_credits_pro,
         'ai_credits_basic_remaining' => $plan->ai_credits_basic,
         'exports_remaining' => $plan->exports,
-        'billing_email' => null, // Will be updated from customer data
+        'billing_email' => null, // Will be updated from customer data.
     ];
 
-    // Get customer email
+    // Get customer email.
     try {
         $stripeservice = new \report_adeptus_insights\stripe_service();
         $customer = $stripeservice->stripe->customers->retrieve($customerid);
@@ -170,7 +170,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
         debugging('Stripe customer retrieval failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 
-    // Update local subscription status
+    // Update local subscription status.
     $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
     if ($existing) {
         $subscriptiondata['id'] = 1;
@@ -180,7 +180,7 @@ function report_adeptus_insights_handle_subscription_created($event) {
         $DB->insert_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
-    // Mark event as processed
+    // Mark event as processed.
     $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
@@ -198,7 +198,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
     $subscription = $event->data->object;
     $customerid = $subscription->customer;
 
-    // Get plan details from Stripe
+    // Get plan details from Stripe.
     $priceid = $subscription->items->data[0]->price->id;
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_price_id' => $priceid]);
 
@@ -206,7 +206,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
         return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
-    // Update subscription status
+    // Update subscription status.
     $subscriptiondata = [
         'stripe_customer_id' => $customerid,
         'stripe_subscription_id' => $subscription->id,
@@ -221,7 +221,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
         'exports_remaining' => $plan->exports,
     ];
 
-    // Preserve existing credits if subscription is active
+    // Preserve existing credits if subscription is active.
     if ($subscription->status === 'active') {
         $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
         if ($existing) {
@@ -232,7 +232,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
         }
     }
 
-    // Update local subscription status
+    // Update local subscription status.
     $existing = $DB->get_record('report_adeptus_insights_subscription', ['id' => 1]);
     if ($existing) {
         $subscriptiondata['id'] = 1;
@@ -242,7 +242,7 @@ function report_adeptus_insights_handle_subscription_updated($event) {
         $DB->insert_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
-    // Mark event as processed
+    // Mark event as processed.
     $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
@@ -259,7 +259,7 @@ function report_adeptus_insights_handle_subscription_deleted($event) {
 
     $subscription = $event->data->object;
 
-    // Update subscription status to cancelled
+    // Update subscription status to cancelled.
     $subscriptiondata = [
         'status' => 'cancelled',
         'current_period_end' => $subscription->current_period_end,
@@ -271,7 +271,7 @@ function report_adeptus_insights_handle_subscription_deleted($event) {
         $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
-    // Mark event as processed
+    // Mark event as processed.
     $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
@@ -290,23 +290,23 @@ function report_adeptus_insights_handle_payment_succeeded($event) {
     $subscriptionid = $invoice->subscription;
 
     if (!$subscriptionid) {
-        // One-time payment, not subscription
+        // One-time payment, not subscription.
         return ['success' => true];
     }
 
-    // Get subscription details
+    // Get subscription details.
     $subscription = $DB->get_record('report_adeptus_insights_subscription', ['stripe_subscription_id' => $subscriptionid]);
     if (!$subscription) {
         return ['success' => false, 'error' => get_string('webhook_subscription_not_found', 'report_adeptus_insights')];
     }
 
-    // Get plan details
+    // Get plan details.
     $plan = $DB->get_record('report_adeptus_insights_plans', ['stripe_product_id' => $subscription->plan_id]);
     if (!$plan) {
         return ['success' => false, 'error' => get_string('webhook_plan_not_found', 'report_adeptus_insights')];
     }
 
-    // Reset credits for new billing period
+    // Reset credits for new billing period.
     $subscriptiondata = [
         'status' => 'active',
         'ai_credits_remaining' => $plan->ai_credits,
@@ -318,7 +318,7 @@ function report_adeptus_insights_handle_payment_succeeded($event) {
     $subscriptiondata['id'] = $subscription->id;
     $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
 
-    // Mark event as processed
+    // Mark event as processed.
     $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];
@@ -337,11 +337,11 @@ function report_adeptus_insights_handle_payment_failed($event) {
     $subscriptionid = $invoice->subscription;
 
     if (!$subscriptionid) {
-        // One-time payment, not subscription
+        // One-time payment, not subscription.
         return ['success' => true];
     }
 
-    // Update subscription status to past_due
+    // Update subscription status to past_due.
     $subscriptiondata = [
         'status' => 'past_due',
     ];
@@ -352,7 +352,7 @@ function report_adeptus_insights_handle_payment_failed($event) {
         $DB->update_record('report_adeptus_insights_subscription', $subscriptiondata);
     }
 
-    // Mark event as processed
+    // Mark event as processed.
     $DB->set_field('report_adeptus_insights_webhooks', 'processed', 1, ['stripe_event_id' => $event->id]);
 
     return ['success' => true];

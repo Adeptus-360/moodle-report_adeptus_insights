@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -80,7 +80,7 @@ class stripe_service {
         try {
             $this->config = $DB->get_record('report_adeptus_insights_stripe', ['id' => 1]);
             if (!$this->config) {
-                // Create default config
+                // Create default config.
                 $this->create_default_config();
             }
             $this->is_test_mode = (bool)$this->config->is_test_mode;
@@ -154,7 +154,7 @@ class stripe_service {
         $this->config = (object)$record;
         $this->is_test_mode = (bool)$record['is_test_mode'];
 
-        // Reinitialize Stripe with new key
+        // Reinitialize Stripe with new key.
         \Stripe\Stripe::setApiKey($this->config->secret_key);
         $this->stripe = new \Stripe\StripeClient($this->config->secret_key);
     }
@@ -164,7 +164,7 @@ class stripe_service {
      */
     public function create_customer($email, $name = null, $metadata = []) {
         try {
-            // Check if customer already exists
+            // Check if customer already exists.
             $customers = $this->stripe->customers->all([
                 'email' => $email,
                 'limit' => 1,
@@ -174,7 +174,7 @@ class stripe_service {
                 return $customers->data[0];
             }
 
-            // Create new customer
+            // Create new customer.
             $customerdata = [
                 'email' => $email,
                 'metadata' => $metadata,
@@ -299,16 +299,16 @@ class stripe_service {
      */
     public function create_product($name, $description, $price, $currency = 'GBP', $interval = 'month') {
         try {
-            // Create product
+            // Create product.
             $product = $this->stripe->products->create([
                 'name' => $name,
                 'description' => $description,
             ]);
 
-            // Create price
+            // Create price.
             $pricedata = [
                 'product' => $product->id,
-                'unit_amount' => $price * 100, // Convert to cents
+                'unit_amount' => $price * 100, // Convert to cents.
                 'currency' => $currency,
             ];
 

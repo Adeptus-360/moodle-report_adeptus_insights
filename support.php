@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -26,13 +26,13 @@
 
 require_once('../../config.php');
 
-// Force Boost theme for consistent plugin UI
+// Force Boost theme for consistent plugin UI.
 $CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
 
-// Require login and capability
+// Require login and capability.
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
@@ -45,7 +45,7 @@ $PAGE->set_pagelayout('report');
 $supportmanager = new \report_adeptus_insights\support_manager();
 $installationmanager = new \report_adeptus_insights\installation_manager();
 
-// Get current action and view
+// Get current action and view.
 $action = optional_param('action', 'list', PARAM_ALPHA);
 $view = optional_param('view', 'tickets', PARAM_ALPHA);
 $ticketid = optional_param('ticket_id', 0, PARAM_INT);
@@ -57,7 +57,7 @@ $messagetype = '';
 // Check if this is a POST request using Moodle's data_submitted() for form handling.
 $requestmethod = isset($_SERVER['REQUEST_METHOD']) ? clean_param($_SERVER['REQUEST_METHOD'], PARAM_ALPHA) : '';
 if ($requestmethod === 'POST' && confirm_sesskey()) {
-    // Use PARAM_ALPHANUMEXT to allow underscores in action names
+    // Use PARAM_ALPHANUMEXT to allow underscores in action names.
     $postaction = required_param('action', PARAM_ALPHANUMEXT);
 
     if ($postaction === 'create_ticket') {
@@ -68,10 +68,10 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
         $submittername = optional_param('submitter_name', '', PARAM_TEXT);
         $submitteremail = optional_param('submitter_email', '', PARAM_EMAIL);
 
-        // Get uploaded files if any - check if actual files were uploaded
+        // Get uploaded files if any - check if actual files were uploaded.
         $attachments = [];
         if (isset($_FILES['attachments']) && isset($_FILES['attachments']['tmp_name'])) {
-            // Handle array of files (multiple upload)
+            // Handle array of files (multiple upload).
             if (is_array($_FILES['attachments']['tmp_name'])) {
                 $hasfiles = false;
                 foreach ($_FILES['attachments']['tmp_name'] as $tmpname) {
@@ -84,7 +84,7 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
                     $attachments = $_FILES['attachments'];
                 }
             } else {
-                // Single file upload
+                // Single file upload.
                 if (!empty($_FILES['attachments']['tmp_name']) && is_uploaded_file($_FILES['attachments']['tmp_name'])) {
                     $attachments = $_FILES['attachments'];
                 }
@@ -115,7 +115,7 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
         $replymessage = required_param('reply_message', PARAM_RAW);
         $sendername = optional_param('sender_name', '', PARAM_TEXT);
 
-        // Get uploaded files if any - check if actual files were uploaded
+        // Get uploaded files if any - check if actual files were uploaded.
         $replyattachments = [];
         if (isset($_FILES['reply_attachments']) && isset($_FILES['reply_attachments']['tmp_name'])) {
             if (is_array($_FILES['reply_attachments']['tmp_name'])) {
@@ -151,16 +151,16 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
     }
 }
 
-// Load CSS
+// Load CSS.
 $PAGE->requires->css('/report/adeptus_insights/styles.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
 
 echo $OUTPUT->header();
 
-// Check if registered
+// Check if registered.
 $isregistered = $installationmanager->is_registered();
 
-// Prepare common template context
+// Prepare common template context.
 $basecontext = [
     'wwwroot' => $CFG->wwwroot,
     'sesskey' => sesskey(),
@@ -173,9 +173,9 @@ $basecontext = [
     'view_changelog' => $view === 'changelog',
 ];
 
-// Build the page content based on action
+// Build the page content based on action.
 if ($view === 'changelog') {
-    // Changelog view
+    // Changelog view.
     $changelogresult = $supportmanager->get_changelog(50);
     $updateresult = $supportmanager->check_for_updates();
 
@@ -204,7 +204,7 @@ if ($view === 'changelog') {
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_changelog', $templatecontext);
 } else if ($action === 'new') {
-    // New ticket form
+    // New ticket form.
     $categories = [];
     foreach (\report_adeptus_insights\support_manager::TICKET_CATEGORIES as $key => $label) {
         $categories[] = ['value' => $key, 'label' => $label];
@@ -224,13 +224,13 @@ if ($view === 'changelog') {
 
     echo $OUTPUT->render_from_template('report_adeptus_insights/support_new_ticket', $templatecontext);
 } else if ($action === 'view' && $ticketid > 0) {
-    // View ticket detail
+    // View ticket detail.
     $ticketresult = $supportmanager->get_ticket($ticketid);
 
     if ($ticketresult['success']) {
         $ticket = $ticketresult['ticket'];
 
-        // Format attachments for ticket
+        // Format attachments for ticket.
         $ticketattachments = [];
         if (!empty($ticket['attachments'])) {
             foreach ($ticket['attachments'] as $attachment) {
@@ -248,11 +248,11 @@ if ($view === 'changelog') {
             }
         }
 
-        // Format replies
+        // Format replies.
         $replies = [];
         if (!empty($ticket['replies'])) {
             foreach ($ticket['replies'] as $reply) {
-                // Format reply attachments
+                // Format reply attachments.
                 $replyattachments = [];
                 if (!empty($reply['attachments'])) {
                     foreach ($reply['attachments'] as $attachment) {
@@ -320,7 +320,7 @@ if ($view === 'changelog') {
         echo $OUTPUT->render_from_template('report_adeptus_insights/support_error', $templatecontext);
     }
 } else {
-    // List tickets (default view)
+    // List tickets (default view).
     $statusfilter = optional_param('status', '', PARAM_ALPHA);
     $categoryfilter = optional_param('category', '', PARAM_ALPHA);
 
@@ -351,7 +351,7 @@ if ($view === 'changelog') {
         }
     }
 
-    // Build filter options
+    // Build filter options.
     $statusoptions = [
         ['value' => '', 'label' => get_string('all'), 'selected' => empty($statusfilter)],
         ['value' => 'open', 'label' => get_string('status_open', 'report_adeptus_insights'), 'selected' => $statusfilter === 'open'],

@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -24,7 +24,7 @@
 
 require_once('../../config.php');
 
-// Force Boost theme for consistent plugin UI
+// Force Boost theme for consistent plugin UI.
 $CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
@@ -32,32 +32,31 @@ require_once($CFG->libdir . '/adminlib.php');
 // Check for valid login.
 require_login();
 
-// Check capabilities
+// Check capabilities.
 $context = context_system::instance();
 require_capability('report/adeptus_insights:view', $context);
 
-// Set up page
+// Set up page.
 $PAGE->set_context($context);
 $PAGE->set_url(new moodle_url('/report/adeptus_insights/subscription.php'));
 $PAGE->set_title(get_string('subscription_management', 'report_adeptus_insights'));
-// $PAGE->set_heading(get_string('subscription_management', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('standard');
 
-// Get installation manager
+// Get installation manager.
 $installationmanager = new \report_adeptus_insights\installation_manager();
 
-// Check if plugin is registered, if not redirect to registration
+// Check if plugin is registered, if not redirect to registration.
 if (!$installationmanager->is_registered()) {
     redirect(new moodle_url('/report/adeptus_insights/register_plugin.php'));
 }
 
-// Check if installation is completed - if not, redirect to installation step
+// Check if installation is completed - if not, redirect to installation step.
 $installationcompleted = get_config('report_adeptus_insights', 'installation_completed');
 if (!$installationcompleted) {
     redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
 }
 
-// Handle form submissions
+// Handle form submissions.
 $action = optional_param('action', '', PARAM_ALPHA);
 $planid = optional_param('plan_id', 0, PARAM_INT);
 
@@ -101,19 +100,19 @@ if ($action === 'update_plan' && confirm_sesskey() && $planid) {
     }
 }
 
-// Get current subscription details and available plans
+// Get current subscription details and available plans.
 $subscription = $installationmanager->get_subscription_details();
 
-// If no subscription found, try to sync from backend or create one
+// If no subscription found, try to sync from backend or create one.
 if (!$subscription) {
-    // Try to sync subscription from backend
+    // Try to sync subscription from backend.
     $backendsyncresult = $installationmanager->check_subscription_status();
 
     if ($backendsyncresult) {
-        // Refresh subscription data
+        // Refresh subscription data.
         $subscription = $installationmanager->get_subscription_details();
     } else {
-        // Create a free subscription if none exists
+        // Create a free subscription if none exists.
         try {
             $result = $installationmanager->setup_starter_subscription($USER->email, fullname($USER));
 
@@ -122,7 +121,7 @@ if (!$subscription) {
             }
 
             if ($result) {
-                // Refresh subscription data
+                // Refresh subscription data.
                 $subscription = $installationmanager->get_subscription_details();
             }
         } catch (\Exception $e) {
@@ -144,26 +143,26 @@ if ($subscription && $usagewithreports) {
     $subscription['reports_limit'] = $usagewithreports['reports_limit'] ?? 10;
 }
 
-// Check for any errors from installation manager
+// Check for any errors from installation manager.
 $lasterror = $installationmanager->get_last_error();
 if ($lasterror) {
     \core\notification::error($lasterror['message']);
     $installationmanager->clear_last_error();
 }
 
-// Load required CSS
+// Load required CSS.
 $PAGE->requires->css('/report/adeptus_insights/styles/subscription.css');
 
-// Start output
+// Start output.
 echo $OUTPUT->header();
 
-// Get current plan price for comparison
+// Get current plan price for comparison.
 $currentplanprice = 0;
 if ($subscription && isset($subscription['price'])) {
     $currentplanprice = floatval(str_replace(['£', ','], '', $subscription['price']));
 }
 
-// Prepare template context
+// Prepare template context.
 $templatecontext = [
     'user_fullname' => $USER->firstname . ' ' . $USER->lastname,
     'user_email' => $USER->email,
@@ -172,27 +171,27 @@ $templatecontext = [
     'current_plan_price' => $currentplanprice,
 ];
 
-// Add payment config safely
+// Add payment config safely.
 if ($paymentconfig && isset($paymentconfig['success']) && $paymentconfig['success']) {
     $templatecontext['payment_config'] = json_encode($paymentconfig['data'], JSON_HEX_APOS | JSON_HEX_QUOT);
 } else {
     $templatecontext['payment_config'] = 'null';
 }
 
-// Add current subscription if exists
+// Add current subscription if exists.
 if ($subscription) {
-    // Helper function to convert date strings to formatted dates
+    // Helper function to convert date strings to formatted dates.
     $formatdate = function ($datevalue) {
         if (empty($datevalue)) {
             return 'N/A';
         }
 
-        // If it's already a timestamp (integer)
+        // If it's already a timestamp (integer).
         if (is_numeric($datevalue)) {
             return date('F j, Y', $datevalue);
         }
 
-        // If it's a date string, try to parse it
+        // If it's a date string, try to parse it.
         if (is_string($datevalue)) {
             $timestamp = strtotime($datevalue);
             if ($timestamp !== false) {
@@ -203,7 +202,7 @@ if ($subscription) {
         return 'N/A';
     };
 
-    // Check if current plan is free
+    // Check if current plan is free.
     $isfreeplan = false;
     if (isset($subscription['price'])) {
         $price = floatval(str_replace(['£', ','], '', $subscription['price']));
@@ -226,20 +225,20 @@ if ($subscription) {
         'should_disable_api_access' => $subscription['should_disable_api_access'] ?? false,
         'status_message' => $subscription['status_message'] ?? 'Active subscription',
         'is_free_plan' => $isfreeplan,
-        // Add period dates for billing period card
+        // Add period dates for billing period card.
         'current_period_start' => $formatdate($subscription['current_period_start'] ?? null),
         'current_period_end' => $formatdate($subscription['current_period_end'] ?? null),
-        // Enhanced status information
+        // Enhanced status information.
         'status_details' => $subscription['status_details'] ?? [],
         'cancellation_info' => $subscription['cancellation_info'] ?? [],
         'payment_info' => $subscription['payment_info'] ?? [],
-        // Legacy fields for backward compatibility
+        // Legacy fields for backward compatibility.
         'cancel_at_period_end' => $subscription['cancel_at_period_end'] ?? false,
         'cancelled_at' => $subscription['cancelled_at'] ?? null,
         'failed_payment_attempts' => $subscription['failed_payment_attempts'] ?? 0,
         'last_payment_failed_at' => $subscription['last_payment_failed_at'] ?? null,
         'last_payment_succeeded_at' => $subscription['last_payment_succeeded_at'] ?? null,
-        // Token-based usage metrics
+        // Token-based usage metrics.
         'tokens_used' => $subscription['tokens_used'] ?? 0,
         'tokens_remaining' => $subscription['tokens_remaining'] ?? -1,
         'tokens_limit' => $subscription['tokens_limit'] ?? 50000,
@@ -247,31 +246,31 @@ if ($subscription) {
         'tokens_remaining_formatted' => $subscription['tokens_remaining_formatted'] ?? '50K',
         'tokens_limit_formatted' => $subscription['tokens_limit_formatted'] ?? '50K',
         'tokens_usage_percent' => $subscription['tokens_usage_percent'] ?? 0,
-        // Report usage metrics
+        // Report usage metrics.
         'reports_total' => $subscription['reports_total'] ?? 0,
         'reports_remaining' => $subscription['reports_remaining'] ?? 0,
         'reports_limit' => $subscription['reports_limit'] ?? 10,
     ];
 }
 
-// Add available plans with upgrade/downgrade logic
-// Only include plans for Adeptus Insights (product_key = 'insights')
+// Add available plans with upgrade/downgrade logic.
+// Only include plans for Adeptus Insights (product_key = 'insights').
 if (!empty($availableplans['plans'])) {
     $plans = [];
     foreach ($availableplans['plans'] as $plan) {
-        // Filter to only show Insights plans
+        // Filter to only show Insights plans.
         $productkey = $plan['product_key'] ?? '';
         if ($productkey !== 'insights') {
             continue;
         }
 
-        // Handle price - can be object or string
+        // Handle price - can be object or string.
         $price = $plan['price'] ?? 'Free';
         if (is_array($price)) {
             $price = $price['formatted'] ?? 'Free';
         }
 
-        // Handle limits
+        // Handle limits.
         $limits = $plan['limits'] ?? [];
 
         $iscurrent = false;
@@ -279,7 +278,7 @@ if (!empty($availableplans['plans'])) {
             $iscurrent = (strtolower($plan['name']) === strtolower($subscription['plan_name']));
         }
 
-        // Determine if this is an upgrade or downgrade
+        // Determine if this is an upgrade or downgrade.
         $planprice = 0;
         if (is_array($plan['price'])) {
             $planprice = ($plan['price']['cents'] ?? 0) / 100;
@@ -312,7 +311,7 @@ if (!empty($availableplans['plans'])) {
     $templatecontext['plans'] = [];
 }
 
-// Add usage statistics - this will be used by the analytics cards
+// Add usage statistics - this will be used by the analytics cards.
 $usagestats = $installationmanager->get_usage_stats();
 if ($usagestats) {
     $templatecontext['usage'] = $usagestats;

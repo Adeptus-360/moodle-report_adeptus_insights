@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -158,13 +158,13 @@ AND NOT EXISTS (
     'name' => 'Lists "loggedin users" from the last 120 days',
     'category' => '',
     'description' => '',
-    'sqlquery' => 'SELECT id,username,FROM_UNIXTIME(`lastlogin`) as days
-FROM `prefix_user`
-WHERE DATEDIFF( NOW(),FROM_UNIXTIME(`lastlogin`) ) < 120
+    'sqlquery' => 'SELECT id,username,FROM_UNIXTIME(lastlogin) as days
+FROM prefix_user
+WHERE DATEDIFF( NOW(),FROM_UNIXTIME(lastlogin) ) < 120
 and user count for that same population:
 
-SELECT COUNT(id) as Users  FROM `prefix_user`
-WHERE DATEDIFF( NOW(),FROM_UNIXTIME(`lastlogin`) ) < 120',
+SELECT COUNT(id) as Users  FROM prefix_user
+WHERE DATEDIFF( NOW(),FROM_UNIXTIME(lastlogin) ) < 120',
     'parameters' =>
      [
     ],
@@ -239,7 +239,7 @@ SELECT *
 FROM prefix_user            AS u
 JOIN prefix_user_info_data  AS uid ON uid.userid = u.id
 JOIN prefix_user_info_field AS uif ON (uid.fieldid = uif.id AND uif.shortname = \'class\')
-WHERE `deleted` = "1" and `institution`="your school name" and `department` = "your department" and `data` = "class level and number"
+WHERE deleted = "1" and institution="your school name" and department = "your department" and data = "class level and number"
 User\'s courses
 change "u.id = 2" with a new user id
 
@@ -444,10 +444,10 @@ Permissions Overrides on Categories
 
 SELECT rc.id, ct.instanceid, ccat.name, rc.roleid, rc.capability, rc.permission,
 DATE_FORMAT( FROM_UNIXTIME( rc.timemodified ) , \'%Y-%m-%d\' ) AS timemodified, rc.modifierid, ct.instanceid, ct.path, ct.depth
-FROM `prefix_role_capabilities` AS rc
-INNER JOIN `prefix_context` AS ct ON rc.contextid = ct.id
-INNER JOIN `prefix_course_categories` AS ccat ON ccat.id = ct.instanceid
-AND `contextlevel` =40
+FROM prefix_role_capabilities AS rc
+INNER JOIN prefix_context AS ct ON rc.contextid = ct.id
+INNER JOIN prefix_course_categories AS ccat ON ccat.id = ct.instanceid
+AND contextlevel =40
 All Role Assignments with contexts
 Contributed by: Randy Thornton
 
@@ -500,7 +500,7 @@ WHERE e.enrol=\'guest\' AND e.status=0 AND e.password=\'\' AND c.id=e.courseid A
     'category' => '',
     'description' => '',
     'sqlquery' => 'SELECT count(l.userid) AS Views
-FROM `mdl_logstore_standard_log` l, `mdl_user` u, `mdl_role_assignments` r
+FROM mdl_logstore_standard_log l, mdl_user u, mdl_role_assignments r
 WHERE l.courseid=35
 AND l.userid = u.id
 AND (l.timecreated > UNIX_TIMESTAMP(\'2015-01-01 00:00:00\') AND l.timecreated <= UNIX_TIMESTAMP(\'2015-01-31 23:59:59\'))AND r.contextid= (
@@ -656,9 +656,9 @@ END ) as Semester
 ,(SELECT count(*) FROM prefix_course_modules AS cm WHERE cm.course = c.id AND cm.module= 20) AS TABs
 ,(SELECT count(*) FROM prefix_course_modules AS cm WHERE cm.course = c.id AND cm.module= 33) AS BOOKs
 
-FROM `prefix_resource` as r
-JOIN `prefix_course` AS c on c.id = r.course
-#WHERE type= \'file\' and reference NOT LIKE \'http://%\'
+FROM prefix_resource as r
+JOIN prefix_course AS c on c.id = r.course
+#WHERE type= \'file\' and reference NOT LIKE \'http: // %\'.
 
 #WHERE 1=1
 #%%FILTER_YEARS:c.fullname%%
@@ -737,8 +737,8 @@ select c.id, c.fullname, c.shortname,
 -- c.startdate, c.enddate,
 FROM_UNIXTIME(c.startdate,\'%d/%m/%Y\') as "Date début",
 FROM_UNIXTIME(c.enddate,\'%d/%m/%Y\') as "Date fin",
-CONCAT(\'<a href="https://pedago-msc.campusonline.me/course/view.php?id=\', c.id,\'">voir cours</a>\') AS \'lien cours\',
-CONCAT(\'<a href="https://pedago-msc.campusonline.me/user/index.php?id=\', c.id,\'">voir participants</a>\') AS \'lien participants\'
+CONCAT(\'<a href="https: // Pedago-msc.campusonline.me/course/view.php?id=\', c.id,\'">voir cours</a>\') AS \'lien cours\',.
+CONCAT(\'<a href="https: // Pedago-msc.campusonline.me/user/index.php?id=\', c.id,\'">voir participants</a>\') AS \'lien participants\'.
 FROM prefix_course  AS c
 INNER JOIN prefix_course_categories cc ON c.category = cc.id
 WHERE c.enddate = 0
@@ -977,11 +977,11 @@ The following, second SQL query, could be used to "trim" down those redundant co
 SELECT id, format,
 concat(\'<a target="_new" href="%%WWWROOT%%/course/view.php?id=\',c.id,\'">\', c.fullname,\'</a>\') AS Course
 
-,(SELECT value  FROM  `mdl_course_format_options` WHERE  `courseid` = c.id AND `format` = c.format AND `name` = \'numsections\' ) AS "numsections"
-,(SELECT COUNT(*) FROM  `mdl_course_sections` WHERE  `course` = c.id AND `sequence` !=  \'\' ) AS "Non empty sections count"
-,(SELECT COUNT(*) FROM  `mdl_course_sections` WHERE  `course` = c.id ) AS "Total section count"
-,(SELECT COUNT(*) FROM  `mdl_course_sections` WHERE  `course` = c.id AND sequence IS NOT NULL) AS "Non NULL sections count"
-,(SELECT COUNT(*) FROM  `mdl_course_sections` WHERE  `course` = c.id AND name != \'\') AS "Non empty section Name count"
+,(SELECT value  FROM  mdl_course_format_options WHERE  courseid = c.id AND format = c.format AND name = \'numsections\' ) AS "numsections"
+,(SELECT COUNT(*) FROM  mdl_course_sections WHERE  course = c.id AND sequence !=  \'\' ) AS "Non empty sections count"
+,(SELECT COUNT(*) FROM  mdl_course_sections WHERE  course = c.id ) AS "Total section count"
+,(SELECT COUNT(*) FROM  mdl_course_sections WHERE  course = c.id AND sequence IS NOT NULL) AS "Non NULL sections count"
+,(SELECT COUNT(*) FROM  mdl_course_sections WHERE  course = c.id AND name != \'\') AS "Non empty section Name count"
  ,(SELECT COUNT(*) FROM mdl_course_modules cm WHERE cm.course = c.id) "Modules count"
 
 FROM mdl_course AS c
@@ -995,11 +995,11 @@ The following SQL REPLACE query is used for "fixing" (updating) the "numsections
   ],
   16 =>
    [
-    'name' => 'REPLACE INTO `mdl_course_format_options` (`id`, `courseid`, `format`, `sectionid`, `name`, `value`)',
+    'name' => 'REPLACE INTO mdl_course_format_options (id, courseid, format, sectionid, name, value)',
     'category' => '',
     'description' => '',
-    'sqlquery' => 'SELECT NULL, c.id, \'onetopic\', \'0\', \'numsections\', (SELECT COUNT(*) FROM `mdl_course_sections` WHERE `course` = c.id AND name != \'\')
-FROM `mdl_course` c where format = \'onetopic\'
+    'sqlquery' => 'SELECT NULL, c.id, \'onetopic\', \'0\', \'numsections\', (SELECT COUNT(*) FROM mdl_course_sections WHERE course = c.id AND name != \'\')
+FROM mdl_course c where format = \'onetopic\'
 Hidden Courses with Students Enrolled
 Contributed by Eric Strom
 

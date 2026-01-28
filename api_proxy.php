@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -26,7 +26,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// phpcs:disable moodle.Files.RequireLogin.Missing
+// phpcs:disable moodle.Files.RequireLogin.Missing.
 // Load Moodle configuration.
 require_once(__DIR__ . '/../../config.php');
 
@@ -76,7 +76,7 @@ if (!in_array($endpoint, $publicendpoints)) {
         }
         if (empty($sesskey)) {
             // Try to get from JSON body.
-            $jsoninput = json_decode(file_get_contents('php://input'), true);
+            $jsoninput = json_decode(file_get_contents('php: // Input'), true);
             if (isset($jsoninput['sesskey'])) {
                 $sesskey = clean_param($jsoninput['sesskey'], PARAM_ALPHANUM);
             }
@@ -98,7 +98,7 @@ $backendurl = \report_adeptus_insights\api_config::get_legacy_api_url();
 
 // Note: $endpoint and $pathparts are already defined above during authentication check.
 
-// Handle different endpoints
+// Handle different endpoints.
 switch ($endpoint) {
     case 'register':
         report_adeptus_insights_handle_registration();
@@ -125,7 +125,7 @@ switch ($endpoint) {
         report_adeptus_insights_handle_update_subscription();
         break;
     default:
-        // Check if this is an installation endpoint
+        // Check if this is an installation endpoint.
         if (in_array('installation', $pathparts)) {
             report_adeptus_insights_handle_registration();
         } else {
@@ -218,11 +218,11 @@ function report_adeptus_insights_handle_registration() {
         return;
     }
 
-    // Get input data (handle both JSON and form data)
+    // Get input data (handle both JSON and form data).
     $input = [];
 
     // Try to get JSON input first.
-    $jsoninput = json_decode(file_get_contents('php://input'), true);
+    $jsoninput = json_decode(file_get_contents('php: // Input'), true);
     if ($jsoninput) {
         // Clean each input value from JSON.
         $input = [];
@@ -242,7 +242,7 @@ function report_adeptus_insights_handle_registration() {
         ];
     }
 
-    // Validate required fields for form data
+    // Validate required fields for form data.
     $requiredfields = ['admin_email', 'admin_name'];
     foreach ($requiredfields as $field) {
         if (empty($input[$field])) {
@@ -255,7 +255,7 @@ function report_adeptus_insights_handle_registration() {
         }
     }
 
-    // Add missing fields that the installation manager expects
+    // Add missing fields that the installation manager expects.
     if (empty($input['site_url'])) {
         $input['site_url'] = \report_adeptus_insights\api_config::get_site_url();
     }
@@ -273,7 +273,7 @@ function report_adeptus_insights_handle_registration() {
     }
 
     try {
-        // Forward to Laravel backend
+        // Forward to Laravel backend.
         $response = report_adeptus_insights_forward_to_backend('installation/register', $input);
         echo json_encode($response);
     } catch (Exception $e) {
@@ -300,7 +300,7 @@ function report_adeptus_insights_handle_plans() {
     }
 
     try {
-        // Forward to Laravel backend
+        // Forward to Laravel backend.
         $response = report_adeptus_insights_forward_to_backend('subscription/plans', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
@@ -327,7 +327,7 @@ function report_adeptus_insights_handle_stripe_config() {
     }
 
     try {
-        // Forward to Laravel backend
+        // Forward to Laravel backend.
         $response = report_adeptus_insights_forward_to_backend('subscription/config', [], 'GET');
         echo json_encode($response);
     } catch (Exception $e) {
@@ -355,7 +355,7 @@ function report_adeptus_insights_handle_create_subscription() {
 
     try {
         // Get input data from JSON body (primary method for API).
-        $input = json_decode(file_get_contents('php://input'), true);
+        $input = json_decode(file_get_contents('php: // Input'), true);
         if (!$input) {
             // Fall back to Moodle parameter functions.
             $input = [
@@ -364,7 +364,7 @@ function report_adeptus_insights_handle_create_subscription() {
             ];
         }
 
-        // Forward to Laravel backend
+        // Forward to Laravel backend.
         $response = report_adeptus_insights_forward_to_backend('subscription/create', $input);
         echo json_encode($response);
     } catch (Exception $e) {
@@ -390,7 +390,7 @@ function report_adeptus_insights_handle_show_subscription() {
         return;
     }
 
-    // Mock subscription details
+    // Mock subscription details.
     $subscription = [
         'subscription_id' => 'sub_' . bin2hex(random_bytes(8)),
         'plan' => [

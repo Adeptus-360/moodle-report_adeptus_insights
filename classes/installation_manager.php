@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -57,9 +57,9 @@ class installation_manager {
     public function __construct() {
         global $DB;
 
-        // Load existing settings
+        // Load existing settings.
         try {
-            // Get ANY existing record (not just id=1, as insert_record auto-generates IDs)
+            // Get ANY existing record (not just id=1, as insert_record auto-generates IDs).
             $settings = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($settings) {
                 $this->api_key = $settings->api_key;
@@ -68,14 +68,14 @@ class installation_manager {
                 $this->is_registered = (bool)$settings->is_registered;
             } else {
                 $this->api_key = '';
-                // Use centralized API config
+                // Use centralized API config.
                 $this->api_url = api_config::get_backend_url();
                 $this->installation_id = null;
                 $this->is_registered = false;
             }
         } catch (\Exception $e) {
             $this->api_key = '';
-            // Use centralized API config
+            // Use centralized API config.
             $this->api_url = api_config::get_backend_url();
             $this->installation_id = null;
             $this->is_registered = false;
@@ -94,16 +94,16 @@ class installation_manager {
             return true;
         }
 
-        // If not registered locally, check with backend API
+        // If not registered locally, check with backend API.
         try {
             $status = $this->check_site_registration_status();
             if ($status && isset($status['success']) && $status['success']) {
-                // Update local registration status
+                // Update local registration status.
                 $this->is_registered = true;
                 $this->installation_id = $status['data']['installation_id'] ?? null;
                 $this->api_key = $status['data']['api_key'] ?? '';
 
-                // Save to local database
+                // Save to local database.
                 $this->save_installation_settings();
 
                 return true;
@@ -176,20 +176,20 @@ class installation_manager {
         global $CFG, $DB;
 
         try {
-            // Use provided site info or fall back to Moodle config
+            // Use provided site info or fall back to Moodle config.
             $siteurl = $siteurl ?: $CFG->wwwroot;
             $sitename = $sitename ?: $CFG->fullname;
 
-            // First check if the site is already registered
+            // First check if the site is already registered.
             $existingstatus = $this->check_site_registration_status();
 
             if ($existingstatus && isset($existingstatus['success']) && $existingstatus['success']) {
-                // Use the existing installation data
+                // Use the existing installation data.
                 $this->api_key = $existingstatus['data']['api_key'] ?? '';
                 $this->installation_id = $existingstatus['data']['installation_id'] ?? null;
                 $this->is_registered = true;
 
-                // Save settings to database
+                // Save settings to database.
                 $this->save_installation_settings();
 
                 return [
@@ -199,7 +199,7 @@ class installation_manager {
                 ];
             }
 
-            // If not already registered, proceed with new registration
+            // If not already registered, proceed with new registration.
             $data = [
                 'site_url' => $siteurl,
                 'site_name' => $sitename,
@@ -217,7 +217,7 @@ class installation_manager {
                 $this->installation_id = $response['data']['installation_id'] ?? null;
                 $this->is_registered = true;
 
-                // Save settings to database
+                // Save settings to database.
                 $this->save_installation_settings();
 
                 return [
@@ -226,17 +226,17 @@ class installation_manager {
                     'data' => $response['data'],
                 ];
             } else {
-                // Check if the error is due to site already existing
+                // Check if the error is due to site already existing.
                 if (isset($response['code']) && $response['code'] === 'SITE_EXISTS') {
-                    // Set the existing installation data
+                    // Set the existing installation data.
                     $this->api_key = $response['data']['api_key'] ?? '';
                     $this->installation_id = $response['data']['existing_installation_id'] ?? null;
                     $this->is_registered = true;
 
-                    // Save settings to database
+                    // Save settings to database.
                     $this->save_installation_settings();
 
-                    // Ensure all required database tables exist
+                    // Ensure all required database tables exist.
                     $this->ensure_database_tables_exist();
 
                     return [
@@ -275,14 +275,14 @@ class installation_manager {
      */
     public function setup_starter_subscription($email, $name) {
         try {
-            // Get available plans from backend
+            // Get available plans from backend.
             $plansresponse = $this->make_api_request('subscription/plans', [], 'GET');
 
             if (!$plansresponse || !isset($plansresponse['success']) || !$plansresponse['success']) {
                 return;
             }
 
-            // Find free plan for Insights product
+            // Find free plan for Insights product.
             $freeplan = null;
             foreach ($plansresponse['data']['plans'] as $plan) {
                 $isfree = (isset($plan['tier']) && $plan['tier'] === 'free') ||
@@ -299,14 +299,14 @@ class installation_manager {
                 return;
             }
 
-            // Activate free plan via backend
+            // Activate free plan via backend.
             $subscriptionresponse = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $freeplan['id'],
                 'billing_email' => $email,
             ]);
 
             if ($subscriptionresponse && isset($subscriptionresponse['success']) && $subscriptionresponse['success']) {
-                // Update local subscription status
+                // Update local subscription status.
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscriptionresponse['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $subscriptionresponse['data']['subscription_id'] ?? null,
@@ -334,7 +334,7 @@ class installation_manager {
     private function set_post_install_notification() {
         global $DB;
 
-        // Set a notification for the admin to complete setup
+        // Set a notification for the admin to complete setup.
         $notification = [
             'type' => 'success',
             'message' => get_string('registration_complete', 'report_adeptus_insights'),
@@ -346,7 +346,7 @@ class installation_manager {
             ],
         ];
 
-        // Store notification in session or database
+        // Store notification in session or database.
         set_config('adeptus_insights_notification', json_encode($notification), 'report_adeptus_insights');
     }
 
@@ -386,7 +386,7 @@ class installation_manager {
             $siteurl = $CFG->wwwroot;
             $sitename = $CFG->fullname ?? $CFG->shortname ?? 'Moodle Site';
 
-            // Try to get site name from database if config is not available
+            // Try to get site name from database if config is not available.
             if (empty($sitename) || $sitename === 'Moodle Site') {
                 try {
                     $configrecord = $DB->get_record('config', ['name' => 'fullname']);
@@ -429,7 +429,7 @@ class installation_manager {
         global $DB;
 
         try {
-            // Check if report_adeptus_insights_subscription table exists
+            // Check if report_adeptus_insights_subscription table exists.
             if (!$DB->table_exists('report_adeptus_insights_subscription')) {
                 $this->create_subscription_status_table();
             }
@@ -622,7 +622,7 @@ class installation_manager {
             $response = $this->make_api_request('subscription/create', $requestdata);
 
             if ($response && isset($response['success']) && $response['success']) {
-                // Update local subscription status
+                // Update local subscription status.
                 $subscriptiondata = [
                     'stripe_customer_id' => $response['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $response['data']['subscription_id'] ?? null,
@@ -666,13 +666,13 @@ class installation_manager {
      * @return array|null Subscription details or null if not found.
      */
     public function get_subscription_details() {
-        // Get the API key from the local database
+        // Get the API key from the local database.
         $apikey = $this->get_api_key();
         if (!$apikey) {
             return null;
         }
 
-        // Try primary subscription endpoint first
+        // Try primary subscription endpoint first.
         try {
             $subscriptiondata = $this->get_backend_subscription_details($apikey);
             if ($subscriptiondata) {
@@ -798,12 +798,12 @@ class installation_manager {
 
         $data = $response['data'];
 
-        // Transform backend data to match expected format
+        // Transform backend data to match expected format.
         $subscription = $data['subscription'];
         $plan = $data['plan'];
         $usage = $data['usage'] ?? [];
 
-        // Ensure plan_id is always included, with fallback
+        // Ensure plan_id is always included, with fallback.
         $planid = $plan['id'] ?? $data['subscription']['plan_id'] ?? 1;
 
         // Token usage data from API (flattened fields first, then nested as fallback).
@@ -811,7 +811,7 @@ class installation_manager {
         $tokensremaining = $data['tokens_remaining'] ?? $usage['token_usage']['tokens_remaining'] ?? -1;
         $tokenslimit = $data['tokens_limit'] ?? $usage['token_usage']['tokens_limit'] ?? -1;
 
-        // Calculate usage percentage
+        // Calculate usage percentage.
         $tokensusagepercent = 0;
         if ($tokenslimit > 0 && $tokensremaining !== -1) {
             $tokensusagepercent = min(100, round(($tokensused / $tokenslimit) * 100));
@@ -844,16 +844,16 @@ class installation_manager {
             'subscription_id' => $subscription['id'],
             'stripe_subscription_id' => $subscription['stripe_subscription_id'],
             'stripe_customer_id' => $subscription['stripe_customer_id'],
-            // Enhanced status information (JSON encoded for external API compatibility)
+            // Enhanced status information (JSON encoded for external API compatibility).
             'status_details' => json_encode($subscription['status_details'] ?? []),
             'cancellation_info' => json_encode($subscription['cancellation_info'] ?? []),
             'payment_info' => json_encode($subscription['payment_info'] ?? []),
-            // Legacy usage metrics
+            // Legacy usage metrics.
             'ai_credits_used_this_month' => $usage['ai_credits_used_this_month'] ?? 0,
             'reports_generated_this_month' => $usage['reports_generated_this_month'] ?? 0,
             'plan_ai_credits_limit' => $plan['ai_credits'],
             'plan_exports_limit' => $plan['exports'],
-            // Token-based usage metrics
+            // Token-based usage metrics.
             'tokens_used' => $tokensused,
             'tokens_remaining' => $tokensremaining,
             'tokens_limit' => $tokenslimit,
@@ -973,7 +973,7 @@ class installation_manager {
      */
     public function get_available_plans() {
         try {
-            // Check if plugin is registered first
+            // Check if plugin is registered first.
             if (!$this->is_registered()) {
                 return [
                     'success' => false,
@@ -1107,7 +1107,7 @@ class installation_manager {
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
-                // Update local subscription status
+                // Update local subscription status.
                 $subscriptiondata = [
                     'stripe_customer_id' => $response['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $response['data']['subscription_id'] ?? null,
@@ -1227,20 +1227,20 @@ class installation_manager {
                 'timemodified' => time(),
             ];
 
-            // Check if table exists
+            // Check if table exists.
             if (!$DB->get_manager()->table_exists('report_adeptus_insights_settings')) {
                 return;
             }
 
-            // Try to find ANY existing record (not just id=1)
+            // Try to find ANY existing record (not just id=1).
             $existing = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
 
             if ($existing) {
-                // Update existing record
+                // Update existing record.
                 $record->id = $existing->id;
                 $DB->update_record('report_adeptus_insights_settings', $record);
             } else {
-                // Insert new record - let Moodle auto-generate the ID
+                // Insert new record - let Moodle auto-generate the ID.
                 $newid = $DB->insert_record('report_adeptus_insights_settings', $record);
             }
         } catch (\Exception $e) {
@@ -1256,7 +1256,7 @@ class installation_manager {
         global $DB;
 
         try {
-            // Find the existing record
+            // Find the existing record.
             $existing = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($existing) {
                 $DB->set_field('report_adeptus_insights_settings', 'last_sync', time(), ['id' => $existing->id]);
@@ -1305,7 +1305,7 @@ class installation_manager {
         global $DB;
 
         try {
-            // Check if table exists
+            // Check if table exists.
             if (!$DB->get_manager()->table_exists('report_adeptus_insights_subscription')) {
                 return;
             }
@@ -1326,7 +1326,7 @@ class installation_manager {
                 'last_updated' => time(),
             ];
 
-            // Find ANY existing record (not just id=1)
+            // Find ANY existing record (not just id=1).
             $existing = $DB->get_record('report_adeptus_insights_subscription', [], '*', IGNORE_MULTIPLE);
             if ($existing) {
                 $record->id = $existing->id;
@@ -1345,14 +1345,14 @@ class installation_manager {
      */
     public function activate_free_plan_manually() {
         try {
-            // Get available plans from backend
+            // Get available plans from backend.
             $plansresponse = $this->make_api_request('subscription/plans', [], 'GET');
 
             if (!$plansresponse || !isset($plansresponse['success']) || !$plansresponse['success']) {
                 return false;
             }
 
-            // Find free plan for Insights product
+            // Find free plan for Insights product.
             $freeplan = null;
             foreach ($plansresponse['data']['plans'] as $plan) {
                 $isfree = (isset($plan['tier']) && $plan['tier'] === 'free') ||
@@ -1369,14 +1369,14 @@ class installation_manager {
                 return false;
             }
 
-            // Activate free plan via backend
+            // Activate free plan via backend.
             $subscriptionresponse = $this->make_api_request('subscription/activate-free', [
                 'plan_id' => $freeplan['id'],
                 'billing_email' => $this->get_admin_email(),
             ]);
 
             if ($subscriptionresponse && isset($subscriptionresponse['success']) && $subscriptionresponse['success']) {
-                // Update local subscription status
+                // Update local subscription status.
                 $this->update_subscription_status([
                     'stripe_customer_id' => $subscriptionresponse['data']['customer_id'] ?? null,
                     'stripe_subscription_id' => $subscriptionresponse['data']['subscription_id'] ?? null,
@@ -1418,7 +1418,7 @@ class installation_manager {
                 $data['action'] = $action;
             }
 
-            // Check if user has a Stripe customer - if not, request customer creation
+            // Check if user has a Stripe customer - if not, request customer creation.
             $subscription = $this->get_subscription_details();
             $stripecustomerid = $subscription['stripe_customer_id'] ?? null;
             if (!$stripecustomerid) {
@@ -1427,7 +1427,7 @@ class installation_manager {
 
             $response = $this->make_api_request('subscription/billing-portal', $data);
 
-            // Log to file for debugging
+            // Log to file for debugging.
 
             if ($response && isset($response['success']) && $response['success']) {
                 $url = $response['data']['url'] ?? $response['data']['billing_portal_url'] ?? null;
@@ -1527,7 +1527,7 @@ class installation_manager {
             ]);
 
             if ($response && isset($response['success']) && $response['success']) {
-                // Clear local subscription cache to fetch fresh data
+                // Clear local subscription cache to fetch fresh data.
                 $this->clear_subscription_cache();
 
                 return [
@@ -1573,7 +1573,7 @@ class installation_manager {
      * Clear local subscription cache
      */
     public function clear_subscription_cache() {
-        // Cache clearing is optional - don't fail if cache definition doesn't exist
+        // Cache clearing is optional - don't fail if cache definition doesn't exist.
         try {
             $cache = \cache::make('report_adeptus_insights', 'subscription_data');
             $cache->delete('subscription_details');
@@ -1588,27 +1588,27 @@ class installation_manager {
      */
     public function create_product_portal_session($productid, $returnurl) {
         try {
-            // Check if installation is registered
+            // Check if installation is registered.
             if (!$this->is_registered()) {
                 return ['success' => false, 'message' => get_string('error_installation_not_registered', 'report_adeptus_insights')];
             }
 
-            // Get the subscription details
+            // Get the subscription details.
             $subscription = $this->get_subscription_details();
             if (!$subscription) {
                 return ['success' => false, 'message' => get_string('error_no_subscription_found', 'report_adeptus_insights')];
             }
 
-            // Get the target plan from the product ID
+            // Get the target plan from the product ID.
             $plan = $this->get_plan_by_stripe_product_id($productid);
             if (!$plan) {
                 return ['success' => false, 'message' => get_string('error_target_plan_not_found', 'report_adeptus_insights')];
             }
 
-            // Create or get Stripe customer
+            // Create or get Stripe customer.
             $stripecustomerid = $subscription['stripe_customer_id'] ?? null;
             if (!$stripecustomerid) {
-                // Create customer and subscription if they don't exist
+                // Create customer and subscription if they don't exist.
                 $customerresult = $this->create_stripe_customer_and_subscription($subscription, $plan);
                 if (!$customerresult['success']) {
                     return $customerresult;
@@ -1616,7 +1616,7 @@ class installation_manager {
                 $stripecustomerid = $customerresult['stripe_customer_id'];
             }
 
-            // Create billing portal session with return URL
+            // Create billing portal session with return URL.
             $portalresult = $this->create_stripe_portal_session($stripecustomerid, $returnurl);
             if (!$portalresult['success']) {
                 return $portalresult;
@@ -1638,15 +1638,15 @@ class installation_manager {
      * @return array|null The plan data or null if not found.
      */
     private function get_plan_by_stripe_product_id($stripeproductid) {
-        // Get available plans from backend API
+        // Get available plans from backend API.
         $response = $this->get_available_plans();
 
-        // Check if the API call was successful
+        // Check if the API call was successful.
         if (!$response || !isset($response['success']) || !$response['success']) {
             return null;
         }
 
-        // Get the plans array from the response
+        // Get the plans array from the response.
         $plans = $response['plans'] ?? [];
 
         foreach ($plans as $plan) {
@@ -1687,7 +1687,7 @@ class installation_manager {
      */
     private function create_stripe_customer_and_subscription($subscription, $plan) {
         try {
-            // Call backend API to create customer and subscription
+            // Call backend API to create customer and subscription.
             $response = $this->make_api_request('subscription/billing-portal', [
                 'return_url' => $this->get_site_url(),
                 'create_customer' => true,
@@ -1722,7 +1722,7 @@ class installation_manager {
      */
     private function create_stripe_portal_session($stripecustomerid, $returnurl) {
         try {
-            // Call backend API to create portal session
+            // Call backend API to create portal session.
             $response = $this->make_api_request('subscription/billing-portal', [
                 'return_url' => $returnurl,
                 'stripe_customer_id' => $stripecustomerid,
@@ -1747,7 +1747,7 @@ class installation_manager {
         }
     }
 
-    // =======================================================================
+    // -----------------------------------------------------------------------
     // USAGE TRACKING METHODS (Enterprise-grade subscription tier management)
     // =======================================================================
 
@@ -1769,7 +1769,7 @@ class installation_manager {
 
             $data = $response['data'];
 
-            // Transform to standardized format
+            // Transform to standardized format.
             return [
                 'subscription' => $data['subscription'] ?? null,
                 'plan' => $data['plan'] ?? null,
@@ -1778,7 +1778,7 @@ class installation_manager {
                 'is_active' => $data['subscription']['is_active'] ?? false,
                 'tier' => $data['plan']['tier'] ?? 'free',
 
-                // Convenience accessors for usage
+                // Convenience accessors for usage.
                 'reports_remaining' => $data['usage']['reports_remaining'] ?? 10,
                 'reports_total' => $data['usage']['reports_generated_total'] ?? 0,
                 'reports_limit' => $data['usage']['reports_total_limit'] ?? 10,
@@ -1791,11 +1791,11 @@ class installation_manager {
                 'ai_credits_basic_remaining' => $data['usage']['ai_credits_basic_remaining'] ?? 100,
                 'ai_credits_premium_remaining' => $data['usage']['ai_credits_premium_remaining'] ?? 5,
 
-                // Billing period
+                // Billing period.
                 'billing_period_start' => $data['usage']['billing_period_start'] ?? null,
                 'billing_period_end' => $data['usage']['billing_period_end'] ?? null,
 
-                // Export formats
+                // Export formats.
                 'export_formats' => $data['limits']['export_formats'] ?? ['pdf'],
             ];
         } catch (\Exception $e) {
@@ -1849,23 +1849,23 @@ class installation_manager {
     public function check_report_access($reportkey) {
         try {
             if (!$this->is_registered()) {
-                // For unregistered installations, allow free tier reports only
+                // For unregistered installations, allow free tier reports only.
                 return [
-                    'allowed' => true, // Allow generation but track locally
+                    'allowed' => true, // Allow generation but track locally.
                     'reason' => 'unregistered',
                     'message' => get_string('installation_not_registered_free_tier', 'report_adeptus_insights'),
                     'tier' => 'free',
                 ];
             }
 
-            // Call backend API to check report access
+            // Call backend API to check report access.
             $response = $this->make_api_request('reports/check-access', [
                 'report_key' => $reportkey,
             ]);
 
             if (!$response || !isset($response['success'])) {
                 return [
-                    'allowed' => true, // Fail open for now
+                    'allowed' => true, // Fail open for now.
                     'reason' => 'api_error',
                     'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
                 ];
@@ -1891,7 +1891,7 @@ class installation_manager {
             ];
         } catch (\Exception $e) {
             return [
-                'allowed' => true, // Fail open
+                'allowed' => true, // Fail open.
                 'reason' => 'exception',
                 'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
             ];
@@ -1960,7 +1960,7 @@ class installation_manager {
         try {
             $subscription = $this->get_subscription_with_usage();
 
-            // Check format access
+            // Check format access.
             $allowedformats = $subscription['export_formats'] ?? ['pdf'];
             if (!in_array(strtolower($format), array_map('strtolower', $allowedformats))) {
                 return [
@@ -1972,7 +1972,7 @@ class installation_manager {
                 ];
             }
 
-            // Check export limit
+            // Check export limit.
             $exportsremaining = $subscription['exports_remaining'] ?? 0;
             if ($exportsremaining !== -1 && $exportsremaining <= 0) {
                 return [
@@ -1992,7 +1992,7 @@ class installation_manager {
             ];
         } catch (\Exception $e) {
             return [
-                'allowed' => true, // Fail open
+                'allowed' => true, // Fail open.
                 'reason' => 'exception',
                 'message' => get_string('access_verify_failed_default', 'report_adeptus_insights'),
             ];

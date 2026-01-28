@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -110,7 +110,7 @@ class support_manager {
             ];
         }
 
-        // Validate category
+        // Validate category.
         if (!array_key_exists($category, self::TICKET_CATEGORIES)) {
             return [
                 'success' => false,
@@ -118,12 +118,12 @@ class support_manager {
             ];
         }
 
-        // Validate priority
+        // Validate priority.
         if (!array_key_exists($priority, self::TICKET_PRIORITIES)) {
             $priority = 'medium';
         }
 
-        // Validate subject and message
+        // Validate subject and message.
         if (empty(trim($subject))) {
             return [
                 'success' => false,
@@ -154,7 +154,7 @@ class support_manager {
                 $data['submitter_email'] = trim($submitteremail);
             }
 
-            // Check if we have file attachments with actual files
+            // Check if we have file attachments with actual files.
             $hasvalidfiles = false;
             if (!empty($attachments) && isset($attachments['tmp_name'])) {
                 if (is_array($attachments['tmp_name'])) {
@@ -170,10 +170,10 @@ class support_manager {
             }
 
             if ($hasvalidfiles) {
-                // Use multipart form data for file uploads
+                // Use multipart form data for file uploads.
                 $response = $this->make_multipart_request('support/tickets', $data, $attachments);
             } else {
-                // Standard JSON request without files
+                // Standard JSON request without files.
                 $response = $this->installation_manager->make_api_request('support/tickets', $data);
             }
 
@@ -310,7 +310,7 @@ class support_manager {
                 $params['category'] = $category;
             }
 
-            // Build query string for GET request
+            // Build query string for GET request.
             $endpoint = 'support/tickets';
             if (!empty($params)) {
                 $endpoint .= '?' . http_build_query($params);
@@ -409,7 +409,7 @@ class support_manager {
                 $data['sender_name'] = trim($sendername);
             }
 
-            // Check if we have file attachments with actual files
+            // Check if we have file attachments with actual files.
             $hasvalidfiles = false;
             if (!empty($attachments) && isset($attachments['tmp_name'])) {
                 if (is_array($attachments['tmp_name'])) {
@@ -425,10 +425,10 @@ class support_manager {
             }
 
             if ($hasvalidfiles) {
-                // Use multipart form data for file uploads
+                // Use multipart form data for file uploads.
                 $response = $this->make_multipart_request("support/tickets/{$ticketid}/reply", $data, $attachments);
             } else {
-                // Standard JSON request without files
+                // Standard JSON request without files.
                 $response = $this->installation_manager->make_api_request("support/tickets/{$ticketid}/reply", $data);
             }
 
@@ -544,7 +544,7 @@ class support_manager {
      * @return array Validation result with success status
      */
     public function validate_attachment(array $file): array {
-        // Check for upload errors
+        // Check for upload errors.
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return [
                 'success' => false,
@@ -552,7 +552,7 @@ class support_manager {
             ];
         }
 
-        // Check file size
+        // Check file size.
         if ($file['size'] > self::MAX_FILE_SIZE) {
             return [
                 'success' => false,
@@ -560,7 +560,7 @@ class support_manager {
             ];
         }
 
-        // Check file extension
+        // Check file extension.
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if (!in_array($extension, self::ALLOWED_EXTENSIONS)) {
             return [

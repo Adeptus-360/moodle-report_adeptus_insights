@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -32,9 +32,9 @@ function xmldb_report_adeptus_insights_uninstall() {
     global $DB, $CFG;
     $dbman = $DB->get_manager();
 
-    // First, try to notify the backend that this installation is being uninstalled
+    // First, try to notify the backend that this installation is being uninstalled.
     try {
-        // Get API key and URL before dropping the settings table
+        // Get API key and URL before dropping the settings table.
         $settings = $DB->get_record('report_adeptus_insights_settings', ['id' => 1]);
         if ($settings && !empty($settings->api_key) && !empty($settings->api_url)) {
             $url = rtrim($settings->api_url, '/') . '/installation/uninstall';
@@ -63,7 +63,7 @@ function xmldb_report_adeptus_insights_uninstall() {
         debugging('Backend uninstall notification failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
     }
 
-    // Remove ALL custom user menu entries pointing to this plugin
+    // Remove ALL custom user menu entries pointing to this plugin.
     $custom = get_config('moodle', 'customusermenuitems');
     if ($custom !== false) {
         $lines = preg_split('/\r\n?|\n/', $custom);
@@ -98,7 +98,7 @@ function xmldb_report_adeptus_insights_uninstall() {
         }
     }
 
-    // Remove all plugin configuration
+    // Remove all plugin configuration.
     $configs = [
         'redirect_to_settings',
         'postinstall_redirect_stage',

@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - https://moodle.org/
+// This file is part of Moodle - https://moodle.org/.
 //
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
+// Moodle is free software: you can redistribute it and/or modify.
+// it under the terms of the GNU General Public License as published by.
+// the Free Software Foundation, either version 3 of the License, or.
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// Moodle is distributed in the hope that it will be useful,.
+// but WITHOUT ANY WARRANTY; without even the implied warranty of.
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
+// You should have received a copy of the GNU General Public License.
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
@@ -64,7 +64,7 @@ class notification_manager {
         $errormessage = $this->error_handler->create_error_message($errorcode, $additionaldata);
         $html = $this->render_error_message($errormessage);
 
-        // Store notification for potential reuse
+        // Store notification for potential reuse.
         $this->notifications[] = $errormessage;
 
         return $html;
@@ -155,7 +155,7 @@ class notification_manager {
         $html .= '<div class="adeptus-error-content">';
         $html .= '<p>' . htmlspecialchars($errormessage['user_message']) . '</p>';
 
-        // Display suggestions if available
+        // Display suggestions if available.
         if (!empty($errormessage['suggestions'])) {
             $html .= '<div class="adeptus-error-suggestions">';
             $html .= '<h4>Suggestions:</h4>';
@@ -167,7 +167,7 @@ class notification_manager {
             $html .= '</div>';
         }
 
-        // Display recovery actions
+        // Display recovery actions.
         if ($errormessage['recovery_action']) {
             $html .= $this->render_recovery_actions($errormessage['recovery_action'], $errormessage['admin_contact']);
         }
@@ -197,7 +197,7 @@ class notification_manager {
         $html .= '<div class="adeptus-notification-content">';
         $html .= '<p>' . htmlspecialchars($notification['message']) . '</p>';
 
-        // Display actions if available
+        // Display actions if available.
         if (!empty($notification['actions'])) {
             $html .= $this->render_notification_actions($notification['actions']);
         }
@@ -219,7 +219,7 @@ class notification_manager {
         $html = '<div class="adeptus-recovery-actions">';
         $html .= '<h4>What you can do:</h4>';
 
-        // Primary recovery action
+        // Primary recovery action.
         $html .= '<div class="adeptus-primary-action">';
         $html .= '<button type="button" class="btn ' . $recoveryaction['button_class'] . ' btn-sm" ';
         $html .= 'onclick="this.handleRecoveryAction(\'' . $recoveryaction['action'] . '\')">';
@@ -229,16 +229,16 @@ class notification_manager {
         $html .= '<small>' . htmlspecialchars($recoveryaction['description']) . '</small>';
         $html .= '</div>';
 
-        // Additional actions
+        // Additional actions.
         $html .= '<div class="adeptus-additional-actions">';
 
-        // Contact admin action
+        // Contact admin action.
         $html .= '<button type="button" class="btn btn-outline-info btn-sm" ';
         $html .= 'onclick="this.contactAdministrator()">';
         $html .= '<i class="fa fa-envelope" aria-hidden="true"></i> Contact Administrator';
         $html .= '</button>';
 
-        // Documentation action
+        // Documentation action.
         $html .= '<button type="button" class="btn btn-outline-secondary btn-sm" ';
         $html .= 'onclick="this.viewDocumentation()">';
         $html .= '<i class="fa fa-book" aria-hidden="true"></i> View Documentation';
@@ -246,7 +246,7 @@ class notification_manager {
 
         $html .= '</div>';
 
-        // Admin contact information
+        // Admin contact information.
         if ($admincontact['email']) {
             $html .= '<div class="adeptus-admin-contact">';
             $html .= '<small><strong>Need immediate help?</strong> ';
