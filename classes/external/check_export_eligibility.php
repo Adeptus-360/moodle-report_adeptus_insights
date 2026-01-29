@@ -110,7 +110,10 @@ class check_export_eligibility extends external_api {
 
             // Handle HTTP errors - FAIL CLOSED.
             if ($httpcode !== 200) {
-                debugging('[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response, DEBUG_DEVELOPER);
+                debugging(
+                    '[Adeptus Insights] Export eligibility check failed - HTTP ' . $httpcode . ': ' . $response,
+                    DEBUG_DEVELOPER
+                );
 
                 if ($httpcode === 401) {
                     throw new \Exception(get_string('error_auth_failed', 'report_adeptus_insights'));

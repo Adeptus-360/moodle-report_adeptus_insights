@@ -24,8 +24,6 @@
 
 namespace report_adeptus_insights\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -267,8 +265,12 @@ class provider implements
         // Export report config data.
         $configs = $DB->get_records('report_adeptus_insights_config', ['userid' => $userid]);
         if ($configs) {
+            $subcontext = [
+                get_string('pluginname', 'report_adeptus_insights'),
+                get_string('privacy:reportconfig', 'report_adeptus_insights'),
+            ];
             writer::with_context($context)->export_data(
-                [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:reportconfig', 'report_adeptus_insights')],
+                $subcontext,
                 (object) ['report_configs' => array_values($configs)]
             );
         }
@@ -276,8 +278,12 @@ class provider implements
         // Export report history data.
         $history = $DB->get_records('report_adeptus_insights_history', ['userid' => $userid]);
         if ($history) {
+            $subcontext = [
+                get_string('pluginname', 'report_adeptus_insights'),
+                get_string('privacy:reporthistory', 'report_adeptus_insights'),
+            ];
             writer::with_context($context)->export_data(
-                [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:reporthistory', 'report_adeptus_insights')],
+                $subcontext,
                 (object) ['report_history' => array_values($history)]
             );
         }
@@ -294,8 +300,12 @@ class provider implements
         // Export usage tracking data.
         $usage = $DB->get_records('report_adeptus_insights_usage', ['userid' => $userid]);
         if ($usage) {
+            $subcontext = [
+                get_string('pluginname', 'report_adeptus_insights'),
+                get_string('privacy:usagetracking', 'report_adeptus_insights'),
+            ];
             writer::with_context($context)->export_data(
-                [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:usagetracking', 'report_adeptus_insights')],
+                $subcontext,
                 (object) ['usage_tracking' => array_values($usage)]
             );
         }
@@ -303,8 +313,12 @@ class provider implements
         // Export export tracking data.
         $exports = $DB->get_records('report_adeptus_insights_exports', ['userid' => $userid]);
         if ($exports) {
+            $subcontext = [
+                get_string('pluginname', 'report_adeptus_insights'),
+                get_string('privacy:exporttracking', 'report_adeptus_insights'),
+            ];
             writer::with_context($context)->export_data(
-                [get_string('pluginname', 'report_adeptus_insights'), get_string('privacy:exporttracking', 'report_adeptus_insights')],
+                $subcontext,
                 (object) ['export_tracking' => array_values($exports)]
             );
         }

@@ -24,8 +24,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Token authentication manager for backend API requests.
  *
@@ -73,7 +71,8 @@ class token_auth_manager {
         $context = \context_system::instance();
         if (!has_capability('report/adeptus_insights:view', $context)) {
             if ($redirect) {
-                throw new \moodle_exception('nopermissions', 'error', '', get_string('report_adeptus_insights:view', 'report_adeptus_insights'));
+                $capability = get_string('report_adeptus_insights:view', 'report_adeptus_insights');
+                throw new \moodle_exception('nopermissions', 'error', '', $capability);
             }
             return false;
         }

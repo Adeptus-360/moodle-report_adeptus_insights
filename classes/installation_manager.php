@@ -326,8 +326,10 @@ class installation_manager {
                     'current_period_start' => $subscriptionresponse['data']['current_period_start'] ?? time(),
                     'current_period_end' => $subscriptionresponse['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $subscriptionresponse['data']['ai_credits_remaining'] ?? $freeplan['ai_credits'],
-                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining'] ?? ($freeplan['ai_credits_pro'] ?? 0),
-                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining'] ?? ($freeplan['ai_credits_basic'] ?? 0),
+                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining']
+                        ?? ($freeplan['ai_credits_pro'] ?? 0),
+                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining']
+                        ?? ($freeplan['ai_credits_basic'] ?? 0),
                     'exports_remaining' => $subscriptionresponse['data']['exports_remaining'] ?? $freeplan['exports'],
                     'billing_email' => $email,
                 ]);
@@ -568,7 +570,8 @@ class installation_manager {
             } else {
                 return [
                     'success' => false,
-                    'message' => get_string('sync_error', 'report_adeptus_insights') . ': ' . ($response['message'] ?? 'Unknown error'),
+                    'message' => get_string('sync_error', 'report_adeptus_insights')
+                        . ': ' . ($response['message'] ?? 'Unknown error'),
                 ];
             }
         } catch (\Exception $e) {
@@ -852,7 +855,8 @@ class installation_manager {
             'is_cancelled' => $subscription['is_cancelled'] ?? ($subscription['status'] === 'cancelled'),
             'has_payment_issues' => $subscription['has_payment_issues'] ?? false,
             'should_disable_api_access' => $subscription['should_disable_api_access'] ?? false,
-            'status_message' => $subscription['status_message'] ?? get_string('active_subscription_status', 'report_adeptus_insights'),
+            'status_message' => $subscription['status_message']
+                ?? get_string('active_subscription_status', 'report_adeptus_insights'),
             'is_registered' => true,
             'subscription_id' => $subscription['id'],
             'stripe_subscription_id' => $subscription['stripe_subscription_id'],
@@ -1146,7 +1150,8 @@ class installation_manager {
                     'message' => get_string('free_plan_activated', 'report_adeptus_insights'),
                 ];
             } else {
-                $errormessage = isset($response['message']) ? $response['message'] : get_string('unknown_error', 'report_adeptus_insights');
+                $errormessage = isset($response['message'])
+                    ? $response['message'] : get_string('unknown_error', 'report_adeptus_insights');
                 return [
                     'success' => false,
                     'message' => get_string('free_plan_activation_failed', 'report_adeptus_insights', $errormessage),
@@ -1293,26 +1298,34 @@ class installation_manager {
         $message = strtolower($technicalmessage);
 
         if (strpos($message, 'api key is required') !== false || strpos($message, '401') !== false) {
-            return get_string('http_401_error', 'report_adeptus_insights') . '. ' . get_string('please_register_plugin', 'report_adeptus_insights');
+            return get_string('http_401_error', 'report_adeptus_insights')
+                . '. ' . get_string('please_register_plugin', 'report_adeptus_insights');
         }
 
         if (strpos($message, '404') !== false) {
-            return get_string('http_404_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
+            return get_string('http_404_error', 'report_adeptus_insights')
+                . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
         }
 
         if (strpos($message, '500') !== false) {
-            return get_string('http_500_error', 'report_adeptus_insights') . '. ' . get_string('try_again_later', 'report_adeptus_insights');
+            return get_string('http_500_error', 'report_adeptus_insights')
+                . '. ' . get_string('try_again_later', 'report_adeptus_insights');
         }
 
         if (strpos($message, 'timeout') !== false) {
-            return get_string('connection_timeout', 'report_adeptus_insights') . '. ' . get_string('try_again_later', 'report_adeptus_insights');
+            return get_string('connection_timeout', 'report_adeptus_insights')
+                . '. ' . get_string('try_again_later', 'report_adeptus_insights');
         }
 
-        if (strpos($message, 'connection refused') !== false || strpos($message, 'could not resolve') !== false) {
-            return get_string('network_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
+        $isnetworkerror = strpos($message, 'connection refused') !== false
+            || strpos($message, 'could not resolve') !== false;
+        if ($isnetworkerror) {
+            return get_string('network_error', 'report_adeptus_insights')
+                . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
         }
 
-        return get_string('unknown_error', 'report_adeptus_insights') . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
+        return get_string('unknown_error', 'report_adeptus_insights')
+            . '. ' . get_string('contact_administrator', 'report_adeptus_insights');
     }
 
     /**
@@ -1405,8 +1418,10 @@ class installation_manager {
                     'current_period_start' => $subscriptionresponse['data']['current_period_start'] ?? time(),
                     'current_period_end' => $subscriptionresponse['data']['current_period_end'] ?? (time() + 30 * 24 * 60 * 60),
                     'ai_credits_remaining' => $subscriptionresponse['data']['ai_credits_remaining'] ?? $freeplan['ai_credits'],
-                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining'] ?? ($freeplan['ai_credits_pro'] ?? 0),
-                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining'] ?? ($freeplan['ai_credits_basic'] ?? 0),
+                    'ai_credits_pro_remaining' => $subscriptionresponse['data']['ai_credits_pro_remaining']
+                        ?? ($freeplan['ai_credits_pro'] ?? 0),
+                    'ai_credits_basic_remaining' => $subscriptionresponse['data']['ai_credits_basic_remaining']
+                        ?? ($freeplan['ai_credits_basic'] ?? 0),
                     'exports_remaining' => $subscriptionresponse['data']['exports_remaining'] ?? $freeplan['exports'],
                     'billing_email' => $this->get_admin_email(),
                 ]);
@@ -1655,7 +1670,8 @@ class installation_manager {
                 'portal_url' => $portalresult['portal_url'],
             ];
         } catch (\Exception $e) {
-            return ['success' => false, 'message' => get_string('error_portal_session_exception', 'report_adeptus_insights', $e->getMessage())];
+            $errormsg = get_string('error_portal_session_exception', 'report_adeptus_insights', $e->getMessage());
+            return ['success' => false, 'message' => $errormsg];
         }
     }
 
@@ -1776,7 +1792,7 @@ class installation_manager {
     }
 
     // -----------------------------------------------------------------------
-    // USAGE TRACKING METHODS (Enterprise-grade subscription tier management)
+    // USAGE TRACKING METHODS (Enterprise-grade subscription tier management).
     // =======================================================================
 
     /**

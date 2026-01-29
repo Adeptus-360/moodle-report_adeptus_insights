@@ -22,8 +22,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Plugin uninstall callback - removes the entry from the custom user menu,
  * notifies the backend, and drops all tables.

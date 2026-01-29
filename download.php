@@ -247,7 +247,11 @@ try {
             'success' => false,
             'error' => 'dataset_too_large',
             'title' => get_string('export_dataset_too_large_title', 'report_adeptus_insights'),
-            'message' => get_string('export_dataset_too_large', 'report_adeptus_insights', (object)['rows' => $rowcount, 'limit' => $pdfmaxrows]),
+            'message' => get_string(
+                'export_dataset_too_large',
+                'report_adeptus_insights',
+                (object)['rows' => $rowcount, 'limit' => $pdfmaxrows]
+            ),
         ]);
         exit;
     }
@@ -436,7 +440,9 @@ try {
             // PDF: table on page 1, chart on page 2.
             // Generate actual PDF using TCPDF.
             try {
-                $pdfcontent = report_adeptus_insights_generate_pdf($reportid, $tabledata, $chartexportdata, $reportparams, $chartimage);
+                $pdfcontent = report_adeptus_insights_generate_pdf(
+                    $reportid, $tabledata, $chartexportdata, $reportparams, $chartimage
+                );
 
                 if ($pdfcontent === false || empty($pdfcontent)) {
                     throw new Exception(get_string('error_pdf_generation_failed', 'report_adeptus_insights'));

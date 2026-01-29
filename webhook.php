@@ -26,7 +26,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// phpcs:disable moodle.Files.RequireLogin.Missing.
+// This webhook endpoint receives external callbacks (Stripe) and uses API key authentication.
+// phpcs:ignore moodle.Files.RequireLogin.Missing
 require_once('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 

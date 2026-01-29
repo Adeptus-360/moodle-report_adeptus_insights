@@ -26,8 +26,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Error handler class for professional error management.
  *
@@ -193,7 +191,8 @@ class error_handler {
         global $CFG;
 
         $this->admin_contact = [
-            'email' => get_config('report_adeptus_insights', 'notification_email') ?: 'admin@' . parse_url($CFG->wwwroot, PHP_URL_HOST),
+            'email' => get_config('report_adeptus_insights', 'notification_email')
+                ?: 'admin@' . parse_url($CFG->wwwroot, PHP_URL_HOST),
             'support_url' => get_config('report_adeptus_insights', 'support_url') ?: null,
             'documentation_url' => get_config('report_adeptus_insights', 'documentation_url') ?: '/report/adeptus_insights/docs/',
             'phone' => get_config('report_adeptus_insights', 'support_phone') ?: null,

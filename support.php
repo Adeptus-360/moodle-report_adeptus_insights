@@ -130,7 +130,8 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
                     $replyattachments = $_FILES['reply_attachments'];
                 }
             } else {
-                if (!empty($_FILES['reply_attachments']['tmp_name']) && is_uploaded_file($_FILES['reply_attachments']['tmp_name'])) {
+                $tmpname = $_FILES['reply_attachments']['tmp_name'];
+                if (!empty($tmpname) && is_uploaded_file($tmpname)) {
                     $replyattachments = $_FILES['reply_attachments'];
                 }
             }
@@ -346,7 +347,10 @@ if ($view === 'changelog') {
                 'priority_class' => \report_adeptus_insights\support_manager::get_priority_class($ticket['priority']),
                 'created_at' => $ticket['created_at'],
                 'last_reply_at' => $ticket['last_reply_at'] ?? null,
-                'view_url' => (new moodle_url('/report/adeptus_insights/support.php', ['action' => 'view', 'ticket_id' => $ticket['id']]))->out(false),
+                'view_url' => (new moodle_url(
+                    '/report/adeptus_insights/support.php',
+                    ['action' => 'view', 'ticket_id' => $ticket['id']]
+                ))->out(false),
             ];
         }
     }
@@ -354,10 +358,14 @@ if ($view === 'changelog') {
     // Build filter options.
     $statusoptions = [
         ['value' => '', 'label' => get_string('all'), 'selected' => empty($statusfilter)],
-        ['value' => 'open', 'label' => get_string('status_open', 'report_adeptus_insights'), 'selected' => $statusfilter === 'open'],
-        ['value' => 'in_progress', 'label' => get_string('status_in_progress', 'report_adeptus_insights'), 'selected' => $statusfilter === 'in_progress'],
-        ['value' => 'resolved', 'label' => get_string('status_resolved', 'report_adeptus_insights'), 'selected' => $statusfilter === 'resolved'],
-        ['value' => 'closed', 'label' => get_string('status_closed', 'report_adeptus_insights'), 'selected' => $statusfilter === 'closed'],
+        ['value' => 'open', 'label' => get_string('status_open', 'report_adeptus_insights'),
+            'selected' => $statusfilter === 'open'],
+        ['value' => 'in_progress', 'label' => get_string('status_in_progress', 'report_adeptus_insights'),
+            'selected' => $statusfilter === 'in_progress'],
+        ['value' => 'resolved', 'label' => get_string('status_resolved', 'report_adeptus_insights'),
+            'selected' => $statusfilter === 'resolved'],
+        ['value' => 'closed', 'label' => get_string('status_closed', 'report_adeptus_insights'),
+            'selected' => $statusfilter === 'closed'],
     ];
 
     $categoryoptions = [

@@ -26,8 +26,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * API configuration class for Adeptus Insights.
  *
