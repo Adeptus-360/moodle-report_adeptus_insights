@@ -56,14 +56,18 @@ try {
                 $simpleresults[] = (array) $row;
             }
         }
-        $result['results'] = $simpleresults;
+        // Use array_values to ensure sequential integer keys for JSON array encoding.
+        $result['results'] = array_values($simpleresults);
     } else {
         // Ensure results is always an array.
         $result['results'] = [];
     }
 
-    // Use JSON_FORCE_OBJECT flag is NOT needed - we want arrays to be arrays.
-    // Ensure results encodes as a JSON array, not object.
+    // Ensure headers is also a proper indexed array.
+    if (isset($result['headers']) && is_array($result['headers'])) {
+        $result['headers'] = array_values($result['headers']);
+    }
+
     echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
