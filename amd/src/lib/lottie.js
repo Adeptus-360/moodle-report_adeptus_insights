@@ -1,4 +1,4 @@
-// jshint ignore:start
+/* eslint-disable */
 define(['report_adeptus_insights/vendor_lottie_light'], function(lottie) {
     'use strict';
     
