@@ -229,10 +229,21 @@ class manage_category extends external_api {
             }
 
             // Return the backend response with consistent structure.
+            // Backend may return categories in 'categories', 'data', or directly as array.
+            $categories = '[]';
+            if (isset($backenddata['categories'])) {
+                $categories = json_encode($backenddata['categories']);
+            } else if (isset($backenddata['data']) && is_array($backenddata['data'])) {
+                $categories = json_encode($backenddata['data']);
+            } else if (is_array($backenddata) && !isset($backenddata['success']) && !isset($backenddata['message'])) {
+                // Backend returned raw array of categories.
+                $categories = json_encode($backenddata);
+            }
+
             return [
                 'success' => $backenddata['success'] ?? true,
                 'message' => $backenddata['message'] ?? '',
-                'categories' => isset($backenddata['categories']) ? json_encode($backenddata['categories']) : '[]',
+                'categories' => $categories,
                 'category' => isset($backenddata['category']) ? json_encode($backenddata['category']) : '',
             ];
         } catch (\Exception $e) {

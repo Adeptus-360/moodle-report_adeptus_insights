@@ -35,33 +35,24 @@
 
 {{#js}}
 require(
-    ['core/notification', 'report_adeptus_insights/global_auth'],
-    function(Notification, GlobalAuth) {
+    ['core/notification'],
+    function(Notification) {
         /* global AdeptusWizard */
-        /* eslint-disable promise/no-nesting */
-        GlobalAuth.init().then(function() {
-            setTimeout(function() {
-                if (typeof AdeptusWizard !== 'undefined') {
-                    var wizard = new AdeptusWizard();
-                    window.adeptusWizardInstance = wizard;
-                    wizard.showLoading('Loading categories...');
-                    wizard.init().catch(function(error) {
-                        Notification.exception(error);
-                        wizard.hideLoading();
-                    });
-                }
-            }, 100);
-            return true;
-        }).catch(function(error) {
-            Notification.exception(error);
-        });
-        /* eslint-enable promise/no-nesting */
+        // Initialize wizard after a short delay to ensure DOM is ready.
+        setTimeout(function() {
+            if (typeof AdeptusWizard !== 'undefined') {
+                var wizard = new AdeptusWizard();
+                window.adeptusWizardInstance = wizard;
+                wizard.showLoading('Loading categories...');
+                wizard.init().catch(function(error) {
+                    Notification.exception(error);
+                    wizard.hideLoading();
+                });
+            }
+        }, 100);
     }
 );
 {{/js}}
-
-<!-- Global Authentication Header -->
-{{> report_adeptus_insights/global_auth_header }}
 
 <div class="adeptus-wizard-container" id="wizard-container">
     <!-- Header Section -->

@@ -56,10 +56,18 @@ if ($subscription) {
                      ($subscription['price'] ?? 0) == 0);
 }
 
+// Get backend URL from config.
+$backendurl = \report_adeptus_insights\api_config::get_backend_url();
+
 // Load required AMD modules and CSS.
-$PAGE->requires->js_call_amd('report_adeptus_insights/assistant', 'init', [$authenticated, $isfreeplan]);
+// IMPORTANT: auth_utils must be initialized FIRST to set window.adeptusAuthData before other modules use it.
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authdata]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
+$PAGE->requires->js_call_amd('report_adeptus_insights/assistant', 'init', [[
+    'authenticated' => $authenticated,
+    'isFreePlan' => $isfreeplan,
+    'backendUrl' => $backendurl,
+]]);
 $PAGE->requires->css('/report/adeptus_insights/styles/readonly-mode.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
 $PAGE->requires->css('/report/adeptus_insights/lib/vanilla-table-enhancer.css');

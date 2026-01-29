@@ -93,6 +93,11 @@ class execute_ai_report extends external_api {
 
         // Security: Basic SQL validation - only allow SELECT statements (read-only).
         $sqltrimmed = trim($sql);
+
+        // Remove leading SQL comments (-- or /* */).
+        $sqltrimmed = preg_replace('/^(\s*(--[^\n]*\n|\/\*.*?\*\/\s*))+/s', '', $sqltrimmed);
+        $sqltrimmed = trim($sqltrimmed);
+
         $sqlupper = strtoupper(substr($sqltrimmed, 0, 6));
         if ($sqlupper !== 'SELECT') {
             return [
@@ -104,6 +109,9 @@ class execute_ai_report extends external_api {
                 'row_count' => 0,
             ];
         }
+
+        // Use the cleaned SQL for execution.
+        $sql = $sqltrimmed;
 
         // Block dangerous SQL patterns.
         $dangerouspatterns = [

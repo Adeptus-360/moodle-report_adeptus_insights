@@ -291,9 +291,27 @@ define([
         reportsLimit: 0,
         reportsRemaining: 0,
         reportEligibilityChecked: false,
-        init: function(authenticated, isFreePlan) {
+        init: function(config) {
             var self = this;
-            this.isFreePlan = isFreePlan !== false; // Default to true if not passed
+
+            // Handle both object config and legacy positional params.
+            var authenticated, isFreePlan, backendUrl;
+            if (config && typeof config === 'object' && !Array.isArray(config)) {
+                authenticated = config.authenticated !== false;
+                isFreePlan = config.isFreePlan !== false;
+                backendUrl = config.backendUrl || this.backendUrl;
+            } else {
+                // Legacy: init(authenticated, isFreePlan)
+                authenticated = config !== false;
+                isFreePlan = arguments[1] !== false;
+                backendUrl = this.backendUrl;
+            }
+
+            this.isFreePlan = isFreePlan;
+            this.authenticated = authenticated;
+            if (backendUrl) {
+                this.backendUrl = backendUrl;
+            }
             if (this._initCalled) return;
             this._initCalled = true;
             this.currentChatId = 0;
@@ -5056,7 +5074,9 @@ define([
 
                 promises[0].done(function(result) {
                     self.hideLoading();
-                    var response = result.data ? result.data : result;
+                    // Result is the webservice response directly - don't check result.data
+                    // as that's a field in the response (JSON string), not a wrapper.
+                    var response = result;
 
                     if (response.success) {
                         // Parse JSON strings if needed

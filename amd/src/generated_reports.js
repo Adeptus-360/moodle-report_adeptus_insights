@@ -560,10 +560,78 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 success: function(response) {
                     if (response.success && response.data) {
                         self.cachedCategories = response.data;
+                        // Enrich reports with category info now that categories are loaded.
+                        if (self.cachedReports && self.cachedReports.length > 0) {
+                            self.enrichReportsWithCategoryInfo();
+                        }
                     }
                 },
                 error: function() {
                     self.cachedCategories = [];
+                }
+            });
+        },
+
+        /**
+         * Enrich cached reports with category_info from cached categories.
+         * This ensures category colors and full info are available after page refresh.
+         */
+        enrichReportsWithCategoryInfo: function() {
+            var self = this;
+            if (!this.cachedCategories || this.cachedCategories.length === 0) {
+                return;
+            }
+
+            this.cachedReports.forEach(function(report) {
+                // Skip if already has full category_info.
+                if (report.category_info && report.category_info.id && report.category_info.color) {
+                    return;
+                }
+
+                var matchedCategory = null;
+
+                // Try to match by category_id first.
+                if (report.category_id) {
+                    matchedCategory = self.cachedCategories.find(function(c) {
+                        return c.id === report.category_id || c.id === parseInt(report.category_id, 10);
+                    });
+                }
+
+                // Try to match by category name if no id match.
+                if (!matchedCategory && report.category) {
+                    matchedCategory = self.cachedCategories.find(function(c) {
+                        return c.name && c.name.toLowerCase() === report.category.toLowerCase();
+                    });
+                }
+
+                // Try to match by category_info.name if available.
+                if (!matchedCategory && report.category_info && report.category_info.name) {
+                    matchedCategory = self.cachedCategories.find(function(c) {
+                        return c.name && c.name.toLowerCase() === report.category_info.name.toLowerCase();
+                    });
+                }
+
+                // Build category_info from matched category or defaults.
+                if (matchedCategory) {
+                    report.category_info = {
+                        id: matchedCategory.id,
+                        name: matchedCategory.name,
+                        color: matchedCategory.color || '#6c757d'
+                    };
+                    report.category = matchedCategory.name;
+                    report.category_id = matchedCategory.id;
+                } else {
+                    // Default to General if no match found.
+                    var generalCat = self.cachedCategories.find(function(c) {
+                        return c.name && c.name.toLowerCase() === 'general';
+                    });
+                    if (generalCat) {
+                        report.category_info = {
+                            id: generalCat.id,
+                            name: generalCat.name,
+                            color: generalCat.color || '#6c757d'
+                        };
+                    }
                 }
             });
         },
@@ -1162,19 +1230,43 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
          */
         showReportCategorySelector: function(report) {
             var self = this;
-            var categoryInfo = report.category_info || {name: report.category || STRINGS.general, color: '#6c757d'};
 
-            this.currentCategoryReport = report;
+            // Store the report slug so we can always get fresh data from cache.
+            this.currentCategoryReportSlug = report.slug;
 
-            $('#category-dot').css('background', categoryInfo.color || '#6c757d');
-            $('#category-name').text(categoryInfo.name || STRINGS.general);
+            // Helper to get fresh report from cache.
+            var getFreshReport = function() {
+                var cached = self.cachedReports.find(function(r) {
+                    return r.slug === self.currentCategoryReportSlug;
+                });
+                return cached || report;
+            };
+
+            // Helper to get fresh category info.
+            var getFreshCategoryInfo = function() {
+                var r = getFreshReport();
+                return r.category_info || {name: r.category || STRINGS.general, color: '#6c757d'};
+            };
+
+            // Update the displayed category.
+            var updateCategoryDisplay = function() {
+                var catInfo = getFreshCategoryInfo();
+                $('#category-dot').css('background', catInfo.color || '#6c757d');
+                $('#category-name').text(catInfo.name || STRINGS.general);
+            };
+
+            updateCategoryDisplay();
             $('#report-category-selector').removeClass('d-none');
 
             var buildDropdown = function() {
+                var currentReport = getFreshReport();
+                var catInfo = getFreshCategoryInfo();
+
                 var menuHtml = self.cachedCategories.map(function(cat) {
-                    var isSelected = (categoryInfo.id && cat.id === categoryInfo.id) ||
-                                     (!categoryInfo.id && cat.name.toLowerCase() ===
-                                     (categoryInfo.name || 'general').toLowerCase());
+                    var isSelected = (catInfo.id && cat.id === catInfo.id) ||
+                                     (currentReport.category_id && cat.id === currentReport.category_id) ||
+                                     (!catInfo.id && !currentReport.category_id && cat.name.toLowerCase() ===
+                                     (catInfo.name || 'general').toLowerCase());
                     return '<button type="button" class="adeptus-category-menu-item' +
                         (isSelected ? ' selected' : '') + '" data-id="' + cat.id + '" data-name="' + cat.name +
                         '" data-color="' + (cat.color || '#6c757d') + '">' +
@@ -1196,10 +1288,26 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     var catName = $(this).data('name');
                     var catColor = $(this).data('color');
                     $('#category-dropdown-menu').removeClass('show');
-                    self.updateReportCategory(report.slug, catId, catName, catColor, report);
+                    var freshReport = getFreshReport();
+                    self.updateReportCategory(freshReport.slug, catId, catName, catColor, freshReport);
+                    // Update display immediately.
+                    $('#category-dot').css('background', catColor);
+                    $('#category-name').text(catName);
                 });
             };
 
+            // Always rebuild dropdown when button is clicked to get fresh data.
+            $('#category-current-btn').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                // Rebuild dropdown with fresh category info before showing.
+                if (self.cachedCategories && self.cachedCategories.length > 0) {
+                    buildDropdown();
+                }
+                $('#category-dropdown-menu').toggleClass('show');
+            });
+
+            // Initial dropdown build.
             if (!this.cachedCategories || this.cachedCategories.length === 0) {
                 $.ajax({
                     url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/manage_category.php',
@@ -1224,12 +1332,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 buildDropdown();
             }
 
-            $('#category-current-btn').off('click').on('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                $('#category-dropdown-menu').toggleClass('show');
-            });
-
             $('#category-dropdown-menu').off('click').on('click', function(e) {
                 e.stopPropagation();
             });
@@ -1253,8 +1355,33 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
             var self = this;
             var source = report ? (report.source || 'assistant') : 'assistant';
 
+            // Update display immediately.
             $('#category-dot').css('background', categoryColor);
             $('#category-name').text(categoryName);
+
+            // Optimistic update: update cache immediately so dropdown shows correct selection.
+            var cacheIndex = self.cachedReports.findIndex(function(r) {
+                return r.slug === slug;
+            });
+            var oldCategory = null;
+            var oldCategoryId = null;
+            var oldCategoryInfo = null;
+
+            if (cacheIndex !== -1) {
+                // Store old values for potential rollback.
+                oldCategory = self.cachedReports[cacheIndex].category;
+                oldCategoryId = self.cachedReports[cacheIndex].category_id;
+                oldCategoryInfo = self.cachedReports[cacheIndex].category_info;
+
+                // Update cache immediately.
+                self.cachedReports[cacheIndex].category = categoryName;
+                self.cachedReports[cacheIndex].category_id = categoryId;
+                self.cachedReports[cacheIndex].category_info = {
+                    id: categoryId,
+                    name: categoryName,
+                    color: categoryColor
+                };
+            }
 
             $.ajax({
                 url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/update_report_category.php',
@@ -1268,24 +1395,22 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 },
                 success: function(response) {
                     if (response.success) {
-                        var cacheIndex = self.cachedReports.findIndex(function(r) {
-                            return r.slug === slug;
-                        });
-                        if (cacheIndex !== -1) {
-                            self.cachedReports[cacheIndex].category = categoryName;
-                            self.cachedReports[cacheIndex].category_id = categoryId;
-                            self.cachedReports[cacheIndex].category_info = {
-                                id: categoryId,
-                                name: categoryName,
-                                color: categoryColor
-                            };
-                        }
-
                         $('#category-current-btn').addClass('success-flash');
                         setTimeout(function() {
                             $('#category-current-btn').removeClass('success-flash');
                         }, 600);
                     } else {
+                        // Rollback on failure.
+                        if (cacheIndex !== -1) {
+                            self.cachedReports[cacheIndex].category = oldCategory;
+                            self.cachedReports[cacheIndex].category_id = oldCategoryId;
+                            self.cachedReports[cacheIndex].category_info = oldCategoryInfo;
+                            // Update display back to old values.
+                            var oldColor = (oldCategoryInfo && oldCategoryInfo.color) || '#6c757d';
+                            var oldName = (oldCategoryInfo && oldCategoryInfo.name) || oldCategory || STRINGS.general;
+                            $('#category-dot').css('background', oldColor);
+                            $('#category-name').text(oldName);
+                        }
                         Swal.fire({
                             icon: 'error',
                             title: STRINGS.error,
@@ -1294,6 +1419,17 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     }
                 },
                 error: function(xhr) {
+                    // Rollback on error.
+                    if (cacheIndex !== -1) {
+                        self.cachedReports[cacheIndex].category = oldCategory;
+                        self.cachedReports[cacheIndex].category_id = oldCategoryId;
+                        self.cachedReports[cacheIndex].category_info = oldCategoryInfo;
+                        // Update display back to old values.
+                        var oldColor = (oldCategoryInfo && oldCategoryInfo.color) || '#6c757d';
+                        var oldName = (oldCategoryInfo && oldCategoryInfo.name) || oldCategory || STRINGS.general;
+                        $('#category-dot').css('background', oldColor);
+                        $('#category-name').text(oldName);
+                    }
                     var msg = (xhr.responseJSON && xhr.responseJSON.message) || '';
                     Swal.fire({icon: 'error', title: STRINGS.error, text: msg});
                 }
@@ -1445,10 +1581,26 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
 
                     assistantReports = (Array.isArray(assistantReports) ? assistantReports : []).map(function(r) {
                         r.source = r.source || 'assistant';
+                        // Parse category_info if it's a JSON string.
+                        if (r.category_info && typeof r.category_info === 'string') {
+                            try {
+                                r.category_info = JSON.parse(r.category_info);
+                            } catch (e) {
+                                r.category_info = null;
+                            }
+                        }
                         return r;
                     });
                     wizardReports = (Array.isArray(wizardReports) ? wizardReports : []).map(function(r) {
                         r.source = 'wizard';
+                        // Parse category_info if it's a JSON string.
+                        if (r.category_info && typeof r.category_info === 'string') {
+                            try {
+                                r.category_info = JSON.parse(r.category_info);
+                            } catch (e) {
+                                r.category_info = null;
+                            }
+                        }
                         return r;
                     });
 
@@ -1457,6 +1609,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     self.cachedReports.sort(function(a, b) {
                         return new Date(b.created_at) - new Date(a.created_at);
                     });
+
+                    // Enrich reports with category_info from cached categories.
+                    self.enrichReportsWithCategoryInfo();
 
                     self.renderReportsList(self.cachedReports);
                     self.updateReportCount(self.cachedReports.length);
@@ -1828,9 +1983,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     timeout: 60000,
                     success: function(response) {
                         if (response.success) {
+                            // Parse JSON strings if returned as strings.
+                            var data = response.data;
+                            var headers = response.headers;
+                            if (typeof data === 'string') {
+                                try { data = JSON.parse(data); } catch (e) { data = []; }
+                            }
+                            if (typeof headers === 'string') {
+                                try { headers = JSON.parse(headers); } catch (e) { headers = []; }
+                            }
                             resolve({
-                                data: response.data || [],
-                                headers: response.headers || [],
+                                data: data || [],
+                                headers: headers || [],
                                 row_count: response.row_count || 0,
                                 error: null
                             });

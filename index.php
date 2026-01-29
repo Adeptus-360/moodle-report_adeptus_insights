@@ -72,7 +72,7 @@ $authstatus = $authmanager->get_auth_status();
 // Load required AMD modules and CSS BEFORE header.
 $PAGE->requires->js_call_amd('report_adeptus_insights/auth_utils', 'initializeFromMoodle', [$authstatus]);
 $PAGE->requires->js_call_amd('report_adeptus_insights/readonly_mode', 'init');
-$PAGE->requires->js('/report/adeptus_insights/lib/lottie_animation.js');
+// Lottie is loaded dynamically by lottie_bridge.js to avoid RequireJS conflicts.
 $PAGE->requires->js_call_amd('report_adeptus_insights/lottie_loader', 'init');
 $PAGE->requires->js_call_amd('report_adeptus_insights/index_dashboard', 'init');
 $PAGE->requires->css('/report/adeptus_insights/styles.css');

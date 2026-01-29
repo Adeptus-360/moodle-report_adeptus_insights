@@ -245,6 +245,37 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 3: AI Report Execution.
+    'report_adeptus_insights_execute_ai_report' => [
+        'classname'   => 'report_adeptus_insights\external\execute_ai_report',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Execute AI-generated report SQL locally',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
+    // Backend API Reports.
+    'report_adeptus_insights_get_reports_from_backend' => [
+        'classname'   => 'report_adeptus_insights\external\get_reports_from_backend',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get reports from backend API filtered by Moodle version',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_get_auth_status' => [
+        'classname'   => 'report_adeptus_insights\external\get_auth_status',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get authentication status for current user',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -277,6 +308,11 @@ $services = [
             'report_adeptus_insights_get_usage_data',
             'report_adeptus_insights_get_available_plans',
             'report_adeptus_insights_create_subscription',
+            // Phase 3: AI Report Execution.
+            'report_adeptus_insights_execute_ai_report',
+            // Backend API Reports.
+            'report_adeptus_insights_get_reports_from_backend',
+            'report_adeptus_insights_get_auth_status',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

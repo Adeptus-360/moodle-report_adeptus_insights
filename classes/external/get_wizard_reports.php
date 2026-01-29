@@ -116,7 +116,7 @@ class get_wizard_reports extends external_api {
         $formattedreports = [];
 
         foreach ($reports as $report) {
-            $formattedreports[] = [
+            $formattedreport = [
                 'id' => (int) ($report['id'] ?? 0),
                 'slug' => $report['slug'] ?? '',
                 'name' => $report['name'] ?? '',
@@ -124,7 +124,25 @@ class get_wizard_reports extends external_api {
                 'parameters' => json_encode($report['parameters'] ?? []),
                 'created_at' => $report['created_at'] ?? '',
                 'updated_at' => $report['updated_at'] ?? '',
+                'category' => $report['category'] ?? '',
+                'category_id' => (int) ($report['category_id'] ?? 0),
             ];
+
+            // Include category_info if available from backend.
+            if (isset($report['category_info'])) {
+                $formattedreport['category_info'] = json_encode($report['category_info']);
+            } else if (!empty($report['category_id']) || !empty($report['category'])) {
+                // Build category_info from available data.
+                $formattedreport['category_info'] = json_encode([
+                    'id' => (int) ($report['category_id'] ?? 0),
+                    'name' => $report['category'] ?? 'General',
+                    'color' => $report['category_color'] ?? '#6c757d',
+                ]);
+            } else {
+                $formattedreport['category_info'] = '';
+            }
+
+            $formattedreports[] = $formattedreport;
         }
 
         return [
@@ -153,6 +171,9 @@ class get_wizard_reports extends external_api {
                     'parameters' => new external_value(PARAM_RAW, 'JSON-encoded parameters'),
                     'created_at' => new external_value(PARAM_TEXT, 'Creation timestamp'),
                     'updated_at' => new external_value(PARAM_TEXT, 'Last update timestamp'),
+                    'category' => new external_value(PARAM_TEXT, 'Category name', VALUE_OPTIONAL),
+                    'category_id' => new external_value(PARAM_INT, 'Category ID', VALUE_OPTIONAL),
+                    'category_info' => new external_value(PARAM_RAW, 'JSON-encoded category info', VALUE_OPTIONAL),
                 ]),
                 'List of user saved reports'
             ),

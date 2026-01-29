@@ -83,9 +83,11 @@ class get_auth_status extends external_api {
             return [
                 'success' => true,
                 'message' => '',
-                'is_authenticated' => $authstatus['is_authenticated'] ?? false,
-                'user_email' => $authstatus['user_email'] ?? '',
-                'token_expires_at' => $authstatus['token_expires_at'] ?? 0,
+                'is_authenticated' => $authstatus['user_authorized'] ?? false,
+                'user_authorized' => $authstatus['user_authorized'] ?? false,
+                'has_api_key' => $authstatus['has_api_key'] ?? false,
+                'user_email' => $authstatus['user']['email'] ?? '',
+                'token_expires_at' => 0,
                 'installation_info' => json_encode($installationinfo),
             ];
         } catch (\Exception $e) {
@@ -93,6 +95,8 @@ class get_auth_status extends external_api {
                 'success' => false,
                 'message' => get_string('error_get_auth_status_failed', 'report_adeptus_insights', $e->getMessage()),
                 'is_authenticated' => false,
+                'user_authorized' => false,
+                'has_api_key' => false,
                 'user_email' => '',
                 'token_expires_at' => 0,
                 'installation_info' => '{}',
@@ -110,6 +114,8 @@ class get_auth_status extends external_api {
             'success' => new external_value(PARAM_BOOL, 'Whether the operation was successful'),
             'message' => new external_value(PARAM_TEXT, 'Error message if any'),
             'is_authenticated' => new external_value(PARAM_BOOL, 'Whether user is authenticated'),
+            'user_authorized' => new external_value(PARAM_BOOL, 'Whether user is authorized'),
+            'has_api_key' => new external_value(PARAM_BOOL, 'Whether installation has API key'),
             'user_email' => new external_value(PARAM_TEXT, 'User email if authenticated'),
             'token_expires_at' => new external_value(PARAM_INT, 'Token expiration timestamp'),
             'installation_info' => new external_value(PARAM_RAW, 'JSON-encoded installation info'),
