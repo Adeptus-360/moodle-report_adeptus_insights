@@ -135,7 +135,10 @@ class stripe_service {
     }
 
     /**
-     * Update Stripe configuration
+     * Update Stripe configuration.
+     *
+     * @param array $data Configuration data including keys and settings.
+     * @return void
      */
     public function update_config($data) {
         global $DB;
@@ -160,7 +163,12 @@ class stripe_service {
     }
 
     /**
-     * Create or get Stripe customer
+     * Create or get Stripe customer.
+     *
+     * @param string $email Customer email address.
+     * @param string|null $name Customer name.
+     * @param array $metadata Additional metadata for the customer.
+     * @return \Stripe\Customer The Stripe customer object.
      */
     public function create_customer($email, $name = null, $metadata = []) {
         try {
@@ -191,7 +199,12 @@ class stripe_service {
     }
 
     /**
-     * Create subscription
+     * Create subscription.
+     *
+     * @param string $customerid Stripe customer ID.
+     * @param string $priceid Stripe price ID.
+     * @param array $metadata Additional metadata for the subscription.
+     * @return \Stripe\Subscription The Stripe subscription object.
      */
     public function create_subscription($customerid, $priceid, $metadata = []) {
         try {
@@ -212,7 +225,10 @@ class stripe_service {
     }
 
     /**
-     * Get subscription details
+     * Get subscription details.
+     *
+     * @param string $subscriptionid Stripe subscription ID.
+     * @return \Stripe\Subscription The Stripe subscription object.
      */
     public function get_subscription($subscriptionid) {
         try {
@@ -223,7 +239,11 @@ class stripe_service {
     }
 
     /**
-     * Cancel subscription
+     * Cancel subscription.
+     *
+     * @param string $subscriptionid Stripe subscription ID.
+     * @param bool $atperiodend Whether to cancel at period end.
+     * @return \Stripe\Subscription The updated Stripe subscription object.
      */
     public function cancel_subscription($subscriptionid, $atperiodend = true) {
         try {
@@ -241,7 +261,11 @@ class stripe_service {
     }
 
     /**
-     * Update subscription
+     * Update subscription.
+     *
+     * @param string $subscriptionid Stripe subscription ID.
+     * @param string $priceid New Stripe price ID.
+     * @return \Stripe\Subscription The updated Stripe subscription object.
      */
     public function update_subscription($subscriptionid, $priceid) {
         try {
@@ -262,7 +286,13 @@ class stripe_service {
     }
 
     /**
-     * Create payment intent for one-time payments
+     * Create payment intent for one-time payments.
+     *
+     * @param int $amount Amount in smallest currency unit (e.g., pence).
+     * @param string $currency Currency code (e.g., GBP, USD).
+     * @param string $customerid Stripe customer ID.
+     * @param array $metadata Additional metadata for the payment intent.
+     * @return \Stripe\PaymentIntent The Stripe payment intent object.
      */
     public function create_payment_intent($amount, $currency, $customerid, $metadata = []) {
         try {
@@ -295,7 +325,14 @@ class stripe_service {
     }
 
     /**
-     * Create product and price
+     * Create product and price.
+     *
+     * @param string $name Product name.
+     * @param string $description Product description.
+     * @param float $price Price amount in major currency unit.
+     * @param string $currency Currency code (default: GBP).
+     * @param string $interval Billing interval (default: month).
+     * @return array Array containing product and price objects.
      */
     public function create_product($name, $description, $price, $currency = 'GBP', $interval = 'month') {
         try {
@@ -330,7 +367,11 @@ class stripe_service {
     }
 
     /**
-     * Verify webhook signature
+     * Verify webhook signature.
+     *
+     * @param string $payload Raw webhook payload.
+     * @param string $signature Stripe signature header.
+     * @return \Stripe\Event The verified Stripe event object.
      */
     public function verify_webhook($payload, $signature) {
         try {
@@ -345,7 +386,11 @@ class stripe_service {
     }
 
     /**
-     * Get customer portal URL
+     * Get customer portal URL.
+     *
+     * @param string $customerid Stripe customer ID.
+     * @param string $returnurl URL to return to after portal session.
+     * @return \Stripe\BillingPortal\Session The billing portal session object.
      */
     public function create_portal_session($customerid, $returnurl) {
         try {
@@ -373,7 +418,11 @@ class stripe_service {
     }
 
     /**
-     * Format amount for display
+     * Format amount for display.
+     *
+     * @param int $amount Amount in smallest currency unit (e.g., pence).
+     * @param string $currency Currency code (default: GBP).
+     * @return string Formatted amount with currency symbol.
      */
     public function format_amount($amount, $currency = 'GBP') {
         $symbols = [

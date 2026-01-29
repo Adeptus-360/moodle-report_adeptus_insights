@@ -170,7 +170,13 @@ class installation_manager {
     }
 
     /**
-     * Register installation with backend API
+     * Register installation with backend API.
+     *
+     * @param string $adminemail Administrator email address.
+     * @param string $adminname Administrator name.
+     * @param string|null $siteurl Site URL, defaults to wwwroot if null.
+     * @param string|null $sitename Site name, defaults to fullname if null.
+     * @return array Registration result with success status and message.
      */
     public function register_installation($adminemail, $adminname, $siteurl = null, $sitename = null) {
         global $CFG, $DB;
@@ -271,7 +277,11 @@ class installation_manager {
     }
 
     /**
-     * Setup starter subscription for new users
+     * Setup starter subscription for new users.
+     *
+     * @param string $email User email address.
+     * @param string $name User name.
+     * @return void
      */
     public function setup_starter_subscription($email, $name) {
         try {
@@ -785,7 +795,10 @@ class installation_manager {
     }
 
     /**
-     * Get subscription details from the backend API
+     * Get subscription details from the backend API.
+     *
+     * @param string $apikey The API key for authentication.
+     * @return array|null Subscription details or null on failure.
      */
     private function get_backend_subscription_details($apikey) {
         $endpoint = 'subscriptions/status';
@@ -866,6 +879,9 @@ class installation_manager {
 
     /**
      * Format token count for display (e.g., "50K", "1.2M").
+     *
+     * @param int $tokens The token count to format.
+     * @return string Formatted token count string.
      */
     private function format_token_count($tokens) {
         if ($tokens >= 1000000) {
@@ -1269,6 +1285,9 @@ class installation_manager {
 
     /**
      * Convert technical error messages to user-friendly messages.
+     *
+     * @param string $technicalmessage The technical error message.
+     * @return string User-friendly error message.
      */
     private function get_user_friendly_error_message($technicalmessage) {
         $message = strtolower($technicalmessage);
@@ -1402,7 +1421,12 @@ class installation_manager {
     }
 
     /**
-     * Create billing portal session for upgrades
+     * Create billing portal session for upgrades.
+     *
+     * @param string|null $returnurl URL to return to after portal session.
+     * @param string|null $planid Plan ID for upgrade/downgrade.
+     * @param string|null $action Action to perform (upgrade/downgrade).
+     * @return array Result with success status and portal URL or error message.
      */
     public function create_billing_portal_session($returnurl = null, $planid = null, $action = null) {
         try {
@@ -1584,7 +1608,11 @@ class installation_manager {
     }
 
     /**
-     * Create billing portal session for specific product upgrade/downgrade
+     * Create billing portal session for specific product upgrade/downgrade.
+     *
+     * @param string $productid The product ID to upgrade/downgrade to.
+     * @param string $returnurl URL to return to after portal session.
+     * @return array Result with success status and portal URL or error message.
      */
     public function create_product_portal_session($productid, $returnurl) {
         try {
