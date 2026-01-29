@@ -43,7 +43,7 @@
         <licenseversion>3.0</licenseversion>
     </library>
     <library>
-        <location>amd/src/vendor/lottie_light.js</location>
+        <location>amd/src/lottie_light.js</location>
         <name>Lottie Web Light</name>
         <version>5.12.2</version>
         <license>MIT</license>
