@@ -41,7 +41,19 @@ try {
         $result['reports'] = json_decode($result['reports'], true);
     }
 
-    echo json_encode($result);
+    // Ensure each report's results is an array.
+    if (isset($result['reports']) && is_array($result['reports'])) {
+        foreach ($result['reports'] as $reportid => $reportdata) {
+            if (isset($reportdata['results'])) {
+                // Ensure results is an indexed array.
+                $result['reports'][$reportid]['results'] = array_values((array) $reportdata['results']);
+            } else {
+                $result['reports'][$reportid]['results'] = [];
+            }
+        }
+    }
+
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([

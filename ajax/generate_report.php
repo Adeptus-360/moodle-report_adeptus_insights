@@ -39,10 +39,11 @@ try {
 
     // Transform results from Moodle's complex format [{cells: [{key, value}]}]
     // to simple format [{col1: val1, col2: val2}] that the block expects.
-    if (!empty($result['results']) && is_array($result['results'])) {
+    if (isset($result['results']) && is_array($result['results'])) {
         $simpleresults = [];
         foreach ($result['results'] as $row) {
             if (isset($row['cells']) && is_array($row['cells'])) {
+                // Moodle external service format - transform it.
                 $simplerow = [];
                 foreach ($row['cells'] as $cell) {
                     if (isset($cell['key'])) {
@@ -50,12 +51,20 @@ try {
                     }
                 }
                 $simpleresults[] = $simplerow;
+            } else if (is_array($row) || is_object($row)) {
+                // Already in simple format or object - convert to array.
+                $simpleresults[] = (array) $row;
             }
         }
         $result['results'] = $simpleresults;
+    } else {
+        // Ensure results is always an array.
+        $result['results'] = [];
     }
 
-    echo json_encode($result);
+    // Use JSON_FORCE_OBJECT flag is NOT needed - we want arrays to be arrays.
+    // Ensure results encodes as a JSON array, not object.
+    echo json_encode($result, JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
