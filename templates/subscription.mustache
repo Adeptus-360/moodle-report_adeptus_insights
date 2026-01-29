@@ -94,7 +94,7 @@ require(
                     {{#current_subscription}}
                     <div class="adeptus-analytics-progress">
                         <div class="adeptus-progress-bar">
-                            <div class="adeptus-progress-fill" style="width: {{tokens_usage_percent}}%"></div>
+                            <div class="adeptus-progress-fill" data-width="{{tokens_usage_percent}}"></div>
                         </div>
                     </div>
                     {{/current_subscription}}
@@ -127,7 +127,7 @@ require(
                     {{#current_subscription}}
                     <div class="adeptus-analytics-progress">
                         <div class="adeptus-progress-bar">
-                            <div class="adeptus-progress-fill" style="width: {{#usage}}{{reports_generated_this_month}}{{/usage}}{{^usage}}0{{/usage}}%"></div>
+                            <div class="adeptus-progress-fill" data-width="{{#usage}}{{reports_generated_this_month}}{{/usage}}{{^usage}}0{{/usage}}"></div>
                         </div>
                     </div>
                     {{/current_subscription}}
@@ -227,7 +227,7 @@ require(
             </div>
             <div class="adeptus-status-content">
                 <div class="adeptus-plan-details">
-                    <h4>{{plan_name}}</h4>
+                    <h4>{{#plan_name}}{{plan_name}}{{/plan_name}}{{^plan_name}}-{{/plan_name}}</h4>
                     <p class="adeptus-plan-price">{{price}} <span class="adeptus-billing-cycle">{{billing_cycle}}</span></p>
                     <div class="adeptus-plan-status">
                         <span class="adeptus-status-badge adeptus-status-{{status}}">{{status_message}}</span>

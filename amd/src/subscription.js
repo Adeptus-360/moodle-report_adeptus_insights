@@ -249,6 +249,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Continue initialization after strings are loaded
          */
         _initAfterStrings: function() {
+            // Initialize progress bar widths from data attributes
+            this.initProgressBars();
+
             // Initialize event handlers
             this.initEventHandlers();
 
@@ -257,6 +260,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
             // Initialize subscription display
             this.updateSubscriptionDisplay();
+        },
+
+        /**
+         * Initialize progress bar widths from data-width attributes
+         */
+        initProgressBars: function() {
+            $('.adeptus-progress-fill[data-width]').each(function() {
+                var width = $(this).data('width') || 0;
+                $(this).css('width', width + '%');
+            });
         },
 
         /**

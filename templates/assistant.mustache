@@ -41,7 +41,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
 // Clear any existing AMD cache for our module
 require.undef('report_adeptus_insights/assistant');
 // Initialize the assistant with authentication status and plan type
-Assistant.init({{authenticated}}, {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}});
+Assistant.init({{#authenticated}}true{{/authenticated}}{{^authenticated}}false{{/authenticated}}, {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}});
 });
 {{/js}}
 
