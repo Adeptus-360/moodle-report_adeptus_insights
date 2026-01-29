@@ -20,7 +20,11 @@
     Registration wizard template providing a modern, beautiful, multi-step interface
     for new user registration and onboarding.
 
-    Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+    Example context (json):
+    {
+        "registration_title": "Registration",
+        "admin_email": "admin@example.com"
+    }
 
     @package    report_adeptus_insights
     @copyright  2026 Adeptus 360 <info@adeptus360.com>
@@ -45,9 +49,7 @@ require(
     <!-- Header Section -->
     <div class="adeptus-wizard-header">
         <div class="adeptus-wizard-header-content">
-            <h1 class="adeptus-wizard-title">
-                <i class="fa fa-rocket adeptus-wizard-icon"></i>
-                {{registration_title}}
+            <h1 class="adeptus-wizard-title"><i class="fa fa-rocket adeptus-wizard-icon"></i> {{registration_title}}
             </h1>
             <p class="adeptus-wizard-subtitle">{{#str}}registration_setup_subtitle, report_adeptus_insights{{/str}}</p>
         </div>

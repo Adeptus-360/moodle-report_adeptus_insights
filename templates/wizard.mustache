@@ -20,8 +20,14 @@
     @copyright   2026 Adeptus 360 <info@adeptus360.com>
     @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-    Report Wizard Template - Modern, Beautiful, Animated Interface
-    Note: Do NOT load Bootstrap or Font Awesome from CDN - Moodle includes them and loading another version breaks things
+    Report Wizard Template - Modern, Beautiful, Animated Interface.
+
+    Example context (json):
+    {
+        "wizard_title": "Report Wizard",
+        "wwwroot": "https://example.com",
+        "categories": [{"name": "Student", "icon": "fa-user", "report_count": 5}]
+    }
 }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest"></script>
@@ -32,6 +38,7 @@ require(
     ['core/notification', 'report_adeptus_insights/global_auth'],
     function(Notification, GlobalAuth) {
         /* global AdeptusWizard */
+        /* eslint-disable promise/no-nesting */
         GlobalAuth.init().then(function() {
             setTimeout(function() {
                 if (typeof AdeptusWizard !== 'undefined') {
@@ -48,6 +55,7 @@ require(
         }).catch(function(error) {
             Notification.exception(error);
         });
+        /* eslint-enable promise/no-nesting */
     }
 );
 {{/js}}
@@ -59,10 +67,7 @@ require(
     <!-- Header Section -->
     <div class="adeptus-wizard-header">
         <div class="adeptus-wizard-header-content">
-            <h1 class="adeptus-wizard-title">
-                <i class="fa-solid fa-wand-magic-sparkles adeptus-wizard-icon"></i>
-                {{wizard_title}}
-            </h1>
+            <h1 class="adeptus-wizard-title"><i class="fa-solid fa-wand-magic-sparkles adeptus-wizard-icon"></i> {{wizard_title}}</h1>
             <p class="adeptus-wizard-subtitle">{{#str}}wizard_subtitle, report_adeptus_insights{{/str}}</p>
 
         </div>

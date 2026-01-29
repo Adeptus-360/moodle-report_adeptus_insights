@@ -20,10 +20,12 @@
     Subscription management template providing a modern, beautiful, responsive interface
     for viewing and managing subscription plans, usage analytics, and billing.
 
-    CSS is loaded from: styles/subscription.css
-    JS is loaded from: amd/src/subscription.js (via PHP)
-
-    Note: Do NOT load Bootstrap from CDN - Moodle includes Bootstrap and loading another version breaks navigation
+    Example context (json):
+    {
+        "user_fullname": "Admin User",
+        "config": {"wwwroot": "https://example.com"},
+        "current_subscription": {"status": "active", "is_active": true}
+    }
 
     @package    report_adeptus_insights
     @copyright  2026 Adeptus 360 <info@adeptus360.com>

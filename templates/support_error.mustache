@@ -20,6 +20,12 @@
     Support error page template displaying error messages with options
     to view tickets or create new support requests.
 
+    Example context (json):
+    {
+        "wwwroot": "https://example.com",
+        "error_message": "An error occurred"
+    }
+
     @package    report_adeptus_insights
     @copyright  2026 Adeptus 360 <info@adeptus360.com>
     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -50,7 +56,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body text-center py-5">
                         <i class="fa fa-exclamation-circle fa-4x text-danger mb-4"></i>
-                        <h4 class="text-danger">{{error_message}}</h4>
+                        <h4 class="text-danger">{{#error_message}}{{error_message}}{{/error_message}}{{^error_message}}Error{{/error_message}}</h4>
                         <p class="text-muted">{{#str}}error_try_again, report_adeptus_insights{{/str}}</p>
                         <div class="mt-4">
                             <a href="{{wwwroot}}/report/adeptus_insights/support.php" class="btn btn-primary">
