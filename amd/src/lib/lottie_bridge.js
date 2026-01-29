@@ -1,8 +1,7 @@
 // amd/src/lib/lottie_bridge.js
-define(['report_adeptus_insights/animation_runtime'], function(runtime) {
-  // runtime: what the UMD returns when AMD is detected (often the API)
-  // window.lottie/bodymovin: what older/bundled builds attach globally
-  var api = runtime || window.lottie || window.bodymovin || null;
-  return api;
+// Lottie library is loaded globally via PHP $PAGE->requires->js()
+// This bridge module provides AMD access to the global lottie object
+define([], function() {
+  return window.lottie || window.bodymovin || null;
 });
 
