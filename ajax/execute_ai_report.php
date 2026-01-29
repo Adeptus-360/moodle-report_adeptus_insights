@@ -55,7 +55,6 @@ try {
     $result = \report_adeptus_insights\external\execute_ai_report::execute($sql, $params);
 
     echo json_encode($result);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([

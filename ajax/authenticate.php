@@ -54,7 +54,6 @@ try {
         'message' => 'Authentication successful',
         'data' => $authstatus,
     ]);
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
