@@ -227,10 +227,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
     /**
      * Create a Stripe billing portal session and redirect.
-     * @param {string} stripeProductId - Stripe product ID
-     * @param {string} planName - Plan name for display
      */
-    var createBillingPortalSession = function(stripeProductId, planName) {
+    var createBillingPortalSession = function() {
         var returnUrl = window.location.href;
 
         Ajax.call([{
@@ -287,13 +285,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         // Plan selection handler
         $(document).on('click', '.select-adeptus-plan-btn', function() {
-            var planId = $(this).data('plan-id');
-            var planName = $(this).data('adeptus-plan-name');
             var stripeProduct = $(this).data('stripe-product');
 
             if (stripeProduct) {
                 // Paid plan - redirect to billing portal
-                createBillingPortalSession(stripeProduct, planName);
+                createBillingPortalSession();
             } else {
                 // Free plan - complete installation
                 $('#complete-installation-form').submit();

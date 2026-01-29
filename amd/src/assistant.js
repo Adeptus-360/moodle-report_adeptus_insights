@@ -13,6 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/* global simpleDatatables */
+/* eslint-disable camelcase */
+/* eslint-disable promise/always-return */
+/* eslint-disable promise/catch-or-return */
+/* eslint-disable promise/no-nesting */
+
 /**
  * AI Assistant interface for Adeptus Insights plugin.
  *
@@ -20,12 +26,19 @@
  * chart rendering, and conversation management for the insights assistant.
  *
  * @module     report_adeptus_insights/assistant
- * @package    report_adeptus_insights
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templates', 'core/str', 'report_adeptus_insights/auth_utils'], function ($, Ajax, Notification, Chart, Templates, Str, AuthUtils) {
+define([
+    'jquery',
+    'core/ajax',
+    'core/notification',
+    'core/chartjs',
+    'core/templates',
+    'core/str',
+    'report_adeptus_insights/auth_utils'
+], function($, Ajax, Notification, Chart, Templates, Str, AuthUtils) {
     var Swal = window.Swal;
 
     // Language strings storage
@@ -284,7 +297,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         reportsLimit: 0,
         reportsRemaining: 0,
         reportEligibilityChecked: false,
-        init: function (authenticated, isFreePlan) {
+        init: function(authenticated, isFreePlan) {
             var self = this;
             this.isFreePlan = isFreePlan !== false; // Default to true if not passed
             if (this._initCalled) return;
@@ -292,7 +305,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.currentChatId = 0;
 
             // Get the specific AI Assistant container by ID (more reliable than sibling selection)
-            const getAssistantContainer = () => $('#adeptus-assistant-container');
+            var getAssistantContainer = function() {
+                return $('#adeptus-assistant-container');
+            };
             getAssistantContainer().hide();
 
             // Initialize loader CSS styles on startup
@@ -313,7 +328,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             try {
                 // Check if user is authenticated
                 if (AuthUtils.isAuthenticated()) {
-                    this.setUserName(AuthUtils.getAuthStatus()?.user?.name || "User");
+                    var authStatus = AuthUtils.getAuthStatus();
+                    var userName = (authStatus && authStatus.user && authStatus.user.name) || 'User';
+                    this.setUserName(userName);
                     this.updateSubscriptionInfo();
                     this.setupEventListeners();
                     this.loadChatHistory();
@@ -326,19 +343,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     AuthUtils.refreshAuthStatus();
 
                     // Check authentication status after refresh
-                    setTimeout(() => {
+                    setTimeout(function() {
                         if (AuthUtils.isAuthenticated()) {
-                            this.setUserName(AuthUtils.getAuthStatus()?.user?.name || "User");
-                            this.updateSubscriptionInfo();
-                            this.setupEventListeners();
-                            this.loadChatHistory();
-                            this.loadReportsHistory();
-                            this.loadCategories(); // Load report categories for save dialog
-                            this.checkReportEligibility(); // Check report limits on startup
+                            var authStat = AuthUtils.getAuthStatus();
+                            var uName = (authStat && authStat.user && authStat.user.name) || 'User';
+                            self.setUserName(uName);
+                            self.updateSubscriptionInfo();
+                            self.setupEventListeners();
+                            self.loadChatHistory();
+                            self.loadReportsHistory();
+                            self.loadCategories();
+                            self.checkReportEligibility();
                             getAssistantContainer().fadeIn(200);
                         } else {
                             // Show read-only mode or error message
-                            this.showAuthenticationError();
+                            self.showAuthenticationError();
                         }
                     }, 500);
                 }
@@ -353,109 +372,75 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         initializeLoaderStyles: function() {
             // Add loader CSS styles early to ensure they're available
             if ($('#ai-loader-styles').length === 0) {
-                $('head').append(`
-                    <style id="ai-loader-styles">
-                        .adeptus-ai-thinking-loader-wrapper {
-                            animation: fadeInLoader 0.3s ease-out forwards;
-                        }
-
-                        .adeptus-ai-thinking-loader {
-                            opacity: 1 !important;
-                        }
-
-                        @keyframes bounce-loader {
-                            0%, 80%, 100% {
-                                transform: scale(0.8);
-                                opacity: 0.5;
-                            }
-                            40% {
-                                transform: scale(1.2);
-                                opacity: 1;
-                            }
-                        }
-
-                        @keyframes fadeInLoader {
-                            from {
-                                opacity: 0;
-                                transform: translateY(10px);
-                            }
-                            to {
-                                opacity: 1;
-                                transform: translateY(0);
-                            }
-                        }
-
-                        @keyframes pulse-glow-loader {
-                            0% {
-                                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
-                            }
-                            70% {
-                                box-shadow: 0 0 0 8px rgba(14, 165, 233, 0);
-                            }
-                            100% {
-                                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
-                            }
-                        }
-                    </style>
-                `);
+                var loaderCss = '<style id="ai-loader-styles">' +
+                    '.adeptus-ai-thinking-loader-wrapper {' +
+                    'animation: fadeInLoader 0.3s ease-out forwards;' +
+                    '}' +
+                    '.adeptus-ai-thinking-loader {' +
+                    'opacity: 1 !important;' +
+                    '}' +
+                    '@keyframes bounce-loader {' +
+                    '0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }' +
+                    '40% { transform: scale(1.2); opacity: 1; }' +
+                    '}' +
+                    '@keyframes fadeInLoader {' +
+                    'from { opacity: 0; transform: translateY(10px); }' +
+                    'to { opacity: 1; transform: translateY(0); }' +
+                    '}' +
+                    '@keyframes pulse-glow-loader {' +
+                    '0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }' +
+                    '70% { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }' +
+                    '100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }' +
+                    '}' +
+                    '</style>';
+                $('head').append(loaderCss);
             }
         },
 
         showAuthenticationError: function() {
             // Show authentication error message in the AI Assistant container
-            const assistantContainer = $('#adeptus-assistant-container');
-            assistantContainer.html(`
-                <div class="alert alert-danger">
-                    <h4>${getString('authentication_required', 'Authentication Required')}</h4>
-                    <p>${getString('auth_required_message', 'You need to be authenticated to use the AI Assistant. Please contact your administrator for assistance.')}</p>
-                    <button class="btn btn-primary" onclick="location.reload()">${getString('refresh_page', 'Refresh Page')}</button>
-                </div>
-            `).show();
+            var assistantContainer = $('#adeptus-assistant-container');
+            var authReqTitle = getString('authentication_required', 'Authentication Required');
+            var authReqMsg = getString('auth_required_message',
+                'You need to be authenticated to use the AI Assistant. Please contact your administrator.');
+            var refreshBtn = getString('refresh_page', 'Refresh Page');
+            assistantContainer.html(
+                '<div class="alert alert-danger">' +
+                '<h4>' + authReqTitle + '</h4>' +
+                '<p>' + authReqMsg + '</p>' +
+                '<button class="btn btn-primary" onclick="location.reload()">' + refreshBtn + '</button>' +
+                '</div>'
+            ).show();
         },
 
-        setupEventListeners: function () {
-            const self = this;
+        setupEventListeners: function() {
+            var self = this;
 
             // Send message
-            $('#send-button').on('click', () => this.sendMessage());
-            $('#message-input').on('keydown', (e) => {
+            $('#send-button').on('click', function() {
+                self.sendMessage();
+            });
+            $('#message-input').on('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    this.sendMessage();
+                    self.sendMessage();
                 }
             });
 
             // Chart type change
-            $('#chart-type').on('change', () => this.updateChart());
+            $('#chart-type').on('change', function() {
+                self.updateChart();
+            });
 
             // Auto-resize textarea
-            $('#message-input').on('input', function () {
+            $('#message-input').on('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
 
-            $('#create-new-chat').on('click', () => this.createNewChat());
-        },
-
-        // Flag to prevent double message sending
-        isSending: false,
-
-        renderMCQ: function(mcq) {
-            this.currentMCQ = mcq;
-            var c = $('#adeptus-mcq-container').empty();
-            c.append(`<p><strong>${mcq.question}</strong></p>`);
-            mcq.options.forEach(opt => {
-                c.append(`
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio"
-                           name="mcq-option" id="mcq-${opt.key}"
-                           value="${opt.key}">
-                    <label class="form-check-label" for="mcq-${opt.key}">
-                      ${opt.key}. ${opt.label}
-                    </label>
-                  </div>`);
+            $('#create-new-chat').on('click', function() {
+                self.createNewChat();
             });
-            c.append(`<button id="mcq-cancel" class="btn btn-link">Cancel</button>`);
         },
 
         clearMCQ: function() {
@@ -470,89 +455,98 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Extract MCQ data from message text (handles both JSON array and individual JSON objects)
          */
         extractMCQFromText: function(text) {
-            if (!text || typeof text !== 'string') return null;
-            
+            if (!text || typeof text !== 'string') {
+                return null;
+            }
+
             try {
                 // Try to parse as JSON array first (e.g., ```json [...] ```)
-                const jsonArrayMatch = text.match(/```json\s*(\[[\s\S]*?\])\s*```/);
+                var jsonArrayMatch = text.match(/```json\s*(\[[\s\S]*?\])\s*```/);
                 if (jsonArrayMatch) {
-                    const questions = JSON.parse(jsonArrayMatch[1]);
-                    if (Array.isArray(questions) && questions.length > 0 && questions[0].type === 'mcq') {
-                        // Check if there's a selected answer in the next message (if this is history)
-                        return { questions: questions, selectedAnswer: null };
+                    var parsedQuestions = JSON.parse(jsonArrayMatch[1]);
+                    if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0 &&
+                        parsedQuestions[0].type === 'mcq') {
+                        return {questions: parsedQuestions, selectedAnswer: null};
                     }
                 }
-                
+
                 // Try to extract individual JSON objects (fallback for older format)
-                const jsonMatches = text.match(/\{[\s\S]*?\}/g) || [];
-                const questions = [];
-                jsonMatches.forEach(jsonStr => {
+                var jsonMatches = text.match(/\{[\s\S]*?\}/g) || [];
+                var questions = [];
+                jsonMatches.forEach(function(jsonStr) {
                     try {
-                        const obj = JSON.parse(jsonStr);
+                        var obj = JSON.parse(jsonStr);
                         if (obj.type === 'mcq' && Array.isArray(obj.options)) {
                             questions.push(obj);
                         }
-                    } catch (e) {
+                    } catch (parseErr) {
                         // Skip invalid JSON
+                        void parseErr;
                     }
                 });
-                
+
                 if (questions.length > 0) {
-                    return { questions: questions, selectedAnswer: null };
+                    return {questions: questions, selectedAnswer: null};
                 }
-            } catch (e) {
+            } catch (err) {
+                void err;
             }
-            
+
             return null;
         },
 
         /**
          * Render MCQ history view (disabled, showing selected answer if available)
+         * @param {Array} questions - Array of MCQ questions
+         * @param {string} selectedAnswer - The selected answer if any
+         * @returns {string} HTML string
          */
-        renderMCQHistory: function(questions, selectedAnswer = null) {
-            let html = '<div class="adeptus-mcq-history-container" style="display:flex; flex-direction:column; gap:15px;">';
-            
-            questions.forEach((mcq, idx) => {
-                // Each MCQ gets its own separate container with border and background
-                html += `
-                    <div class="adeptus-mcq-history-item" style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #dee2e6; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-                        <p style="font-weight:600; margin-bottom:12px; color:#333; font-size:14px;">
-                            <i class="fa fa-question-circle" style="color:#007bff; margin-right:8px;"></i>${mcq.question}
-                        </p>
-                        <div class="adeptus-mcq-options" style="margin-left:24px;">
-                `;
-                
-                mcq.options.forEach((option, optIdx) => {
-                    const optionText = typeof option === 'string' ? option : option.label || option;
-                    const isSelected = selectedAnswer && (selectedAnswer === option || selectedAnswer === optionText || selectedAnswer.includes(optionText));
-                    const selectedStyle = isSelected ? 'background:#e3f0ff; border:2px solid #007bff; font-weight:600;' : 'border:1px solid #ced4da;';
-                    const selectedIcon = isSelected ? '<i class="fa fa-check-circle" style="color:#28a745; margin-right:5px;"></i>' : '';
-                    
-                    html += `
-                        <div class="form-check" style="padding:10px 14px; border-radius:6px; margin-bottom:8px; ${selectedStyle} transition:all 0.2s;">
-                            <input class="form-check-input" type="radio" name="mcq-${idx}" disabled ${isSelected ? 'checked' : ''} style="margin-top:0.3em;">
-                            <label class="form-check-label" style="color:#555; cursor:not-allowed; margin-left:5px;">
-                                ${selectedIcon}${optionText}
-                            </label>
-                        </div>
-                    `;
+        renderMCQHistory: function(questions, selectedAnswer) {
+            selectedAnswer = selectedAnswer || null;
+            var html = '<div class="adeptus-mcq-history-container" ' +
+                'style="display:flex; flex-direction:column; gap:15px;">';
+
+            questions.forEach(function(mcq, idx) {
+                html += '<div class="adeptus-mcq-history-item" ' +
+                    'style="background:#f8f9fa; padding:15px; border-radius:8px; ' +
+                    'border:1px solid #dee2e6; box-shadow:0 1px 3px rgba(0,0,0,0.05);">' +
+                    '<p style="font-weight:600; margin-bottom:12px; color:#333; font-size:14px;">' +
+                    '<i class="fa fa-question-circle" style="color:#007bff; margin-right:8px;"></i>' +
+                    mcq.question + '</p>' +
+                    '<div class="adeptus-mcq-options" style="margin-left:24px;">';
+
+                mcq.options.forEach(function(option) {
+                    var optionText = typeof option === 'string' ? option : (option.label || option);
+                    var isSelected = selectedAnswer && (selectedAnswer === option ||
+                        selectedAnswer === optionText ||
+                        (selectedAnswer.indexOf && selectedAnswer.indexOf(optionText) !== -1));
+                    var selectedStyle = isSelected ?
+                        'background:#e3f0ff; border:2px solid #007bff; font-weight:600;' :
+                        'border:1px solid #ced4da;';
+                    var selectedIcon = isSelected ?
+                        '<i class="fa fa-check-circle" style="color:#28a745; margin-right:5px;"></i>' : '';
+                    var checkedAttr = isSelected ? 'checked' : '';
+
+                    html += '<div class="form-check" style="padding:10px 14px; border-radius:6px; ' +
+                        'margin-bottom:8px; ' + selectedStyle + ' transition:all 0.2s;">' +
+                        '<input class="form-check-input" type="radio" name="mcq-' + idx + '" ' +
+                        'disabled ' + checkedAttr + ' style="margin-top:0.3em;">' +
+                        '<label class="form-check-label" style="color:#555; cursor:not-allowed; ' +
+                        'margin-left:5px;">' + selectedIcon + optionText + '</label></div>';
                 });
-                
-                html += `
-                        </div>
-                        <p style="margin-top:12px; margin-bottom:0; font-size:11px; color:#6c757d; font-style:italic;">
-                            <i class="fa fa-info-circle" style="margin-right:4px;"></i>Previous question from chat history
-                        </p>
-                    </div>
-                `;
+
+                html += '</div>' +
+                    '<p style="margin-top:12px; margin-bottom:0; font-size:11px; color:#6c757d; ' +
+                    'font-style:italic;">' +
+                    '<i class="fa fa-info-circle" style="margin-right:4px;"></i>' +
+                    'Previous question from chat history</p></div>';
             });
-            
+
             html += '</div>';
-            
             return html;
         },
 
-        checkAuth: function () {
+        checkAuth: function() {
             if (!AuthUtils.isAuthenticated()) {
                 this.showAuthenticationError();
                 return false;
@@ -562,7 +556,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        handleResponse: function (response) {
+        handleResponse: function(response) {
             // Route responses based on type
             if (response.error) {
                 // Handle token/credit limit errors specifically
@@ -647,7 +641,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     this.reportsDataTable.destroy();
                     this.reportsDataTable = null;
                 }
-                
+
                 // Wait for DOM to be updated before reinitializing DataTable
                 setTimeout(() => {
                     try {
@@ -655,16 +649,16 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         if (tableElement) {
                             const thead = tableElement.querySelector('thead');
                             const tbody = tableElement.querySelector('tbody');
-                            
+
                             if (thead && tbody && thead.rows.length > 0 && thead.rows[0].cells.length > 0) {
                                 const headerCells = thead.rows[0].cells.length;
                                 const dataRows = tbody.rows;
                                 let dataCells = 0;
-                                
+
                                 if (dataRows.length > 0) {
                                     dataCells = dataRows[0].cells.length;
                                 }
-                                
+
                                 if (headerCells === dataCells && headerCells > 0) {
                                     // Only initialize DataTable if we have actual data rows (not just empty state)
                                     if (dataRows.length > 0 && !dataRows[0].cells[0].textContent.includes('No reports')) {
@@ -723,12 +717,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (response.visualizations) {
                 this.updateVisualizations(response.visualizations);
             }
-            
+
             // Show immediate credit usage feedback if available
             if (response.credit_info) {
                 this.showCreditUsageFeedback(response.credit_info);
             }
-            
+
             this.scrollToBottom();
         },
 
@@ -737,7 +731,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         showCreditUsageFeedback: function(creditInfo) {
             if (!creditInfo) return;
-            
+
             // Create a temporary notification for credit usage
             const notification = $(`
                 <div class="adeptus-credit-usage-notification" style="
@@ -760,10 +754,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     <span class="adeptus-credit-text">Credits used: ${creditInfo.credits_charged || 0} (${creditInfo.credit_type || 'basic'})</span>
                 </div>
             `);
-            
+
             // Add to body
             $('body').append(notification);
-            
+
             // Animate in
             setTimeout(() => {
                 notification.css({
@@ -771,7 +765,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     'transform': 'translateX(0)'
                 });
             }, 100);
-            
+
             // Animate out and remove after 3 seconds
             setTimeout(() => {
                 notification.css({
@@ -782,7 +776,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     notification.remove();
                 }, 300);
             }, 3000);
-            
+
             // Also update the subscription info immediately
             this.updateSubscriptionInfoWithCreditUsage(creditInfo);
         },
@@ -793,23 +787,23 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         updateSubscriptionInfoWithCreditUsage: function(creditInfo) {
             const authStatus = AuthUtils.getAuthStatus();
             if (!authStatus || !authStatus.subscription) return;
-            
+
             const subscription = authStatus.subscription;
             const creditsUsed = creditInfo.credits_charged || 0;
-            
+
             // Update the credit counters immediately
             if (creditInfo.credit_type === 'premium') {
                 subscription.premium_credits_used_this_month = (subscription.premium_credits_used_this_month || 0) + creditsUsed;
             } else {
                 subscription.basic_credits_used_this_month = (subscription.basic_credits_used_this_month || 0) + creditsUsed;
             }
-            
+
             // Update total AI credits
             subscription.ai_credits_used_this_month = (subscription.ai_credits_used_this_month || 0) + creditsUsed;
-            
+
             // Animate the counter updates
             this.animateCreditCounterUpdate(creditInfo.credit_type, creditsUsed);
-            
+
             // Update the display
             this.updateSubscriptionInfo();
         },
@@ -817,20 +811,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         /**
          * Animate credit counter updates
          */
-        animateCreditCounterUpdate: function(creditType, creditsUsed) {
+        animateCreditCounterUpdate: function(creditType) {
             const counterClass = creditType === 'premium' ? '.premium-credits-counter' : '.basic-credits-counter';
             const $counter = $(counterClass);
-            
+
             if ($counter.length) {
                 // Add highlight animation
                 $counter.addClass('adeptus-credit-update-highlight');
-                
+
                 // Remove highlight after animation
                 setTimeout(() => {
                     $counter.removeClass('adeptus-credit-update-highlight');
                 }, 1000);
             }
-            
+
             // Also animate total credits counter
             const $totalCounter = $('.adeptus-total-credits-counter');
             if ($totalCounter.length) {
@@ -841,7 +835,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        addMessage: function (text, type, isReportLink = false, reportData = null, messageId = null, timestamp = null, creditInfo = null) {
+        addMessage: function(text, type, isReportLink = false, reportData = null, messageId = null, timestamp = null, creditInfo = null) {
             // Filter out "Confidence: X%" from AI messages as it's not useful for users
             if (type === 'ai' && text) {
                 text = text.replace(/\nConfidence:\s*\d+%\n?/gi, '\n').replace(/Confidence:\s*\d+%/gi, '').trim();
@@ -857,7 +851,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Check if message contains MCQ JSON
             const mcqData = this.extractMCQFromText(text);
-            
+
             if (mcqData && mcqData.questions.length > 0) {
                 // Render as disabled MCQ view
                 const mcqHtml = this.renderMCQHistory(mcqData.questions, mcqData.selectedAnswer);
@@ -904,12 +898,12 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     frag.querySelector('.adeptus-message-text').textContent = text;
                 }
             }
-            
+
             // Add credit information for AI messages
             if (type === 'ai' && creditInfo) {
                 this.addCreditInfoToMessage(frag, creditInfo);
             }
-            
+
             const timeEl = frag.querySelector('.adeptus-message-time');
             timeEl.textContent = this.formatTimestamp(timestamp || new Date().toISOString());
             $('#adeptus-chat-container').append(frag);
@@ -917,7 +911,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             return $(messageEl);
         },
 
-        addCreditInfoToMessage: function (frag, creditInfo) {
+        addCreditInfoToMessage: function(frag, creditInfo) {
             const messageEl = frag.querySelector('.adeptus-message');
             const creditBadge = document.createElement('div');
             creditBadge.className = 'adeptus-credit-info-badge';
@@ -931,7 +925,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
             `;
-            
+
             // Set badge color and text based on credit type
             if (creditInfo.credit_type === 'premium') {
                 creditBadge.style.backgroundColor = '#6f42c1';
@@ -942,10 +936,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 creditBadge.style.color = 'white';
                 creditBadge.textContent = 'Basic';
             }
-            
+
             // Add tooltip with detailed information
             creditBadge.title = `${creditInfo.credit_type.toUpperCase()} Response\nTokens: ${creditInfo.tokens_used}\nCredits: ${creditInfo.credits_charged}\nProvider: ${creditInfo.provider}`;
-            
+
             // Insert after message text
             const messageText = messageEl.querySelector('.adeptus-message-text');
             messageText.appendChild(creditBadge);
@@ -1140,7 +1134,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             return text.replace(/[&<>"']/g, m => map[m]);
         },
 
-        handleCreditLimitError: function (message, creditData = null) {
+        handleCreditLimitError: function(message, creditData = null) {
             // Update subscription data with latest credit information from API response
             if (creditData && creditData.summary) {
                 this.updateSubscriptionDataFromCreditResponse(creditData);
@@ -1360,7 +1354,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             this.updateSubscriptionInfo();
         },
 
-        handleTimeoutError: function (message) {
+        handleTimeoutError: function(message) {
             // Show user-friendly timeout error
             this.addMessage(message, 'error');
 
@@ -1387,7 +1381,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        showPersistentCreditLimitMessage: function (message) {
+        showPersistentCreditLimitMessage: function(message) {
             // Remove any existing limit message
             $('.adeptus-credit-limit-alert').remove();
 
@@ -1409,7 +1403,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     </div>
                 </div>
             `;
-            
+
             // Insert at the top of the subscription header area
             // Insert before the second occurrence of class 'main-inner'
             var $mainInners = $('.main-inner');
@@ -1424,13 +1418,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
         },
 
-        hidePersistentCreditLimitMessage: function () {
+        hidePersistentCreditLimitMessage: function() {
             $('.adeptus-credit-limit-alert').fadeOut(300, function() {
                 $(this).remove();
             });
         },
 
-        showCreditUsageModal: function () {
+        showCreditUsageModal: function() {
             // Show loading modal first
             Swal.fire({
                 title: getString('loading_usage_data', 'Loading Usage Data...'),
@@ -1459,7 +1453,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        displayDetailedUsageModal: function (data) {
+        displayDetailedUsageModal: function(data) {
             const summary = data.summary;
             const usage = data.usage || [];
             const pagination = data.pagination || { total: 0 };
@@ -1644,7 +1638,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        setupUsageModalEventListeners: function (data) {
+        setupUsageModalEventListeners: function(data) {
             const self = this;
             let currentFilters = data.filters;
             self.usageDataTable = null;
@@ -1660,15 +1654,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 if (!$('#usage-datatable').length) {
                     return;
                 }
-                
+
                 try {
-                    
+
                     // Check if table has data before initializing
                     const tableElement = document.getElementById('usage-datatable');
                     if (tableElement) {
                         const tbody = tableElement.querySelector('tbody');
                         const hasData = tbody && tbody.rows.length > 0;
-                        
+
                         if (hasData) {
                             self.usageDataTable = new simpleDatatables.DataTable("#usage-datatable", {
                                 searchable: true,
@@ -1682,7 +1676,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     info: "Showing {start} to {end} of {rows} entries"
                                 }
                             });
-                            
+
                         } else {
                         }
                     }
@@ -1714,7 +1708,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 $('#credit-type-filter').val('');
                 $('#start-date-filter').val('');
                 $('#end-date-filter').val('');
-                
+
                 currentFilters = {};
                 self.loadUsageDataWithFilters({}, 1);
             });
@@ -1725,7 +1719,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 const today = new Date();
                 let startDate = '';
                 let endDate = today.toISOString().split('T')[0];
-                
+
                 switch(period) {
                     case 'today':
                         startDate = endDate;
@@ -1741,11 +1735,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         startDate = monthAgo.toISOString().split('T')[0];
                         break;
                 }
-                
+
                 // Update date inputs
                 $('#start-date-filter').val(startDate);
                 $('#end-date-filter').val(endDate);
-                
+
                 // Apply filters automatically
                 currentFilters = {
                     user_id: $('#user-filter').val(),
@@ -1753,7 +1747,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     start_date: startDate,
                     end_date: endDate
                 };
-                
+
                 self.loadUsageDataWithFilters(currentFilters, 1);
             });
         },
@@ -1857,7 +1851,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        updateReportData: function (data) {
+        updateReportData: function(data) {
             const table = $('#report-table');
             table.empty();
 
@@ -1880,7 +1874,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             table.append(tbody);
         },
 
-        updateVisualizations: function (visualizations) {
+        updateVisualizations: function(visualizations) {
             const container = $('#adeptus-chart-container');
             container.empty();
 
@@ -2082,7 +2076,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        showLoading: function () {
+        showLoading: function() {
             // Remove any existing loader first (use wrapper class for complete cleanup)
             $('.adeptus-ai-thinking-loader-wrapper').remove();
 
@@ -2169,7 +2163,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        hideLoading: function () {
+        hideLoading: function() {
             // Calculate how long the loader has been shown
             const loaderShownDuration = this.loaderShownAt ? Date.now() - this.loaderShownAt : 0;
             const minimumDisplayTime = 800; // Minimum 800ms display time
@@ -2190,7 +2184,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }, remainingTime);
         },
 
-        showError: function (message) {
+        showError: function(message) {
             const errorDiv = $('#adeptus-error-message');
             $('#error-text').text(message);
             errorDiv.removeClass('d-none');
@@ -2201,7 +2195,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }, 5000);
         },
 
-        showSuccess: function (message) {
+        showSuccess: function(message) {
             // Create success alert if it doesn't exist
             if ($('#success-message').length === 0) {
                 const successHtml = `
@@ -2213,7 +2207,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 `;
                 $('body').append(successHtml);
             }
-            
+
             const successDiv = $('#success-message');
             $('#success-text').text(message);
             successDiv.removeClass('d-none');
@@ -2224,7 +2218,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }, 3000);
         },
 
-        scrollToBottom: function () {
+        scrollToBottom: function() {
             const container = $('#adeptus-chat-container');
             container.scrollTop(container[0].scrollHeight);
         },
@@ -2232,7 +2226,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         /**
          * Fetch chat history, show spinner, then render list or "No chats"
          */
-        loadChatHistory: function () {
+        loadChatHistory: function() {
             const list = $('#chat-history-list');
 
             // Show loading spinner
@@ -2267,9 +2261,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     if (!response.chats.length) {
                         // Check if we also have no reports
                         const authStatus = AuthUtils.getAuthStatus();
-                        const hasReports = authStatus && authStatus.subscription && 
+                        const hasReports = authStatus && authStatus.subscription &&
                             authStatus.subscription.reports_generated_this_month > 0;
-                        
+
                         if (!hasReports) {
                             list.append(`
                                 <li class="list-group-item text-center">
@@ -2334,7 +2328,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         }
                     }
                 },
-                error: (xhr, status, error) => {
+                error: () => {
                     list.html(`
                         <li class="list-group-item text-center">
                             <div class="text-danger">
@@ -2354,7 +2348,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         /**
          * Load a specific chat's messages, highlight the selected item
          */
-        loadChatMessages: function (chatId, listItem) {
+        loadChatMessages: function(chatId, listItem) {
             this.currentChatId = chatId;
             $('#chat-history-list li').removeClass('active');
             listItem.addClass('active');
@@ -2369,18 +2363,18 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 method: 'GET',
                 success: (response) => {
                     this.hideLoading();
-                    
+
                     // Check for credit limit information in response and update button state
                     if (response.credit_data && response.credit_data.summary) {
                         this.updateSubscriptionDataFromCreditResponse(response.credit_data);
                     }
-                    
+
                     // Always check current subscription status and update button state
                     const authStatus = AuthUtils.getAuthStatus();
                     if (authStatus && authStatus.subscription) {
                         this.checkAndShowCreditLimitWarning(authStatus.subscription);
                     }
-                    
+
                     // Render chat messages with message IDs, filtering out SQL-tagged messages and passing timestamp
                     response.messages.forEach((msg, idx) => {
                         // Map backend field names to frontend expected names
@@ -2396,19 +2390,19 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         if (msg.tag === 'sql') {
                             return;
                         }
-                        
+
                         // Check if this is an MCQ message followed by a user answer
                         if (msg.sender_type === 'ai' && msg.tag === 'mcq') {
                             // Look for the next user message as the selected answer
                             const nextMsg = response.messages[idx + 1];
                             const selectedAnswer = (nextMsg && nextMsg.sender_type === 'user') ? nextMsg.body : null;
-                            
+
                             // Extract MCQ data and render with selected answer
                             const mcqData = this.extractMCQFromText(msg.body);
                             if (mcqData && mcqData.questions.length > 0) {
                                 mcqData.selectedAnswer = selectedAnswer;
                                 const mcqHtml = this.renderMCQHistory(mcqData.questions, selectedAnswer);
-                                
+
                                 // Add as AI message with MCQ HTML
                                 const template = document.getElementById('message-template');
                                 const frag = template.content.cloneNode(true);
@@ -2421,7 +2415,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                 return; // Skip the normal addMessage call
                             }
                         }
-                        
+
                         // Skip rendering the user's MCQ answer separately if it was already shown in the MCQ
                         if (msg.sender_type === 'user' && idx > 0) {
                             const prevMsg = response.messages[idx - 1];
@@ -2533,7 +2527,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             $msg.after($linkMsg);
         },
 
-        sendMessage: function (providedMessage) {
+        sendMessage: function(providedMessage) {
             if (this.currentMCQ) {
                 // Ignore text input while MCQ active
                 return;
@@ -2622,10 +2616,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         this.currentChatId = response.chat_id;
                         this.addChatToChatHistory(response.chat_id, message);
                     }
-                    
+
                     // Handle response based on type
                     this.handleResponse(response);
-                    
+
                     // Refresh subscription info to update credit usage (reduced delay for faster updates)
                     // setTimeout(() => {
                         this.refreshSubscriptionInfo();
@@ -2700,7 +2694,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }
         },
 
-        createNewChat: function () {
+        createNewChat: function() {
             this.currentChatId = 0;
             $('#chat-history-list li').removeClass('active');
             $('#adeptus-chat-container').empty();
@@ -2775,7 +2769,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        initializeCharts: function () {
+        initializeCharts: function() {
             // Initialize with empty chart
             const container = $('#adeptus-chart-container');
             const canvas = $('<canvas></canvas>');
@@ -2794,7 +2788,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             });
         },
 
-        setUserName: function (user) {
+        setUserName: function(user) {
             let userName = "User";
             if (typeof user === 'string') {
                 userName = user;
@@ -2803,9 +2797,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             } else if (user && user.admin_name) {
                 userName = user.admin_name;
             }
-            
+
             // Update the card title with the user's name
-            $(".card-title").each(function () {
+            $(".card-title").each(function() {
                 if ($(this).text().includes('AI Report Assistant')) {
                     $(this).text(userName + ': AI Report Assistant');
                 }
@@ -2826,21 +2820,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Check if user has exceeded credit limits and show persistent warning
          */
         checkAndShowCreditLimitWarning: function(subscription) {
-            
+
             // Check if any credit type is exceeded
             const basicExceeded = this.isCreditExceeded(
-                subscription.basic_credits_used_this_month || 0, 
+                subscription.basic_credits_used_this_month || 0,
                 subscription.plan_basic_credits_limit || 0
             );
             const premiumExceeded = this.isCreditExceeded(
-                subscription.premium_credits_used_this_month || 0, 
+                subscription.premium_credits_used_this_month || 0,
                 subscription.plan_premium_credits_limit || 0
             );
             const totalExceeded = this.isCreditExceeded(
-                subscription.ai_credits_used_this_month || 0, 
+                subscription.ai_credits_used_this_month || 0,
                 subscription.plan_ai_credits_limit || 0
             );
-            
+
             if (basicExceeded || premiumExceeded || totalExceeded) {
                 const message = "You've used all your AI credits for this month. Your credits will reset on the 1st of next month. Consider upgrading your plan for more credits.";
                 this.showPersistentCreditLimitMessage(message);
@@ -2854,8 +2848,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         },
 
         updateSubscriptionInfo: async function() {
-            const self = this;
-
             // First, fetch latest subscription data from the server using external service
             try {
                 var promises = Ajax.call([{
@@ -2883,14 +2875,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             // Get subscription info from auth status (now updated with fresh data)
             const authStatus = AuthUtils.getAuthStatus();
-            
-            
+
+
             if (authStatus && authStatus.subscription) {
                 const subscription = authStatus.subscription;
-                
+
                 // Check if user has exceeded credit limits and show persistent message
                 this.checkAndShowCreditLimitWarning(subscription);
-                
+
                 // Don't remove the template header - it's correctly positioned
                 // Just remove any dynamically added subscription info to prevent duplicates
                 $('.adeptus-subscription-status-bar').remove();
@@ -2919,7 +2911,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         </div>
                     </div>
                 `;
-                
+
                 // Template already has the header banner - no need to create assistantHtml
                 // Insert subscription status bar at the bottom of the page
 
@@ -2935,20 +2927,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         templateHeader.after(subscriptionHtml);
                     }
                 }
-                
+
                 // Bind refresh button event
                 const self = this;
                 $('#refresh-subscription-btn').off('click').on('click', function() {
                     const $btn = $(this);
                     const $icon = $btn.find('i');
-                    
+
                     // Show loading state
                     $icon.removeClass('fa-refresh').addClass('fa-spinner fa-spin');
                     $btn.prop('disabled', true);
-                    
+
                     // Refresh subscription info
                     self.refreshSubscriptionInfo();
-                    
+
                     // Reset button state after refresh
                     setTimeout(() => {
                         $icon.removeClass('fa-spinner fa-spin').addClass('fa-refresh');
@@ -2966,10 +2958,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          */
         transformBackendAuthData: function(backendData) {
             if (!backendData) return null;
-            
+
             // Get current auth data to preserve existing structure
             const currentAuthData = window.adeptusAuthData || {};
-            
+
             // Transform the data to match the expected frontend structure
             const transformedData = {
                 ...currentAuthData, // Preserve existing auth data
@@ -2993,7 +2985,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 plan: backendData.plan,
                 usage: backendData.usage
             };
-            
+
             return transformedData;
         },
 
@@ -3001,7 +2993,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Refresh subscription info by getting fresh data from backend
          */
         refreshSubscriptionInfo: async function() {
-            
+
             // Show loading state on refresh button
             const $refreshBtn = $('#refresh-subscription-btn');
             const $refreshIcon = $refreshBtn.find('i');
@@ -3009,7 +3001,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                 $refreshIcon.removeClass('fa-refresh').addClass('fa-spinner fa-spin');
                 $refreshBtn.prop('disabled', true);
             }
-            
+
             try {
                 // First, get fresh local subscription data using external service
                 var promises = Ajax.call([{
@@ -3073,9 +3065,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     Usage updated
                 </div>
             `);
-            
+
             $('body').append(notification);
-            
+
             // Animate in
             setTimeout(() => {
                 notification.css({
@@ -3083,7 +3075,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     'transform': 'translateY(0)'
                 });
             }, 100);
-            
+
             // Remove after 2 seconds
             setTimeout(() => {
                 notification.css({
@@ -3118,9 +3110,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     Failed to update usage
                 </div>
             `);
-            
+
             $('body').append(notification);
-            
+
             // Animate in
             setTimeout(() => {
                 notification.css({
@@ -3128,7 +3120,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     'transform': 'translateY(0)'
                 });
             }, 100);
-            
+
             // Remove after 3 seconds
             setTimeout(() => {
                 notification.css({
@@ -3152,7 +3144,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
 
 
-        ajaxWithAuth: function (options) {
+        ajaxWithAuth: function(options) {
             // Check authentication before making the request
             if (!AuthUtils.isAuthenticated()) {
                 this.showAuthenticationError();
@@ -3188,7 +3180,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         self.cachedCategories = response.data;
                     }
                 },
-                error: (xhr) => {
+                error: () => {
                     // Set default category as fallback
                     self.cachedCategories = [
                         { id: null, name: 'General', slug: 'general', color: '#6c757d', icon: 'fa-folder' }
@@ -3219,15 +3211,15 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             }).join('');
         },
 
-        validateToken: function () {
+        validateToken: function() {
             return AuthUtils.isAuthenticated();
         },
 
-        resendMessage: function ($msgElem, message) {
+        resendMessage: function($msgElem, message) {
             if (this.isSending) {
                 return;
             }
-            
+
             this.isSending = true;
 
             // Show the AI thinking loader after the user's choice
@@ -3236,13 +3228,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             // Get user information from auth status
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
-            
+
             this.ajaxWithAuth({
                 url: this.backendUrl + '/chat/message',
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ 
-                    message: message, 
+                data: JSON.stringify({
+                    message: message,
                     chat_id: this.currentChatId || 0,
                     user_id: userInfo.id || null,
                     user_name: userInfo.name || null
@@ -3266,7 +3258,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                     // Remove all resend icons on successful resend
                     $('.adeptus-failed-reload-icon').remove();
-                    
+
                     if (!this.currentChatId && response.chat_id) {
                         this.currentChatId = response.chat_id;
                         this.addChatToChatHistory(response.chat_id, message);
@@ -4014,7 +4006,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         }
                     }
                 },
-                error: (xhr, status, error) => {
+                error: (xhr, status) => {
                     this.hideLoading();
 
                     // Determine error type and message
@@ -4122,7 +4114,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
 
             $('#report-history-loader').removeClass('d-none');
             $('#report-history-table-wrapper').addClass('d-none');
-            
+
             this.ajaxWithAuth({
                 url: this.backendUrl + '/ai-reports',
                 method: 'GET',
@@ -4146,7 +4138,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         this.reportsDataTable.destroy();
                         this.reportsDataTable = null;
                     }
-                    
+
                     // Only initialize DataTable if we have data and table structure is ready
                     setTimeout(() => {
                         try {
@@ -4154,10 +4146,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                             if (!tableElement) {
                                 return;
                             }
-                            
+
                             const tbody = tableElement.querySelector('tbody');
                             const thead = tableElement.querySelector('thead');
-                            
+
                             // Verify table structure before initializing DataTable
                             if (thead && tbody && thead.rows.length > 0 && thead.rows[0].cells.length > 0) {
                                 // Check if DataTable is already initialized and destroy it first
@@ -4165,17 +4157,17 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                                     this.reportsDataTable.destroy();
                                     this.reportsDataTable = null;
                                 }
-                                
+
                                 // Count header and data columns to ensure they match
                                 const headerCells = thead.rows[0].cells.length;
                                 const dataRows = tbody.rows;
                                 let dataCells = 0;
-                                
+
                                 if (dataRows.length > 0) {
                                     dataCells = dataRows[0].cells.length;
                                 }
-                                
-                                
+
+
                                 if (headerCells === dataCells && headerCells > 0) {
                                     // Only initialize DataTable if we have actual data rows (not just empty state)
                                     if (dataRows.length > 0 && !dataRows[0].cells[0].textContent.includes('No reports')) {
@@ -4207,7 +4199,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     }
                     }, 100); // Small delay to ensure DOM is ready
                 },
-                error: (xhr, status, error) => {
+                error: (xhr, status) => {
                     // Always hide loader and show table
                     $('#report-history-loader').addClass('d-none');
                     $('#report-history-table-wrapper').removeClass('d-none');
@@ -4252,9 +4244,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (!reports || reports.length === 0) {
                 // Check if we also have no chat history
                 const authStatus = AuthUtils.getAuthStatus();
-                const hasChats = authStatus && authStatus.subscription && 
+                const hasChats = authStatus && authStatus.subscription &&
                     authStatus.subscription.reports_generated_this_month > 0;
-                
+
                 if (!hasChats) {
                     tbody.append(`
                         <tr>
@@ -4412,7 +4404,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         '</div>'
                     );
                 },
-                error: (xhr, status, error) => {
+                error: () => {
                     reportsView.find('.adeptus-report-display-wrapper').html('<div class="w-100 text-center text-danger py-4">Failed to load report. Please try again.</div>');
                 }
             });
@@ -4449,7 +4441,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
         displayCurrentReport: function(report) {
             // Update the reports view with the current report
             this.updateReportsView(report);
-            
+
             // Highlight the current report in the history
             $(`.adeptus-report-row[data-report-slug="${report.slug}"]`).addClass('table-primary');
         },
@@ -4692,7 +4684,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     ${displayHtml}
                 </div>
             `);
-            
+
             // Store current report data for chart rendering
             self._currentReportData = data;
             self._currentReportName = report.description || report.name || 'Report';
@@ -5377,21 +5369,21 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Open report from chat link
          */
         openReportFromLink: function(reportSlug) {
-            
+
             // Switch to reports tab
             this.switchToReportsTab();
-            
+
             // Refresh history from cache
             this.updateReportsHistory(this.cachedReports);
-            
+
             // Highlight the report row
             $('.adeptus-report-row').removeClass('table-primary');
             const reportRow = $(`.adeptus-report-row[data-report-slug="${reportSlug}"]`);
             reportRow.addClass('table-primary');
-            
+
             // Check if report has full data in cache
             const cached = this.cachedReports.find(r => r.slug === reportSlug);
-            
+
             // If cached report has data, use it; otherwise fetch from API
             if (cached && cached.data && Array.isArray(cached.data) && cached.data.length > 0) {
                 this.updateReportsView(cached, cached.data);
@@ -5448,7 +5440,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
          * Persist display type to server
          */
         saveDisplayType: function(reportSlug, displayType) {
-            const self = this;
             // Show SweetAlert loader
             Swal.fire({
                 title: getString('saving_default_view', 'Saving default view...'),
@@ -5480,20 +5471,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             if (!$messageElement || !$messageElement.length) {
                 return;
             }
-            
+
             // Remove any existing resend icons on this message
             $messageElement.siblings('.adeptus-failed-reload-icon').remove();
-                
+
                 // Create retry icon
                 const $icon = $(`
                     <i class="fa fa-refresh adeptus-failed-reload-icon text-danger"
                    title="Retry sending this message"
                        style="cursor:pointer; float:left; margin-right:0.5rem;"></i>
                 `);
-                
+
                 // Insert it to the left of the user-message bubble
             $messageElement.after($icon);
-                
+
                 // Bind click event to resend the message
                 $icon.on('click', () => {
                     $icon.remove();
@@ -5526,7 +5517,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
             let error = null;
             let displayTypeA = 'table';
             let displayTypeB = 'table';
-            let currentSnapshotId = null;
             let compareDataA = null;
             let compareDataB = null;
             let currentDataFetched = false;
@@ -5539,7 +5529,6 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     method: 'GET',
                     success: function(res) {
                         timeline = res.snapshots || [];
-                        currentSnapshotId = (timeline.find(s => s.is_current_version) || {}).id || null;
                         if (cb) cb();
                     },
                     error: function() {
@@ -5838,8 +5827,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         const colorIndex = index % colors.length;
                         const color = colors[colorIndex];
                         const isSelected = selectedAId === snap.id || selectedBId === snap.id;
-                        const selectedStyle = isSelected ? 
-                            `background-color: ${color.bg}; border-color: ${color.border}; border-width: 2px;` : 
+                        const selectedStyle = isSelected ?
+                            `background-color: ${color.bg}; border-color: ${color.border}; border-width: 2px;` :
                             `background-color: #fff; border-color: #dee2e6; border-width: 1px;`;
                         const isCurrent = snap.is_current_version ? '<span class="badge bg-primary ms-1">Current</span>' : '';
                         // Drag and drop attributes
@@ -5847,13 +5836,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                         const dragClass = isSelected ? 'adeptus-drag-disabled' : 'adeptus-draggable-snapshot';
                         const dragTitle = isSelected ? 'This snapshot is currently selected' : 'Drag to assign to Snapshot A or B';
                         const dragText = isSelected ? '<span class="text-muted small">(Selected)</span>' : '';
-                        html += `<div class="adeptus-timeline-item p-2 mb-1 rounded border ${dragClass}" 
-                                      style="cursor:pointer; animation:fadeIn .3s; ${selectedStyle}" 
-                                      data-snap-id="${snap.id}" 
-                                      data-color-bg="${color.bg}" 
-                                      data-color-border="${color.border}" 
+                        html += `<div class="adeptus-timeline-item p-2 mb-1 rounded border ${dragClass}"
+                                      style="cursor:pointer; animation:fadeIn .3s; ${selectedStyle}"
+                                      data-snap-id="${snap.id}"
+                                      data-color-bg="${color.bg}"
+                                      data-color-border="${color.border}"
                                       data-color-text="${color.text}"
-                                      tabindex="0" 
+                                      tabindex="0"
                                       aria-label="Snapshot from ${self.formatTimestamp(snap.created_at)}${snap.is_current_version ? ' (current)' : ''}"
                                       ${dragDisabled}
                                       title="${dragTitle}"
@@ -5893,7 +5882,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     fetchCurrent(nextSection);
                 });
                 // Timeline item click handler for alternating selection
-                $('.adeptus-timeline-item').off('click').on('click', function(e) {
+                $('.adeptus-timeline-item').off('click').on('click', function() {
                     const snapId = $(this).data('snap-id');
                     if (nextSection === 'a') {
                         fetchSnapshotData(snapId, 'a', () => {
@@ -5919,7 +5908,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     e.originalEvent.dataTransfer.setData('text/plain', $(this).data('snap-id'));
                     $(this).addClass('adeptus-dragging');
                 });
-                $('.adeptus-draggable-snapshot').off('dragend').on('dragend', function(e) {
+                $('.adeptus-draggable-snapshot').off('dragend').on('dragend', function() {
                     $(this).removeClass('adeptus-dragging');
                 });
                 // Section highlight on drag over
@@ -5927,7 +5916,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     e.preventDefault();
                     $(this).addClass('adeptus-drag-over-section');
                 });
-                $('.adeptus-compare-section').off('dragleave').on('dragleave', function(e) {
+                $('.adeptus-compare-section').off('dragleave').on('dragleave', function() {
                     $(this).removeClass('adeptus-drag-over-section');
                 });
                 $('.adeptus-compare-section').off('drop').on('drop', function(e) {
@@ -6010,7 +5999,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/chartjs', 'core/templa
                     if (b && Array.isArray(b) && b[i] && b[i][h] !== row[h]) {
                         diff = true;
                     }
-                    html += `<td${diff ? ' style="background:#ffe5e5;"' : ''}>${row[h] != null ? row[h] : ''}</td>`;
+                    html += `<td${diff ? ' style="background:#ffe5e5;"' : ''}>${row[h] ?? ''}</td>`;
                 });
                 html += '</tr>';
             });
@@ -6054,6 +6043,6 @@ D. Cancel and try a different approach`;
 
     // Expose assistant to global scope for onclick handlers
     window.assistant = assistant;
-    
+
     return assistant;
 });

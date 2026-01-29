@@ -323,7 +323,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                             });
                         }
                     },
-                    fail: function(error) {
+                    fail: function() {
                         Swal.fire({
                             icon: 'info',
                             title: getString('processing_payment', 'Processing Payment'),
@@ -484,7 +484,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
         /**
          * Handle cancel subscription
          */
-        handleCancelSubscription: function($button) {
+        handleCancelSubscription: function() {
             Swal.fire({
                 icon: 'warning',
                 title: getString('cancel_subscription_title', 'Cancel Subscription?'),
@@ -570,7 +570,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         });
                     }
                 },
-                fail: function(error) {
+                fail: function() {
                     Swal.fire({
                         icon: 'error',
                         title: getString('connection_error', 'Connection Error'),
@@ -595,7 +595,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         Subscription.renderSubscriptionInfo(response.data);
                     }
                 },
-                fail: function(error) {
+                fail: function() {
                     // Subscription details fetch failed silently.
                 }
             }]);
@@ -769,7 +769,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         confirmButtonColor: '#3085d6'
                     });
                 }
-            }).fail(function(error) {
+            }).fail(function() {
                 Swal.fire({
                     icon: 'error',
                     title: getString('connection_error', 'Connection Error'),
@@ -1105,7 +1105,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         }
                     }
                 },
-                fail: function(error) {
+                fail: function() {
                     Swal.fire({
                         icon: 'error',
                         title: getString('connection_error', 'Connection Error'),
@@ -1184,7 +1184,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                         }
                     }
                 },
-                fail: function(error) {
+                fail: function() {
                     Swal.fire({
                         icon: 'error',
                         title: getString('connection_error', 'Connection Error'),

@@ -62,19 +62,37 @@
 }
 
 @keyframes adeptus-loading-shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 @keyframes adeptus-spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
 }
 
 /* Ready state */
 .path-report-adeptus_insights .adeptus-lottie-ready {
-    background: #ffffff;
+    background: #fff;
 }
+
+/*
+ * Credit Limit and DataTable Override Styles
+ *
+ * The following styles use !important to override third-party library styles
+ * (simple-datatables) and ensure consistent disabled state appearance.
+ * This is necessary because the library applies inline styles that cannot
+ * be overridden with specificity alone.
+ */
+/* stylelint-disable declaration-no-important */
 
 /* Credit Limit Disabled State */
 .path-report-adeptus_insights .adeptus-credit-limit-disabled {
@@ -194,6 +212,8 @@
 .path-report-adeptus_insights .dataTable-pagination::after {
     display: none !important;
 }
+
+/* stylelint-enable declaration-no-important */
 
 /* Error state */
 .path-report-adeptus_insights .adeptus-lottie-error {

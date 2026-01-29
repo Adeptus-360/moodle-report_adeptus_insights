@@ -53,7 +53,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
      * Read-only mode functionality for Adeptus Insights plugin
      */
     var ReadonlyMode = {
-        
+
         /**
          * Initialize read-only mode
          */
@@ -76,105 +76,105 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             });
         },
-        
+
         /**
          * Check initial state and enable read-only if needed
          */
         checkInitialState: function() {
             var authData = window.adeptusAuthData;
-            var shouldEnableReadOnly = !authData || 
-                                     !authData.user_authorized || 
-                                     !authData.has_api_key || 
+            var shouldEnableReadOnly = !authData ||
+                                     !authData.user_authorized ||
+                                     !authData.has_api_key ||
                                      (authData.auth_errors && authData.auth_errors > 0);
-            
+
             if (shouldEnableReadOnly) {
                 this.enable();
             }
         },
-        
+
         /**
          * Enable read-only mode
          */
         enable: function() {
             // Add read-only class to body
             $('body').addClass('adeptus-readonly-mode');
-            
+
             // Disable all interactive elements
             this.disableInteractiveElements();
-            
+
             // Show read-only notification
             this.showReadOnlyNotification();
-            
+
             // Disable forms
             this.disableForms();
-            
+
             // Disable buttons
             this.disableButtons();
-            
+
             // Trigger custom event
             $(document).trigger('adeptus:readOnlyEnabled');
         },
-        
+
         /**
          * Disable read-only mode
          */
         disable: function() {
             // Remove read-only class from body
             $('body').removeClass('adeptus-readonly-mode');
-            
+
             // Re-enable all interactive elements
             this.enableInteractiveElements();
-            
+
             // Hide read-only notification
             this.hideReadOnlyNotification();
-            
+
             // Re-enable forms
             this.enableForms();
-            
+
             // Re-enable buttons
             this.enableButtons();
-            
+
             // Trigger custom event
             $(document).trigger('adeptus:readOnlyDisabled');
         },
-        
+
         /**
          * Disable interactive elements
          */
         disableInteractiveElements: function() {
             // Disable inputs, textareas, selects
             $('input, textarea, select').prop('disabled', true);
-            
+
             // Disable links that are not navigation
             $('a:not(.nav-link):not(.breadcrumb-item a)').addClass('disabled').css('pointer-events', 'none');
-            
+
             // Disable buttons
             $('button:not(.nav-toggle)').prop('disabled', true);
-            
+
             // Disable form submissions
             $('form').on('submit.adeptus-readonly', function(e) {
                 e.preventDefault();
                 return false;
             });
         },
-        
+
         /**
          * Enable interactive elements
          */
         enableInteractiveElements: function() {
             // Re-enable inputs, textareas, selects
             $('input, textarea, select').prop('disabled', false);
-            
+
             // Re-enable links
             $('a.disabled').removeClass('disabled').css('pointer-events', '');
-            
+
             // Re-enable buttons
             $('button').prop('disabled', false);
-            
+
             // Re-enable form submissions
             $('form').off('submit.adeptus-readonly');
         },
-        
+
         /**
          * Disable forms
          */
@@ -187,7 +187,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             });
         },
-        
+
         /**
          * Enable forms
          */
@@ -201,7 +201,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             });
         },
-        
+
         /**
          * Disable buttons
          */
@@ -215,7 +215,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             });
         },
-        
+
         /**
          * Enable buttons
          */
@@ -230,7 +230,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             });
         },
-        
+
         /**
          * Show read-only notification
          */
@@ -251,7 +251,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 }
             }
         },
-        
+
         /**
          * Hide read-only notification
          */
@@ -262,7 +262,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
             }
             this.readOnlyAlertShown = false;
         },
-        
+
         /**
          * Check if read-only mode is active
          */

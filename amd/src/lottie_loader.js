@@ -41,7 +41,7 @@ define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
     if (!lottie || typeof lottie.loadAnimation !== 'function') {
                 return;
             }
-            
+
     hosts.forEach(function(el) {
       var p = url(el.getAttribute('data-lottie-path'));
       if (!p) return;

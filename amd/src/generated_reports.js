@@ -17,10 +17,16 @@
  * Generated Reports AMD module for Adeptus Insights.
  *
  * @module     report_adeptus_insights/generated_reports
- * @package    report_adeptus_insights
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/* global Swal */
+/* eslint-disable camelcase */
+/* eslint-disable promise/always-return */
+/* eslint-disable promise/catch-or-return */
+/* eslint-disable promise/no-nesting */
+
 define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, Str, Chart) {
     'use strict';
 
@@ -1034,7 +1040,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
 
             var reportName = report.description || report.name || STRINGS.untitledReport;
             var source = (report.source || 'assistant').toLowerCase();
-            var sourceLabel = source === 'wizard' ? STRINGS.wizard : STRINGS.ai;
 
             Swal.fire({
                 title: STRINGS.deleteReportConfirm,
@@ -2061,7 +2066,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
          * Render chart.
          */
         renderChart: function() {
-            var self = this;
             var data = this.currentReportData;
 
             if (!data || data.length === 0) {
@@ -2105,7 +2109,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 return parseFloat(r[valueKey]) || 0;
             });
 
-            var colors = this.generateChartColors(values.length, chartType);
+            var colors = this.generateChartColors(values.length);
             var chartConfig = this.createChartConfig(chartType, labels, values, valueKeyFormatted, colors);
 
             try {
@@ -2122,7 +2126,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
         /**
          * Generate chart colors.
          * @param {number} count - Number of colors needed.
-         * @param {string} chartType - The chart type.
          * @returns {Array}
          */
         generateChartColors: function(count) {
@@ -2149,7 +2152,9 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
          * @returns {Object}
          */
         createChartConfig: function(chartType, labels, values, valueKey, colors) {
-            var reportName = (this.currentReport && this.currentReport.description) || (this.currentReport && this.currentReport.name) || STRINGS.report;
+            var reportName = (this.currentReport && this.currentReport.description) ||
+                (this.currentReport && this.currentReport.name) ||
+                STRINGS.report;
 
             var baseConfig = {
                 responsive: true,
@@ -2281,10 +2286,12 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 body += '&view=' + self.currentView;
 
                 var headers = self.currentReportData.length > 0 ? Object.keys(self.currentReportData[0]) : [];
+                var payloadReportName = (self.currentReport && self.currentReport.description) ||
+                    (self.currentReport && self.currentReport.name) || 'report';
                 var reportDataPayload = {
                     results: self.currentReportData,
                     headers: headers,
-                    report_name: (self.currentReport && self.currentReport.description) || (self.currentReport && self.currentReport.name) || 'report',
+                    report_name: payloadReportName,
                     report_category: (self.currentReport && self.currentReport.category) || ''
                 };
                 body += '&report_data=' + encodeURIComponent(JSON.stringify(reportDataPayload));
@@ -2326,8 +2333,10 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
 
                     return response.blob();
                 }).then(function(blob) {
-                    var reportName = (self.currentReport && self.currentReport.description) || (self.currentReport && self.currentReport.name) || 'report';
-                    var sanitizedName = reportName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_').toLowerCase();
+                    var reportName = (self.currentReport && self.currentReport.description) ||
+                        (self.currentReport && self.currentReport.name) || 'report';
+                    var sanitizedName = reportName.replace(/[^a-zA-Z0-9\s-]/g, '')
+                        .replace(/\s+/g, '_').toLowerCase();
                     var dateSuffix = new Date().toISOString().split('T')[0];
 
                     var url = window.URL.createObjectURL(blob);
