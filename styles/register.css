@@ -475,3 +475,11 @@
         display: none;
     }
 }
+
+/* Full width layout for registration wizard */
+@media (min-width: 768px) {
+    .path-report-adeptus_insights .pagelayout-standard #page.drawers .main-inner,
+    body.path-report-adeptus_insights.limitedwidth #page.drawers .main-inner {
+        max-width: 100% !important;
+    }
+}

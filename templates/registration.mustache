@@ -31,10 +31,14 @@
 
 
 {{#js}}
-require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/registration'], function($, Ajax, Notification, Registration) {
-    // Initialize the registration wizard
-    Registration.init();
-});
+require(
+    ['report_adeptus_insights/registration'],
+    function(Registration) {
+        if (Registration && typeof Registration.init === 'function') {
+            Registration.init();
+        }
+    }
+);
 {{/js}}
 
 <div class="adeptus-wizard-container" id="registration-container">
@@ -284,18 +288,3 @@ require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/re
     </form>
 </div>
 
-{{#js}}
-require(['report_adeptus_insights/registration'], function(Registration) {
-    if (Registration && typeof Registration.init === 'function') {
-        Registration.init();
-    }
-});
-{{/js}}
-
-<style>
-@media (min-width: 768px) {
-    .pagelayout-standard #page.drawers .main-inner, body.limitedwidth #page.drawers .main-inner {
-        max-width: 100% !important;
-    }
-}
-</style>

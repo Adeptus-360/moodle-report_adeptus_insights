@@ -32,18 +32,19 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 
 {{#js}}
-require(['jquery', 'core/ajax', 'core/notification', 'report_adeptus_insights/subscription'], function($, Ajax, Notification, Subscription) {
-    try {
-        // Initialize subscription module
-        Subscription.init({});
-    } catch (error) {
-        console.error('Error initializing subscription:', error);
+require(
+    ['core/notification', 'report_adeptus_insights/subscription'],
+    function(Notification, Subscription) {
+        try {
+            Subscription.init({});
+        } catch (error) {
+            Notification.exception(error);
+        }
     }
-});
+);
 {{/js}}
 
-<div class="adeptus-subscription-container" id="subscription-container"
-     {{#current_subscription}}data-subscription='{"status":"{{status}}","is_active":{{is_active}},"is_cancelled":{{is_cancelled}},"has_payment_issues":{{has_payment_issues}},"should_disable_api_access":{{should_disable_api_access}},"status_message":"{{status_message}}","status_details":{}}{{/current_subscription}}'>
+<div class="adeptus-subscription-container" id="subscription-container"{{#current_subscription}} data-subscription='{"status":"{{status}}","is_active":{{is_active}},"is_cancelled":{{is_cancelled}},"has_payment_issues":{{has_payment_issues}},"should_disable_api_access":{{should_disable_api_access}},"status_message":"{{status_message}}","status_details":{}}'{{/current_subscription}}>
     <!-- Header Section -->
     <div class="adeptus-subscription-header">
         <div class="adeptus-subscription-header-content">

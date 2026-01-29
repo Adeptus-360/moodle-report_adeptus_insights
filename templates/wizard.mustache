@@ -24,36 +24,32 @@
     Note: Do NOT load Bootstrap or Font Awesome from CDN - Moodle includes them and loading another version breaks things
 }}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest"></script>
 <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
 
 {{#js}}
-require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_adeptus_insights/global_auth'], function($, Ajax, Notification, Templates, GlobalAuth) {
-    // Initialize global authentication first
-    // Note: Chart.js is loaded by wizard.js directly (not core/chartjs) to avoid Moodle reactive component conflicts
-    GlobalAuth.init().then(() => {
-        // Reduced delay to 100ms for faster perceived load time
-        setTimeout(function() {
-            if (typeof AdeptusWizard !== 'undefined') {
-                const wizard = new AdeptusWizard();
-                window.adeptusWizardInstance = wizard;
-
-                // Show loading modal IMMEDIATELY before async initialization
-                wizard.showLoading('Loading categories...');
-
-                wizard.init()
-                    .catch(error => {
-                        console.error('Failed to initialize AdeptusWizard:', error);
+require(
+    ['core/notification', 'report_adeptus_insights/global_auth'],
+    function(Notification, GlobalAuth) {
+        /* global AdeptusWizard */
+        GlobalAuth.init().then(function() {
+            setTimeout(function() {
+                if (typeof AdeptusWizard !== 'undefined') {
+                    var wizard = new AdeptusWizard();
+                    window.adeptusWizardInstance = wizard;
+                    wizard.showLoading('Loading categories...');
+                    wizard.init().catch(function(error) {
+                        Notification.exception(error);
                         wizard.hideLoading();
                     });
-            } else {
-                console.error('AdeptusWizard class not found');
-            }
-        }, 100); // Reduced from 1000ms to 100ms
-    }).catch((error) => {
-        console.error('Failed to initialize global authentication:', error);
-    });
-});
+                }
+            }, 100);
+            return true;
+        }).catch(function(error) {
+            Notification.exception(error);
+        });
+    }
+);
 {{/js}}
 
 <!-- Global Authentication Header -->
@@ -112,7 +108,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
 
         <!-- Step 2: Select Specific Report -->
         <div class="adeptus-wizard-step" id="step-select-report">
-            <div class="adeptus-step-header" class="adeptus-step-header-flex">
+            <div class="adeptus-step-header adeptus-step-header-flex">
                 <div class="adeptus-assistant-header">
                     <h2><span class="adeptus-step-number">2</span> {{#str}}choose_your_report, report_adeptus_insights{{/str}}</h2>
                     <p id="selected-category-name">{{#str}}reports_in_category, report_adeptus_insights{{/str}}</p>
@@ -131,7 +127,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
 
         <!-- Step 3: Configure Parameters -->
         <div class="adeptus-wizard-step" id="step-configure">
-            <div class="adeptus-step-header" class="adeptus-step-header-flex">
+            <div class="adeptus-step-header adeptus-step-header-flex">
                 <div class="adeptus-assistant-header">
                     <h2><span class="adeptus-step-number">3</span> {{#str}}configure_report, report_adeptus_insights{{/str}}</h2>
                     <p id="selected-report-name">{{#str}}configure_parameters, report_adeptus_insights{{/str}}</p>
@@ -172,7 +168,7 @@ require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_a
 
         <!-- Step 4: View Results -->
         <div class="adeptus-wizard-step" id="step-results">
-            <div class="adeptus-step-header" class="adeptus-step-header-flex">
+            <div class="adeptus-step-header adeptus-step-header-flex">
                 <div class="adeptus-assistant-header">
                     <h2><span class="adeptus-step-number">4</span> {{#str}}report_results, report_adeptus_insights{{/str}}</h2>
                     <p id="results-report-name">{{#str}}your_generated_report, report_adeptus_insights{{/str}}</p>

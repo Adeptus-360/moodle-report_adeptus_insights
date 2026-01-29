@@ -793,3 +793,120 @@
         gap: 0.5rem;
     }
 }
+
+/* Changelog styles */
+.path-report-adeptus_insights .adeptus-changelog-content {
+    line-height: 1.7;
+}
+.path-report-adeptus_insights .adeptus-changelog-content ul {
+    padding-left: 1.5rem;
+}
+.path-report-adeptus_insights .adeptus-changelog-content li {
+    margin-bottom: 0.5rem;
+}
+.path-report-adeptus_insights .adeptus-changelog-item:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Ticket detail styles */
+.path-report-adeptus_insights .bg-info-light {
+    background-color: rgba(23, 162, 184, 0.1);
+}
+.path-report-adeptus_insights .border-left-info {
+    border-left: 4px solid #17a2b8;
+}
+.path-report-adeptus_insights .adeptus-message-content {
+    line-height: 1.6;
+}
+
+/* Attachment list styles */
+.path-report-adeptus_insights .adeptus-attachment-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s ease;
+}
+.path-report-adeptus_insights .adeptus-attachment-item:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+    text-decoration: none;
+    color: inherit;
+}
+.path-report-adeptus_insights .adeptus-attachment-icon {
+    font-size: 1.25rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-info {
+    display: flex;
+    flex-direction: column;
+}
+.path-report-adeptus_insights .adeptus-attachment-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #333;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.path-report-adeptus_insights .adeptus-attachment-size {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Additional attachment styles */
+.path-report-adeptus_insights .adeptus-attachment-download {
+    color: #6c757d;
+    margin-left: 0.5rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-item:hover .adeptus-attachment-download {
+    color: #007bff;
+}
+
+/* Compact attachment list for replies */
+.path-report-adeptus_insights .adeptus-attachment-list-compact {
+    gap: 0.25rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-item-compact {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-item-compact .adeptus-attachment-icon {
+    font-size: 1rem;
+}
+.path-report-adeptus_insights .adeptus-attachment-item-compact .adeptus-attachment-name {
+    font-size: 0.8rem;
+    max-width: 150px;
+}
+
+/* Compact dropzone for reply form */
+.path-report-adeptus_insights .file-dropzone-compact {
+    padding: 1rem;
+}
+.path-report-adeptus_insights .file-dropzone-compact .dropzone-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.path-report-adeptus_insights .file-dropzone-compact .dropzone-title {
+    font-size: 0.875rem;
+    margin: 0;
+}
+.path-report-adeptus_insights .file-dropzone-compact .dropzone-text {
+    margin-bottom: 0;
+}
+.path-report-adeptus_insights .upload-info-compact {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+}
