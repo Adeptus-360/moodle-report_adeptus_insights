@@ -73,7 +73,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     var response = result.data ? result.data : result;
                     if (response && response.success) {
                         // Build auth data from response.
-                        /* eslint-disable camelcase */
                         var authData = {
                             is_authenticated: response.is_authenticated,
                             user_email: response.user_email,
@@ -87,7 +86,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                                 authData.installation_info = {};
                             }
                         }
-                        /* eslint-enable camelcase */
                         self.handleAuthSuccess(authData);
                         resolve();
                     } else {

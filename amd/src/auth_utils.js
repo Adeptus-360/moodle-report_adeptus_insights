@@ -45,7 +45,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Transform subscription data to ensure consistent field names.
             if (authData.subscription) {
                 // Map ai_credits fields to total_credits fields for display compatibility.
-                /* eslint-disable camelcase */
                 if (authData.subscription.ai_credits_used_this_month !== undefined) {
                     authData.subscription.total_credits_used_this_month = authData.subscription.ai_credits_used_this_month;
                 }
@@ -57,7 +56,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 if (authData.plan && authData.plan.ai_credits) {
                     authData.subscription.plan_total_credits_limit = authData.plan.ai_credits;
                 }
-                /* eslint-enable camelcase */
             }
 
             // Store auth data globally.
@@ -162,7 +160,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             // Transform subscription data to ensure consistent field names.
             if (authData.subscription) {
                 // Map ai_credits fields to total_credits fields for display compatibility.
-                /* eslint-disable camelcase */
                 if (authData.subscription.ai_credits_used_this_month !== undefined) {
                     authData.subscription.total_credits_used_this_month = authData.subscription.ai_credits_used_this_month;
                 }
@@ -174,7 +171,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 if (authData.plan && authData.plan.ai_credits) {
                     authData.subscription.plan_total_credits_limit = authData.plan.ai_credits;
                 }
-                /* eslint-enable camelcase */
             }
 
             window.adeptusAuthData = authData;

@@ -13,12 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/* global simpleDatatables */
-/* eslint-disable camelcase */
-/* eslint-disable promise/always-return */
-/* eslint-disable promise/catch-or-return */
-/* eslint-disable promise/no-nesting */
-
 /**
  * AI Assistant interface for Adeptus Insights plugin.
  *

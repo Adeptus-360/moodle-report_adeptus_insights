@@ -21,12 +21,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/* global Swal */
-/* eslint-disable camelcase */
-/* eslint-disable promise/always-return */
-/* eslint-disable promise/catch-or-return */
-/* eslint-disable promise/no-nesting */
-
 define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, Str, Chart) {
     'use strict';
 
