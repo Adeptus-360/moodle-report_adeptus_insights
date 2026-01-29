@@ -1792,9 +1792,7 @@ class installation_manager {
         }
     }
 
-    // -----------------------------------------------------------------------
     // USAGE TRACKING METHODS (Enterprise-grade subscription tier management).
-    // -----------------------------------------------------------------------
 
     /**
      * Get subscription status with full usage data
