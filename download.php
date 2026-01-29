@@ -441,7 +441,11 @@ try {
             // Generate actual PDF using TCPDF.
             try {
                 $pdfcontent = report_adeptus_insights_generate_pdf(
-                    $reportid, $tabledata, $chartexportdata, $reportparams, $chartimage
+                    $reportid,
+                    $tabledata,
+                    $chartexportdata,
+                    $reportparams,
+                    $chartimage
                 );
 
                 if ($pdfcontent === false || empty($pdfcontent)) {

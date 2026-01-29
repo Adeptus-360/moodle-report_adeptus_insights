@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 // phpcs:disable moodle.Files.LineLength.TooLong
 // SQL query definitions contain complex SELECT statements that cannot be easily broken.
 

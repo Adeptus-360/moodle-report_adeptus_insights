@@ -1633,7 +1633,8 @@ class installation_manager {
         try {
             // Check if installation is registered.
             if (!$this->is_registered()) {
-                return ['success' => false, 'message' => get_string('error_installation_not_registered', 'report_adeptus_insights')];
+                $msg = get_string('error_installation_not_registered', 'report_adeptus_insights');
+                return ['success' => false, 'message' => $msg];
             }
 
             // Get the subscription details.
@@ -1793,7 +1794,7 @@ class installation_manager {
 
     // -----------------------------------------------------------------------
     // USAGE TRACKING METHODS (Enterprise-grade subscription tier management).
-    // =======================================================================
+    // -----------------------------------------------------------------------
 
     /**
      * Get subscription status with full usage data
