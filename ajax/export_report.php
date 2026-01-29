@@ -22,10 +22,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Include config.php to satisfy CodeSniffer requirements.
-// download.php will use require_once so double-inclusion is safe.
-require_once(__DIR__ . '/../../../config.php');
-require_login();
+// Define AJAX_SCRIPT before config.php to ensure proper Moodle initialization.
+define('AJAX_SCRIPT', true);
 
-// Forward to the main download handler.
-require_once(__DIR__ . '/../download.php');
+require_once(__DIR__ . '/../../../config.php');
+
+// Forward to the main download handler (it will handle require_login and capability checks).
+require(__DIR__ . '/../download.php');

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AJAX endpoint for tracking report exports.
+ * AJAX endpoint for checking export eligibility.
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
@@ -25,8 +25,6 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
-require_once($CFG->libdir . '/externallib.php');
-
 require_login();
 require_sesskey();
 
@@ -34,18 +32,21 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     $format = required_param('format', PARAM_ALPHA);
-    $reportname = required_param('report_name', PARAM_TEXT);
 
-    $result = \report_adeptus_insights\external\track_export::execute($format, $reportname);
+    $result = \report_adeptus_insights\external\check_export_eligibility::execute($format);
 
-    echo json_encode([
-        'success' => $result['success'],
-        'message' => $result['message'] ?? '',
-    ]);
+    echo json_encode($result);
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
+        'error' => true,
+        'eligible' => false,
         'message' => $e->getMessage(),
+        'reason' => 'exception',
+        'exports_used' => 0,
+        'exports_limit' => 0,
+        'exports_remaining' => 0,
+        'allowed_formats' => [],
     ]);
 }
