@@ -275,6 +275,15 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view',
     ],
+    'report_adeptus_insights_batch_kpi_data' => [
+        'classname'   => 'report_adeptus_insights\external\batch_kpi_data',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Fetch batch KPI data for multiple reports',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
 
 ];
 
@@ -313,6 +322,7 @@ $services = [
             // Backend API Reports.
             'report_adeptus_insights_get_reports_from_backend',
             'report_adeptus_insights_get_auth_status',
+            'report_adeptus_insights_batch_kpi_data',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
