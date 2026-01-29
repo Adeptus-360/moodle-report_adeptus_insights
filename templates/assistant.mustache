@@ -36,12 +36,18 @@
 <link rel="stylesheet" href="{{config.wwwroot}}/report/adeptus_insights/styles/assistant.css">
 
 {{#js}}
-require(['jquery', 'core/ajax', 'core/notification', 'core/templates', 'report_adeptus_insights/assistant'], function($, Ajax, Notification, Templates, Assistant) {
-// Note: Chart.js is loaded by assistant.js directly (not core/chartjs) to avoid Moodle reactive component conflicts
-// Clear any existing AMD cache for our module
-require.undef('report_adeptus_insights/assistant');
-// Initialize the assistant with authentication status and plan type
-Assistant.init({{#authenticated}}true{{/authenticated}}{{^authenticated}}false{{/authenticated}}, {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}});
+require([
+    'jquery',
+    'core/ajax',
+    'core/notification',
+    'core/templates',
+    'report_adeptus_insights/assistant'
+], function($, Ajax, Notification, Templates, Assistant) {
+    // Chart.js loaded by assistant.js directly to avoid Moodle reactive conflicts.
+    require.undef('report_adeptus_insights/assistant');
+    var auth = {{#authenticated}}true{{/authenticated}}{{^authenticated}}false{{/authenticated}};
+    var free = {{#is_free_plan}}true{{/is_free_plan}}{{^is_free_plan}}false{{/is_free_plan}};
+    Assistant.init(auth, free);
 });
 {{/js}}
 
