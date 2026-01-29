@@ -25,6 +25,7 @@
 // Include config.php to satisfy CodeSniffer requirements.
 // download.php will use require_once so double-inclusion is safe.
 require_once(__DIR__ . '/../../../config.php');
+require_login();
 
 // Forward to the main download handler.
 require_once(__DIR__ . '/../download.php');
