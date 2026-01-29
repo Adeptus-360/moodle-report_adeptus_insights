@@ -1,4 +1,21 @@
 /**
+ * This file is part of Moodle - http://moodle.org/
+ *
+ * Moodle is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Moodle is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
  * CSS styles for Generated Reports page.
  *
  * @package    report_adeptus_insights
@@ -171,7 +188,7 @@
     background-color: #e7f3ff !important;
 }
 
-.report-header h4 {
+.path-report-adeptus_insights .adeptus-report-header h4 {
     color: #2c3e50;
     font-weight: 600;
 }
@@ -180,48 +197,48 @@
     margin-top: 0.5rem;
 }
 
-.gap-2 {
+.path-report-adeptus_insights .adeptus-gap-2 {
     gap: 0.5rem;
 }
 
 /* =========================================
    DataTable Styling
    ========================================= */
-.datatable-wrapper .datatable-top,
-.datatable-wrapper .datatable-bottom {
+.path-report-adeptus_insights .datatable-wrapper .datatable-top,
+.path-report-adeptus_insights .datatable-wrapper .datatable-bottom {
     padding: 0.75rem 1rem;
 }
 
-.datatable-wrapper .datatable-search input {
+.path-report-adeptus_insights .datatable-wrapper .datatable-search input {
     border-radius: 0.5rem;
     padding: 0.5rem 1rem;
 }
 
 /* Export buttons */
-.adeptus-export-csv-btn,
-.adeptus-export-json-btn {
+.path-report-adeptus_insights .adeptus-export-csv-btn,
+.path-report-adeptus_insights .adeptus-export-json-btn {
     border-radius: 0.5rem;
 }
 
 /* Table styling */
-.table-responsive {
+.path-report-adeptus_insights .table-responsive {
     border-radius: 0.5rem;
     overflow: hidden;
 }
 
-.table thead th {
+.path-report-adeptus_insights .table thead th {
     background-color: #f8f9fa;
     font-weight: 600;
     border-bottom: 2px solid #dee2e6;
     white-space: nowrap;
 }
 
-.table tbody td {
+.path-report-adeptus_insights .table tbody td {
     vertical-align: middle;
 }
 
 /* Badge styling */
-.badge {
+.path-report-adeptus_insights .badge {
     font-weight: 500;
     padding: 0.35rem 0.65rem;
 }
@@ -367,7 +384,7 @@
 /* =========================================
    DataTable Filter Layout
    ========================================= */
-.datatable-wrapper .datatable-top {
+.path-report-adeptus_insights .datatable-wrapper .datatable-top {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -376,20 +393,20 @@
     padding: 0.5rem 0.75rem !important;
 }
 
-.datatable-wrapper .datatable-dropdown {
+.path-report-adeptus_insights .datatable-wrapper .datatable-dropdown {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
 }
 
-.datatable-wrapper .datatable-dropdown label {
+.path-report-adeptus_insights .datatable-wrapper .datatable-dropdown label {
     margin: 0;
     font-size: 13px;
     white-space: nowrap;
 }
 
-.datatable-wrapper .datatable-dropdown select {
+.path-report-adeptus_insights .datatable-wrapper .datatable-dropdown select {
     padding: 0.25rem 0.5rem;
     font-size: 13px;
     border-radius: 4px;
@@ -397,13 +414,13 @@
     min-width: 60px;
 }
 
-.datatable-wrapper .datatable-search {
+.path-report-adeptus_insights .datatable-wrapper .datatable-search {
     flex: 1;
     min-width: 150px;
     max-width: 250px;
 }
 
-.datatable-wrapper .datatable-search input {
+.path-report-adeptus_insights .datatable-wrapper .datatable-search input {
     width: 100%;
     padding: 0.35rem 0.75rem;
     font-size: 13px;
@@ -411,7 +428,7 @@
     border-radius: 4px;
 }
 
-.datatable-wrapper .datatable-bottom {
+.path-report-adeptus_insights .datatable-wrapper .datatable-bottom {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -421,16 +438,16 @@
     font-size: 13px;
 }
 
-.datatable-wrapper .datatable-info {
+.path-report-adeptus_insights .datatable-wrapper .datatable-info {
     color: #6c757d;
 }
 
-.datatable-wrapper .datatable-pagination {
+.path-report-adeptus_insights .datatable-wrapper .datatable-pagination {
     display: flex;
     gap: 0.25rem;
 }
 
-.datatable-wrapper .datatable-pagination a {
+.path-report-adeptus_insights .datatable-wrapper .datatable-pagination a {
     padding: 0.25rem 0.5rem;
     font-size: 12px;
     border-radius: 4px;
@@ -440,8 +457,8 @@
     border: 1px solid #dee2e6;
 }
 
-.datatable-wrapper .datatable-pagination a.active,
-.datatable-wrapper .datatable-pagination a:hover {
+.path-report-adeptus_insights .datatable-wrapper .datatable-pagination a.active,
+.path-report-adeptus_insights .datatable-wrapper .datatable-pagination a:hover {
     background: #2563eb;
     color: white;
     border-color: #2563eb;
@@ -1112,7 +1129,7 @@
 }
 
 /* Action separator in action bar */
-.action-separator {
+.path-report-adeptus_insights .adeptus-action-separator {
     width: 1px;
     height: 24px;
     background: #dee2e6;
@@ -1120,11 +1137,11 @@
 }
 
 /* Delete button in action bar */
-.delete-report-btn {
+.path-report-adeptus_insights .adeptus-delete-report-btn {
     transition: all 0.15s ease;
 }
 
-.delete-report-btn:hover {
+.path-report-adeptus_insights .adeptus-delete-report-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
 }
