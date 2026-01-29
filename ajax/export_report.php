@@ -22,7 +22,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('AJAX_SCRIPT', true);
+// Include config.php to satisfy CodeSniffer requirements.
+// download.php will use require_once so double-inclusion is safe.
+require_once(__DIR__ . '/../../../config.php');
 
 // Forward to the main download handler.
 require_once(__DIR__ . '/../download.php');
