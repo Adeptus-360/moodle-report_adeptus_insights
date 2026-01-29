@@ -1,6 +1,5 @@
 module.exports = {
     extends: '../../.eslintrc',
-    ignorePatterns: ['amd/src/lib/**/*.js'],
     parser: '@babel/eslint-parser',
     parserOptions: {
         sourceType: 'module',
@@ -77,6 +76,7 @@ module.exports = {
         'prefer-template': 'off',
         'one-var': 'off',
         'vars-on-top': 'off',
-        'wrap-iife': 'off'
+        'wrap-iife': 'off',
+        'max-depth': 'off'
     }
 };
