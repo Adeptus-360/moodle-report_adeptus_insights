@@ -54,6 +54,20 @@ try {
 
     $result = \report_adeptus_insights\external\execute_ai_report::execute($sql, $params);
 
+    // The external service returns data and headers as JSON strings.
+    // Decode them so the final response has arrays, not strings.
+    if (isset($result['data']) && is_string($result['data'])) {
+        $result['data'] = json_decode($result['data'], true) ?: [];
+    }
+    if (isset($result['headers']) && is_string($result['headers'])) {
+        $result['headers'] = json_decode($result['headers'], true) ?: [];
+    }
+
+    // Ensure data is a proper indexed array for JSON encoding.
+    if (isset($result['data']) && is_array($result['data'])) {
+        $result['data'] = array_values($result['data']);
+    }
+
     echo json_encode($result);
 } catch (Exception $e) {
     http_response_code(500);
