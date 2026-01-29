@@ -37,6 +37,24 @@ try {
 
     $result = \report_adeptus_insights\external\generate_report::execute($reportid, $parameters, $reexecution);
 
+    // Transform results from Moodle's complex format [{cells: [{key, value}]}]
+    // to simple format [{col1: val1, col2: val2}] that the block expects.
+    if (!empty($result['results']) && is_array($result['results'])) {
+        $simpleresults = [];
+        foreach ($result['results'] as $row) {
+            if (isset($row['cells']) && is_array($row['cells'])) {
+                $simplerow = [];
+                foreach ($row['cells'] as $cell) {
+                    if (isset($cell['key'])) {
+                        $simplerow[$cell['key']] = $cell['value'] ?? '';
+                    }
+                }
+                $simpleresults[] = $simplerow;
+            }
+        }
+        $result['results'] = $simpleresults;
+    }
+
     echo json_encode($result);
 } catch (Exception $e) {
     http_response_code(500);

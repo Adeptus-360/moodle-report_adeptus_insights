@@ -35,6 +35,12 @@ try {
 
     $result = \report_adeptus_insights\external\batch_kpi_data::execute($reportids);
 
+    // The external service returns 'reports' as a JSON string.
+    // Decode it so the final response has reports as an object.
+    if (isset($result['reports']) && is_string($result['reports'])) {
+        $result['reports'] = json_decode($result['reports'], true);
+    }
+
     echo json_encode($result);
 } catch (Exception $e) {
     http_response_code(500);
