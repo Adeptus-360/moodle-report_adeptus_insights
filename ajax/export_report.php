@@ -26,6 +26,7 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../config.php');
+require_login();
 
-// Forward to the main download handler (it will handle require_login and capability checks).
+// Forward to the main download handler.
 require(__DIR__ . '/../download.php');
