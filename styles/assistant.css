@@ -34,7 +34,7 @@
     padding: 30px;
     border-radius: 0.75rem;
     margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -49,13 +49,18 @@
     right: -20%;
     width: 100%;
     height: 200%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+    background-size: 20px 20px;
     animation: adeptus-headerFloat 20s linear infinite;
 }
 
 @keyframes adeptus-headerFloat {
-    0% { transform: translateY(0) rotate(0deg); }
-    100% { transform: translateY(-50%) rotate(360deg); }
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        transform: translateY(-50%) rotate(360deg);
+    }
 }
 
 .path-report-adeptus_insights .adeptus-assistant-header-content {
@@ -109,7 +114,7 @@
     border-radius: 0.75rem;
     margin-top: 30px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border: 1px solid #dee2e6;
 }
 
@@ -153,7 +158,7 @@
 /* View Usage button styling - white text */
 .path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-btn-view-usage {
     background: linear-gradient(135deg, #0f6cbf 0%, #3a8dd4 100%);
-    color: #ffffff !important;
+    color: #fff !important;
     border: none;
     padding: 10px 18px;
     border-radius: 8px;
@@ -169,7 +174,7 @@
 
 .path-report-adeptus_insights .adeptus-subscription-status-bar .adeptus-btn-view-usage:hover {
     background: linear-gradient(135deg, #0a5299 0%, #2a7dc4 100%);
-    color: #ffffff !important;
+    color: #fff !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(15, 108, 191, 0.4);
     text-decoration: none;
@@ -269,7 +274,7 @@
 
 /* Close button hover effect */
 .path-report-adeptus_insights .adeptus-usage-modal-close-btn:hover {
-    background: rgba(255,255,255,0.3) !important;
+    background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
 }
 
@@ -302,8 +307,13 @@
 }
 
 @keyframes adeptus-sparkle {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    50% { transform: scale(1.1) rotate(5deg); }
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+    }
 }
 
 .path-report-adeptus_insights .adeptus-assistant-subtitle {
@@ -342,7 +352,7 @@
 .path-report-adeptus_insights .adeptus-btn-primary {
     background: white;
     color: #2563eb;
-    border-radius: 70px 7px 70px!important;
+    border-radius: 70px 7px 70px;
 }
 
 .path-report-adeptus_insights .adeptus-btn:hover {
@@ -699,8 +709,12 @@
 }
 
 @keyframes adeptus-fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* SweetAlert2 custom styles */
@@ -1040,7 +1054,7 @@
 }
 
 .path-report-adeptus_insights .adeptus-mcq-option-button {
-    background: #ffffff;
+    background: #fff;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     cursor: pointer;
@@ -1076,9 +1090,15 @@
 }
 
 @keyframes adeptus-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* Responsive behavior for smaller screens */

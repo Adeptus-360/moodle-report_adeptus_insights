@@ -175,8 +175,12 @@
 }
 
 @keyframes adeptus-subscription-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Success/Error Messages */
@@ -795,8 +799,12 @@
 }
 
 @keyframes adeptus-progress-stripes {
-    0% { background-position: 0 0; }
-    100% { background-position: 20px 0; }
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 20px 0;
+    }
 }
 
 .path-report-adeptus_insights .adeptus-progress-fill {
@@ -820,8 +828,12 @@
 }
 
 @keyframes adeptus-shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .path-report-adeptus_insights .adeptus-progress-text {
