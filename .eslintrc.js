@@ -1,9 +1,10 @@
 module.exports = {
-    extends: '../../.eslintrc',
+    root: true,
     parser: '@babel/eslint-parser',
     parserOptions: {
         sourceType: 'module',
         requireConfigFile: false,
+        ecmaVersion: 2020,
         babelOptions: {
             configFile: false,
             babelrc: false,
@@ -19,14 +20,13 @@ module.exports = {
         M: true,
         Y: true,
         Swal: true,
-        simpleDatatables: true
+        simpleDatatables: true,
+        define: true,
+        require: true
     },
     rules: {
         // Relax some rules for plugin code
         'max-len': ['error', {code: 180, ignoreUrls: true, ignoreStrings: true, ignoreTemplateLiterals: true}],
-        'jsdoc/require-param': 'off',
-        'jsdoc/require-jsdoc': 'off',
-        'jsdoc/empty-tags': 'off',
         'no-script-url': 'off',
         'capitalized-comments': 'off',
         'no-multi-spaces': 'off',
@@ -38,12 +38,6 @@ module.exports = {
         'camelcase': 'off',
         'curly': 'off',
         'no-return-assign': 'off',
-        'promise/always-return': 'off',
-        'promise/catch-or-return': 'off',
-        'promise/no-nesting': 'off',
-        'promise/param-names': 'off',
-        // Disable style warnings that block CI
-        '@babel/object-curly-spacing': 'off',
         'object-curly-spacing': 'off',
         'complexity': 'off',
         'no-empty': 'off',
@@ -77,6 +71,7 @@ module.exports = {
         'one-var': 'off',
         'vars-on-top': 'off',
         'wrap-iife': 'off',
-        'max-depth': 'off'
+        'max-depth': 'off',
+        'no-unused-vars': 'off'
     }
 };
