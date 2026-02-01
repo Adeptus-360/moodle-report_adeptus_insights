@@ -75,15 +75,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpmd
 
-      - name: Debug - Show provider.php content
-        if: ${{ !cancelled() }}
-        run: |
-          echo "=== Content from plugin directory ==="
-          cat plugin/classes/privacy/provider.php | head -50
-          echo ""
-          echo "=== Content from moodle installation ==="
-          cat moodle/report/adeptus_insights/classes/privacy/provider.php | head -50
-
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcs --max-warnings 0
