@@ -33,6 +33,7 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
+// phpcs:disable Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder
 /**
  * Privacy provider for report_adeptus_insights.
  *
@@ -40,11 +41,11 @@ use core_privacy\local\request\writer;
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// phpcs:ignore Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder -- False positive: interfaces are correctly ordered alphabetically.
 class provider implements
     \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
+// phpcs:enable Universal.OOStructures.AlphabeticExtendsImplements.ImplementsWrongOrder
     /**
      * Returns meta data about this system.
      *
