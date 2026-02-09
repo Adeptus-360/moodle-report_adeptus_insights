@@ -266,6 +266,15 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view',
     ],
+    'report_adeptus_insights_proxy_backend_request' => [
+        'classname'   => 'report_adeptus_insights\external\proxy_backend_request',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Server-side proxy for backend API requests (avoids CORS)',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
     'report_adeptus_insights_get_ai_reports' => [
         'classname'   => 'report_adeptus_insights\external\get_ai_reports',
         'methodname'  => 'execute',
@@ -330,6 +339,7 @@ $services = [
             'report_adeptus_insights_execute_ai_report',
             // Backend API Reports.
             'report_adeptus_insights_get_reports_from_backend',
+            'report_adeptus_insights_proxy_backend_request',
             'report_adeptus_insights_get_ai_reports',
             'report_adeptus_insights_get_auth_status',
             'report_adeptus_insights_batch_kpi_data',

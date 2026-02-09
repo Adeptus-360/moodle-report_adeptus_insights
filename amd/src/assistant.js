@@ -3163,17 +3163,51 @@ define([
                 return Promise.reject(new Error('Authentication required'));
             }
 
-            // Add authentication headers to the request
-            const authHeaders = AuthUtils.getAuthHeaders();
-            options.headers = { ...options.headers, ...authHeaders };
-
-            // Set default timeout to 60 seconds for AI operations (can be slow)
-            if (!options.timeout) {
-                options.timeout = 60000;
+            // Route through Moodle AJAX proxy to avoid CORS/Cloudflare Access issues.
+            // Extract the endpoint path from the full URL.
+            var endpoint = options.url;
+            if (endpoint.indexOf(this.backendUrl) === 0) {
+                endpoint = endpoint.substring(this.backendUrl.length);
             }
 
-            // Make the authenticated request
-            return $.ajax(options);
+            var method = (options.method || options.type || 'GET').toUpperCase();
+            var body = '';
+            if (method === 'POST' && options.data) {
+                body = typeof options.data === 'string' ? options.data : JSON.stringify(options.data);
+            }
+
+            var deferred = $.Deferred();
+            var self = this;
+
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_proxy_backend_request',
+                args: {
+                    endpoint: endpoint,
+                    method: method,
+                    body: body
+                }
+            }])[0].done(function(result) {
+                try {
+                    var parsed = JSON.parse(result.data || '{}');
+                    if (options.success) {
+                        options.success(parsed);
+                    }
+                    deferred.resolve([parsed, 'success', {status: result.httpcode}]);
+                } catch (e) {
+                    if (options.success) {
+                        options.success(result.data);
+                    }
+                    deferred.resolve([result.data, 'success', {status: result.httpcode}]);
+                }
+            }).fail(function(err) {
+                if (options.error) {
+                    options.error(err);
+                }
+                deferred.reject(err);
+            });
+
+            // Return a thenable that mimics jQuery ajax for .then()/.catch() chains.
+            return deferred.promise();
         },
 
         /**
