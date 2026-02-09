@@ -1547,16 +1547,20 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 }
             }
 
-            var assistantPromise = $.ajax({
-                url: this.backendUrl + '/ai-reports',
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 15000
-            }).catch(function() {
-                return {reports: [], data: []};
+            var assistantPromise = new Promise(function(resolve) {
+                Ajax.call([{
+                    methodname: 'report_adeptus_insights_get_ai_reports',
+                    args: {}
+                }])[0].done(function(result) {
+                    try {
+                        var parsed = JSON.parse(result.data || '{}');
+                        resolve([parsed]);
+                    } catch (e) {
+                        resolve([{reports: [], data: []}]);
+                    }
+                }).fail(function() {
+                    resolve([{reports: [], data: []}]);
+                });
             });
 
             var wizardPromise = new Promise(function(resolve) {

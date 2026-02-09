@@ -266,6 +266,15 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view',
     ],
+    'report_adeptus_insights_get_ai_reports' => [
+        'classname'   => 'report_adeptus_insights\external\get_ai_reports',
+        'methodname'  => 'execute',
+        'classpath'   => '',
+        'description' => 'Get AI-generated reports from backend (server-side proxy)',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
     'report_adeptus_insights_get_auth_status' => [
         'classname'   => 'report_adeptus_insights\external\get_auth_status',
         'methodname'  => 'execute',
@@ -321,6 +330,7 @@ $services = [
             'report_adeptus_insights_execute_ai_report',
             // Backend API Reports.
             'report_adeptus_insights_get_reports_from_backend',
+            'report_adeptus_insights_get_ai_reports',
             'report_adeptus_insights_get_auth_status',
             'report_adeptus_insights_batch_kpi_data',
         ],
