@@ -2437,30 +2437,77 @@ define([
                             }
                         }
 
-                        // Check if this is a report message
-                        // Check both metadata and message content pattern for backward compatibility
-                        const isReportMessage = (msg.metadata && msg.metadata.type === 'report') ||
-                                               (msg.body && msg.body.startsWith('📊 Report saved:'));
+                        // Check if this is a report message with SQL to re-execute
+                        const hasReportMetadata = msg.metadata && msg.metadata.type === 'report' && msg.metadata.sql;
+                        // Backward compat: detect old "Report Generated:" messages and extract SQL
+                        const isLegacyReport = !hasReportMetadata && msg.body &&
+                            msg.body.startsWith('Report Generated:') && msg.body.includes('```sql');
+                        const isSavedReportLink = msg.body && msg.body.startsWith('📊 Report saved:');
 
-                        if (isReportMessage) {
-                            // Extract report info from message if metadata is missing
-                            if (!msg.metadata && msg.body) {
-                                // Parse report name from message like "📊 Report saved: Daily Login Activity"
+                        if (hasReportMetadata || isLegacyReport) {
+                            // Extract SQL and report info
+                            let sql, reportName, reportDesc, category;
+                            if (hasReportMetadata) {
+                                sql = msg.metadata.sql;
+                                reportName = msg.metadata.name || 'Report';
+                                reportDesc = msg.metadata.description || reportName;
+                                category = msg.metadata.category || 'general';
+                            } else {
+                                // Parse from legacy text format
+                                const sqlMatch = msg.body.match(/```sql\n([\s\S]*?)```/);
+                                sql = sqlMatch ? sqlMatch[1].trim() : null;
+                                const nameMatch = msg.body.match(/^Report Generated:\s*(.+?)(?:\n|$)/);
+                                reportName = nameMatch ? nameMatch[1].trim() : 'Report';
+                                reportDesc = reportName;
+                                const catMatch = msg.body.match(/Category:\s*(\w+)/);
+                                category = catMatch ? catMatch[1] : 'general';
+                            }
+
+                            if (sql) {
+                                // Execute the SQL locally and render results via showReportConfirmation
+                                // (which adds its own description message, so we don't addMessage here)
+                                const descText = `I've generated a report for you: ${reportDesc}`;
+
+                                this.executeReportLocally(sql, {})
+                                    .then((executionResult) => {
+                                        if (executionResult.data && executionResult.data.length > 0) {
+                                            const report = {
+                                                name: reportName,
+                                                description: reportDesc,
+                                                sql: sql,
+                                                category: category,
+                                            };
+                                            this.showReportConfirmation(
+                                                report,
+                                                executionResult.data,
+                                                descText,
+                                                null,
+                                                executionResult.error || null
+                                            );
+                                        } else if (executionResult.error) {
+                                            this.addMessage('⚠️ Could not re-execute report: ' + executionResult.error, 'ai');
+                                        }
+                                    })
+                                    .catch(() => {
+                                        // Silently fail — the description is already shown
+                                    });
+                            } else {
+                                this.addMessage(msg.body, msg.sender_type, false, null, msg.id, msg.timestamp);
+                            }
+                        } else if (isSavedReportLink) {
+                            // Extract report info from "📊 Report saved:" message
+                            if (!msg.metadata) {
                                 const reportNameMatch = msg.body.match(/📊 Report saved: (.+)/);
                                 const reportName = reportNameMatch ? reportNameMatch[1] : 'Report';
-
-                                // Try to guess slug from report name
                                 const reportSlug = reportName.toLowerCase()
                                     .replace(/\s+/g, '-')
                                     .replace(/[^a-z0-9-]/g, '');
-
                                 msg.metadata = {
                                     type: 'report',
                                     report_name: reportName,
                                     report_slug: reportSlug
                                 };
                             }
-                            // Display as a report link
                             this.displayReportLink(msg);
                         } else {
                             this.addMessage(msg.body, msg.sender_type, false, null, msg.id, msg.timestamp);

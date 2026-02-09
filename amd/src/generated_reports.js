@@ -1786,15 +1786,17 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 return;
             }
 
-            $.ajax({
-                url: this.backendUrl + '/ai-reports/' + slug,
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + token,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 30000,
-                success: function(response) {
+            // Route through Moodle AJAX proxy to avoid CORS/Cloudflare Access issues
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_proxy_backend_request',
+                args: {
+                    endpoint: '/ai-reports/' + slug,
+                    method: 'GET',
+                    body: ''
+                }
+            }])[0].done(function(result) {
+                try {
+                    var response = JSON.parse(result.data || '{}');
                     var report = response.report || response;
                     var data = response.data || [];
 
@@ -1847,8 +1849,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     }
 
                     self.renderReportContent(report, data);
-                },
-                error: function() {
+                } catch (e) {
                     $('#report-loading').addClass('d-none');
                     $('#report-content').html(
                         '<div class="alert alert-danger">' +
@@ -1859,6 +1860,16 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                         '</div>'
                     ).removeClass('d-none');
                 }
+            }).fail(function() {
+                $('#report-loading').addClass('d-none');
+                $('#report-content').html(
+                    '<div class="alert alert-danger">' +
+                        '<i class="fa fa-exclamation-circle"></i> ' + STRINGS.failedToLoadReportDetails +
+                        '<button class="btn btn-sm btn-outline-danger ms-3" ' +
+                        'onclick="GeneratedReports.loadReportDetails(\'' + slug + '\')">' +
+                        '<i class="fa fa-refresh"></i> ' + STRINGS.retry + '</button>' +
+                    '</div>'
+                ).removeClass('d-none');
             });
         },
 
