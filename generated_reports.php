@@ -41,7 +41,8 @@ $PAGE->set_url(new moodle_url('/report/adeptus_insights/generated_reports.php'))
 $PAGE->set_title(get_string('generated_reports_title', 'report_adeptus_insights'));
 
 // Get backend URL from config.
-$backendurl = \report_adeptus_insights\api_config::get_backend_url();
+// Use public URL for browser JS (internal Docker URLs can't be reached from browser).
+$backendurl = \report_adeptus_insights\api_config::get_backend_public_url();
 
 // Check authentication using the new token-based system.
 $authmanager = new \report_adeptus_insights\token_auth_manager();

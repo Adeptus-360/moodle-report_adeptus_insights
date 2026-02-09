@@ -67,6 +67,26 @@ class api_config {
     }
 
     /**
+     * Get the browser-accessible backend API URL.
+     *
+     * For JS that runs in the browser and needs to call the backend directly.
+     * Falls back to the standard backend URL if no public URL is configured.
+     * Add to config.php: $CFG->adeptus360_backend_public_url = 'https://api-adeptus360.example.com/api/v1'
+     *
+     * @return string The public-facing API URL (without trailing slash)
+     */
+    public static function get_backend_public_url() {
+        global $CFG;
+
+        if (!empty($CFG->adeptus360_backend_public_url)) {
+            return rtrim($CFG->adeptus360_backend_public_url, '/');
+        }
+
+        // Fall back to production URL (always browser-accessible).
+        return self::BACKEND_URL;
+    }
+
+    /**
      * Get the Moodle site URL.
      *
      * Returns the current Moodle installation's URL.

@@ -57,7 +57,8 @@ if ($subscription) {
 }
 
 // Get backend URL from config.
-$backendurl = \report_adeptus_insights\api_config::get_backend_url();
+// Use public URL for browser JS (internal Docker URLs can't be reached from browser).
+$backendurl = \report_adeptus_insights\api_config::get_backend_public_url();
 
 // Load required AMD modules and CSS.
 // IMPORTANT: auth_utils must be initialized FIRST to set window.adeptusAuthData before other modules use it.
