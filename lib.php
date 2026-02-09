@@ -25,6 +25,66 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
+ * Extend the user navigation to include Adeptus Insights link.
+ *
+ * This adds the plugin link to the user menu dropdown.
+ *
+ * @param navigation_node $navigation The navigation node to extend.
+ * @param stdClass $user The user object.
+ * @param context_user $usercontext The user context.
+ * @param stdClass $course The course object.
+ * @param context_course $coursecontext The course context.
+ */
+function report_adeptus_insights_extend_navigation_user_settings(
+    navigation_node $navigation,
+    stdClass $user,
+    context_user $usercontext,
+    stdClass $course,
+    context_course $coursecontext
+) {
+    if (has_capability('report/adeptus_insights:view', context_system::instance())) {
+        $url = new moodle_url('/report/adeptus_insights/index.php');
+        $navigation->add(
+            get_string('pluginname', 'report_adeptus_insights'),
+            $url,
+            navigation_node::TYPE_SETTING,
+            null,
+            'adeptusinsights',
+            new pix_icon('i/report', '')
+        );
+    }
+}
+
+/**
+ * Add Adeptus Insights node to the user profile page.
+ *
+ * @param \core_user\output\myprofile\tree $tree Tree object.
+ * @param stdClass $user The user object.
+ * @param bool $iscurrentuser Whether this is the current user.
+ * @param stdClass $course The course object.
+ * @return bool
+ */
+function report_adeptus_insights_myprofile_navigation(
+    core_user\output\myprofile\tree $tree,
+    $user,
+    $iscurrentuser,
+    $course
+) {
+    if (has_capability('report/adeptus_insights:view', context_system::instance())) {
+        $url = new moodle_url('/report/adeptus_insights/index.php');
+        $node = new core_user\output\myprofile\node(
+            'reports',
+            'adeptusinsights',
+            get_string('pluginname', 'report_adeptus_insights'),
+            null,
+            $url
+        );
+        $tree->add_node($node);
+    }
+    return true;
+}
+
+/**
  * Callback executed before HTTP headers are sent.
  *
  * Configures RequireJS for SweetAlert2 library.
