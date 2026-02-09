@@ -105,6 +105,21 @@ try {
             $resultsarray = $reportdata['results'];
             $headers = $reportdata['headers'];
 
+            // Normalize results from cells format {cells: [{key, value}, ...]} to flat {key: value, ...}.
+            $normalizedresults = [];
+            foreach ($resultsarray as $row) {
+                if (isset($row['cells']) && is_array($row['cells'])) {
+                    $flatrow = [];
+                    foreach ($row['cells'] as $cell) {
+                        $flatrow[$cell['key']] = $cell['value'] ?? '';
+                    }
+                    $normalizedresults[] = $flatrow;
+                } else {
+                    $normalizedresults[] = $row;
+                }
+            }
+            $resultsarray = $normalizedresults;
+
             // Create report object with metadata from frontend.
             $report->name = $reportdata['report_name'] ?? $reportid;
             $report->category = $reportdata['report_category'] ?? '';
