@@ -219,41 +219,27 @@ class get_reports_from_backend extends external_api {
                     'charttype' => $report['charttype'],
                     'sqlquery' => $report['sqlquery'],
                     'parameters' => $report['parameters'],
-                    'is_free_tier' => false,
+                    'is_free_tier' => ($report['tier_required'] ?? 'pro') === 'free',
                 ];
                 $categories[$categoryname]['report_count']++;
             }
 
-            // Apply free tier restrictions.
-            $prioritykeywords = [
-                'high' => ['overview', 'summary', 'total', 'count', 'basic', 'simple', 'main', 'general', 'all', 'complete'],
-                'medium' => ['detailed', 'advanced', 'specific', 'custom', 'filtered', 'selected'],
-                'low' => ['export', 'bulk', 'batch', 'comprehensive', 'extensive', 'full', 'complete', 'detailed analysis'],
-            ];
-
+            // Count free tier reports per category using backend tier_required data.
             foreach ($categories as $catkey => $category) {
-                $totalreports = count($category['reports']);
-
-                // Determine how many reports to allow for free tier.
-                if ($totalreports >= 1 && $totalreports <= 4) {
-                    $freecount = 1;
-                } else if ($totalreports >= 5 && $totalreports <= 10) {
-                    $freecount = 2;
-                } else {
-                    $freecount = 3;
+                $freecount = 0;
+                foreach ($category['reports'] as $report) {
+                    if (!empty($report['is_free_tier'])) {
+                        $freecount++;
+                    }
                 }
 
-                // Sort reports by priority (1 = highest priority).
-                usort($categories[$catkey]['reports'], function ($a, $b) use ($prioritykeywords) {
-                    $prioritya = self::calculate_report_priority($a, $prioritykeywords);
-                    $priorityb = self::calculate_report_priority($b, $prioritykeywords);
-                    return $prioritya <=> $priorityb;
+                // Sort reports: free tier first, then by name.
+                usort($categories[$catkey]['reports'], function ($a, $b) {
+                    if ($a['is_free_tier'] !== $b['is_free_tier']) {
+                        return $b['is_free_tier'] <=> $a['is_free_tier'];
+                    }
+                    return strcasecmp($a['name'], $b['name']);
                 });
-
-                // Mark free tier reports.
-                for ($i = 0; $i < count($categories[$catkey]['reports']); $i++) {
-                    $categories[$catkey]['reports'][$i]['is_free_tier'] = ($i < $freecount);
-                }
 
                 $categories[$catkey]['free_reports_count'] = $freecount;
             }
