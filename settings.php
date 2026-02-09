@@ -25,7 +25,16 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('report_adeptus_insights', get_string('pluginname', 'report_adeptus_insights'));
+    // Add a direct link to the report in the admin Reports section.
+    $ADMIN->add('reports', new admin_externalpage(
+        'report_adeptus_insights_view',
+        get_string('pluginname', 'report_adeptus_insights'),
+        new moodle_url('/report/adeptus_insights/index.php'),
+        'report/adeptus_insights:view'
+    ));
+
+    // Settings page (separate from the report link).
+    $settings = new admin_settingpage('report_adeptus_insights', get_string('settings', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);
 
     // Email Notifications Section.
