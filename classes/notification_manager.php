@@ -26,6 +26,8 @@
 
 namespace report_adeptus_insights;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Notification manager class for displaying user notifications.
  *

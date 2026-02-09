@@ -26,6 +26,8 @@
 
 namespace report_adeptus_insights;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Error handler class for professional error management.
  *

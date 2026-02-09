@@ -31,8 +31,18 @@ require_capability('report/adeptus_insights:view', context_system::instance());
 header('Content-Type: application/json');
 
 // Parse JSON input.
-$input = json_decode(file_get_contents('php: // Input'), true);
+$input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? null;
+
+// Validate sesskey for write operations.
+if ($action !== null) {
+    $sesskey = $input['sesskey'] ?? '';
+    if (!confirm_sesskey($sesskey)) {
+        http_response_code(403);
+        echo json_encode(['error' => get_string('error_invalid_sesskey', 'report_adeptus_insights')]);
+        exit;
+    }
+}
 
 // Handle login to AI backend.
 if ($action === 'login') {

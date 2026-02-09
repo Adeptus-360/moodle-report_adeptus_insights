@@ -24,6 +24,8 @@
 
 namespace report_adeptus_insights;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Token authentication manager for backend API requests.
  *

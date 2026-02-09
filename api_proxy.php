@@ -76,7 +76,7 @@ if (!in_array($endpoint, $publicendpoints)) {
         }
         if (empty($sesskey)) {
             // Try to get from JSON body.
-            $jsoninput = json_decode(file_get_contents('php: // Input'), true);
+            $jsoninput = json_decode(file_get_contents('php://input'), true);
             if (isset($jsoninput['sesskey'])) {
                 $sesskey = clean_param($jsoninput['sesskey'], PARAM_ALPHANUM);
             }
@@ -222,7 +222,7 @@ function report_adeptus_insights_handle_registration() {
     $input = [];
 
     // Try to get JSON input first.
-    $jsoninput = json_decode(file_get_contents('php: // Input'), true);
+    $jsoninput = json_decode(file_get_contents('php://input'), true);
     if ($jsoninput) {
         // Clean each input value from JSON.
         $input = [];
@@ -355,7 +355,7 @@ function report_adeptus_insights_handle_create_subscription() {
 
     try {
         // Get input data from JSON body (primary method for API).
-        $input = json_decode(file_get_contents('php: // Input'), true);
+        $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
             // Fall back to Moodle parameter functions.
             $input = [

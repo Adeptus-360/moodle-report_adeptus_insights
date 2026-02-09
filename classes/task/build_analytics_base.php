@@ -16,6 +16,8 @@
 
 namespace report_adeptus_insights\task;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Scheduled task to build the analytics base table.
  *

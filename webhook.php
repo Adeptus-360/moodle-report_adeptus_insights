@@ -39,7 +39,7 @@ if ($requestmethod !== 'POST') {
 }
 
 // Get the webhook payload.
-$payload = file_get_contents('php: // Input');
+$payload = file_get_contents('php://input');
 // Get Stripe signature header and clean it (base64 chars, timestamps, commas, equals).
 $sigheader = isset($_SERVER['HTTP_STRIPE_SIGNATURE']) ? $_SERVER['HTTP_STRIPE_SIGNATURE'] : '';
 // Stripe signatures contain special characters (t=,v1=) so we validate format rather than cleaning.

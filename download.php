@@ -402,7 +402,7 @@ try {
             header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
             header('Cache-Control: max-age=0');
 
-            $output = fopen('php: // Output', 'w');
+            $output = fopen('php://output', 'w');
             foreach ($tabledata as $row) {
                 fputcsv($output, $row);
             }
