@@ -271,7 +271,7 @@ $functions = [
         'methodname'  => 'execute',
         'classpath'   => '',
         'description' => 'Server-side proxy for backend API requests (avoids CORS)',
-        'type'        => 'read',
+        'type'        => 'write',
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view',
     ],
