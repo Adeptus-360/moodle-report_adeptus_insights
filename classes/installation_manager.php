@@ -55,7 +55,7 @@ class installation_manager {
      * Constructor.
      */
     public function __construct() {
-        global $DB;
+        global $CFG, $DB;
 
         // Load existing settings.
         try {
@@ -63,7 +63,10 @@ class installation_manager {
             $settings = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($settings) {
                 $this->api_key = $settings->api_key;
-                $this->api_url = $settings->api_url;
+                // Allow config.php override for development/staging.
+                $this->api_url = !empty($CFG->adeptus360_backend_url)
+                    ? rtrim($CFG->adeptus360_backend_url, '/')
+                    : $settings->api_url;
                 $this->installation_id = $settings->installation_id;
                 $this->is_registered = (bool)$settings->is_registered;
             } else {
