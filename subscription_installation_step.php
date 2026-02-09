@@ -122,7 +122,9 @@ $availableplans = $installationmanager->get_available_plans();
 
 $monthlyplans = [];
 $yearlyplans = [];
+$lifetimeplans = [];
 $hasyearlyplans = false;
+$haslifetimeplans = false;
 
 if (!empty($availableplans['plans'])) {
     foreach ($availableplans['plans'] as $plan) {
@@ -172,6 +174,9 @@ if (!empty($availableplans['plans'])) {
             'short_name' => ucfirst($tier), // Free, Pro, Enterprise.
             'description' => $plan['description'] ?? '',
             'price_formatted' => $priceformatted,
+            // Clean price: just the number without currency symbol or interval suffix.
+            // Used by lifetime cards so we don't show "$499.00 (lifetime)" or double the $.
+            'price_clean' => $pricecents > 0 ? number_format($pricecents / 100, 0) : '0',
             'price_cents' => $pricecents,
             'billing_interval' => $billinginterval,
             'is_free' => $tier === 'free',
@@ -205,7 +210,20 @@ if (!empty($availableplans['plans'])) {
         ];
 
         // Organize by billing interval.
-        if ($billinginterval === 'yearly' || $billinginterval === 'annual') {
+        $islifetime = ($billinginterval === 'lifetime' || $billinginterval === 'one_time');
+        // Also catch lifetime plans that fell through with wrong interval.
+        if (!$islifetime && stripos($priceformatted, 'lifetime') !== false) {
+            $islifetime = true;
+        }
+
+        if ($islifetime) {
+            // For lifetime plans, only Pro should be marked as popular (not Enterprise).
+            if ($tier !== 'pro') {
+                $transformedplan['is_popular'] = false;
+            }
+            $lifetimeplans[$tier] = $transformedplan;
+            $haslifetimeplans = true;
+        } else if ($billinginterval === 'yearly' || $billinginterval === 'annual') {
             $yearlyplans[$tier] = $transformedplan;
             $hasyearlyplans = true;
         } else {
@@ -222,6 +240,7 @@ $sortbytier = function ($a, $b) use ($tierorder) {
 
 usort($monthlyplans, $sortbytier);
 usort($yearlyplans, $sortbytier);
+usort($lifetimeplans, $sortbytier);
 
 // Calculate annual savings if yearly plans exist.
 $maxyearlysavings = 0;
@@ -254,7 +273,9 @@ $templatecontext = [
     'current_subscription' => $currentsubscription,
     'monthly_plans' => array_values($monthlyplans),
     'yearly_plans' => array_values($yearlyplans),
+    'lifetime_plans' => array_values($lifetimeplans),
     'has_yearly_plans' => $hasyearlyplans,
+    'has_lifetime_plans' => $haslifetimeplans,
     'max_yearly_savings' => $maxyearlysavings,
     'installation_step' => get_config('report_adeptus_insights', 'installation_step', '2'),
 ];
@@ -263,6 +284,7 @@ $templatecontext = [
 $plansdata = [
     'monthly' => array_values($monthlyplans),
     'yearly' => array_values($yearlyplans),
+    'lifetime' => array_values($lifetimeplans),
 ];
 
 // Load required CSS and AMD module.

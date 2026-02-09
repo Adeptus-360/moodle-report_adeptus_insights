@@ -21,13 +21,113 @@
     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
     Subscription installation step template providing enterprise-grade subscription
-    selection with monthly/annual toggle and plan comparison features.
+    selection with monthly/annual/lifetime toggle and plan comparison features.
 
     Example context (json):
     {
         "plans": [{"name": "Free", "price": 0}]
     }
 }}
+
+<style>
+/* Launch Special Tab Styling */
+.adeptus-billing-toggle-btn[data-interval="lifetime"] {
+    background: linear-gradient(135deg, #ff6b35, #f7c948) !important;
+    color: #fff !important;
+    border-color: #ff6b35 !important;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    position: relative;
+}
+.adeptus-billing-toggle-btn[data-interval="lifetime"]:hover {
+    background: linear-gradient(135deg, #e85d2c, #e6b93d) !important;
+}
+.adeptus-billing-toggle-btn[data-interval="lifetime"].active {
+    background: linear-gradient(135deg, #ff6b35, #f7c948) !important;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.4);
+}
+
+/* Lifetime Plan Card Enhancements */
+.adeptus-plan-card.lifetime-deal {
+    border: 2px solid #ff6b35;
+    position: relative;
+    overflow: visible;
+}
+.adeptus-plan-card.lifetime-deal.popular {
+    border-color: #ff6b35;
+    box-shadow: 0 4px 24px rgba(255, 107, 53, 0.2);
+}
+
+/* Lifetime Deal Ribbon */
+.adeptus-lifetime-ribbon {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: linear-gradient(135deg, #ff6b35, #f7c948);
+    color: #fff;
+    padding: 4px 16px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 0 6px 0 8px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* One-time price label */
+.adeptus-price-onetime {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* Future updates note */
+.adeptus-lifetime-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #059669;
+    font-weight: 600;
+    padding: 6px 12px;
+    background: #ecfdf5;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+/* Urgency line */
+.adeptus-lifetime-urgency {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+/* Banner above lifetime plans */
+.adeptus-lifetime-banner {
+    text-align: center;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff7ed, #fef3c7);
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+}
+.adeptus-lifetime-banner h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.1rem;
+    color: #c2410c;
+}
+.adeptus-lifetime-banner p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #78350f;
+}
+</style>
 
 <div class="adeptus-installation-container">
     <!-- Installation Header -->
@@ -57,7 +157,12 @@
     <!-- Billing Toggle -->
     <div class="adeptus-billing-toggle-container">
         <div class="adeptus-billing-toggle">
-            <button type="button" class="adeptus-billing-toggle-btn active" data-interval="monthly">
+            {{#has_lifetime_plans}}
+            <button type="button" class="adeptus-billing-toggle-btn active" data-interval="lifetime">
+                🔥 Launch Special
+            </button>
+            {{/has_lifetime_plans}}
+            <button type="button" class="adeptus-billing-toggle-btn {{^has_lifetime_plans}}active{{/has_lifetime_plans}}" data-interval="monthly">
                 {{#str}}monthly, report_adeptus_insights{{/str}}
             </button>
             <button type="button" class="adeptus-billing-toggle-btn" data-interval="yearly">
@@ -69,78 +174,225 @@
 
     <!-- Plans Section -->
     <div class="adeptus-plans-section">
-        <div class="adeptus-plans-grid" id="plans-container">
-            {{#monthly_plans}}
-            <div class="adeptus-plan-card {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="monthly">
-                {{#is_popular}}<div class="adeptus-plan-badge popular">{{#str}}most_popular, report_adeptus_insights{{/str}}</div>{{/is_popular}}
-                {{#is_current}}<div class="adeptus-plan-badge current">{{#str}}current_plan, report_adeptus_insights{{/str}}</div>{{/is_current}}
-
-                <div class="adeptus-plan-header">
-                    <div class="adeptus-plan-name">{{short_name}}</div>
-                    <div class="adeptus-plan-description">{{description}}</div>
-                </div>
-
-                <div class="adeptus-plan-price">
-                    {{#is_free}}
-                    <div class="adeptus-price-free">{{#str}}free, report_adeptus_insights{{/str}}</div>
-                    <div class="adeptus-price-period">{{#str}}forever, report_adeptus_insights{{/str}}</div>
-                    {{/is_free}}
-                    {{^is_free}}
-                    <div class="adeptus-price-amount">
-                        <span class="adeptus-currency">$</span>{{price_formatted}}
-                    </div>
-                    <div class="adeptus-price-period">{{#str}}per_month, report_adeptus_insights{{/str}}</div>
-                    {{/is_free}}
-                </div>
-
-                <div class="adeptus-plan-limits">
-                    <div class="adeptus-limit-item">
-                        <div class="adeptus-limit-value">{{tokens_limit}}</div>
-                        <div class="adeptus-limit-label">{{#str}}ai_tokens, report_adeptus_insights{{/str}}</div>
-                    </div>
-                    <div class="adeptus-limit-item">
-                        <div class="adeptus-limit-value">{{exports_limit}}</div>
-                        <div class="adeptus-limit-label">{{#str}}exports_mo, report_adeptus_insights{{/str}}</div>
-                    </div>
-                    <div class="adeptus-limit-item">
-                        <div class="adeptus-limit-value">{{reports_limit}}</div>
-                        <div class="adeptus-limit-label">{{#str}}saved_reports, report_adeptus_insights{{/str}}</div>
-                    </div>
-                    <div class="adeptus-limit-item">
-                        <div class="adeptus-limit-value">{{export_formats}}</div>
-                        <div class="adeptus-limit-label">{{#str}}formats, report_adeptus_insights{{/str}}</div>
-                    </div>
-                </div>
-
-                <div class="adeptus-plan-features">
-                    <ul>
-                        {{#features}}
-                        <li><i class="fa fa-check"></i> {{.}}</li>
-                        {{/features}}
-                    </ul>
-                </div>
-
-                <div class="adeptus-plan-action">
-                    {{#is_current}}
-                    <button class="adeptus-plan-btn adeptus-plan-btn-current" disabled>
-                        <i class="fa fa-check-circle"></i> {{#str}}current_plan, report_adeptus_insights{{/str}}
-                    </button>
-                    {{/is_current}}
-                    {{^is_current}}
-                    {{#is_free}}
-                    <button class="adeptus-plan-btn adeptus-plan-btn-outline select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}">
-                        {{#str}}select_free_plan, report_adeptus_insights{{/str}}
-                    </button>
-                    {{/is_free}}
-                    {{^is_free}}
-                    <button class="adeptus-plan-btn adeptus-plan-btn-primary select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}" data-stripe-product="{{stripe_product_id}}">
-                        <i class="fa fa-arrow-up"></i> {{#str}}upgrade_to, report_adeptus_insights{{/str}} {{short_name}}
-                    </button>
-                    {{/is_free}}
-                    {{/is_current}}
-                </div>
+        <!-- Lifetime Plans (shown by default if they exist) -->
+        {{#has_lifetime_plans}}
+        <div class="adeptus-plans-panel" id="panel-lifetime" style="display: block;">
+            <div class="adeptus-lifetime-banner">
+                <h3>🔥 Pay Once, Use Forever</h3>
+                <p>Lock in lifetime access at our launch price — no recurring fees, ever.</p>
             </div>
-            {{/monthly_plans}}
+            <div class="adeptus-plans-grid">
+                {{#lifetime_plans}}
+                <div class="adeptus-plan-card lifetime-deal {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="lifetime">
+                    <div class="adeptus-lifetime-ribbon">PAY ONCE</div>
+                    {{#is_popular}}<div class="adeptus-plan-badge popular">{{#str}}most_popular, report_adeptus_insights{{/str}}</div>{{/is_popular}}
+                    {{#is_current}}<div class="adeptus-plan-badge current">{{#str}}current_plan, report_adeptus_insights{{/str}}</div>{{/is_current}}
+
+                    <div class="adeptus-plan-header">
+                        <div class="adeptus-plan-name">{{short_name}}</div>
+                        <div class="adeptus-plan-description">{{description}}</div>
+                    </div>
+
+                    <div class="adeptus-plan-price">
+                        <div class="adeptus-price-amount">
+                            <span class="adeptus-currency">$</span>{{price_clean}}
+                        </div>
+                        <div class="adeptus-price-onetime">one-time payment</div>
+                    </div>
+
+                    <div class="adeptus-lifetime-note">
+                        <i class="fa fa-check-circle"></i> Includes all future updates
+                    </div>
+
+                    <div class="adeptus-plan-limits">
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{tokens_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}ai_tokens, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{exports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}exports_mo, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{reports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}saved_reports, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{export_formats}}</div>
+                            <div class="adeptus-limit-label">{{#str}}formats, report_adeptus_insights{{/str}}</div>
+                        </div>
+                    </div>
+
+                    <div class="adeptus-plan-features">
+                        <ul>
+                            {{#features}}
+                            <li><i class="fa fa-check"></i> {{.}}</li>
+                            {{/features}}
+                        </ul>
+                    </div>
+
+                    <div class="adeptus-plan-action">
+                        {{#is_current}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-current" disabled>
+                            <i class="fa fa-check-circle"></i> {{#str}}current_plan, report_adeptus_insights{{/str}}
+                        </button>
+                        {{/is_current}}
+                        {{^is_current}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-primary select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}" data-stripe-product="{{stripe_product_id}}">
+                            <i class="fa fa-bolt"></i> Get Lifetime Access
+                        </button>
+                        {{/is_current}}
+                    </div>
+
+                    <div class="adeptus-lifetime-urgency">
+                        ⏳ Available during launch period only
+                    </div>
+                </div>
+                {{/lifetime_plans}}
+            </div>
+        </div>
+        {{/has_lifetime_plans}}
+
+        <!-- Monthly Plans -->
+        <div class="adeptus-plans-panel" id="panel-monthly" style="{{#has_lifetime_plans}}display: none;{{/has_lifetime_plans}}{{^has_lifetime_plans}}display: block;{{/has_lifetime_plans}}">
+            <div class="adeptus-plans-grid">
+                {{#monthly_plans}}
+                <div class="adeptus-plan-card {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="monthly">
+                    {{#is_popular}}<div class="adeptus-plan-badge popular">{{#str}}most_popular, report_adeptus_insights{{/str}}</div>{{/is_popular}}
+                    {{#is_current}}<div class="adeptus-plan-badge current">{{#str}}current_plan, report_adeptus_insights{{/str}}</div>{{/is_current}}
+
+                    <div class="adeptus-plan-header">
+                        <div class="adeptus-plan-name">{{short_name}}</div>
+                        <div class="adeptus-plan-description">{{description}}</div>
+                    </div>
+
+                    <div class="adeptus-plan-price">
+                        {{#is_free}}
+                        <div class="adeptus-price-free">{{#str}}free, report_adeptus_insights{{/str}}</div>
+                        <div class="adeptus-price-period">{{#str}}forever, report_adeptus_insights{{/str}}</div>
+                        {{/is_free}}
+                        {{^is_free}}
+                        <div class="adeptus-price-amount">
+                            <span class="adeptus-currency">$</span>{{price_formatted}}
+                        </div>
+                        <div class="adeptus-price-period">{{#str}}per_month, report_adeptus_insights{{/str}}</div>
+                        {{/is_free}}
+                    </div>
+
+                    <div class="adeptus-plan-limits">
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{tokens_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}ai_tokens, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{exports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}exports_mo, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{reports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}saved_reports, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{export_formats}}</div>
+                            <div class="adeptus-limit-label">{{#str}}formats, report_adeptus_insights{{/str}}</div>
+                        </div>
+                    </div>
+
+                    <div class="adeptus-plan-features">
+                        <ul>
+                            {{#features}}
+                            <li><i class="fa fa-check"></i> {{.}}</li>
+                            {{/features}}
+                        </ul>
+                    </div>
+
+                    <div class="adeptus-plan-action">
+                        {{#is_current}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-current" disabled>
+                            <i class="fa fa-check-circle"></i> {{#str}}current_plan, report_adeptus_insights{{/str}}
+                        </button>
+                        {{/is_current}}
+                        {{^is_current}}
+                        {{#is_free}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-outline select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}">
+                            {{#str}}select_free_plan, report_adeptus_insights{{/str}}
+                        </button>
+                        {{/is_free}}
+                        {{^is_free}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-primary select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}" data-stripe-product="{{stripe_product_id}}">
+                            <i class="fa fa-arrow-up"></i> {{#str}}upgrade_to, report_adeptus_insights{{/str}} {{short_name}}
+                        </button>
+                        {{/is_free}}
+                        {{/is_current}}
+                    </div>
+                </div>
+                {{/monthly_plans}}
+            </div>
+        </div>
+
+        <!-- Yearly Plans -->
+        <div class="adeptus-plans-panel" id="panel-yearly" style="display: none;">
+            <div class="adeptus-plans-grid">
+                {{#yearly_plans}}
+                <div class="adeptus-plan-card {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="yearly">
+                    {{#is_popular}}<div class="adeptus-plan-badge popular">{{#str}}most_popular, report_adeptus_insights{{/str}}</div>{{/is_popular}}
+                    {{#is_current}}<div class="adeptus-plan-badge current">{{#str}}current_plan, report_adeptus_insights{{/str}}</div>{{/is_current}}
+                    {{#has_savings}}<div class="adeptus-plan-badge savings">Save {{savings_percent}}%</div>{{/has_savings}}
+
+                    <div class="adeptus-plan-header">
+                        <div class="adeptus-plan-name">{{short_name}}</div>
+                        <div class="adeptus-plan-description">{{description}}</div>
+                    </div>
+
+                    <div class="adeptus-plan-price">
+                        <div class="adeptus-price-amount">
+                            <span class="adeptus-currency">$</span>{{price_formatted}}
+                        </div>
+                        <div class="adeptus-price-period">per year</div>
+                    </div>
+
+                    <div class="adeptus-plan-limits">
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{tokens_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}ai_tokens, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{exports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}exports_mo, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{reports_limit}}</div>
+                            <div class="adeptus-limit-label">{{#str}}saved_reports, report_adeptus_insights{{/str}}</div>
+                        </div>
+                        <div class="adeptus-limit-item">
+                            <div class="adeptus-limit-value">{{export_formats}}</div>
+                            <div class="adeptus-limit-label">{{#str}}formats, report_adeptus_insights{{/str}}</div>
+                        </div>
+                    </div>
+
+                    <div class="adeptus-plan-features">
+                        <ul>
+                            {{#features}}
+                            <li><i class="fa fa-check"></i> {{.}}</li>
+                            {{/features}}
+                        </ul>
+                    </div>
+
+                    <div class="adeptus-plan-action">
+                        {{#is_current}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-current" disabled>
+                            <i class="fa fa-check-circle"></i> {{#str}}current_plan, report_adeptus_insights{{/str}}
+                        </button>
+                        {{/is_current}}
+                        {{^is_current}}
+                        <button class="adeptus-plan-btn adeptus-plan-btn-primary select-adeptus-plan-btn" data-plan-id="{{id}}" data-adeptus-plan-name="{{name}}" data-stripe-product="{{stripe_product_id}}">
+                            <i class="fa fa-arrow-up"></i> {{#str}}upgrade_to, report_adeptus_insights{{/str}} {{short_name}}
+                        </button>
+                        {{/is_current}}
+                    </div>
+                </div>
+                {{/yearly_plans}}
+            </div>
         </div>
     </div>
 
@@ -150,3 +402,28 @@
         <input type="hidden" name="action" value="completeinstallation">
     </form>
 </div>
+
+{{#js}}
+(function() {
+    // Tab switching logic
+    var toggleBtns = document.querySelectorAll('.adeptus-billing-toggle-btn');
+    var panels = document.querySelectorAll('.adeptus-plans-panel');
+
+    toggleBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var interval = this.getAttribute('data-interval');
+
+            // Update active button
+            toggleBtns.forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+
+            // Show the correct panel
+            panels.forEach(function(p) { p.style.display = 'none'; });
+            var target = document.getElementById('panel-' + interval);
+            if (target) {
+                target.style.display = 'block';
+            }
+        });
+    });
+})();
+{{/js}}
