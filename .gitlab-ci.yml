@@ -24,7 +24,6 @@ moodle-ci-81-404:
     POSTGRES_USER: "postgres"
     POSTGRES_PASSWORD: "postgres"
     POSTGRES_HOST_AUTH_METHOD: "trust"
-    POSTGRES_DB: "moodle"
   before_script:
     # Install system dependencies.
     - apt-get update && apt-get install -y git unzip libpq-dev postgresql-client
@@ -62,9 +61,3 @@ moodle-ci-81-404:
 moodle-ci-82-404:
   extends: moodle-ci-81-404
   image: moodlehq/moodle-php-apache:8.2
-  variables:
-    MOODLE_BRANCH: "MOODLE_404_STABLE"
-    POSTGRES_USER: "postgres"
-    POSTGRES_PASSWORD: "postgres"
-    POSTGRES_HOST_AUTH_METHOD: "trust"
-    POSTGRES_DB: "moodle"
