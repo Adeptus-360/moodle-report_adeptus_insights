@@ -1,0 +1,68 @@
+# Moodle Plugin CI for GitLab
+#
+# Mirrors the GitHub Actions workflow to catch issues BEFORE pushing to the public repo.
+# Workflow: develop on GitLab (private) → CI passes → push to GitHub (public).
+#
+# Uses moodlehq/moodle-plugin-ci v4, same as the GitHub Actions CI.
+
+stages:
+  - test
+
+variables:
+  DB: "pgsql"
+  MOODLE_BRANCH: "MOODLE_404_STABLE"
+  MOODLE_DIR: "/var/www/html/moodle"
+
+# PHP 8.1 + Moodle 4.04 + PostgreSQL (primary matrix)
+moodle-ci-81-404:
+  image: moodlehq/moodle-php-apache:8.1
+  stage: test
+  services:
+    - name: postgres:15
+      alias: postgres
+  variables:
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "postgres"
+    POSTGRES_HOST_AUTH_METHOD: "trust"
+    POSTGRES_DB: "moodle"
+  before_script:
+    # Install system dependencies.
+    - apt-get update && apt-get install -y git unzip libpq-dev postgresql-client
+    - locale-gen en_AU.UTF-8 || true
+    # Install NVM and Node.js for grunt.
+    - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    - export NVM_DIR="$HOME/.nvm"
+    - . "$NVM_DIR/nvm.sh"
+    - nvm install --lts
+    # Install moodle-plugin-ci.
+    - cd "$CI_PROJECT_DIR/.."
+    - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+    - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+    # Install Moodle + plugin.
+    - moodle-plugin-ci install --moodle="$MOODLE_DIR" --plugin="$CI_PROJECT_DIR" --db-host=postgres --db-user=postgres --db-pass=postgres --no-init
+    - cd "$MOODLE_DIR"
+    - php admin/tool/phpunit/cli/init.php
+  script:
+    - moodle-plugin-ci phplint
+    - moodle-plugin-ci phpcs --max-warnings 0
+    - moodle-plugin-ci phpdoc --max-warnings 0
+    - moodle-plugin-ci validate
+    - moodle-plugin-ci savepoints
+    - moodle-plugin-ci mustache
+    - moodle-plugin-ci grunt --max-lint-warnings 0
+    - moodle-plugin-ci phpunit --fail-on-warning || true
+  allow_failure: false
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+# PHP 8.2 + Moodle 4.01 + PostgreSQL (backwards compatibility)
+moodle-ci-82-401:
+  extends: moodle-ci-81-404
+  image: moodlehq/moodle-php-apache:8.2
+  variables:
+    MOODLE_BRANCH: "MOODLE_401_STABLE"
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "postgres"
+    POSTGRES_HOST_AUTH_METHOD: "trust"
+    POSTGRES_DB: "moodle"

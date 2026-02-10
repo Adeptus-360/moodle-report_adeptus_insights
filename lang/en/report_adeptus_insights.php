@@ -1062,3 +1062,25 @@ $string['your_moodle_site_url'] = 'Your Moodle site URL';
 $string['your_moodle_version'] = 'Your current Moodle version';
 $string['your_php_version'] = 'Your current PHP version';
 $string['zip'] = 'ZIP';
+
+// Additional strings for error handling and status messages.
+$string['connection_timeout'] = 'Connection timed out. Please try again.';
+$string['contact_admin_for_access'] = 'Contact your administrator for access.';
+$string['contact_administrator'] = 'Please contact your site administrator.';
+$string['error_category_id_required'] = 'Category ID is required.';
+$string['error_create_subscription'] = 'Failed to create subscription.';
+$string['error_name_required'] = 'Name is required.';
+$string['error_slug_required'] = 'Slug is required.';
+$string['failed_to_get_plans'] = 'Failed to retrieve available plans.';
+$string['http_401_error'] = 'Unauthorized access. Please check your API key.';
+$string['http_404_error'] = 'The requested resource was not found.';
+$string['http_500_error'] = 'Internal server error. Please try again later.';
+$string['network_error'] = 'Network error. Please check your connection.';
+$string['please_register_plugin'] = 'Please register the plugin first.';
+$string['plugin_not_registered'] = 'Plugin is not registered. Please register first.';
+$string['report_adeptus_insights:view'] = 'View Adeptus Insights reports';
+$string['sync_error'] = 'Synchronization failed.';
+$string['sync_success'] = 'Synchronization completed successfully.';
+$string['unauthorized_access'] = 'You are not authorized to access this resource.';
+$string['user_not_authorized'] = 'You are not authorized to perform this action.';
+$string['view_subscription'] = 'View subscription';

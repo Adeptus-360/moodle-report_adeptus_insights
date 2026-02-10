@@ -25,9 +25,6 @@
  */
 
 namespace report_adeptus_insights;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Support manager class for handling support tickets and changelogs.
  *

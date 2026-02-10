@@ -27,9 +27,6 @@
  */
 
 namespace report_adeptus_insights;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Manages branding assets for PDF exports.
  *

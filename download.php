@@ -26,10 +26,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// phpcs:ignore moodle.Files.MoodleInternal.MoodleInternalGlobalState
+// phpcs:disable moodle.Files.MoodleInternal.MoodleInternalGlobalState
 defined('AJAX_SCRIPT') || define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
+// phpcs:enable
 
 // Require login and capability.
 require_login();

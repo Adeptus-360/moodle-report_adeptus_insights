@@ -23,9 +23,6 @@
  */
 
 namespace report_adeptus_insights;
-
-defined('MOODLE_INTERNAL') || die();
-
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -43,7 +40,6 @@ use report_adeptus_insights\privacy\provider;
  * @covers      \report_adeptus_insights\privacy\provider
  */
 class privacy_test extends provider_testcase {
-
     /**
      * Test that the provider implements the required interfaces.
      */

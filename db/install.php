@@ -25,6 +25,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:ignore moodle.Files.MoodleInternal.MoodleInternalNotNeeded
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -51,10 +52,6 @@ function xmldb_report_adeptus_insights_install() {
     // Add the new entry.
     $lines[] = $entry;
     set_config('customusermenuitems', implode("\n", $lines));
-
-    // Register external functions via Moodle's proper mechanism.
-    require_once($CFG->libdir . '/upgradelib.php');
-    external_update_descriptions('report_adeptus_insights');
 
     // Set post-install redirect stage to subscription page.
     set_config('postinstall_redirect_stage', 2, 'report_adeptus_insights');

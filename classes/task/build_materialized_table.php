@@ -15,9 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace report_adeptus_insights\task;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Scheduled task to maintain and optimize materialized tables.
  *

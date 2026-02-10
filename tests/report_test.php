@@ -23,9 +23,6 @@
  */
 
 namespace report_adeptus_insights;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Basic test case for report_adeptus_insights plugin.
  *
@@ -36,7 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  * @covers      \report_adeptus_insights\report_validator
  */
 class report_test extends \advanced_testcase {
-
     /**
      * Test that the plugin version file is valid.
      */

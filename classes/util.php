@@ -23,9 +23,6 @@
  */
 
 namespace report_adeptus_insights;
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Utility class for Adeptus Insights.
  *
