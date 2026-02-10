@@ -29,6 +29,8 @@ moodle-ci-81-404:
     # Install system dependencies.
     - apt-get update && apt-get install -y git unzip libpq-dev postgresql-client
     - locale-gen en_AU.UTF-8 || true
+    # Install Composer (not pre-installed in moodlehq images).
+    - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
     # Install NVM and Node.js for grunt.
     - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
     - export NVM_DIR="$HOME/.nvm"
