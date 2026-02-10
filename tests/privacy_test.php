@@ -39,7 +39,7 @@ use report_adeptus_insights\privacy\provider;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers      \report_adeptus_insights\privacy\provider
  */
-class privacy_test extends provider_testcase {
+final class privacy_test extends provider_testcase {
     /**
      * Test that the provider implements the required interfaces.
      */

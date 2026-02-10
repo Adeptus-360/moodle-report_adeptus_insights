@@ -32,7 +32,7 @@ namespace report_adeptus_insights;
  * @covers      \report_adeptus_insights\api_config
  * @covers      \report_adeptus_insights\report_validator
  */
-class report_test extends \advanced_testcase {
+final class report_test extends \advanced_testcase {
     /**
      * Test that the plugin version file is valid.
      */
