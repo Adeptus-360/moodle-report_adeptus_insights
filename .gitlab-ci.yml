@@ -26,7 +26,7 @@ moodle-ci-81-404:
     POSTGRES_HOST_AUTH_METHOD: "trust"
   before_script:
     # Install system dependencies.
-    - apt-get update && apt-get install -y git unzip libpq-dev postgresql-client
+    - apt-get update && apt-get install -y git unzip libpq-dev postgresql-client default-jre-headless
     - locale-gen en_AU.UTF-8 || true
     # Install Composer (not pre-installed in moodlehq images).
     - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
