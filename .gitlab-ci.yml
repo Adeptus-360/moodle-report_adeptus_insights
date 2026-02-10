@@ -49,8 +49,8 @@ moodle-ci-81-404:
     - moodle-plugin-ci validate
     - moodle-plugin-ci savepoints
     - moodle-plugin-ci mustache
-    - moodle-plugin-ci grunt --max-lint-warnings 0 || true
-    - moodle-plugin-ci phpunit --fail-on-warning || true
+    - moodle-plugin-ci grunt --max-lint-warnings 0
+    - moodle-plugin-ci phpunit --fail-on-warning
   allow_failure: false
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"

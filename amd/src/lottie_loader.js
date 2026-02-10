@@ -21,22 +21,37 @@
  * plugin-relative paths.
  *
  * @module     report_adeptus_insights/lottie_loader
- * @package    report_adeptus_insights
+ * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
+  /**
+   *
+   * @param raw
+   */
   function url(raw) {
-    if (!raw) return null;
-    if (/^https?:\/\//i.test(raw)) return raw;               // absolute
-    if (raw[0] === '/') return window.location.origin + raw; // root-relative
-    return M.cfg.wwwroot + '/' + raw.replace(/^\/+/, '');    // plugin-relative
+    if (!raw) {
+ return null;
+}
+    if (/^https?:\/\//i.test(raw)) {
+ return raw;
+} // Absolute
+    if (raw[0] === '/') {
+ return window.location.origin + raw;
+} // Root-relative
+    return M.cfg.wwwroot + '/' + raw.replace(/^\/+/, ''); // Plugin-relative
   }
 
+  /**
+   *
+   */
   function init() {
     var hosts = document.querySelectorAll('[data-lottie-path]');
-    if (!hosts.length) return;
+    if (!hosts.length) {
+ return;
+}
 
     if (!lottie || typeof lottie.loadAnimation !== 'function') {
                 return;
@@ -44,7 +59,9 @@ define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
 
     hosts.forEach(function(el) {
       var p = url(el.getAttribute('data-lottie-path'));
-      if (!p) return;
+      if (!p) {
+ return;
+}
       try {
         lottie.loadAnimation({
           container: el,
@@ -59,5 +76,5 @@ define(['report_adeptus_insights/lib/lottie_bridge'], function(lottie) {
             });
         }
 
-  return { init: init };
+  return {init: init};
 });

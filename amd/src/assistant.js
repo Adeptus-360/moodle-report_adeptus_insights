@@ -312,7 +312,9 @@ define([
             if (backendUrl) {
                 this.backendUrl = backendUrl;
             }
-            if (this._initCalled) return;
+            if (this._initCalled) {
+ return;
+}
             this._initCalled = true;
             this.currentChatId = 0;
 
@@ -458,13 +460,14 @@ define([
         clearMCQ: function() {
             this.currentMCQ = null;
             $('#adeptus-mcq-container').empty().hide();
-            // re-enable text input and send button
+            // Re-enable text input and send button
             $('#message-input').prop('disabled', false);
             $('#send-button').prop('disabled', false);
         },
 
         /**
          * Extract MCQ data from message text (handles both JSON array and individual JSON objects)
+         * @param text
          */
         extractMCQFromText: function(text) {
             if (!text || typeof text !== 'string') {
@@ -581,7 +584,7 @@ define([
                     this.handleReportLimitError(response.message);
                     return;
                 }
-                // error bubble from backend
+                // Error bubble from backend
                 this.addMessage(response.message, 'error');
                 // Show resend icon on the last user message
                 this.showResendIconOnLastUserMessage();
@@ -592,7 +595,7 @@ define([
                     const mcqText = `Question: ${firstQuestion.question}\nOptions: ${firstQuestion.options.join(', ')}`;
                     this.addMessage(mcqText, 'ai', false, null, null, null, response.credit_info);
                 }
-                // show multiple-choice question
+                // Show multiple-choice question
                 this.enqueueMCQs(response.questions);
                 return;
             } else if (response.type === 'sql' || response.type === 'report') {
@@ -678,7 +681,7 @@ define([
                     searchable: true,
                     fixedHeight: false,
                     perPage: 10,
-                    loading: false  // Disable loading indicator
+                    loading: false // Disable loading indicator
                 });
                                         // Remove the loading class from the wrapper
                                         setTimeout(() => {
@@ -716,7 +719,7 @@ define([
                 });
                 return;
             } else {
-                // normal AI or SQL response
+                // Normal AI or SQL response
                 this.addMessage(response.message, 'ai', false, null, null, null, response.credit_info);
             }
 
@@ -740,9 +743,12 @@ define([
 
         /**
          * Show immediate credit usage feedback
+         * @param creditInfo
          */
         showCreditUsageFeedback: function(creditInfo) {
-            if (!creditInfo) return;
+            if (!creditInfo) {
+ return;
+}
 
             // Create a temporary notification for credit usage
             const notification = $(`
@@ -795,10 +801,13 @@ define([
 
         /**
          * Update subscription info with immediate credit usage
+         * @param creditInfo
          */
         updateSubscriptionInfoWithCreditUsage: function(creditInfo) {
             const authStatus = AuthUtils.getAuthStatus();
-            if (!authStatus || !authStatus.subscription) return;
+            if (!authStatus || !authStatus.subscription) {
+ return;
+}
 
             const subscription = authStatus.subscription;
             const creditsUsed = creditInfo.credits_charged || 0;
@@ -822,6 +831,7 @@ define([
 
         /**
          * Animate credit counter updates
+         * @param creditType
          */
         animateCreditCounterUpdate: function(creditType) {
             const counterClass = creditType === 'premium' ? '.premium-credits-counter' : '.basic-credits-counter';
@@ -881,9 +891,15 @@ define([
                 const self = this;
                 setTimeout(() => {
                     const link = messageEl.querySelector('.adeptus-report-link');
-                    link.onclick = function() { self.openReportFromLink(link.getAttribute('data-report-slug')); };
-                    link.onmouseenter = function() { $(this).css({'background-color':'#e9ecef','border-color':'#adb5bd','transform':'translateY(-1px)'}); };
-                    link.onmouseleave = function() { $(this).css({'background-color':'#f8f9fa','border-color':'#dee2e6','transform':'translateY(0)'}); };
+                    link.onclick = function() {
+ self.openReportFromLink(link.getAttribute('data-report-slug'));
+};
+                    link.onmouseenter = function() {
+ $(this).css({'background-color': '#e9ecef', 'border-color': '#adb5bd', 'transform': 'translateY(-1px)'});
+};
+                    link.onmouseleave = function() {
+ $(this).css({'background-color': '#f8f9fa', 'border-color': '#dee2e6', 'transform': 'translateY(0)'});
+};
                 }, 0);
             } else if (type === 'report-preview' || type === 'system-action') {
                 // Render HTML content directly for report previews and system actions
@@ -959,6 +975,7 @@ define([
 
         /**
          * Check if the message contains multiple choice options
+         * @param text
          */
         isMultipleChoiceQuestion: function(text) {
             // Look for pattern like "A. option" or "A) option" or "1. option" with at least 2 options
@@ -1001,6 +1018,7 @@ define([
 
         /**
          * Render multiple choice options as clickable buttons
+         * @param text
          */
         renderMultipleChoiceOptions: function(text) {
             const self = this;
@@ -1092,7 +1110,9 @@ define([
                     button.setAttribute('data-handler-attached', 'true');
                     button.addEventListener('click', function() {
                         // Prevent if already disabled
-                        if (this.disabled) return;
+                        if (this.disabled) {
+ return;
+}
 
                         const selectedOption = this.getAttribute('data-option');
                         const selectedText = options.find(o => o.letter === selectedOption);
@@ -1134,6 +1154,7 @@ define([
 
         /**
          * Escape HTML to prevent XSS
+         * @param text
          */
         escapeHtml: function(text) {
             const map = {
@@ -1215,12 +1236,13 @@ define([
                 self.isReportLimitReached = true;
                 self.reportEligibilityChecked = true;
                 self.updateReportLimitUI();
-                return { success: false, eligible: false, message: 'Unable to verify eligibility' };
+                return {success: false, eligible: false, message: 'Unable to verify eligibility'};
             }
         },
 
         /**
          * Track AI-generated report creation with the backend
+         * @param reportName
          */
         trackReportCreated: async function(reportName) {
             var self = this;
@@ -1248,12 +1270,13 @@ define([
                 return data;
             } catch (error) {
                 // Tracking failed but report was created.
-                return { success: true, tracking_error: true };
+                return {success: true, tracking_error: true};
             }
         },
 
         /**
          * Handle report limit reached error
+         * @param message
          */
         handleReportLimitError: function(message) {
             this.isReportLimitReached = true;
@@ -1341,10 +1364,13 @@ define([
 
         /**
          * Update subscription data from token limit error response
+         * @param creditData
          */
         updateSubscriptionDataFromCreditResponse: function(creditData) {
             const authStatus = AuthUtils.getAuthStatus();
-            if (!authStatus || !authStatus.subscription) return;
+            if (!authStatus || !authStatus.subscription) {
+ return;
+}
 
             const subscription = authStatus.subscription;
 
@@ -1468,12 +1494,16 @@ define([
         displayDetailedUsageModal: function(data) {
             const summary = data.summary;
             const usage = data.usage || [];
-            const pagination = data.pagination || { total: 0 };
+            const pagination = data.pagination || {total: 0};
 
             // Helper function to format tokens
             const formatTokens = (tokens) => {
-                if (tokens >= 1000000) return (tokens / 1000000).toFixed(1) + 'M';
-                if (tokens >= 1000) return (tokens / 1000).toFixed(1) + 'K';
+                if (tokens >= 1000000) {
+ return (tokens / 1000000).toFixed(1) + 'M';
+}
+                if (tokens >= 1000) {
+ return (tokens / 1000).toFixed(1) + 'K';
+}
                 return tokens.toString();
             };
 
@@ -1582,7 +1612,7 @@ define([
                                                     ${(() => {
                                                         const d = new Date(item.created_at);
                                                         const day = d.getDate();
-                                                        const month = d.toLocaleString('en-US', { month: 'short' });
+                                                        const month = d.toLocaleString('en-US', {month: 'short'});
                                                         const year = d.getFullYear();
                                                         const hours = d.getHours().toString().padStart(2, '0');
                                                         const minutes = d.getMinutes().toString().padStart(2, '0');
@@ -1732,20 +1762,22 @@ define([
                 let startDate = '';
                 let endDate = today.toISOString().split('T')[0];
 
-                switch(period) {
+                switch (period) {
                     case 'today':
                         startDate = endDate;
                         break;
-                    case 'week':
+                    case 'week': {
                         const weekAgo = new Date(today);
                         weekAgo.setDate(today.getDate() - 7);
                         startDate = weekAgo.toISOString().split('T')[0];
                         break;
-                    case 'month':
+                    }
+                    case 'month': {
                         const monthAgo = new Date(today);
                         monthAgo.setMonth(today.getMonth() - 1);
                         startDate = monthAgo.toISOString().split('T')[0];
                         break;
+                    }
                 }
 
                 // Update date inputs
@@ -1778,10 +1810,18 @@ define([
 
             // Build query string
             const params = new URLSearchParams();
-            if (filters.user_id) params.append('user_id', filters.user_id);
-            if (filters.credit_type) params.append('credit_type', filters.credit_type);
-            if (filters.start_date) params.append('start_date', filters.start_date);
-            if (filters.end_date) params.append('end_date', filters.end_date);
+            if (filters.user_id) {
+ params.append('user_id', filters.user_id);
+}
+            if (filters.credit_type) {
+ params.append('credit_type', filters.credit_type);
+}
+            if (filters.start_date) {
+ params.append('start_date', filters.start_date);
+}
+            if (filters.end_date) {
+ params.append('end_date', filters.end_date);
+}
             params.append('page', page);
             params.append('per_page', 1000); // Get more data for DataTable
 
@@ -1928,9 +1968,13 @@ define([
 
         /**
          * Detect numeric columns in data
+         * @param data
+         * @param headers
          */
         detectNumericColumns: function(data, headers) {
-            if (!data || data.length === 0) return [];
+            if (!data || data.length === 0) {
+ return [];
+}
             return headers.filter(header => {
                 let numericCount = 0;
                 const sampleSize = Math.min(data.length, 20);
@@ -1949,6 +1993,7 @@ define([
 
         /**
          * Generate chart colors
+         * @param count
          */
         generateChartColors: function(count) {
             const baseColors = [
@@ -1965,6 +2010,12 @@ define([
 
         /**
          * Create chart configuration
+         * @param chartType
+         * @param labels
+         * @param values
+         * @param valueKey
+         * @param colors
+         * @param reportName
          */
         createReportChartConfig: function(chartType, labels, values, valueKey, colors, reportName) {
             const baseConfig = {
@@ -1974,8 +2025,8 @@ define([
                     title: {
                         display: true,
                         text: reportName || 'Report Chart',
-                        font: { size: 16, weight: 'bold' },
-                        padding: { top: 10, bottom: 20 }
+                        font: {size: 16, weight: 'bold'},
+                        padding: {top: 10, bottom: 20}
                     },
                     legend: {
                         display: chartType === 'pie' || chartType === 'doughnut',
@@ -2016,8 +2067,8 @@ define([
                     options: {
                         ...baseConfig,
                         scales: {
-                            y: { beginAtZero: true },
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                            y: {beginAtZero: true},
+                            x: {ticks: {maxRotation: 45, minRotation: 45}}
                         }
                     }
                 };
@@ -2038,8 +2089,8 @@ define([
                     options: {
                         ...baseConfig,
                         scales: {
-                            y: { beginAtZero: true },
-                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                            y: {beginAtZero: true},
+                            x: {ticks: {maxRotation: 45, minRotation: 45}}
                         }
                     }
                 };
@@ -2048,16 +2099,22 @@ define([
 
         /**
          * Render report chart with current settings
+         * @param data
+         * @param reportName
          */
         renderReportChartFromSelectors: function(data, reportName) {
             const self = this;
-            if (!data || data.length === 0) return;
+            if (!data || data.length === 0) {
+ return;
+}
 
             const chartType = $('#report-chart-type').val() || 'bar';
             const labelKey = $('#report-chart-x-axis').val();
             const valueKey = $('#report-chart-y-axis').val();
 
-            if (!labelKey || !valueKey) return;
+            if (!labelKey || !valueKey) {
+ return;
+}
 
             const valueKeyFormatted = valueKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
@@ -2065,7 +2122,9 @@ define([
             const chartData = data.slice(0, 50);
             const labels = chartData.map(r => {
                 const label = r[labelKey];
-                if (label === null || label === undefined) return 'Unknown';
+                if (label === null || label === undefined) {
+ return 'Unknown';
+}
                 const labelStr = String(label);
                 return labelStr.length > 30 ? labelStr.substring(0, 30) + '...' : labelStr;
             });
@@ -2075,7 +2134,9 @@ define([
             const chartConfig = this.createReportChartConfig(chartType, labels, values, valueKeyFormatted, colors, reportName);
 
             const chartEl = document.getElementById('reportChart');
-            if (!chartEl) return;
+            if (!chartEl) {
+ return;
+}
 
             if (self.reportChartInstance) {
                 self.reportChartInstance.destroy();
@@ -2322,7 +2383,7 @@ define([
                                         ${badgeHtml}
                                     </li>
                                 `);
-                                list.append(item);  // Changed from prepend to append - backend already returns newest first
+                                list.append(item); // Changed from prepend to append - backend already returns newest first
                             }
                         });
 
@@ -2359,6 +2420,8 @@ define([
 
         /**
          * Load a specific chat's messages, highlight the selected item
+         * @param chatId
+         * @param listItem
          */
         loadChatMessages: function(chatId, listItem) {
             this.currentChatId = chatId;
@@ -2390,8 +2453,8 @@ define([
                     // Render chat messages with message IDs, filtering out SQL-tagged messages and passing timestamp
                     response.messages.forEach((msg, idx) => {
                         // Map backend field names to frontend expected names
-                        msg.sender_type = msg.role || msg.sender_type;  // Backend uses 'role', frontend expects 'sender_type'
-                        msg.body = msg.content || msg.body;              // Backend uses 'content', frontend expects 'body'
+                        msg.sender_type = msg.role || msg.sender_type; // Backend uses 'role', frontend expects 'sender_type'
+                        msg.body = msg.content || msg.body; // Backend uses 'content', frontend expects 'body'
                         msg.timestamp = msg.created_at || msg.timestamp; // Backend uses 'created_at', frontend expects 'timestamp'
 
                         // Convert 'ai' role to 'ai' sender_type if needed
@@ -2550,10 +2613,13 @@ define([
 
         /**
          * Insert a report link into the chat after the corresponding message
+         * @param report
          */
         insertReportLinkInChat: function(report) {
             const $msg = $(`#adeptus-chat-container .adeptus-message[data-message-id="${report.message_after_id}"]`);
-            if (!$msg.length) return;
+            if (!$msg.length) {
+ return;
+}
             // Build report link message
             const linkHtml = `
                 <div class="adeptus-message adeptus-ai-message">
@@ -2577,10 +2643,10 @@ define([
                     self.openReportFromLink(slug);
                 })
                 .on('mouseenter', function() {
-                    $(this).css({ 'background-color':'#e9ecef', 'border-color':'#adb5bd', 'transform':'translateY(-1px)' });
+                    $(this).css({'background-color': '#e9ecef', 'border-color': '#adb5bd', 'transform': 'translateY(-1px)'});
                 })
                 .on('mouseleave', function() {
-                    $(this).css({ 'background-color':'#f8f9fa', 'border-color':'#dee2e6', 'transform':'translateY(0)' });
+                    $(this).css({'background-color': '#f8f9fa', 'border-color': '#dee2e6', 'transform': 'translateY(0)'});
                 });
             // Insert after message
             $msg.after($linkMsg);
@@ -2607,7 +2673,7 @@ define([
             // Use provided message if given, otherwise read from input field
             const rawValue = providedMessage ? String(providedMessage).trim() : (input.val() || '').trim();
             if (!rawValue) {
-                Swal.fire({ icon: 'error', title: getString('oops', 'Oops...'), text: getString('please_enter_message', 'Please enter a message') });
+                Swal.fire({icon: 'error', title: getString('oops', 'Oops...'), text: getString('please_enter_message', 'Please enter a message')});
                 return;
             }
             const message = rawValue.trim();
@@ -2670,7 +2736,7 @@ define([
                     }
                     // Remove any existing resend icons on success (clean up from previous failures)
                     $('.adeptus-failed-reload-icon').remove();
-                    // update chat_id on first message
+                    // Update chat_id on first message
                     if (!this.currentChatId && response.chat_id) {
                         this.currentChatId = response.chat_id;
                         this.addChatToChatHistory(response.chat_id, message);
@@ -2867,6 +2933,8 @@ define([
 
         /**
          * Check if credit usage exceeds the limit
+         * @param used
+         * @param limit
          */
         isCreditExceeded: function(used, limit) {
             if (limit === 0 || limit === '∞' || limit === null || limit === undefined) {
@@ -2877,6 +2945,7 @@ define([
 
         /**
          * Check if user has exceeded credit limits and show persistent warning
+         * @param subscription
          */
         checkAndShowCreditLimitWarning: function(subscription) {
 
@@ -2897,10 +2966,10 @@ define([
             if (basicExceeded || premiumExceeded || totalExceeded) {
                 const message = "You've used all your AI credits for this month. Your credits will reset on the 1st of next month. Consider upgrading your plan for more credits.";
                 this.showPersistentCreditLimitMessage(message);
-                // set global variable to true
+                // Set global variable to true
                 this.isCreditLimitExceeded = true;
                 this.updateSendMessageandCreateNewChatButton();
-            }else{
+            } else {
                 this.isCreditLimitExceeded = false;
                 this.updateSendMessageandCreateNewChatButton();
             }
@@ -2915,7 +2984,7 @@ define([
                 }]);
 
                 var result = await promises[0];
-                var data = { success: result.success, data: result.data ? result.data : result };
+                var data = {success: result.success, data: result.data ? result.data : result};
 
                 // Log exactly what fields we're receiving for debugging
                 if (data.success && data.data) {
@@ -3014,9 +3083,12 @@ define([
 
         /**
          * Transform backend auth data to match frontend expectations
+         * @param backendData
          */
         transformBackendAuthData: function(backendData) {
-            if (!backendData) return null;
+            if (!backendData) {
+ return null;
+}
 
             // Get current auth data to preserve existing structure
             const currentAuthData = window.adeptusAuthData || {};
@@ -3069,7 +3141,7 @@ define([
                 }]);
 
                 var result = await promises[0];
-                var localData = { success: result.success, data: result.data ? result.data : result };
+                var localData = {success: result.success, data: result.data ? result.data : result};
 
                 if (localData.success && localData.data) {
                     // Update AuthUtils with fresh data
@@ -3192,6 +3264,8 @@ define([
 
         /**
          * Calculate usage percentage for progress bar
+         * @param used
+         * @param limit
          */
         calculateUsagePercentage: function(used, limit) {
             if (!limit || limit === '∞' || limit === 0) {
@@ -3200,7 +3274,6 @@ define([
             const percentage = (used / limit) * 100;
             return Math.min(percentage, 100); // Cap at 100%
         },
-
 
 
         ajaxWithAuth: function(options) {
@@ -3224,7 +3297,6 @@ define([
             }
 
             var deferred = $.Deferred();
-            var self = this;
 
             Ajax.call([{
                 methodname: 'report_adeptus_insights_proxy_backend_request',
@@ -3276,7 +3348,7 @@ define([
                 error: () => {
                     // Set default category as fallback
                     self.cachedCategories = [
-                        { id: null, name: 'General', slug: 'general', color: '#6c757d', icon: 'fa-folder' }
+                        {id: null, name: 'General', slug: 'general', color: '#6c757d', icon: 'fa-folder'}
                     ];
                 }
             });
@@ -3381,7 +3453,7 @@ define([
             if (!Array.isArray(questions) || questions.length === 0) {
                 return;
             }
-            this.mcqQueue = questions.slice(); // copy
+            this.mcqQueue = questions.slice(); // Copy
             this.showNextMCQ();
         },
 
@@ -3419,7 +3491,7 @@ define([
                 </div>`);
             });
             c.append(`<button type="button" class="btn btn-link" id="mcq-cancel">Cancel</button>`);
-            // bind selection
+            // Bind selection
             c.find('input[name="mcq-option"]').on('change', () => {
                 $('#mcq-submit').remove();
                 c.append(`<button type="button" id="mcq-submit" class="btn btn-primary mt-2">Submit</button>`);
@@ -3432,7 +3504,7 @@ define([
                     }
                 });
             });
-            // cancel
+            // Cancel
             c.find('#mcq-cancel').off('click').on('click', (e) => {
                 e.preventDefault();
                 this.mcqQueue = [];
@@ -3442,6 +3514,7 @@ define([
 
         /**
          * Send the selected MCQ answer to the backend, then show next question if any.
+         * @param answer
          */
         sendMCQ: function(answer) {
             if (this.isSending) {
@@ -3455,8 +3528,8 @@ define([
 
             this.showLoading();
             this.isSending = true;
-            this.clearMCQ();                       // clear current UI
-            const $userMsg = this.addMessage(answer, 'user');      // echo user choice (clean display)
+            this.clearMCQ(); // Clear current UI
+            const $userMsg = this.addMessage(answer, 'user'); // Echo user choice (clean display)
             // Get user information from auth status
             const authStatus = AuthUtils.getAuthStatus();
             const userInfo = authStatus?.user || {};
@@ -3505,6 +3578,11 @@ define([
 
         /**
          * Show report confirmation dialog
+         * @param report
+         * @param reportData
+         * @param message
+         * @param creditInfo
+         * @param executionError
          */
         showReportConfirmation: function(report, reportData, message, creditInfo, executionError) {
             // First add the AI message to chat
@@ -3528,6 +3606,8 @@ define([
 
         /**
          * Display report data in the chat
+         * @param report
+         * @param data
          */
         displayReportInChat: function(report, data) {
             // Create a nice table display
@@ -3593,6 +3673,7 @@ define([
 
         /**
          * Add report action buttons in the chat
+         * @param report
          */
         addReportActionButtons: function(report) {
             const self = this;
@@ -3637,7 +3718,9 @@ define([
             // Attach event handlers after DOM insertion
             setTimeout(() => {
                 const container = document.getElementById(buttonId);
-                if (!container) return;
+                if (!container) {
+ return;
+}
 
                 // Save button
                 const saveBtn = container.querySelector('.adeptus-btn-save-report');
@@ -3692,7 +3775,7 @@ define([
                                     return false;
                                 }
 
-                                return { name: name.trim(), categoryId: categoryId };
+                                return {name: name.trim(), categoryId: categoryId};
                             }
                         }).then((result) => {
                             if (result.isConfirmed) {
@@ -3702,7 +3785,7 @@ define([
                                 report.category_id = result.value.categoryId ? parseInt(result.value.categoryId) : null;
 
                                 // Disable all buttons
-                                container.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                                container.querySelectorAll('button').forEach(btn => { btn.disabled = true; });
 
                                 // Update the container to show saving state
                                 container.innerHTML = `
@@ -3797,6 +3880,7 @@ define([
          */
         /**
          * View a saved report by slug
+         * @param slug
          */
         viewSavedReport: function(slug) {
             if (!slug) {
@@ -3836,6 +3920,7 @@ define([
 
         /**
          * Display a report link in the chat
+         * @param msg
          */
         displayReportLink: function(msg) {
             const template = document.getElementById('message-template');
@@ -3905,6 +3990,7 @@ define([
          * Display report link in chat after saving
          * Note: We only display locally - no backend call to avoid triggering AI processing.
          * The report is already persisted via the /chat/report-confirmation endpoint.
+         * @param report
          */
         sendReportMessage: function(report) {
             // Create a message that includes report metadata
@@ -4198,6 +4284,7 @@ define([
 
         /**
          * Load reports history
+         * @param callback
          */
         loadReportsHistory: function(callback) {
             // Initialize cachedReports if not already
@@ -4268,7 +4355,7 @@ define([
                         searchable: true,
                         fixedHeight: false,
                         perPage: 10,
-                        loading: false  // Disable loading indicator
+                        loading: false // Disable loading indicator
                     });
 
                                         // Remove the loading class from the wrapper
@@ -4329,10 +4416,11 @@ define([
 
         /**
          * Update the reports history table
+         * @param reports
          */
         updateReportsHistory: function(reports) {
             const tbody = $('#reports-history-table tbody');
-            const self = this; // capture context
+            const self = this; // Capture context
             tbody.empty();
             if (!reports || reports.length === 0) {
                 // Check if we also have no chat history
@@ -4403,7 +4491,9 @@ define([
 
                         // Check if cached report has data, if not fetch it
                         if (rep.data && Array.isArray(rep.data) && rep.data.length > 0) {
-                            setTimeout(() => { self.updateReportsView(rep, rep.data); }, 300); // simulate async for spinner UX
+                            setTimeout(() => {
+ self.updateReportsView(rep, rep.data);
+}, 300); // Simulate async for spinner UX
                         } else {
                             self.fetchAndDisplayReport(report.slug, $row);
                         }
@@ -4422,6 +4512,8 @@ define([
         /**
          * Fetch report from API and display.
          * Supports local execution for SaaS model - executes SQL on customer's Moodle server.
+         * @param reportSlug
+         * @param rowElem
          */
         fetchAndDisplayReport: function(reportSlug, rowElem) {
             const self = this;
@@ -4505,15 +4597,20 @@ define([
 
         /**
          * Display fetched report data (helper for fetchAndDisplayReport)
+         * @param report
+         * @param data
+         * @param rowElem
          */
         displayFetchedReport: function(report, data, rowElem) {
             // Add or update in cache
-            if (!Array.isArray(this.cachedReports)) this.cachedReports = [];
+            if (!Array.isArray(this.cachedReports)) {
+ this.cachedReports = [];
+}
             let idx = this.cachedReports.findIndex(r => r.slug === report.slug);
             if (idx > -1) {
-                this.cachedReports[idx] = Object.assign({}, report, { data: data });
+                this.cachedReports[idx] = Object.assign({}, report, {data: data});
             } else {
-                this.cachedReports.push(Object.assign({}, report, { data: data }));
+                this.cachedReports.push(Object.assign({}, report, {data: data}));
             }
 
             // Store for export functionality
@@ -4525,11 +4622,14 @@ define([
 
             // Highlight the current report in the history
             $('.adeptus-report-row').removeClass('table-primary');
-            if (rowElem) rowElem.addClass('table-primary');
+            if (rowElem) {
+ rowElem.addClass('table-primary');
+}
         },
 
         /**
          * Display the current report in the reports view
+         * @param report
          */
         displayCurrentReport: function(report) {
             // Update the reports view with the current report
@@ -4541,6 +4641,7 @@ define([
 
         /**
          * Display a specific report
+         * @param reportSlug
          */
         displayReport: function(reportSlug) {
             const rep = this.cachedReports.find(r => r.slug === reportSlug);
@@ -4554,6 +4655,8 @@ define([
 
         /**
          * Update the reports view with report data
+         * @param report
+         * @param data
          */
         updateReportsView: function(report, data = null) {
             const self = this;
@@ -4863,7 +4966,9 @@ define([
                 if (type !== report.display_type) {
                     if (reportsView.find('.adeptus-save-display-type-btn').length === 0) {
                         reportsView.find('.adeptus-view-toggle').after('<button class="btn btn-sm btn-outline-primary adeptus-save-display-type-btn ms-2"><i class="fa fa-save"></i> Save View</button>');
-                        reportsView.find('.adeptus-save-display-type-btn').on('click', function() { self.saveDisplayType(report.slug, type); });
+                        reportsView.find('.adeptus-save-display-type-btn').on('click', function() {
+ self.saveDisplayType(report.slug, type);
+});
                     }
                 } else {
                     reportsView.find('.adeptus-save-display-type-btn').remove();
@@ -4956,6 +5061,7 @@ define([
 
         /**
          * Render report data as a table
+         * @param data
          */
         renderReportData: function(data) {
             if (!data || data.length === 0) {
@@ -5007,6 +5113,7 @@ define([
 
         /**
          * Get status badge HTML
+         * @param status
          */
         getStatusBadge: function(status) {
             const badgeClass = this.getStatusBadgeClass(status);
@@ -5015,11 +5122,12 @@ define([
 
         /**
          * Get status badge CSS class
+         * @param status
          */
         getStatusBadgeClass: function(status) {
             switch (status) {
                 case 'completed': return 'bg-success';
-                case 'ready': return 'bg-success';  // Ready reports are successfully ready to view
+                case 'ready': return 'bg-success'; // Ready reports are successfully ready to view
                 case 'processing': return 'bg-warning text-dark';
                 case 'pending': return 'bg-info';
                 case 'failed': return 'bg-danger';
@@ -5031,6 +5139,7 @@ define([
         /**
          * Execute a pending report.
          * Fetches report SQL from backend and executes locally (SaaS model).
+         * @param reportSlug
          */
         executeReport: function(reportSlug) {
             const self = this;
@@ -5104,15 +5213,19 @@ define([
 
         /**
          * Handle successful report execution (shared between local and legacy modes)
+         * @param reportSlug
+         * @param report
+         * @param data
+         * @param reportRow
          */
         handleExecutionSuccess: function(reportSlug, report, data, reportRow) {
             // Update the cached report with new data
             if (Array.isArray(this.cachedReports)) {
                 const reportIndex = this.cachedReports.findIndex(r => r.slug === reportSlug);
                 if (reportIndex !== -1) {
-                    this.cachedReports[reportIndex] = Object.assign({}, this.cachedReports[reportIndex], report, { data: data });
+                    this.cachedReports[reportIndex] = Object.assign({}, this.cachedReports[reportIndex], report, {data: data});
                 } else {
-                    this.cachedReports.push(Object.assign({}, report, { data: data }));
+                    this.cachedReports.push(Object.assign({}, report, {data: data}));
                 }
             }
 
@@ -5125,7 +5238,9 @@ define([
 
             // Highlight the current report
             $('.adeptus-report-row').removeClass('table-primary');
-            if (reportRow) reportRow.addClass('table-primary');
+            if (reportRow) {
+ reportRow.addClass('table-primary');
+}
 
             this.showSuccess('Report executed successfully!');
         },
@@ -5164,10 +5279,18 @@ define([
                         var data = response.data;
                         var headers = response.headers;
                         if (typeof data === 'string') {
-                            try { data = JSON.parse(data); } catch (e) { data = []; }
+                            try {
+ data = JSON.parse(data);
+} catch (e) {
+ data = [];
+}
                         }
                         if (typeof headers === 'string') {
-                            try { headers = JSON.parse(headers); } catch (e) { headers = []; }
+                            try {
+ headers = JSON.parse(headers);
+} catch (e) {
+ headers = [];
+}
                         }
                         resolve({
                             data: data || [],
@@ -5194,6 +5317,7 @@ define([
 
         /**
          * Show upgrade prompt for premium export formats
+         * @param format
          */
         showExportUpgradePrompt: function(format) {
             const subscriptionUrl = `${M.cfg.wwwroot}/report/adeptus_insights/subscription.php`;
@@ -5236,17 +5360,18 @@ define([
 
         /**
          * Check export eligibility before exporting
+         * @param format
          */
         checkExportEligibility: async function(format) {
             try {
                 var promises = Ajax.call([{
                     methodname: 'report_adeptus_insights_check_export_eligibility',
-                    args: { format: format }
+                    args: {format: format}
                 }]);
                 var result = await promises[0];
                 return result.data ? result.data : result;
             } catch (error) {
-                return { success: false, eligible: false, message: 'Unable to verify export eligibility.' };
+                return {success: false, eligible: false, message: 'Unable to verify export eligibility.'};
             }
         },
 
@@ -5295,7 +5420,7 @@ define([
                     }
                 }
             } catch (e) {
-                // html2canvas capture failed silently.
+                // Html2canvas capture failed silently.
             }
 
             return null;
@@ -5320,6 +5445,8 @@ define([
 
         /**
          * Export report using local Moodle endpoint (same as Wizard)
+         * @param reportSlug
+         * @param format
          */
         exportReport: async function(reportSlug, format) {
             const self = this;
@@ -5442,6 +5569,8 @@ define([
 
         /**
          * Track export usage in backend
+         * @param format
+         * @param reportName
          */
         trackExport: async function(format, reportName) {
             try {
@@ -5462,6 +5591,7 @@ define([
 
         /**
          * Open report from chat link
+         * @param reportSlug
          */
         openReportFromLink: function(reportSlug) {
 
@@ -5489,6 +5619,7 @@ define([
 
         /**
          * Format timestamps like WhatsApp (today: HH:mm, yesterday: Weekday - HH:mm, same year: D Month - HH:mm, previous years: D Month YYYY - HH:mm)
+         * @param ts
          */
         formatTimestamp: function(ts) {
             const date = (ts instanceof Date) ? ts : new Date(ts);
@@ -5497,7 +5628,7 @@ define([
             const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
             // Different years
             if (date.getFullYear() !== now.getFullYear()) {
-                const month = date.toLocaleString('default', { month: 'long' });
+                const month = date.toLocaleString('default', {month: 'long'});
                 return `${date.getDate()} ${month} ${date.getFullYear()} - ${time}`;
             }
             // Today
@@ -5507,20 +5638,23 @@ define([
             // Yesterday
             const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
             if (date.toDateString() === yesterday.toDateString()) {
-                const weekday = date.toLocaleString('default', { weekday: 'long' });
+                const weekday = date.toLocaleString('default', {weekday: 'long'});
                 return `${weekday} - ${time}`;
             }
             // Earlier this year
-            const month = date.toLocaleString('default', { month: 'long' });
+            const month = date.toLocaleString('default', {month: 'long'});
             return `${date.getDate()} ${month} - ${time}`;
         },
 
         /**
          * Increment or add report badge count in chat history list
+         * @param chatId
          */
         updateChatHistoryBadge: function(chatId) {
             const $item = $(`#chat-history-list li.adeptus-chat-history-item[data-chat-id="${chatId}"]`);
-            if (!$item.length) return;
+            if (!$item.length) {
+ return;
+}
             let $badge = $item.find('.adeptus-report-count');
             if ($badge.length) {
                 const current = parseInt($badge.text(), 10) || 0;
@@ -5533,6 +5667,8 @@ define([
 
         /**
          * Persist display type to server
+         * @param reportSlug
+         * @param displayType
          */
         saveDisplayType: function(reportSlug, displayType) {
             // Show SweetAlert loader
@@ -5545,18 +5681,20 @@ define([
                 url: `${this.backendUrl}/ai-reports/${reportSlug}/display-type`,
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ display_type: displayType }),
+                data: JSON.stringify({display_type: displayType}),
                 success: () => {
                     // Show success toast
-                    Swal.fire({ icon: 'success', title: getString('default_view_saved', 'Default view saved'), showConfirmButton: false, timer: 1500 });
+                    Swal.fire({icon: 'success', title: getString('default_view_saved', 'Default view saved'), showConfirmButton: false, timer: 1500});
                     // Update cache and hide save button
                     const rep = this.cachedReports.find(r => r.slug === reportSlug);
-                    if (rep) { rep.display_type = displayType; }
+                    if (rep) {
+ rep.display_type = displayType;
+}
                     $('.adeptus-save-display-type-btn').remove();
                 },
                 error: () => {
                     // Show error toast
-                    Swal.fire({ icon: 'error', title: getString('save_failed', 'Save failed'), text: getString('could_not_save_view', 'Could not save default view. Please try again.') });
+                    Swal.fire({icon: 'error', title: getString('save_failed', 'Save failed'), text: getString('could_not_save_view', 'Could not save default view. Please try again.')});
                 }
             });
         },
@@ -5599,6 +5737,7 @@ define([
 
         /**
          * Show the Compare Data modal for the current report
+         * @param report
          */
         showCompareDataModal: function(report) {
             const self = this;
@@ -5618,25 +5757,42 @@ define([
             let nextSection = 'a'; // Alternating selection
 
             // Helper: fetch timeline
+            /**
+             *
+             * @param cb
+             */
             function fetchTimeline(cb) {
                 self.ajaxWithAuth({
                     url: `${this.backendUrl}/ai-reports/${reportSlug}/snapshots`,
                     method: 'GET',
                     success: function(res) {
                         timeline = res.snapshots || [];
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     },
                     error: function() {
                         error = 'Failed to load timeline.';
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     }
                 });
             }
 
             // Helper: fetch current data for A or B
+            /**
+             *
+             * @param section
+             * @param cb
+             */
             function fetchCurrent(section, cb) {
-                if (section === 'a') loadingA = true;
-                if (section === 'b') loadingB = true;
+                if (section === 'a') {
+ loadingA = true;
+}
+                if (section === 'b') {
+ loadingB = true;
+}
                 renderSections();
                 self.ajaxWithAuth({
                     url: `${this.backendUrl}/ai-reports/${reportSlug}/data/current`,
@@ -5654,22 +5810,40 @@ define([
                         }
                         currentDataFetched = true;
                         renderSections();
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     },
                     error: function() {
                         error = 'Failed to fetch current data.';
-                        if (section === 'a') loadingA = false;
-                        if (section === 'b') loadingB = false;
+                        if (section === 'a') {
+ loadingA = false;
+}
+                        if (section === 'b') {
+ loadingB = false;
+}
                         renderSections();
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     }
                 });
             }
 
             // Helper: fetch a single snapshot's data for A or B
+            /**
+             *
+             * @param snapId
+             * @param section
+             * @param cb
+             */
             function fetchSnapshotData(snapId, section, cb) {
-                if (section === 'a') loadingA = true;
-                if (section === 'b') loadingB = true;
+                if (section === 'a') {
+ loadingA = true;
+}
+                if (section === 'b') {
+ loadingB = true;
+}
                 renderSections();
                 self.ajaxWithAuth({
                     url: `${this.backendUrl}/ai-reports/${reportSlug}/snapshots/${snapId}`,
@@ -5685,19 +5859,33 @@ define([
                             loadingB = false;
                         }
                         renderSections();
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     },
                     error: function() {
                         error = 'Failed to fetch snapshot data.';
-                        if (section === 'a') loadingA = false;
-                        if (section === 'b') loadingB = false;
+                        if (section === 'a') {
+ loadingA = false;
+}
+                        if (section === 'b') {
+ loadingB = false;
+}
                         renderSections();
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     }
                 });
             }
 
             // Helper: compare two snapshots (for diff table)
+            /**
+             *
+             * @param aId
+             * @param bId
+             * @param cb
+             */
             function fetchCompare(aId, bId, cb) {
                 loadingA = true;
                 loadingB = true;
@@ -5711,43 +5899,66 @@ define([
                         loadingA = false;
                         loadingB = false;
                         renderSections();
-                        if (cb) cb(res);
+                        if (cb) {
+ cb(res);
+}
                     },
                     error: function() {
                         error = 'Failed to compare snapshots.';
                         loadingA = false;
                         loadingB = false;
                         renderSections();
-                        if (cb) cb();
+                        if (cb) {
+ cb();
+}
                     }
                 });
             }
 
             // Helper: get color and note
+            /**
+             *
+             * @param snapId
+             */
             function getSnapshotColor(snapId) {
-                if (!snapId) return { bg: '#f8f9fa', border: '#dee2e6', text: '#6c757d' };
+                if (!snapId) {
+ return {bg: '#f8f9fa', border: '#dee2e6', text: '#6c757d'};
+}
                 const snapIndex = timeline.findIndex(s => s.id === snapId);
-                if (snapIndex === -1) return { bg: '#f8f9fa', border: '#dee2e6', text: '#6c757d' };
+                if (snapIndex === -1) {
+ return {bg: '#f8f9fa', border: '#dee2e6', text: '#6c757d'};
+}
                 const colors = [
-                    { bg: '#e3f2fd', border: '#2196f3', text: '#1976d2' },
-                    { bg: '#f3e5f5', border: '#9c27b0', text: '#7b1fa2' },
-                    { bg: '#e8f5e8', border: '#4caf50', text: '#388e3c' },
-                    { bg: '#fff3e0', border: '#ff9800', text: '#f57c00' },
-                    { bg: '#fce4ec', border: '#e91e63', text: '#c2185b' },
-                    { bg: '#e0f2f1', border: '#009688', text: '#00695c' },
-                    { bg: '#f1f8e9', border: '#8bc34a', text: '#689f38' },
-                    { bg: '#fff8e1', border: '#ffc107', text: '#ffa000' }
+                    {bg: '#e3f2fd', border: '#2196f3', text: '#1976d2'},
+                    {bg: '#f3e5f5', border: '#9c27b0', text: '#7b1fa2'},
+                    {bg: '#e8f5e8', border: '#4caf50', text: '#388e3c'},
+                    {bg: '#fff3e0', border: '#ff9800', text: '#f57c00'},
+                    {bg: '#fce4ec', border: '#e91e63', text: '#c2185b'},
+                    {bg: '#e0f2f1', border: '#009688', text: '#00695c'},
+                    {bg: '#f1f8e9', border: '#8bc34a', text: '#689f38'},
+                    {bg: '#fff8e1', border: '#ffc107', text: '#ffa000'}
                 ];
                 return colors[snapIndex % colors.length];
             }
+            /**
+             *
+             * @param snapId
+             */
             function getSnapshotNote(snapId) {
-                if (!snapId) return '';
-                if (typeof snapId === 'string' && snapId === 'current') return 'Current Data';
+                if (!snapId) {
+ return '';
+}
+                if (typeof snapId === 'string' && snapId === 'current') {
+ return 'Current Data';
+}
                 const snap = timeline.find(s => s.id === snapId);
                 return snap && snap.note ? snap.note : '';
             }
 
             // Render section A
+            /**
+             *
+             */
             function renderSectionA() {
                 let html = '';
                 const colorA = getSnapshotColor(selectedA);
@@ -5780,6 +5991,9 @@ define([
                 return html;
             }
             // Render section B
+            /**
+             *
+             */
             function renderSectionB() {
                 let html = '';
                 const colorB = getSnapshotColor(selectedB);
@@ -5813,6 +6027,9 @@ define([
             }
 
             // Render both sections
+            /**
+             *
+             */
             function renderSections() {
                 $('#adeptus-compare-section-a').replaceWith(renderSectionA());
                 $('#adeptus-compare-section-b').replaceWith(renderSectionB());
@@ -5825,11 +6042,13 @@ define([
                         let valueKey = headers.find(h => typeof compareDataA[0][h] === 'number') || headers[1];
                         const labels = compareDataA.map(r => r[labelKey]);
                         const values = compareDataA.map(r => r[valueKey]);
-                        if (window.compareChartAInstance) window.compareChartAInstance.destroy();
+                        if (window.compareChartAInstance) {
+ window.compareChartAInstance.destroy();
+}
                         window.compareChartAInstance = new Chart(ctxA.getContext('2d'), {
                             type: 'bar',
-                            data: { labels: labels, datasets: [{ label: valueKey, data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                            data: {labels: labels, datasets: [{label: valueKey, data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1}]},
+                            options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
                         });
                     }
                 }
@@ -5841,11 +6060,13 @@ define([
                         let valueKey = headers.find(h => typeof compareDataA[0][h] === 'number') || headers[1];
                         const labels = compareDataA.map((r, i) => r[labelKey] || i + 1);
                         const values = compareDataA.map(r => r[valueKey]);
-                        if (window.compareGraphAInstance) window.compareGraphAInstance.destroy();
+                        if (window.compareGraphAInstance) {
+ window.compareGraphAInstance.destroy();
+}
                         window.compareGraphAInstance = new Chart(ctxA.getContext('2d'), {
                             type: 'line',
-                            data: { labels: labels, datasets: [{ label: valueKey, data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 2, fill: false }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                            data: {labels: labels, datasets: [{label: valueKey, data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 2, fill: false}]},
+                            options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
                         });
                     }
                 }
@@ -5858,11 +6079,13 @@ define([
                         let valueKey = headers.find(h => typeof compareDataB[0][h] === 'number') || headers[1];
                         const labels = compareDataB.map(r => r[labelKey]);
                         const values = compareDataB.map(r => r[valueKey]);
-                        if (window.compareChartBInstance) window.compareChartBInstance.destroy();
+                        if (window.compareChartBInstance) {
+ window.compareChartBInstance.destroy();
+}
                         window.compareChartBInstance = new Chart(ctxB.getContext('2d'), {
                             type: 'bar',
-                            data: { labels: labels, datasets: [{ label: valueKey, data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                            data: {labels: labels, datasets: [{label: valueKey, data: values, backgroundColor: 'rgba(0,123,255,0.5)', borderColor: 'rgba(0,123,255,1)', borderWidth: 1}]},
+                            options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
                         });
                     }
                 }
@@ -5874,17 +6097,24 @@ define([
                         let valueKey = headers.find(h => typeof compareDataB[0][h] === 'number') || headers[1];
                         const labels = compareDataB.map((r, i) => r[labelKey] || i + 1);
                         const values = compareDataB.map(r => r[valueKey]);
-                        if (window.compareGraphBInstance) window.compareGraphBInstance.destroy();
+                        if (window.compareGraphBInstance) {
+ window.compareGraphBInstance.destroy();
+}
                         window.compareGraphBInstance = new Chart(ctxB.getContext('2d'), {
                             type: 'line',
-                            data: { labels: labels, datasets: [{ label: valueKey, data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 2, fill: false }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                            data: {labels: labels, datasets: [{label: valueKey, data: values, backgroundColor: 'rgba(40,167,69,0.5)', borderColor: 'rgba(40,167,69,1)', borderWidth: 2, fill: false}]},
+                            options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}}
                         });
                     }
                 }
             }
 
             // Helper: render timeline sidebar (unchanged)
+            /**
+             *
+             * @param selectedAId
+             * @param selectedBId
+             */
             function renderTimeline(selectedAId, selectedBId) {
                 let html = '<div class="adeptus-timeline-sidebar" style="width:220px;max-width:220px;overflow-y:auto;height:100%;background:#f8f9fa;border-right:1.5px solid #e0e0e0;padding:0.5rem 0.25rem;">';
                 html += '<div class="d-flex flex-column gap-2 mb-3">';
@@ -5894,7 +6124,14 @@ define([
                     html += `<div class="mb-2">
                         <input type="text" id="add-timeline-note" class="form-control form-control-sm mb-1" placeholder="Enter snapshot name (required)" required aria-label="Snapshot name">
                         <div class="invalid-feedback" style="display:none;">Snapshot name is required.</div>
-                        <button class="btn btn-outline-success btn-sm w-100 adeptus-add-timeline-btn" id="adeptus-add-timeline-btn" title="Create snapshot from current data" aria-label="Create snapshot from current data" disabled><span class="adeptus-btn-label"><i class="fa fa-plus"></i> Create Snapshot From Current Data</span><span class="spinner-border spinner-border-sm ms-2" id="snapshot-loading" style="display:none;" role="status" aria-hidden="true"></span></button>
+                        <button class="btn btn-outline-success btn-sm w-100 adeptus-add-timeline-btn" ` +
+                        `id="adeptus-add-timeline-btn" title="Create snapshot from current data" ` +
+                        `aria-label="Create snapshot from current data" disabled>` +
+                        `<span class="adeptus-btn-label"><i class="fa fa-plus"></i> ` +
+                        `Create Snapshot From Current Data</span>` +
+                        `<span class="spinner-border spinner-border-sm ms-2" ` +
+                        `id="snapshot-loading" style="display:none;" role="status" ` +
+                        `aria-hidden="true"></span></button>
                     </div>`;
                 }
                 html += '<div class="small text-muted text-center px-2 py-1 mb-2" style="border: 1px dashed #dee2e6; border-radius: 4px;">Click or <b>drag</b> snapshots to select for comparison. Each snapshot gets a unique color. You can also drag and drop from the side menu into the snapshot viewer.</div>';
@@ -5910,14 +6147,14 @@ define([
                     timeline.forEach((snap, index) => {
                         // Color coding system
                         const colors = [
-                            { bg: '#e3f2fd', border: '#2196f3', text: '#1976d2' }, // Light blue
-                            { bg: '#f3e5f5', border: '#9c27b0', text: '#7b1fa2' }, // Light purple
-                            { bg: '#e8f5e8', border: '#4caf50', text: '#388e3c' }, // Light green
-                            { bg: '#fff3e0', border: '#ff9800', text: '#f57c00' }, // Light orange
-                            { bg: '#fce4ec', border: '#e91e63', text: '#c2185b' }, // Light pink
-                            { bg: '#e0f2f1', border: '#009688', text: '#00695c' }, // Light teal
-                            { bg: '#f1f8e9', border: '#8bc34a', text: '#689f38' }, // Light lime
-                            { bg: '#fff8e1', border: '#ffc107', text: '#ffa000' }  // Light amber
+                            {bg: '#e3f2fd', border: '#2196f3', text: '#1976d2'}, // Light blue
+                            {bg: '#f3e5f5', border: '#9c27b0', text: '#7b1fa2'}, // Light purple
+                            {bg: '#e8f5e8', border: '#4caf50', text: '#388e3c'}, // Light green
+                            {bg: '#fff3e0', border: '#ff9800', text: '#f57c00'}, // Light orange
+                            {bg: '#fce4ec', border: '#e91e63', text: '#c2185b'}, // Light pink
+                            {bg: '#e0f2f1', border: '#009688', text: '#00695c'}, // Light teal
+                            {bg: '#f1f8e9', border: '#8bc34a', text: '#689f38'}, // Light lime
+                            {bg: '#fff8e1', border: '#ffc107', text: '#ffa000'} // Light amber
                         ];
                         const colorIndex = index % colors.length;
                         const color = colors[colorIndex];
@@ -5958,6 +6195,9 @@ define([
             }
 
             // Helper: render modal
+            /**
+             *
+             */
             function renderModal() {
                 Swal.update({
                     html: `<div class='d-flex flex-row' style='height:70vh;min-height:500px;max-height:80vh;'>
@@ -6045,7 +6285,7 @@ define([
                 heightAuto: false,
                 showCancelButton: true,
                 showConfirmButton: false,
-                customClass: { popup: 'swal2-modal-compare-data' },
+                customClass: {popup: 'swal2-modal-compare-data'},
                 didOpen: () => {
                     fetchTimeline(() => {
                         // Default: set A to current version, B to latest snapshot (if >1)
@@ -6075,6 +6315,8 @@ define([
 
         /**
          * Render a diff table (side-by-side, highlight differences)
+         * @param a
+         * @param b
          */
         renderDiffTable: function(a, b) {
             // Lightweight diff: highlight cells in a that differ from b
@@ -6084,7 +6326,9 @@ define([
             const headers = Object.keys(a[0]);
             let html = '<div class="table-responsive"><table class="table table-striped table-hover table-sm">';
             html += '<thead><tr>';
-            headers.forEach(h => { html += `<th>${h}</th>`; });
+            headers.forEach(h => {
+ html += `<th>${h}</th>`;
+});
             html += '</tr></thead><tbody>';
             a.forEach((row, i) => {
                 html += '<tr>';

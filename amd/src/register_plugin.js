@@ -19,7 +19,7 @@
  * Handles form validation and submission for the plugin registration wizard.
  *
  * @module     report_adeptus_insights/register_plugin
- * @package    report_adeptus_insights
+ * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

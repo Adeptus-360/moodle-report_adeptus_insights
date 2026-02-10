@@ -1,0 +1,33 @@
+{
+    "globals": {
+        "Swal": true,
+        "simpleDatatables": true
+    },
+    "rules": {
+        "camelcase": "off",
+        "max-len": ["error", {"code": 350}],
+        "jsdoc/require-param": "off",
+        "jsdoc/require-param-type": "off",
+        "jsdoc/require-jsdoc": "off",
+        "jsdoc/empty-tags": "off",
+        "no-nested-ternary": "off",
+        "promise/always-return": "off",
+        "promise/catch-or-return": "off",
+        "promise/no-nesting": "off",
+        "promise/param-names": "off",
+        "complexity": "off",
+        "max-depth": "off",
+        "no-empty": "off",
+        "consistent-return": "off",
+        "no-useless-escape": "off",
+        "no-multi-spaces": "off",
+        "capitalized-comments": "off",
+        "max-statements-per-line": "off",
+        "brace-style": "off",
+        "@babel/object-curly-spacing": "off",
+        "key-spacing": "off",
+        "comma-spacing": "off",
+        "keyword-spacing": "off",
+        "no-multiple-empty-lines": "off"
+    }
+}

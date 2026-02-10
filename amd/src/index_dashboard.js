@@ -19,7 +19,7 @@
  * Handles counter animations for subscription stats using IntersectionObserver.
  *
  * @module     report_adeptus_insights/index_dashboard
- * @package    report_adeptus_insights
+ * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -87,7 +87,7 @@ define([], function() {
                 t0 = ts;
             }
             var p = Math.min(1, (ts - t0) / dur);
-            // easeOutCubic
+            // EaseOutCubic
             var eased = 1 - Math.pow(1 - p, 3);
             var current = Math.round(start + (end - start) * eased);
             el.textContent = fmt(current);

@@ -20,7 +20,7 @@
  * status, disabling interactive elements and forms when unauthorized.
  *
  * @module     report_adeptus_insights/readonly_mode
- * @package    report_adeptus_insights
+ * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -182,7 +182,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
                 var $form = $(this);
                 if (!$form.data('adeptus-original-action')) {
                     $form.data('adeptus-original-action', $form.attr('action'));
-                    $form.attr('action', 'javascript:void(0)');
+                    $form.attr('action', '#');
                 }
             });
         },

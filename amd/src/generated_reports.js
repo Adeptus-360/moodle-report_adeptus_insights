@@ -1764,7 +1764,6 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
          */
         loadReportDetails: function(slug) {
             var self = this;
-            var token = this.getAuthToken();
 
             $('#report-placeholder').addClass('d-none');
             $('#report-content').addClass('d-none');
@@ -2002,10 +2001,18 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                             var data = response.data;
                             var headers = response.headers;
                             if (typeof data === 'string') {
-                                try { data = JSON.parse(data); } catch (e) { data = []; }
+                                try {
+ data = JSON.parse(data);
+} catch (e) {
+ data = [];
+}
                             }
                             if (typeof headers === 'string') {
-                                try { headers = JSON.parse(headers); } catch (e) { headers = []; }
+                                try {
+ headers = JSON.parse(headers);
+} catch (e) {
+ headers = [];
+}
                             }
                             resolve({
                                 data: data || [],

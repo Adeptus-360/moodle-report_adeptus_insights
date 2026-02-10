@@ -20,7 +20,7 @@
  * Stripe checkout integration, and billing portal access.
  *
  * @module     report_adeptus_insights/subscription
- * @package    report_adeptus_insights
+ * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -413,6 +413,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Handle upgrade plan
+         * @param $button
          */
         handleUpgradePlan: function($button) {
             var planId = $button.data('plan-id');
@@ -447,6 +448,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Handle downgrade plan
+         * @param $button
          */
         handleDowngradePlan: function($button) {
             var planId = $button.data('plan-id');
@@ -511,6 +513,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Create billing portal session
+         * @param planId
+         * @param action
          */
         createBillingPortalSession: function(planId, action) {
             var returnUrl = window.location.href;
@@ -602,10 +606,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Render subscription information
+         * @param subscriptionData
          */
         renderSubscriptionInfo: function(subscriptionData) {
             var $container = $('.subscription-info');
-            if (!$container.length) return;
+            if (!$container.length) {
+ return;
+}
 
             var html = '<div class="current-subscription">';
             html += '<h3>' + getString('current_subscription', 'Current Subscription') + '</h3>';
@@ -664,6 +671,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Update API access status globally
+         * @param subscriptionData
          */
         updateApiAccessStatus: function(subscriptionData) {
             var apiAccessDisabled = subscriptionData.should_disable_api_access || false;
@@ -692,10 +700,13 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Show API access warning
+         * @param subscriptionData
          */
         showApiAccessWarning: function(subscriptionData) {
             var $existingWarning = $('.api-access-warning');
-            if ($existingWarning.length) return;
+            if ($existingWarning.length) {
+ return;
+}
 
             var warningHtml = '<div class="api-access-warning alert alert-danger alert-dismissible fade show" role="alert">';
             warningHtml += '<strong>' + getString('api_access_disabled', 'API Access Disabled') + '</strong><br>';
@@ -780,6 +791,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Show plans selection modal with monthly/yearly toggle
+         * @param data
          */
         showPlansModal: function(data) {
             var hasYearlyPlans = data.has_yearly_plans || false;
@@ -835,6 +847,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Build plans grid HTML
+         * @param plans
+         * @param interval
          */
         buildPlansGrid: function(plans, interval) {
             if (!plans || plans.length === 0) {
@@ -956,10 +970,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 }
                 html += '</div>';
 
-                html += '</div>'; // end adeptus-plan-card
+                html += '</div>'; // End adeptus-plan-card
             });
 
-            html += '</div>'; // end plans-grid
+            html += '</div>'; // End plans-grid
             return html;
         },
 
@@ -971,7 +985,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(btn) {
                 btn.addEventListener('click', function() {
                     var interval = this.getAttribute('data-interval');
-                    if (interval === Subscription.currentInterval) return;
+                    if (interval === Subscription.currentInterval) {
+ return;
+}
 
                     // Update toggle UI
                     document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(b) {
@@ -1036,6 +1052,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
         /**
          * Open billing portal for upgrade
          * Uses the same approach as Step 2 - opens billing portal where user can select plan
+         * @param planName
+         * @param planId
          */
         openBillingPortalForUpgrade: function(planName, planId) {
             Swal.fire({
@@ -1196,6 +1214,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
 
         /**
          * Handle select plan (for new subscriptions)
+         * @param $button
+         * @param planId
+         * @param planName
          */
         handleSelectPlan: function($button, planId, planName) {
             if (!planId) {
