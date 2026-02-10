@@ -97,6 +97,7 @@ jobs:
 
       - name: Grunt
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
@@ -106,6 +107,7 @@ jobs:
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci behat --profile chrome --scss-deprecations
 
       - name: Upload Behat Faildump

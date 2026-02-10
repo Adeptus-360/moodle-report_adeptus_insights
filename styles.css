@@ -263,3 +263,114 @@
         font-size: 2rem;
     }
 }
+
+/*
+ * Subscription Installation Step — Launch Special Tab Styling
+ *
+ * Styles for the subscription plan selection page, including
+ * lifetime deal badges, billing toggle, and plan card enhancements.
+ */
+
+/* stylelint-disable declaration-no-important */
+.path-report-adeptus_insights .adeptus-billing-toggle-btn[data-interval="lifetime"] {
+    background: linear-gradient(135deg, #ff6b35, #f7c948) !important;
+    color: #fff !important;
+    border-color: #ff6b35 !important;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.path-report-adeptus_insights .adeptus-billing-toggle-btn[data-interval="lifetime"]:hover {
+    background: linear-gradient(135deg, #e85d2c, #e6b93d) !important;
+}
+
+.path-report-adeptus_insights .adeptus-billing-toggle-btn[data-interval="lifetime"].active {
+    background: linear-gradient(135deg, #ff6b35, #f7c948) !important;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.4);
+}
+/* stylelint-enable declaration-no-important */
+
+/* Lifetime Plan Card Enhancements */
+.path-report-adeptus_insights .adeptus-plan-card.lifetime-deal {
+    border: 2px solid #ff6b35;
+    position: relative;
+    overflow: visible;
+}
+
+.path-report-adeptus_insights .adeptus-plan-card.lifetime-deal.popular {
+    border-color: #ff6b35;
+    box-shadow: 0 4px 24px rgba(255, 107, 53, 0.2);
+}
+
+/* Lifetime Deal Ribbon */
+.path-report-adeptus_insights .adeptus-lifetime-ribbon {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: linear-gradient(135deg, #ff6b35, #f7c948);
+    color: #fff;
+    padding: 4px 16px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 0 6px 0 8px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* One-time price label */
+.path-report-adeptus_insights .adeptus-price-onetime {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* Future updates note */
+.path-report-adeptus_insights .adeptus-lifetime-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: #059669;
+    font-weight: 600;
+    padding: 6px 12px;
+    background: #ecfdf5;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+/* Urgency line */
+.path-report-adeptus_insights .adeptus-lifetime-urgency {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #92400e;
+    background: #fef3c7;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+/* Banner above lifetime plans */
+.path-report-adeptus_insights .adeptus-lifetime-banner {
+    text-align: center;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff7ed, #fef3c7);
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+}
+
+.path-report-adeptus_insights .adeptus-lifetime-banner h3 {
+    margin: 0 0 4px 0;
+    font-size: 1.1rem;
+    color: #c2410c;
+}
+
+.path-report-adeptus_insights .adeptus-lifetime-banner p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #78350f;
+}
