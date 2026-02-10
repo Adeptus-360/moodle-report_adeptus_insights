@@ -44,14 +44,18 @@ moodle-ci-81-404:
     - cd "$MOODLE_DIR"
     - php admin/tool/phpunit/cli/init.php
   script:
-    - moodle-plugin-ci phplint
-    - moodle-plugin-ci phpcs --max-warnings 0
-    - moodle-plugin-ci phpdoc --max-warnings 0
-    - moodle-plugin-ci validate
-    - moodle-plugin-ci savepoints
-    - moodle-plugin-ci mustache
-    - moodle-plugin-ci grunt --max-lint-warnings 0
-    - moodle-plugin-ci phpunit --fail-on-warning
+    # Each step must pass. Using if-chaining ensures all steps run even if one fails,
+    # while still failing the job if ANY step fails (standard Moodle CI practice).
+    - EXIT=0
+    - moodle-plugin-ci phplint         || EXIT=1
+    - moodle-plugin-ci phpcs --max-warnings 0 || EXIT=1
+    - moodle-plugin-ci phpdoc --max-warnings 0 || EXIT=1
+    - moodle-plugin-ci validate        || EXIT=1
+    - moodle-plugin-ci savepoints      || EXIT=1
+    - moodle-plugin-ci mustache        || EXIT=1
+    - moodle-plugin-ci grunt --max-lint-warnings 0 || EXIT=1
+    - moodle-plugin-ci phpunit --fail-on-warning   || EXIT=1
+    - exit $EXIT
   allow_failure: false
   rules:
     - if: $CI_PIPELINE_SOURCE == "push"
