@@ -88,18 +88,17 @@ function report_adeptus_insights_myprofile_navigation(
 /**
  * Callback executed before HTTP headers are sent.
  *
- * Configures RequireJS for SweetAlert2 library.
- * Only runs on plugin pages to avoid impacting the rest of the system.
+ * Loads local SweetAlert2 library on plugin pages.
+ * The library file is bundled with the plugin in lib/sweetalert2/.
  */
 function report_adeptus_insights_before_http_headers() {
     global $PAGE;
 
-    // Only inject JS on plugin pages to avoid impacting other parts of Moodle.
-    // Check if the current page URL is within the plugin's directory.
+    // Only load JS on plugin pages to avoid impacting other parts of Moodle.
     try {
         $pageurl = $PAGE->url->out(false);
     } catch (Exception $e) {
-        // URL not set yet, skip injection.
+        // URL not set yet, skip.
         return;
     }
 
@@ -107,25 +106,9 @@ function report_adeptus_insights_before_http_headers() {
         return;
     }
 
-    // Configure RequireJS for SweetAlert2.
-    // This script needs to run before any module tries to require 'sweetalert2'.
-    $PAGE->requires->js_init_code("function setupAdeptusInsightsRequireJSConfig() {\n" .
-        "    if (typeof requirejs !== 'undefined') {\n" .
-        "        requirejs.config({\n" .
-        "            paths: {\n" .
-        "                'sweetalert2': ['https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min']\n" .
-        "            },\n" .
-        "            shim: {\n" .
-        "                'sweetalert2': {\n" .
-        "                    exports: 'Swal'\n" .
-        "                }\n" .
-        "            }\n" .
-        "        });\n" .
-        "    } else {\n" .
-        "        console.error('Adeptus Insights: requirejs is not defined for sweetalert2 config.');\n" .
-        "    }\n" .
-        "}");
-
-    // Call the setup function.
-    $PAGE->requires->js_init_call('setupAdeptusInsightsRequireJSConfig');
+    // Load local SweetAlert2 library (bundled with plugin, no CDN).
+    $PAGE->requires->js(
+        new moodle_url('/report/adeptus_insights/lib/sweetalert2/sweetalert2.all.min.js'),
+        true
+    );
 }

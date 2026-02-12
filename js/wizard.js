@@ -2995,7 +2995,7 @@ class AdeptusWizard {
             }
             
             const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            script.src = M.cfg.wwwroot + '/report/adeptus_insights/lib/html2canvas/html2canvas.min.js';
             script.onload = () => resolve();
             script.onerror = () => reject(new Error('Failed to load HTML2Canvas'));
             document.head.appendChild(script);

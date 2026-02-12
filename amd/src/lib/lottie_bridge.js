@@ -16,11 +16,11 @@
 /**
  * Lottie bridge module - loads Lottie library dynamically.
  *
- * This module loads Lottie from CDN while avoiding RequireJS AMD conflicts
- * by temporarily hiding the define function during script load.
+ * This module loads the locally bundled Lottie library while avoiding
+ * RequireJS AMD conflicts by temporarily hiding the define function
+ * during script load.
  *
  * @module     report_adeptus_insights/lib/lottie_bridge
- * @package
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,9 +41,9 @@ define([], function() {
             return;
         }
 
-        // Create script element.
+        // Create script element using local bundled file.
         var script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
+        script.src = M.cfg.wwwroot + '/report/adeptus_insights/lib/lottie_animation.js';
         script.async = true;
 
         // Temporarily hide define to prevent AMD registration.

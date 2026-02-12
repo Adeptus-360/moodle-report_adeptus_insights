@@ -422,7 +422,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
         },
 
         /**
-         * Load html2canvas library from CDN.
+         * Load html2canvas library bundled with the plugin.
          * @returns {Promise}
          */
         loadHtml2Canvas: function() {
@@ -432,7 +432,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                     return;
                 }
                 var script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+                script.src = M.cfg.wwwroot + '/report/adeptus_insights/lib/html2canvas/html2canvas.min.js';
                 script.onload = function() {
                     resolve();
                 };

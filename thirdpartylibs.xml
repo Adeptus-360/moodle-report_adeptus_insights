@@ -49,4 +49,18 @@
         <license>MIT</license>
         <licenseversion></licenseversion>
     </library>
+    <library>
+        <location>lib/sweetalert2</location>
+        <name>SweetAlert2</name>
+        <version>11.26.18</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>lib/html2canvas</location>
+        <name>html2canvas</name>
+        <version>1.4.1</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
 </libraries>

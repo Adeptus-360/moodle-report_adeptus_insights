@@ -49,7 +49,15 @@ $chartdata = optional_param('chart_data', '', PARAM_RAW);
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
 $chartimage = optional_param('chart_image', '', PARAM_RAW);
 
-// Validate chart image if provided.
+// Validate chart_data: must be valid JSON if provided.
+if (!empty($chartdata)) {
+    $decodedchartdata = json_decode($chartdata, true);
+    if ($decodedchartdata === null && json_last_error() !== JSON_ERROR_NONE) {
+        $chartdata = '';
+    }
+}
+
+// Validate chart image if provided: must be a valid base64 data URI.
 if (!empty($chartimage)) {
     if (!preg_match('/^data:image\/(png|jpeg|jpg);base64,/', $chartimage)) {
         $chartimage = '';
@@ -78,6 +86,13 @@ try {
 
     $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
+    // Validate report_data: must be valid JSON if provided.
+    if (!empty($reportdatajson)) {
+        $testreportdata = json_decode($reportdatajson, true);
+        if ($testreportdata === null && json_last_error() !== JSON_ERROR_NONE) {
+            $reportdatajson = '';
+        }
+    }
 
     // SAFETY CHECK: Refuse to process frontend data if it's too large (>10MB)
     // Large datasets should be regenerated from backend instead.
@@ -190,21 +205,31 @@ try {
         $report->parameters = json_encode($backendreport['parameters'] ?? []);
 
         // Collect parameters from request (same logic as generate_report.php).
+        // These values are only used as SQL bind parameters via $DB->get_records_sql(),
+        // which handles escaping. We apply clean_param for additional safety.
         if (!empty($backendreport['parameters'])) {
             foreach ($backendreport['parameters'] as $paramdef) {
                 if (isset($paramdef['name'])) {
                     $paramvalue = optional_param($paramdef['name'], '', PARAM_RAW);
                     if (!empty($paramvalue)) {
-                        $reportparams[$paramdef['name']] = $paramvalue;
+                        $reportparams[clean_param($paramdef['name'], PARAM_ALPHANUMEXT)] = clean_param($paramvalue, PARAM_TEXT);
                     }
                 }
             }
         }
 
-        // Collect common parameters.
-        $commonparams = ['courseid', 'minimum_grade', 'categoryid', 'userid', 'roleid', 'startdate', 'enddate'];
-        foreach ($commonparams as $paramname) {
-            $paramvalue = optional_param($paramname, '', PARAM_RAW);
+        // Collect common parameters with appropriate PARAM types.
+        $commonparamtypes = [
+            'courseid' => PARAM_INT,
+            'minimum_grade' => PARAM_FLOAT,
+            'categoryid' => PARAM_INT,
+            'userid' => PARAM_INT,
+            'roleid' => PARAM_INT,
+            'startdate' => PARAM_TEXT,
+            'enddate' => PARAM_TEXT,
+        ];
+        foreach ($commonparamtypes as $paramname => $paramtype) {
+            $paramvalue = optional_param($paramname, '', $paramtype);
             if (!empty($paramvalue) && !isset($reportparams[$paramname])) {
                 $reportparams[$paramname] = $paramvalue;
             }
