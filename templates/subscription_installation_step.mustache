@@ -57,18 +57,18 @@
     <!-- Billing Toggle -->
     <div class="adeptus-billing-toggle-container">
         <div class="adeptus-billing-toggle">
-            {{#has_lifetime_plans}}
-            <button type="button" class="adeptus-billing-toggle-btn active" data-interval="lifetime">
-                🔥 Launch Special
-            </button>
-            {{/has_lifetime_plans}}
-            <button type="button" class="adeptus-billing-toggle-btn {{^has_lifetime_plans}}active{{/has_lifetime_plans}}" data-interval="monthly">
+            <button type="button" class="adeptus-billing-toggle-btn active" data-interval="monthly">
                 {{#str}}monthly, report_adeptus_insights{{/str}}
             </button>
             <button type="button" class="adeptus-billing-toggle-btn" data-interval="yearly">
                 {{#str}}annual, report_adeptus_insights{{/str}}
                 {{#max_yearly_savings}}<span class="adeptus-savings-badge">{{#str}}save, report_adeptus_insights{{/str}} {{max_yearly_savings}}%</span>{{/max_yearly_savings}}
             </button>
+            {{#has_lifetime_plans}}
+            <button type="button" class="adeptus-billing-toggle-btn" data-interval="lifetime">
+                🔥 Launch Special
+            </button>
+            {{/has_lifetime_plans}}
         </div>
     </div>
 
@@ -76,7 +76,7 @@
     <div class="adeptus-plans-section">
         <!-- Lifetime Plans (shown by default if they exist) -->
         {{#has_lifetime_plans}}
-        <div class="adeptus-plans-panel" id="panel-lifetime" style="display: block;">
+        <div class="adeptus-plans-panel" id="panel-lifetime" style="display: none;">
             <div class="adeptus-lifetime-banner">
                 <h3>🔥 Pay Once, Use Forever</h3>
                 <p>Lock in lifetime access at our launch price — no recurring fees, ever.</p>
@@ -154,7 +154,7 @@
         {{/has_lifetime_plans}}
 
         <!-- Monthly Plans -->
-        <div class="adeptus-plans-panel" id="panel-monthly" style="{{#has_lifetime_plans}}display: none;{{/has_lifetime_plans}}{{^has_lifetime_plans}}display: block;{{/has_lifetime_plans}}">
+        <div class="adeptus-plans-panel" id="panel-monthly" style="display: block;">
             <div class="adeptus-plans-grid">
                 {{#monthly_plans}}
                 <div class="adeptus-plan-card {{#is_popular}}popular{{/is_popular}} {{#is_current}}current{{/is_current}}" data-tier="{{tier}}" data-interval="monthly">
