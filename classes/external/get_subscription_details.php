@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/report/adeptus_insights/externallib.php');
  * Get subscription details external function - delegates to legacy external class.
  */
 class get_subscription_details extends \external_api {
-
     /**
      * Returns description of method parameters.
      * @return \external_function_parameters

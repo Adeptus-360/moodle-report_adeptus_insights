@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/report/adeptus_insights/externallib.php');
  * Create product portal session external function - delegates to legacy external class.
  */
 class create_product_portal_session extends \external_api {
-
     /**
      * Returns description of method parameters.
      * @return \external_function_parameters

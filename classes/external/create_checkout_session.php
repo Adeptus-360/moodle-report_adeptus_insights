@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/report/adeptus_insights/externallib.php');
  * Create checkout session external function - delegates to legacy external class.
  */
 class create_checkout_session extends \external_api {
-
     /**
      * Returns description of method parameters.
      * @return \external_function_parameters

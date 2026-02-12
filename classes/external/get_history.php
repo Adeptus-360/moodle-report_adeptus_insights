@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/report/adeptus_insights/externallib.php');
  * Get history external function - delegates to legacy external class.
  */
 class get_history extends \external_api {
-
     /**
      * Returns description of method parameters.
      * @return \external_function_parameters

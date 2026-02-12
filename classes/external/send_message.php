@@ -32,7 +32,6 @@ require_once($CFG->dirroot . '/report/adeptus_insights/externallib.php');
  * Send message external function - delegates to legacy external class.
  */
 class send_message extends \external_api {
-
     /**
      * Returns description of method parameters.
      * @return \external_function_parameters
