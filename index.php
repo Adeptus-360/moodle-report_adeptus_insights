@@ -55,6 +55,7 @@ if ($needsredirect) {
 
 // Plugin is registered and installed — set up admin page (breadcrumbs: Site admin > Reports > Adeptus Insights).
 admin_externalpage_setup('report_adeptus_insights_view');
+$PAGE->set_pagelayout('standard');
 
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 
