@@ -46,6 +46,13 @@ if (!$installationcompleted) {
     redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
 }
 
+// Check if we need to redirect to installation steps after an upgrade.
+$needsredirect = get_config('report_adeptus_insights', 'needs_installation_redirect');
+if ($needsredirect) {
+    unset_config('needs_installation_redirect', 'report_adeptus_insights');
+    redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
+}
+
 // Plugin is registered and installed — now check backend API auth.
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));

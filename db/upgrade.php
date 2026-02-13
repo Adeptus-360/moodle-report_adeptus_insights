@@ -126,5 +126,13 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026012701, 'report', 'adeptus_insights');
     }
 
+    // Upgrade to version 2026021304: Flag to redirect admin to installation steps after upgrade.
+    if ($oldversion < 2026021304) {
+        set_config('needs_installation_redirect', 1, 'report_adeptus_insights');
+
+        // Adeptus Insights savepoint reached.
+        upgrade_plugin_savepoint(true, 2026021304, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
