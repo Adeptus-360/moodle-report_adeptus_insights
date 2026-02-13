@@ -34,20 +34,26 @@ require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
+// Check installation state FIRST — redirect to onboarding if not set up.
+$installationmanager = new \report_adeptus_insights\installation_manager();
+
+if (!$installationmanager->is_registered()) {
+    redirect(new moodle_url('/report/adeptus_insights/register_plugin.php'));
+}
+
+$installationcompleted = get_config('report_adeptus_insights', 'installation_completed');
+if (!$installationcompleted) {
+    redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
+}
+
+// Plugin is registered and installed — now check backend API auth.
 $PAGE->set_context(context_system::instance());
 $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
 $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
 
-// Check authentication using the new token-based system.
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 
-// Try to check auth without redirecting first.
 if (!$authmanager->check_auth(false)) {
-    // If not authenticated, show a login message instead of redirecting.
-    $PAGE->set_context(context_system::instance());
-    $PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
-    $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
-
     echo $OUTPUT->header();
     echo '<div class="alert alert-warning">';
     echo '<h2>' . get_string('authentication_required', 'report_adeptus_insights') . '</h2>';
@@ -59,8 +65,7 @@ if (!$authmanager->check_auth(false)) {
     exit;
 }
 
-// Load installation manager.
-$installationmanager = new \report_adeptus_insights\installation_manager();
+// Installation manager already loaded above.
 
 // Get authentication status for JavaScript.
 $authstatus = $authmanager->get_auth_status();
