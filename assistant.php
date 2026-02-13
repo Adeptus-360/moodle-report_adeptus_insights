@@ -30,8 +30,7 @@ require_login();
 
 require_capability('report/adeptus_insights:view', context_system::instance());
 
-$PAGE->set_url(new moodle_url('/report/adeptus_insights/assistant.php'));
-$PAGE->set_context(context_system::instance());
+admin_externalpage_setup('report_adeptus_insights_assistant');
 $PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('report');
 

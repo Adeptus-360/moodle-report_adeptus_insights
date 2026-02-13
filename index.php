@@ -53,10 +53,8 @@ if ($needsredirect) {
     redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
 }
 
-// Plugin is registered and installed — now check backend API auth.
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
-$PAGE->set_title(get_string('assistanttitle', 'report_adeptus_insights'));
+// Plugin is registered and installed — set up admin page (breadcrumbs: Site admin > Reports > Adeptus Insights).
+admin_externalpage_setup('report_adeptus_insights_view');
 
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 

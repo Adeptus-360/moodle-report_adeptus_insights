@@ -34,8 +34,7 @@ require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url(new moodle_url('/report/adeptus_insights/support.php'));
+admin_externalpage_setup('report_adeptus_insights_support');
 $PAGE->set_title(get_string('support_updates', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('report');
 

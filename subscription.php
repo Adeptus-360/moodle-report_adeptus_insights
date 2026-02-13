@@ -46,10 +46,7 @@ if (!$installationcompleted) {
 }
 
 // Set up page (only reached if no redirects needed).
-$PAGE->set_context($context);
-$PAGE->set_url(new moodle_url('/report/adeptus_insights/subscription.php'));
-$PAGE->set_title(get_string('subscription_management', 'report_adeptus_insights'));
-$PAGE->set_pagelayout('standard');
+admin_externalpage_setup('report_adeptus_insights_subscription');
 
 // Handle form submissions.
 $action = optional_param('action', '', PARAM_ALPHA);
