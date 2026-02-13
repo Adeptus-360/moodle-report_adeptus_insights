@@ -33,9 +33,8 @@ if ($hassiteconfig) {
         'report/adeptus_insights:view'
     ));
 
-    // Settings page (separate from the report link).
-    $settings = new admin_settingpage('report_adeptus_insights', get_string('settings', 'report_adeptus_insights'));
-    $ADMIN->add('reports', $settings);
+    // $settings is pre-created by Moodle for this plugin type.
+    // Just add our settings to it — do NOT create a new admin_settingpage or call $ADMIN->add().
 
     // Email Notifications Section.
     $settings->add(new admin_setting_heading(
@@ -61,16 +60,24 @@ if ($hassiteconfig) {
         PARAM_EMAIL
     ));
 
-    // Simple post-install redirect to subscription.
+    // Post-install redirect to subscription (deferred to avoid redirect during admin tree build).
     if (!empty($ADMIN->fulltree)) {
         $component = 'report_adeptus_insights';
         $stage = (int) get_config($component, 'postinstall_redirect_stage');
 
-        // If we have stage 2, redirect directly to subscription.
         if ($stage == 2) {
-            // Reset the stage and redirect to subscription.
             set_config('postinstall_redirect_stage', 0, 'report_adeptus_insights');
-            redirect(new moodle_url('/report/adeptus_insights/subscription.php'));
+            // Use JavaScript redirect instead of PHP redirect to avoid issues during admin tree build.
+            $settings->add(new admin_setting_heading(
+                'report_adeptus_insights/postinstall_redirect',
+                '',
+                '<script>window.location.href = "' .
+                    (new moodle_url('/report/adeptus_insights/subscription.php'))->out(false) .
+                '";</script>' .
+                '<noscript><a href="' .
+                    (new moodle_url('/report/adeptus_insights/subscription.php'))->out() .
+                '">Click here to complete setup</a></noscript>'
+            ));
         }
     }
 }

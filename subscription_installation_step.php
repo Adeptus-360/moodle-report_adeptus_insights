@@ -27,8 +27,6 @@
 
 require_once('../../config.php');
 
-// Force Boost theme for consistent plugin UI.
-$CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -36,24 +34,23 @@ require_once($CFG->libdir . '/adminlib.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
-$PAGE->set_context(context_system::instance());
-$PAGE->set_url(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
-$PAGE->set_title(get_string('pluginname', 'report_adeptus_insights') . ' - Subscription Setup');
-$PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights') . ' - Subscription Setup');
-
-// Load installation manager.
+// Early redirects BEFORE page setup to avoid session mutation issues.
 $installationmanager = new \report_adeptus_insights\installation_manager();
 
-// Check if plugin is registered, if not redirect to registration.
 if (!$installationmanager->is_registered()) {
     redirect(new moodle_url('/report/adeptus_insights/register_plugin.php'));
 }
 
-// Check if installation is already completed.
 $installationcompleted = get_config('report_adeptus_insights', 'installation_completed');
 if ($installationcompleted) {
     redirect(new moodle_url('/report/adeptus_insights/index.php'));
 }
+
+// Set up page (only reached if no redirects needed).
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
+$PAGE->set_title(get_string('pluginname', 'report_adeptus_insights') . ' - Subscription Setup');
+$PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights') . ' - Subscription Setup');
 
 // Set current installation step.
 set_config('installation_step', '2', 'report_adeptus_insights');

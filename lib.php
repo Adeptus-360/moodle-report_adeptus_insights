@@ -85,30 +85,5 @@ function report_adeptus_insights_myprofile_navigation(
     return true;
 }
 
-/**
- * Callback executed before HTTP headers are sent.
- *
- * Loads local SweetAlert2 library on plugin pages.
- * The library file is bundled with the plugin in lib/sweetalert2/.
- */
-function report_adeptus_insights_before_http_headers() {
-    global $PAGE;
-
-    // Only load JS on plugin pages to avoid impacting other parts of Moodle.
-    try {
-        $pageurl = $PAGE->url->out(false);
-    } catch (Exception $e) {
-        // URL not set yet, skip.
-        return;
-    }
-
-    if (strpos($pageurl, '/report/adeptus_insights/') === false) {
-        return;
-    }
-
-    // Load local SweetAlert2 library (bundled with plugin, no CDN).
-    $PAGE->requires->js(
-        new moodle_url('/report/adeptus_insights/lib/sweetalert2/sweetalert2.all.min.js'),
-        true
-    );
-}
+// Note: before_http_headers callback migrated to db/hooks.php for Moodle 4.3+.
+// Legacy function removed to prevent deprecation warnings on Moodle 4.5+.
