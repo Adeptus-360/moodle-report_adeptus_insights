@@ -46,7 +46,16 @@ if (!$installationcompleted) {
 }
 
 // Set up page (only reached if no redirects needed).
-admin_externalpage_setup('report_adeptus_insights_subscription');
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/report/adeptus_insights/subscription.php'));
+$PAGE->set_title(get_string('subscription_details', 'report_adeptus_insights'));
+$PAGE->set_heading(get_string('subscription_details', 'report_adeptus_insights'));
+
+// Build breadcrumbs: Site admin > Reports > Adeptus Insights > Subscription.
+$PAGE->navbar->add(get_string('administrationsite'), new moodle_url('/admin/search.php'));
+$PAGE->navbar->add(get_string('reports'), new moodle_url('/admin/category.php', ['category' => 'reports']));
+$PAGE->navbar->add(get_string('pluginname', 'report_adeptus_insights'), new moodle_url('/report/adeptus_insights/index.php'));
+$PAGE->navbar->add(get_string('subscription_details', 'report_adeptus_insights'));
 
 // Handle form submissions.
 $action = optional_param('action', '', PARAM_ALPHA);

@@ -53,9 +53,16 @@ if ($needsredirect) {
     redirect(new moodle_url('/report/adeptus_insights/subscription_installation_step.php'));
 }
 
-// Plugin is registered and installed — set up admin page (breadcrumbs: Site admin > Reports > Adeptus Insights).
-admin_externalpage_setup('report_adeptus_insights_view');
-$PAGE->set_pagelayout('standard');
+// Plugin is registered and installed — set up page with correct breadcrumbs.
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/report/adeptus_insights/index.php'));
+$PAGE->set_title(get_string('pluginname', 'report_adeptus_insights'));
+$PAGE->set_heading(get_string('pluginname', 'report_adeptus_insights'));
+
+// Build breadcrumbs: Site admin > Reports > Adeptus Insights.
+$PAGE->navbar->add(get_string('administrationsite'), new moodle_url('/admin/search.php'));
+$PAGE->navbar->add(get_string('reports'), new moodle_url('/admin/category.php', ['category' => 'reports']));
+$PAGE->navbar->add(get_string('pluginname', 'report_adeptus_insights'));
 
 $authmanager = new \report_adeptus_insights\token_auth_manager();
 

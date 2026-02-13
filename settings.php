@@ -33,39 +33,6 @@ if ($hassiteconfig) {
         'report/adeptus_insights:view'
     ));
 
-    // Register sub-pages so they inherit the correct breadcrumb path.
-    $ADMIN->add('reports', new admin_externalpage(
-        'report_adeptus_insights_generated',
-        get_string('generated_reports', 'report_adeptus_insights'),
-        new moodle_url('/report/adeptus_insights/generated_reports.php'),
-        'report/adeptus_insights:view',
-        true // Hidden from navigation tree — accessed via plugin UI.
-    ));
-
-    $ADMIN->add('reports', new admin_externalpage(
-        'report_adeptus_insights_assistant',
-        get_string('assistanttitle', 'report_adeptus_insights'),
-        new moodle_url('/report/adeptus_insights/assistant.php'),
-        'report/adeptus_insights:view',
-        true
-    ));
-
-    $ADMIN->add('reports', new admin_externalpage(
-        'report_adeptus_insights_subscription',
-        get_string('subscription_details', 'report_adeptus_insights'),
-        new moodle_url('/report/adeptus_insights/subscription.php'),
-        'report/adeptus_insights:view',
-        true
-    ));
-
-    $ADMIN->add('reports', new admin_externalpage(
-        'report_adeptus_insights_support',
-        get_string('support', 'report_adeptus_insights'),
-        new moodle_url('/report/adeptus_insights/support.php'),
-        'report/adeptus_insights:view',
-        true
-    ));
-
     // $settings is pre-created by Moodle for this plugin type.
     // Just add our settings to it — do NOT create a new admin_settingpage or call $ADMIN->add().
 

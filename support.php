@@ -34,7 +34,16 @@ require_once($CFG->dirroot . '/report/adeptus_insights/lib.php');
 require_login();
 require_capability('report/adeptus_insights:view', context_system::instance());
 
-admin_externalpage_setup('report_adeptus_insights_support');
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url(new moodle_url('/report/adeptus_insights/support.php'));
+$PAGE->set_title(get_string('support', 'report_adeptus_insights'));
+$PAGE->set_heading(get_string('support', 'report_adeptus_insights'));
+
+// Build breadcrumbs: Site admin > Reports > Adeptus Insights > Support.
+$PAGE->navbar->add(get_string('administrationsite'), new moodle_url('/admin/search.php'));
+$PAGE->navbar->add(get_string('reports'), new moodle_url('/admin/category.php', ['category' => 'reports']));
+$PAGE->navbar->add(get_string('pluginname', 'report_adeptus_insights'), new moodle_url('/report/adeptus_insights/index.php'));
+$PAGE->navbar->add(get_string('support', 'report_adeptus_insights'));
 $PAGE->set_title(get_string('support_updates', 'report_adeptus_insights'));
 $PAGE->set_pagelayout('report');
 
