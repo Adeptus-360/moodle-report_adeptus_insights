@@ -21,8 +21,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax'], function($, Ajax) {
+define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
     'use strict';
+
+    /**
+     * Localized strings loaded from Moodle language pack.
+     * @type {Object}
+     */
+    var STRINGS = {};
 
     /**
      * Registration wizard module.
@@ -44,8 +50,23 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          * Initialize the registration wizard.
          */
         init: function() {
-            this.bindEvents();
-            this.showStep('welcome');
+            var self = this;
+            Str.get_strings([
+                {key: 'please_enter_name', component: 'report_adeptus_insights'},
+                {key: 'please_enter_email', component: 'report_adeptus_insights'},
+                {key: 'please_enter_valid_email', component: 'report_adeptus_insights'},
+            ]).then(function(results) {
+                STRINGS.pleaseEnterName = results[0];
+                STRINGS.pleaseEnterEmail = results[1];
+                STRINGS.pleaseEnterValidEmail = results[2];
+                return true;
+            }).catch(function() {
+                STRINGS.pleaseEnterName = 'Please enter your name';
+                STRINGS.pleaseEnterEmail = 'Please enter your email address';
+                STRINGS.pleaseEnterValidEmail = 'Please enter a valid email address';
+            });
+            self.bindEvents();
+            self.showStep('welcome');
         },
 
         /**
@@ -143,17 +164,17 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 var adminEmail = $('#admin_email').val().trim();
 
                 if (!adminName) {
-                    this.showFieldError('#admin_name', 'Please enter your name');
+                    this.showFieldError('#admin_name', STRINGS.pleaseEnterName);
                     return false;
                 }
 
                 if (!adminEmail) {
-                    this.showFieldError('#admin_email', 'Please enter your email address');
+                    this.showFieldError('#admin_email', STRINGS.pleaseEnterEmail);
                     return false;
                 }
 
                 if (!this.isValidEmail(adminEmail)) {
-                    this.showFieldError('#admin_email', 'Please enter a valid email address');
+                    this.showFieldError('#admin_email', STRINGS.pleaseEnterValidEmail);
                     return false;
                 }
 

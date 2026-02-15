@@ -145,6 +145,9 @@ class execute_ai_report extends external_api {
         }
 
         try {
+            // Cross-database compatibility: convert MySQL-specific syntax.
+            $sql = self::normalize_sql_for_cross_db($sql);
+
             // Handle table prefix replacement.
             $prefix = $CFG->prefix;
 
@@ -238,6 +241,39 @@ class execute_ai_report extends external_api {
                 'row_count' => 0,
             ];
         }
+    }
+
+    /**
+     * Normalize MySQL-specific SQL to cross-database compatible syntax.
+     *
+     * Converts common MySQL functions and syntax to ANSI SQL equivalents
+     * that work on both MySQL and PostgreSQL.
+     *
+     * @param string $sql The SQL query to normalize.
+     * @return string The normalized SQL query.
+     */
+    protected static function normalize_sql_for_cross_db(string $sql): string {
+        // Replace IF(condition, true_val, false_val) with CASE WHEN ... THEN ... ELSE ... END.
+        // This handles nested IF() calls as well by running multiple passes.
+        $maxpasses = 10;
+        for ($i = 0; $i < $maxpasses; $i++) {
+            $newsql = preg_replace_callback(
+                '/\bIF\s*\(([^(),]+(?:\([^()]*\))?[^(),]*),\s*([^(),]+(?:\([^()]*\))?[^(),]*),\s*([^(),]+(?:\([^()]*\))?[^(),]*)\)/i',
+                function ($matches) {
+                    return 'CASE WHEN ' . trim($matches[1]) . ' THEN ' . trim($matches[2]) . ' ELSE ' . trim($matches[3]) . ' END';
+                },
+                $sql
+            );
+            if ($newsql === $sql) {
+                break;
+            }
+            $sql = $newsql;
+        }
+
+        // Replace NOW() with CURRENT_TIMESTAMP (ANSI standard).
+        $sql = preg_replace('/\bNOW\(\)/i', 'CURRENT_TIMESTAMP', $sql);
+
+        return $sql;
     }
 
     /**

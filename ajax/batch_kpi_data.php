@@ -31,7 +31,14 @@ require_sesskey();
 header('Content-Type: application/json; charset=utf-8');
 
 try {
+    // reportids is a JSON-encoded array; validated by the external service class.
     $reportids = required_param('reportids', PARAM_RAW);
+
+    // Validate that reportids is valid JSON before passing to the external service.
+    $decodedids = json_decode($reportids, true);
+    if ($decodedids === null && json_last_error() !== JSON_ERROR_NONE) {
+        throw new \invalid_parameter_exception('reportids must be a valid JSON array');
+    }
 
     $result = \report_adeptus_insights\external\batch_kpi_data::execute($reportids);
 

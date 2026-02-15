@@ -283,8 +283,8 @@ JOIN prefix_course_completions AS cc  ON cc.course = c.id           AND cc.useri
 List of users who have been enrolled for more than 4 weeks
 For Moodle 2.2, by Isuru Madushanka Weerarathna
 
-SELECT uenr.userid As User, IF(enr.courseid=uenr.courseid ,\'Y\',\'N\') As Enrolled,
-IF(DATEDIFF(NOW(), FROM_UNIXTIME(uenr.timecreated))>=28,\'Y\',\'N\') As EnrolledMoreThan4Weeks
+SELECT uenr.userid As User, CASE WHEN enr.courseid=uenr.courseid THEN \'Y\' ELSE \'N\' END As Enrolled,
+CASE WHEN (EXTRACT(EPOCH FROM NOW()) - uenr.timecreated) >= (28 * 86400) THEN \'Y\' ELSE \'N\' END As EnrolledMoreThan4Weeks
 FROM prefix_enrol As enr, prefix_user_enrolments AS uenr
 WHERE enr.id = uenr.enrolid AND enr.status = uenr.status
 User\'s accumulative time spent in course
@@ -356,7 +356,7 @@ If you allow users to set their own time zones, this can sometimes lead to confu
 
 SELECT
 u.username,
-IF(u.timezone=99,"-Site Default-",u.timezone) AS "User Timezone"
+CASE WHEN u.timezone = \'99\' THEN \'-Site Default-\' ELSE u.timezone END AS "User Timezone"
 FROM prefix_user u
 WHERE u.deleted = 0
 ORDER BY u.timezone DESC
@@ -825,7 +825,7 @@ c.shortname AS \'Course shortname\',
 DATE_FORMAT(FROM_UNIXTIME(f.timemodified), \'%e %b %Y\') AS \'last modif\',
 
 # tell if the file is visible by the students or hidden
-IF(cm.visible=0,"masqué","visible") AS \'Visibility\',
+CASE WHEN cm.visible = 0 THEN \'masqué\' ELSE \'visible\' END AS \'Visibility\',
 
 # next line tries to give the real path (local path) if you want to create a zip file using an external script)
 # notice that the path is in the column "contenthash" and NOT in the column pathhash
@@ -1082,7 +1082,7 @@ CASE e.status
    WHEN 1 THEN \'-\'
    ELSE e.status
 END AS "Status",
-IF(e.name IS NOT NULL,e.name,\'-\') AS "Custom name"
+CASE WHEN e.name IS NOT NULL THEN e.name ELSE \'-\' END AS "Custom name"
 
 FROM prefix_enrol e
 JOIN prefix_course c ON c.id = e.courseid

@@ -237,7 +237,7 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
                 reportDeletedSuccess: 'Report deleted successfully',
                 reportCount: '1 report',
                 reportsCount: 'reports',
-                youHaveReportsSaved: 'You have {count} saved',
+                youHaveReportsSaved: 'You have {$a} reports saved',
                 sessionExpired: 'Session Expired',
                 refreshPage: 'Refresh Page',
                 refreshPageToContinue: 'Please refresh the page to continue',
@@ -1648,9 +1648,12 @@ define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, St
          * @param {number} count - The number of reports.
          */
         updateReportCount: function(count) {
-            var countText = count === 1 ? STRINGS.reportCount : count + ' ' + STRINGS.reportsCount;
-            $('.adeptus-page-header-subtitle').text(STRINGS.youHaveReportsSaved.replace('{count}',
-                countText.toLowerCase()));
+            Str.get_string('you_have_reports_saved', 'report_adeptus_insights', count).then(function(text) {
+                $('.adeptus-page-header-subtitle').text(text);
+                return true;
+            }).catch(function() {
+                $('.adeptus-page-header-subtitle').text('You have ' + count + ' reports saved');
+            });
         },
 
         /**

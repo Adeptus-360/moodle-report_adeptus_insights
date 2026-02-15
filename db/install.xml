@@ -59,7 +59,9 @@
         </TABLE>
 
         <!-- 4. Predefined and Custom Reports Table for Report Wizard -->
-        <TABLE NAME="report_adeptus_insights_reports" COMMENT="Predefined and custom reports for the wizard">
+        <!-- NOTE: This table is currently unused in code. Report definitions are fetched from the
+             backend API. Retained for planned offline/local report definitions feature. -->
+        <TABLE NAME="report_adeptus_insights_reports" COMMENT="Predefined and custom reports for the wizard - reserved for future local report definitions">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
@@ -237,6 +239,28 @@
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
+        </TABLE>
+
+        <TABLE NAME="report_adeptus_insights_plans" COMMENT="Subscription plan definitions for Adeptus Insights">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="stripe_product_id" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="stripe_price_id" TYPE="char" LENGTH="255" NOTNULL="false"/>
+                <FIELD NAME="ai_credits" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="ai_credits_pro" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="ai_credits_basic" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="exports" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="ix_stripe_price_id" UNIQUE="true" FIELDS="stripe_price_id"/>
+                <INDEX NAME="ix_stripe_product_id" UNIQUE="false" FIELDS="stripe_product_id"/>
+            </INDEXES>
         </TABLE>
 
     </TABLES>

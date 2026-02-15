@@ -264,6 +264,22 @@ $functions = [
         'ajax'        => true,
         'capabilities' => 'report/adeptus_insights:view',
     ],
+    'report_adeptus_insights_register_plugin' => [
+        'classname'   => 'report_adeptus_insights\external\register_installation',
+        'methodname'  => 'execute',
+        'description' => 'Register the plugin installation with the backend service',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:manage',
+    ],
+    'report_adeptus_insights_bookmark_report' => [
+        'classname'   => 'report_adeptus_insights\external\bookmark_report',
+        'methodname'  => 'execute',
+        'description' => 'Toggle bookmark status for a report',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
 
 ];
 
@@ -304,6 +320,9 @@ $services = [
             'report_adeptus_insights_get_ai_reports',
             'report_adeptus_insights_get_auth_status',
             'report_adeptus_insights_batch_kpi_data',
+            // Registration & Bookmarks.
+            'report_adeptus_insights_register_plugin',
+            'report_adeptus_insights_bookmark_report',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

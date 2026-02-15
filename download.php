@@ -44,9 +44,11 @@ $reportid = required_param('reportid', PARAM_TEXT);
 $format = required_param('format', PARAM_ALPHA);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
+// chart_data is a JSON blob from the frontend; validated below.
 $chartdata = optional_param('chart_data', '', PARAM_RAW);
 
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
+// chart_image is a base64 data URI; validated below via regex and size check.
 $chartimage = optional_param('chart_image', '', PARAM_RAW);
 
 // Validate chart_data: must be valid JSON if provided.
@@ -84,6 +86,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Check if we have report data from frontend.
 
+    // report_data is a JSON blob from the frontend containing report results; validated below.
     $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
     // Validate report_data: must be valid JSON if provided.
@@ -210,7 +213,7 @@ try {
         if (!empty($backendreport['parameters'])) {
             foreach ($backendreport['parameters'] as $paramdef) {
                 if (isset($paramdef['name'])) {
-                    $paramvalue = optional_param($paramdef['name'], '', PARAM_RAW);
+                    $paramvalue = optional_param($paramdef['name'], '', PARAM_TEXT);
                     if (!empty($paramvalue)) {
                         $reportparams[clean_param($paramdef['name'], PARAM_ALPHANUMEXT)] = clean_param($paramvalue, PARAM_TEXT);
                     }
@@ -416,7 +419,10 @@ try {
 
         // Convert chart data to exportable format.
         $chartexportdata = [];
-        $chartexportheaders = ['Label', 'Value'];
+        $chartexportheaders = [
+            get_string('chart_export_label', 'report_adeptus_insights'),
+            get_string('chart_export_value', 'report_adeptus_insights'),
+        ];
         $chartexportdata[] = $chartexportheaders;
 
         $labels = $chartdatastructure['labels'];

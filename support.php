@@ -63,7 +63,8 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
     if ($postaction === 'create_ticket') {
         $category = required_param('category', PARAM_ALPHA);
         $subject = required_param('subject', PARAM_TEXT);
-        $ticketmessage = required_param('message', PARAM_RAW);
+        // Ticket message may contain user-formatted text; sanitise after capture.
+        $ticketmessage = required_param('message', PARAM_CLEANHTML);
         $priority = optional_param('priority', 'medium', PARAM_ALPHA);
         $submittername = optional_param('submitter_name', '', PARAM_TEXT);
         $submitteremail = optional_param('submitter_email', '', PARAM_EMAIL);
@@ -112,7 +113,8 @@ if ($requestmethod === 'POST' && confirm_sesskey()) {
         }
     } else if ($postaction === 'reply') {
         $replyticketid = required_param('ticket_id', PARAM_INT);
-        $replymessage = required_param('reply_message', PARAM_RAW);
+        // Reply message may contain user-formatted text; sanitise after capture.
+        $replymessage = required_param('reply_message', PARAM_CLEANHTML);
         $sendername = optional_param('sender_name', '', PARAM_TEXT);
 
         // Get uploaded files if any - check if actual files were uploaded.

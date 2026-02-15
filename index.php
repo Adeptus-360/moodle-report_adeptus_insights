@@ -84,19 +84,29 @@ $PAGE->requires->css('/report/adeptus_insights/styles/index.css');
 // If registered, show the main dashboard.
 echo $OUTPUT->header();
 
-// Get subscription details for template.
-$subscription = $installationmanager->get_subscription_details();
+try {
+    // Get subscription details for template.
+    $subscription = $installationmanager->get_subscription_details();
 
-// Debug: Log the subscription data.
+    // Prepare template context.
+    $templatecontext = [
+        'subscription' => $subscription,
+    ];
 
-// Prepare template context.
-$templatecontext = [
-    'subscription' => $subscription,
-];
-
-// Debug: Log the template context.
-
-// Render the template.
-echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);
+    // Render the template.
+    echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);
+} catch (\dml_exception $e) {
+    echo $OUTPUT->notification(
+        get_string('error_database', 'report_adeptus_insights'),
+        \core\output\notification::NOTIFY_ERROR
+    );
+    debugging('Database error in Adeptus Insights index: ' . $e->getMessage(), DEBUG_DEVELOPER);
+} catch (Exception $e) {
+    echo $OUTPUT->notification(
+        get_string('error_generic', 'report_adeptus_insights'),
+        \core\output\notification::NOTIFY_ERROR
+    );
+    debugging('Error in Adeptus Insights index: ' . $e->getMessage(), DEBUG_DEVELOPER);
+}
 
 echo $OUTPUT->footer();

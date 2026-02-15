@@ -585,7 +585,9 @@ class external extends \external_api {
                 'subscription_id' => new \external_value(PARAM_INT, 'Subscription ID', VALUE_OPTIONAL),
                 'stripe_subscription_id' => new \external_value(PARAM_TEXT, 'Stripe subscription ID', VALUE_OPTIONAL),
                 'stripe_customer_id' => new \external_value(PARAM_TEXT, 'Stripe customer ID', VALUE_OPTIONAL),
-                // Enhanced status (as raw structures).
+                // Enhanced status returned as JSON strings. PARAM_RAW is required here because
+                // external_single_structure cannot represent arbitrary nested JSON objects.
+                // These values are JSON-encoded server-side and decoded client-side.
                 'status_details' => new \external_value(PARAM_RAW, 'Status details JSON', VALUE_OPTIONAL),
                 'cancellation_info' => new \external_value(PARAM_RAW, 'Cancellation info JSON', VALUE_OPTIONAL),
                 'payment_info' => new \external_value(PARAM_RAW, 'Payment info JSON', VALUE_OPTIONAL),

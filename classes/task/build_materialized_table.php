@@ -97,14 +97,7 @@ class build_materialized_table extends \core\task\scheduled_task {
 
         $removed = 0;
 
-        // Remove records for deleted users.
-        $sql = "DELETE FROM {report_adeptus_insights_analytics}
-                WHERE userid NOT IN (SELECT id FROM {user} WHERE deleted = 0)";
-        $removed += $DB->execute($sql) ? $DB->count_records_sql(
-            "SELECT ROW_COUNT()"
-        ) : 0;
-
-        // Alternative approach that works across all DB types.
+        // Remove records for deleted users (cross-DB compatible).
         $sql = "SELECT a.id
                 FROM {report_adeptus_insights_analytics} a
                 LEFT JOIN {user} u ON u.id = a.userid AND u.deleted = 0
