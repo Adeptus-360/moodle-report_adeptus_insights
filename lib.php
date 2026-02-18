@@ -88,8 +88,12 @@ function report_adeptus_insights_myprofile_navigation(
 /**
  * Callback executed before HTTP headers are sent.
  *
- * Loads local SweetAlert2 library on plugin pages.
- * The library file is bundled with the plugin in lib/sweetalert2/.
+ * Loads bundled third-party JS/CSS libraries on plugin pages.
+ * All libraries are bundled with the plugin — no external CDN calls.
+ *
+ * Libraries loaded here:
+ * - SweetAlert2 v11.26.18 (lib/sweetalert2/)
+ * - Simple DataTables v3.2.0 (amd/vendor/)
  */
 function report_adeptus_insights_before_http_headers() {
     global $PAGE;
@@ -110,5 +114,17 @@ function report_adeptus_insights_before_http_headers() {
     $PAGE->requires->js(
         new moodle_url('/report/adeptus_insights/lib/sweetalert2/sweetalert2.all.min.js'),
         true
+    );
+
+    // Load local Simple DataTables library (bundled with plugin, no CDN).
+    // This creates the global `simpleDatatables` used by assistant.js and generated_reports.js.
+    $PAGE->requires->js(
+        new moodle_url('/report/adeptus_insights/amd/vendor/simple-datatables.js'),
+        true
+    );
+
+    // Load Simple DataTables CSS (bundled with plugin, no CDN).
+    $PAGE->requires->css(
+        new moodle_url('/report/adeptus_insights/amd/vendor/style.css')
     );
 }
