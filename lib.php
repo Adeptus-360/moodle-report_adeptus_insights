@@ -54,6 +54,17 @@ function report_adeptus_insights_extend_navigation_user_settings(
             new pix_icon('i/report', '')
         );
     }
+    if (has_capability('report/adeptus_insights:viewalerts', context_system::instance())) {
+        $url = new moodle_url('/report/adeptus_insights/alert_rules.php');
+        $navigation->add(
+            get_string('alert_rules', 'report_adeptus_insights'),
+            $url,
+            navigation_node::TYPE_SETTING,
+            null,
+            'adeptusinsightsalertrules',
+            new pix_icon('i/warning', '')
+        );
+    }
 }
 
 /**
