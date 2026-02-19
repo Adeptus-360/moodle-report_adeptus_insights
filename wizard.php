@@ -90,6 +90,7 @@ $categoryicons = [
     'COURSE DESIGN Reports' => 'fa-pen-ruler',
     'GROUP Reports' => 'fa-people-group',
     'LOG Reports' => 'fa-clock-rotate-left',
+    'TIME TRACKING Reports' => 'fa-stopwatch',
     'MESSAGING Reports' => 'fa-envelope',
     'SCALES Reports' => 'fa-scale-balanced',
     'USER FILES Reports' => 'fa-folder-open',

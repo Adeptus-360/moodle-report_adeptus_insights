@@ -1216,3 +1216,22 @@ $string['learner_report_activity'] = 'My Activity';
 $string['learner_report_activity_desc'] = 'See your learning activity and engagement';
 $string['adeptus_insights:viewteacherdashboard'] = 'View teacher dashboard in Adeptus Insights';
 $string['adeptus_insights:viewlearnerdashboard'] = 'View learner dashboard in Adeptus Insights';
+
+// Time Tracking Reports (G5).
+$string['time_tracking_reports'] = 'Time Tracking Reports';
+$string['time_tracking_reports_desc'] = 'Reports that calculate time spent on the LMS using log-event delta analysis with a 30-minute session timeout cap.';
+$string['time_on_lms_per_learner'] = 'Time on LMS per learner (last 30 days)';
+$string['time_on_lms_per_learner_desc'] = 'Total time each learner has spent on the LMS in the last 30 days, calculated from consecutive log events.';
+$string['time_per_learner_per_course'] = 'Time per learner per course';
+$string['time_per_learner_per_course_desc'] = 'Breakdown of time each learner has spent in each course.';
+$string['avg_time_per_activity'] = 'Average time per activity across a course';
+$string['avg_time_per_activity_desc'] = 'Average time learners spend on each activity/resource within a course.';
+$string['total_training_hours_by_cohort'] = 'Total training hours by cohort';
+$string['total_training_hours_by_cohort_desc'] = 'Total and average training hours aggregated by cohort.';
+$string['time_investment_trend'] = 'Time investment trend (weekly/monthly)';
+$string['time_investment_trend_desc'] = 'Weekly breakdown of total training hours and active users showing time investment trends.';
+$string['session_timeout_cap'] = 'Session timeout cap (30 minutes)';
+$string['session_timeout_cap_desc'] = 'Gaps between consecutive log events exceeding 30 minutes are not counted as active time.';
+$string['time_format_hours_minutes'] = '{$a->hours}h {$a->minutes}m';
+$string['time_delta_method'] = 'Log-event delta method';
+$string['time_delta_method_desc'] = 'Time is estimated by calculating the difference between consecutive log entries per user session.';

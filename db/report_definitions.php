@@ -1102,4 +1102,272 @@ AND cs.name LIKE "Introduction to programming"',
     'charttype' => null,
     'isactive' => 1,
   ],
+
+  // ============================================================
+  // TIME TRACKING Reports — Log-event delta method (G5).
+  // Uses mdl_logstore_standard_log with 30-min session cap.
+  // ============================================================
+
+  [
+    'name' => 'Time on LMS per learner (last 30 days)',
+    'category' => 'TIME TRACKING Reports',
+    'description' => 'Total time each learner has spent on the LMS in the last 30 days, calculated from consecutive log events with a 30-minute session timeout cap.',
+    'sqlquery' => 'SELECT
+    u.id AS userid,
+    u.firstname AS Firstname,
+    u.lastname AS Lastname,
+    u.email AS Email,
+    CONCAT(
+        FLOOR(COALESCE(t.total_seconds, 0) / 3600), \'h \',
+        LPAD(FLOOR((COALESCE(t.total_seconds, 0) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Time Spent",
+    COALESCE(t.total_seconds, 0) AS "Total Seconds"
+FROM prefix_user u
+INNER JOIN (
+    SELECT
+        userid,
+        SUM(
+            CASE
+                WHEN time_delta > 0 AND time_delta <= 1800
+                THEN time_delta
+                ELSE 0
+            END
+        ) AS total_seconds
+    FROM (
+        SELECT
+            userid,
+            timecreated,
+            timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid ORDER BY timecreated
+            ) AS time_delta
+        FROM prefix_logstore_standard_log
+        WHERE timecreated >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+          AND userid > 0
+          AND anonymous = 0
+    ) deltas
+    GROUP BY userid
+) t ON t.userid = u.id
+WHERE u.deleted = 0
+  AND u.suspended = 0
+ORDER BY t.total_seconds DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Time per learner per course',
+    'category' => 'TIME TRACKING Reports',
+    'description' => 'Breakdown of time each learner has spent in each course, using log-event deltas with a 30-minute session cap.',
+    'sqlquery' => 'SELECT
+    u.firstname AS Firstname,
+    u.lastname AS Lastname,
+    u.email AS Email,
+    c.fullname AS Course,
+    CONCAT(
+        FLOOR(COALESCE(t.total_seconds, 0) / 3600), \'h \',
+        LPAD(FLOOR((COALESCE(t.total_seconds, 0) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Time Spent",
+    COALESCE(t.total_seconds, 0) AS "Total Seconds"
+FROM prefix_user u
+INNER JOIN (
+    SELECT
+        userid,
+        courseid,
+        SUM(
+            CASE
+                WHEN time_delta > 0 AND time_delta <= 1800
+                THEN time_delta
+                ELSE 0
+            END
+        ) AS total_seconds
+    FROM (
+        SELECT
+            userid,
+            courseid,
+            timecreated,
+            timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid, courseid ORDER BY timecreated
+            ) AS time_delta
+        FROM prefix_logstore_standard_log
+        WHERE timecreated >= %%FILTER_STARTTIME:prefix_logstore_standard_log.timecreated%%
+          AND timecreated <= %%FILTER_ENDTIME:prefix_logstore_standard_log.timecreated%%
+          AND userid > 0
+          AND anonymous = 0
+          AND courseid > 0
+    ) deltas
+    GROUP BY userid, courseid
+) t ON t.userid = u.id
+INNER JOIN prefix_course c ON c.id = t.courseid
+WHERE u.deleted = 0
+  AND u.suspended = 0
+ORDER BY u.lastname, u.firstname, t.total_seconds DESC',
+    'parameters' => [],
+    'charttype' => null,
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Average time per activity across a course',
+    'category' => 'TIME TRACKING Reports',
+    'description' => 'Average time learners spend on each activity/resource within a course, based on log-event deltas with a 30-minute cap. Replace COURSEID with the target course ID.',
+    'sqlquery' => 'SELECT
+    cm.id AS "Activity ID",
+    COALESCE(m.name, \'unknown\') AS "Activity Type",
+    COALESCE(
+        CASE m.name
+            WHEN \'assign\' THEN (SELECT name FROM prefix_assign WHERE id = cm.instance)
+            WHEN \'quiz\' THEN (SELECT name FROM prefix_quiz WHERE id = cm.instance)
+            WHEN \'forum\' THEN (SELECT name FROM prefix_forum WHERE id = cm.instance)
+            WHEN \'resource\' THEN (SELECT name FROM prefix_resource WHERE id = cm.instance)
+            WHEN \'page\' THEN (SELECT name FROM prefix_page WHERE id = cm.instance)
+            WHEN \'url\' THEN (SELECT name FROM prefix_url WHERE id = cm.instance)
+            WHEN \'label\' THEN (SELECT name FROM prefix_label WHERE id = cm.instance)
+            WHEN \'book\' THEN (SELECT name FROM prefix_book WHERE id = cm.instance)
+            WHEN \'lesson\' THEN (SELECT name FROM prefix_lesson WHERE id = cm.instance)
+            WHEN \'scorm\' THEN (SELECT name FROM prefix_scorm WHERE id = cm.instance)
+            ELSE CONCAT(\'[\', m.name, \' #\', cm.instance, \']\')
+        END,
+        \'N/A\'
+    ) AS "Activity Name",
+    COUNT(DISTINCT act.userid) AS "Learners",
+    CONCAT(
+        FLOOR(AVG(COALESCE(act.total_seconds, 0)) / 3600), \'h \',
+        LPAD(FLOOR((AVG(COALESCE(act.total_seconds, 0)) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Avg Time",
+    ROUND(AVG(COALESCE(act.total_seconds, 0)), 0) AS "Avg Seconds"
+FROM prefix_course_modules cm
+INNER JOIN prefix_modules m ON m.id = cm.module
+INNER JOIN prefix_context ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = 70
+INNER JOIN (
+    SELECT
+        userid,
+        contextid,
+        SUM(
+            CASE
+                WHEN time_delta > 0 AND time_delta <= 1800
+                THEN time_delta
+                ELSE 0
+            END
+        ) AS total_seconds
+    FROM (
+        SELECT
+            userid,
+            contextid,
+            timecreated,
+            timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid, contextid ORDER BY timecreated
+            ) AS time_delta
+        FROM prefix_logstore_standard_log
+        WHERE courseid = COURSEID
+          AND userid > 0
+          AND anonymous = 0
+          AND contextlevel = 70
+    ) deltas
+    GROUP BY userid, contextid
+) act ON act.contextid = ctx.id
+WHERE cm.course = COURSEID
+  AND cm.deletioninprogress = 0
+GROUP BY cm.id, m.name
+ORDER BY AVG(COALESCE(act.total_seconds, 0)) DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Total training hours by cohort',
+    'category' => 'TIME TRACKING Reports',
+    'description' => 'Total and average training hours per cohort, using log-event deltas with 30-minute session cap.',
+    'sqlquery' => 'SELECT
+    ch.name AS "Cohort",
+    ch.idnumber AS "Cohort ID",
+    COUNT(DISTINCT t.userid) AS "Learners",
+    CONCAT(
+        FLOOR(SUM(COALESCE(t.total_seconds, 0)) / 3600), \'h \',
+        LPAD(FLOOR((SUM(COALESCE(t.total_seconds, 0)) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Total Time",
+    CONCAT(
+        FLOOR(AVG(COALESCE(t.total_seconds, 0)) / 3600), \'h \',
+        LPAD(FLOOR((AVG(COALESCE(t.total_seconds, 0)) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Avg Time per Learner",
+    SUM(COALESCE(t.total_seconds, 0)) AS "Total Seconds"
+FROM prefix_cohort ch
+INNER JOIN prefix_cohort_members chm ON chm.cohortid = ch.id
+INNER JOIN (
+    SELECT
+        userid,
+        SUM(
+            CASE
+                WHEN time_delta > 0 AND time_delta <= 1800
+                THEN time_delta
+                ELSE 0
+            END
+        ) AS total_seconds
+    FROM (
+        SELECT
+            userid,
+            timecreated,
+            timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid ORDER BY timecreated
+            ) AS time_delta
+        FROM prefix_logstore_standard_log
+        WHERE timecreated >= %%FILTER_STARTTIME:prefix_logstore_standard_log.timecreated%%
+          AND timecreated <= %%FILTER_ENDTIME:prefix_logstore_standard_log.timecreated%%
+          AND userid > 0
+          AND anonymous = 0
+    ) deltas
+    GROUP BY userid
+) t ON t.userid = chm.userid
+GROUP BY ch.id, ch.name, ch.idnumber
+ORDER BY SUM(COALESCE(t.total_seconds, 0)) DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Time investment trend (weekly/monthly)',
+    'category' => 'TIME TRACKING Reports',
+    'description' => 'Weekly breakdown of total training hours and active users across the platform. Shows time investment trends over the selected date range.',
+    'sqlquery' => 'SELECT
+    period_label AS "Period",
+    COUNT(DISTINCT userid) AS "Active Users",
+    CONCAT(
+        FLOOR(SUM(capped_delta) / 3600), \'h \',
+        LPAD(FLOOR((SUM(capped_delta) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Total Time",
+    CONCAT(
+        FLOOR((SUM(capped_delta) / COUNT(DISTINCT userid)) / 3600), \'h \',
+        LPAD(FLOOR(((SUM(capped_delta) / COUNT(DISTINCT userid)) % 3600) / 60), 2, \'0\'), \'m\'
+    ) AS "Avg Time per User",
+    SUM(capped_delta) AS "Total Seconds"
+FROM (
+    SELECT
+        userid,
+        DATE_FORMAT(FROM_UNIXTIME(timecreated), \'%x-W%v\') AS period_label,
+        CASE
+            WHEN (timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid ORDER BY timecreated
+            )) > 0
+            AND (timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid ORDER BY timecreated
+            )) <= 1800
+            THEN (timecreated - LAG(timecreated) OVER (
+                PARTITION BY userid ORDER BY timecreated
+            ))
+            ELSE 0
+        END AS capped_delta
+    FROM prefix_logstore_standard_log
+    WHERE timecreated >= %%FILTER_STARTTIME:prefix_logstore_standard_log.timecreated%%
+      AND timecreated <= %%FILTER_ENDTIME:prefix_logstore_standard_log.timecreated%%
+      AND userid > 0
+      AND anonymous = 0
+) trend
+GROUP BY period_label
+ORDER BY period_label',
+    'parameters' => [],
+    'charttype' => 'line',
+    'isactive' => 1,
+  ],
 ];
