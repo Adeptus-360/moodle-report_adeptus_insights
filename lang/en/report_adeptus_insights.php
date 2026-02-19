@@ -1217,6 +1217,25 @@ $string['learner_report_activity_desc'] = 'See your learning activity and engage
 $string['adeptus_insights:viewteacherdashboard'] = 'View teacher dashboard in Adeptus Insights';
 $string['adeptus_insights:viewlearnerdashboard'] = 'View learner dashboard in Adeptus Insights';
 
+// G6: Learner Self-Service Progress View.
+$string['learner_dashboard_title'] = 'My Progress';
+$string['learner_dashboard_subtitle'] = 'Track your personal learning journey across all your courses';
+$string['learner_total_courses'] = 'Enrolled Courses';
+$string['learner_completed_courses'] = 'Completed';
+$string['learner_total_time'] = 'Total Time (90 days)';
+$string['learner_average_grade'] = 'Average Grade';
+$string['learner_course_progress'] = 'Course Progress';
+$string['learner_activity_details'] = 'Activity Completion Details';
+$string['learner_no_courses'] = 'You are not enrolled in any courses yet.';
+$string['learner_col_course'] = 'Course';
+$string['learner_col_completion'] = 'Completion';
+$string['learner_col_time_spent'] = 'Time Spent';
+$string['learner_col_grade'] = 'Grade';
+$string['learner_col_activity'] = 'Activity';
+$string['learner_col_type'] = 'Type';
+$string['learner_col_status'] = 'Status';
+$string['learner_my_progress'] = 'My Progress';
+
 // Time Tracking Reports (G5).
 $string['time_tracking_reports'] = 'Time Tracking Reports';
 $string['time_tracking_reports_desc'] = 'Reports that calculate time spent on the LMS using log-event delta analysis with a 30-minute session timeout cap.';
@@ -1235,3 +1254,15 @@ $string['session_timeout_cap_desc'] = 'Gaps between consecutive log events excee
 $string['time_format_hours_minutes'] = '{$a->hours}h {$a->minutes}m';
 $string['time_delta_method'] = 'Log-event delta method';
 $string['time_delta_method_desc'] = 'Time is estimated by calculating the difference between consecutive log entries per user session.';
+
+// Teacher Performance Reports (G7).
+$string['teacher_performance_reports'] = 'Teacher Performance Reports';
+$string['teacher_performance_reports_desc'] = 'Reports focused on teacher and instructor performance metrics including completion rates, engagement, grading timeliness, and course load.';
+$string['completion_rates_by_teacher'] = 'Course completion rates by teacher';
+$string['completion_rates_by_teacher_desc'] = 'Shows course completion rates for each teacher, identifying which teachers\' courses have the highest and lowest completion percentages.';
+$string['student_engagement_by_teacher'] = 'Student engagement by teacher';
+$string['student_engagement_by_teacher_desc'] = 'Measures average student engagement (log actions and activity completions) in each teacher\'s courses over the last 30 days.';
+$string['grading_timeliness_by_teacher'] = 'Grading timeliness by teacher';
+$string['grading_timeliness_by_teacher_desc'] = 'Calculates average time from student submission to grade per teacher and assignment, helping identify grading bottlenecks.';
+$string['teacher_course_load'] = 'Teacher course load';
+$string['teacher_course_load_desc'] = 'Summary of each teacher\'s workload: number of courses assigned and total enrolled students across all their courses.';

@@ -1,0 +1,202 @@
+{{!
+    @template   report_adeptus_insights/learner_dashboard
+    @package    report_adeptus_insights
+    @copyright  2026 Adeptus 360 <info@adeptus360.com>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Learner self-service progress dashboard.
+}}
+
+<div class="adeptus-learner-dashboard">
+    <div class="container-fluid">
+
+        {{! Header }}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="fa fa-user-graduate fa-lg mr-3" aria-hidden="true"></i>
+                    <div>
+                        <strong>{{#str}}learner_dashboard_title, report_adeptus_insights{{/str}}</strong>
+                        &mdash; {{#str}}learner_dashboard_subtitle, report_adeptus_insights{{/str}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{! Summary Cards }}
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fa fa-book fa-2x text-primary mb-2" aria-hidden="true"></i>
+                        <h3 class="mb-0">{{summary.total_courses}}</h3>
+                        <small class="text-muted">{{#str}}learner_total_courses, report_adeptus_insights{{/str}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fa fa-check-circle fa-2x text-success mb-2" aria-hidden="true"></i>
+                        <h3 class="mb-0">{{summary.completed_courses}}</h3>
+                        <small class="text-muted">{{#str}}learner_completed_courses, report_adeptus_insights{{/str}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fa fa-clock-o fa-2x text-info mb-2" aria-hidden="true"></i>
+                        <h3 class="mb-0">{{summary.total_time}}</h3>
+                        <small class="text-muted">{{#str}}learner_total_time, report_adeptus_insights{{/str}}</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fa fa-star fa-2x text-warning mb-2" aria-hidden="true"></i>
+                        <h3 class="mb-0">{{summary.average_grade_display}}</h3>
+                        <small class="text-muted">{{#str}}learner_average_grade, report_adeptus_insights{{/str}}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{! Course Progress }}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fa fa-graduation-cap fa-lg mr-2" aria-hidden="true"></i>
+                        <h4 class="m-0">{{#str}}learner_course_progress, report_adeptus_insights{{/str}}</h4>
+                    </div>
+                    <div class="card-body">
+                        {{#has_courses}}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{#str}}learner_col_course, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_completion, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_time_spent, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_grade, report_adeptus_insights{{/str}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#courses}}
+                                    <tr>
+                                        <td>
+                                            <strong>{{fullname}}</strong>
+                                            <br><small class="text-muted">{{shortname}}</small>
+                                        </td>
+                                        <td style="min-width: 200px;">
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 mr-2" style="height: 20px;">
+                                                    <div class="progress-bar {{completion_bar_class}}"
+                                                         role="progressbar"
+                                                         style="width: {{completion_percentage}}%"
+                                                         aria-valuenow="{{completion_percentage}}"
+                                                         aria-valuemin="0"
+                                                         aria-valuemax="100">
+                                                        {{completion_percentage}}%
+                                                    </div>
+                                                </div>
+                                                <small class="text-muted text-nowrap">{{completed_activities}}/{{total_activities}}</small>
+                                            </div>
+                                        </td>
+                                        <td><span class="badge badge-light">{{time_spent}}</span></td>
+                                        <td>
+                                            {{#has_grade}}
+                                            <span class="badge badge-primary">{{grade}}</span>
+                                            {{/has_grade}}
+                                            {{^has_grade}}
+                                            <span class="text-muted">-</span>
+                                            {{/has_grade}}
+                                        </td>
+                                    </tr>
+                                    {{/courses}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{/has_courses}}
+                        {{^has_courses}}
+                        <div class="text-center py-4">
+                            <i class="fa fa-info-circle fa-3x text-muted mb-3" aria-hidden="true"></i>
+                            <p class="text-muted">{{#str}}learner_no_courses, report_adeptus_insights{{/str}}</p>
+                        </div>
+                        {{/has_courses}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{! Activity Completion Details }}
+        {{#has_activities}}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fa fa-tasks fa-lg mr-2" aria-hidden="true"></i>
+                        <h4 class="m-0">{{#str}}learner_activity_details, report_adeptus_insights{{/str}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>{{#str}}learner_col_activity, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_course, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_type, report_adeptus_insights{{/str}}</th>
+                                        <th>{{#str}}learner_col_status, report_adeptus_insights{{/str}}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#activities}}
+                                    <tr>
+                                        <td>{{activity_name}}</td>
+                                        <td><small>{{course_name}}</small></td>
+                                        <td><span class="badge badge-light"><i class="fa {{module_icon}}" aria-hidden="true"></i> {{module_type}}</span></td>
+                                        <td><span class="badge badge-{{status_class}}">{{status_text}}</span></td>
+                                    </tr>
+                                    {{/activities}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/has_activities}}
+
+        {{! Learner Reports Section }}
+        {{#has_learner_reports}}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fa fa-chart-line fa-lg mr-2" aria-hidden="true"></i>
+                        <h4 class="m-0">{{#str}}learner_reports_section, report_adeptus_insights{{/str}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {{#learner_reports}}
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card h-100 adeptus-report-card" data-report-key="{{key}}" data-report-params="{{params_json}}">
+                                    <div class="card-body text-center">
+                                        <i class="fa {{icon}} fa-2x mb-2 text-success" aria-hidden="true"></i>
+                                        <h6 class="card-title">{{title}}</h6>
+                                        <p class="card-text small text-muted">{{description}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/learner_reports}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/has_learner_reports}}
+
+    </div>
+</div>

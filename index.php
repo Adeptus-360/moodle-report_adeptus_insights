@@ -117,12 +117,18 @@ try {
         }, $teacherreports);
     }
 
-    // Add learner-specific data.
+    // Add learner-specific data and render learner dashboard.
     if ($viewmode === \report_adeptus_insights\role_helper::MODE_LEARNER) {
         global $USER;
+
+        // Build the full learner dashboard.
+        $learnerdashboard = new \report_adeptus_insights\learner_dashboard($USER->id);
+        $dashboarddata = $learnerdashboard->get_template_data();
+
+        // Add learner reports for the reports card section.
         $learnerreports = \report_adeptus_insights\role_helper::get_learner_reports($USER->id);
-        $templatecontext['learner_userid'] = $USER->id;
-        $templatecontext['learner_reports'] = array_map(function($report) {
+        $dashboarddata['has_learner_reports'] = !empty($learnerreports);
+        $dashboarddata['learner_reports'] = array_map(function($report) {
             return [
                 'key' => $report['key'],
                 'title' => get_string($report['titlekey'], 'report_adeptus_insights'),
@@ -131,10 +137,12 @@ try {
                 'params_json' => json_encode($report['params']),
             ];
         }, $learnerreports);
-    }
 
-    // Render the template.
-    echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);
+        echo $OUTPUT->render_from_template('report_adeptus_insights/learner_dashboard', $dashboarddata);
+    } else {
+        // Render the standard template for admin/teacher.
+        echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);
+    }
 } catch (\dml_exception $e) {
     echo $OUTPUT->notification(
         get_string('error_database', 'report_adeptus_insights'),
