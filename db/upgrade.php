@@ -196,5 +196,11 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026021901, 'report', 'adeptus_insights');
     }
 
+    if ($oldversion < 2026021902) {
+        // Version 1.7.0: Cohort & Group Filters.
+        // No database schema changes — only new external service and UI additions.
+        upgrade_plugin_savepoint(true, 2026021902, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

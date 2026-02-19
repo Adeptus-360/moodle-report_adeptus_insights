@@ -1175,3 +1175,20 @@ $string['scheduled_pdf_generated_label'] = 'Generated:';
 $string['scheduled_pdf_rows_label'] = 'Total rows:';
 $string['scheduled_pdf_truncated'] = 'Showing {$a->shown} of {$a->total} rows. Export as CSV for the full dataset.';
 $string['scheduled_pdf_fallback_warning'] = 'PDF generation failed — report delivered as CSV instead.';
+
+// Cohort & Group filters (Phase 2).
+$string['filter_cohort'] = 'Filter by Cohort';
+$string['filter_group'] = 'Filter by Group';
+$string['filter_all_cohorts'] = 'All Cohorts';
+$string['filter_all_groups'] = 'All Groups';
+$string['filter_cohort_help'] = 'Filter report results to show only users belonging to the selected cohort(s).';
+$string['filter_group_help'] = 'Filter report results to show only users belonging to the selected group(s).';
+$string['filter_apply'] = 'Apply Filters';
+$string['filter_clear'] = 'Clear Filters';
+$string['filter_active'] = 'Active filters';
+$string['filter_cohorts_groups'] = 'Cohort & Group Filters';
+$string['filter_no_cohorts'] = 'No cohorts available';
+$string['filter_no_groups'] = 'No groups available';
+$string['filter_members'] = '{$a} members';
+$string['filter_results_filtered'] = 'Results filtered by {$a}';
+$string['filter_loading'] = 'Loading filters...';

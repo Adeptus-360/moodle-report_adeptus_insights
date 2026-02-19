@@ -2289,3 +2289,121 @@
 .path-report-adeptus_insights .adeptus-section-hidden {
     display: none;
 }
+
+/* ==========================================================================
+   Cohort & Group Filter Bar (Phase 2)
+   ========================================================================== */
+
+.path-report-adeptus_insights .adeptus-filter-bar {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-bar-header {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-bar-header i {
+    color: #007bff;
+}
+
+.path-report-adeptus_insights .adeptus-filter-bar-controls {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.path-report-adeptus_insights .adeptus-filter-field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-field select[multiple] {
+    height: 80px;
+    font-size: 13px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-actions {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    padding-bottom: 2px;
+}
+
+.path-report-adeptus_insights .adeptus-btn-sm {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.path-report-adeptus_insights .adeptus-filter-active {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.path-report-adeptus_insights .adeptus-filter-active-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+}
+
+.path-report-adeptus_insights .adeptus-filter-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.path-report-adeptus_insights .adeptus-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #e3f2fd;
+    color: #1565c0;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.path-report-adeptus_insights .adeptus-filter-tag-group {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.path-report-adeptus_insights .adeptus-filter-tag-remove {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    opacity: 0.7;
+}
+
+.path-report-adeptus_insights .adeptus-filter-tag-remove:hover {
+    opacity: 1;
+}

@@ -938,6 +938,14 @@ class AdeptusWizard {
         document.getElementById('regenerate-report')?.addEventListener('click', () => {
             this.generateReport();
         });
+
+        // Cohort & Group filter events.
+        document.getElementById('apply-filters')?.addEventListener('click', () => {
+            this.applyFiltersAndRegenerate();
+        });
+        document.getElementById('clear-filters')?.addEventListener('click', () => {
+            this.clearFilters();
+        });
     }
 
     initializeQuickActions() {
@@ -957,6 +965,250 @@ class AdeptusWizard {
                 card.style.transform = 'translateY(0)';
             });
         });
+    }
+
+    /**
+     * Load cohort and group filter options from the server.
+     */
+    async loadCohortGroupFilters() {
+        if (this.filtersLoaded) {
+            return;
+        }
+        try {
+            const data = await this.callExternalService('report_adeptus_insights_get_cohort_group_filters', {});
+            this.cohortOptions = data.cohorts || [];
+            this.groupOptions = data.groups || [];
+            this.filtersLoaded = true;
+            this.populateFilterDropdowns();
+        } catch (error) {
+            // Filters unavailable — hide the bar.
+            const filterBar = document.getElementById('cohort-group-filter-bar');
+            if (filterBar) {
+                filterBar.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Populate filter dropdown selects with options.
+     */
+    populateFilterDropdowns() {
+        const cohortSelect = document.getElementById('filter-cohort');
+        const groupSelect = document.getElementById('filter-group');
+        const filterBar = document.getElementById('cohort-group-filter-bar');
+
+        if (!cohortSelect || !groupSelect || !filterBar) {
+            return;
+        }
+
+        // Only show filter bar if there are cohorts or groups.
+        if (this.cohortOptions.length === 0 && this.groupOptions.length === 0) {
+            filterBar.style.display = 'none';
+            return;
+        }
+
+        filterBar.style.display = '';
+
+        // Populate cohort dropdown.
+        cohortSelect.innerHTML = '';
+        if (this.cohortOptions.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No cohorts available';
+            opt.disabled = true;
+            cohortSelect.appendChild(opt);
+            cohortSelect.disabled = true;
+        } else {
+            this.cohortOptions.forEach(cohort => {
+                const opt = document.createElement('option');
+                opt.value = cohort.id;
+                opt.textContent = `${cohort.name} (${cohort.membercount} members)`;
+                cohortSelect.appendChild(opt);
+            });
+        }
+
+        // Populate group dropdown.
+        groupSelect.innerHTML = '';
+        if (this.groupOptions.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No groups available';
+            opt.disabled = true;
+            groupSelect.appendChild(opt);
+            groupSelect.disabled = true;
+        } else {
+            // Group by course.
+            const courseMap = {};
+            this.groupOptions.forEach(group => {
+                if (!courseMap[group.coursename]) {
+                    courseMap[group.coursename] = [];
+                }
+                courseMap[group.coursename].push(group);
+            });
+
+            Object.keys(courseMap).sort().forEach(coursename => {
+                const optgroup = document.createElement('optgroup');
+                optgroup.label = coursename;
+                courseMap[coursename].forEach(group => {
+                    const opt = document.createElement('option');
+                    opt.value = group.id;
+                    opt.textContent = `${group.name} (${group.membercount} members)`;
+                    optgroup.appendChild(opt);
+                });
+                groupSelect.appendChild(optgroup);
+            });
+        }
+    }
+
+    /**
+     * Apply selected cohort/group filters and regenerate the report.
+     */
+    async applyFiltersAndRegenerate() {
+        const cohortSelect = document.getElementById('filter-cohort');
+        const groupSelect = document.getElementById('filter-group');
+
+        const selectedCohorts = Array.from(cohortSelect.selectedOptions).map(o => parseInt(o.value)).filter(v => v > 0);
+        const selectedGroups = Array.from(groupSelect.selectedOptions).map(o => parseInt(o.value)).filter(v => v > 0);
+
+        if (selectedCohorts.length === 0 && selectedGroups.length === 0) {
+            this.showError('Please select at least one cohort or group to filter by.');
+            return;
+        }
+
+        // Store active filters.
+        this.activeCohortIds = selectedCohorts;
+        this.activeGroupIds = selectedGroups;
+
+        // Show active filter tags.
+        this.renderFilterTags();
+
+        // Regenerate with filters.
+        await this.generateReportWithFilters();
+    }
+
+    /**
+     * Clear all active filters and regenerate the report.
+     */
+    async clearFilters() {
+        const cohortSelect = document.getElementById('filter-cohort');
+        const groupSelect = document.getElementById('filter-group');
+
+        if (cohortSelect) {
+            Array.from(cohortSelect.options).forEach(o => o.selected = false);
+        }
+        if (groupSelect) {
+            Array.from(groupSelect.options).forEach(o => o.selected = false);
+        }
+
+        this.activeCohortIds = [];
+        this.activeGroupIds = [];
+
+        const tagsContainer = document.getElementById('filter-active-tags');
+        if (tagsContainer) {
+            tagsContainer.style.display = 'none';
+        }
+
+        // Regenerate without filters.
+        await this.generateReportWithFilters();
+    }
+
+    /**
+     * Render active filter tags.
+     */
+    renderFilterTags() {
+        const tagsContainer = document.getElementById('filter-active-tags');
+        const tagsDiv = document.getElementById('filter-tags');
+        if (!tagsContainer || !tagsDiv) {
+            return;
+        }
+
+        tagsDiv.innerHTML = '';
+
+        (this.activeCohortIds || []).forEach(id => {
+            const cohort = this.cohortOptions.find(c => c.id === id);
+            if (cohort) {
+                const tag = document.createElement('span');
+                tag.className = 'adeptus-filter-tag adeptus-filter-tag-cohort';
+                tag.innerHTML = `<i class="fa-solid fa-user-group"></i> ${cohort.name} <button class="adeptus-filter-tag-remove" data-type="cohort" data-id="${id}">&times;</button>`;
+                tagsDiv.appendChild(tag);
+            }
+        });
+
+        (this.activeGroupIds || []).forEach(id => {
+            const group = this.groupOptions.find(g => g.id === id);
+            if (group) {
+                const tag = document.createElement('span');
+                tag.className = 'adeptus-filter-tag adeptus-filter-tag-group';
+                tag.innerHTML = `<i class="fa-solid fa-people-group"></i> ${group.name} <button class="adeptus-filter-tag-remove" data-type="group" data-id="${id}">&times;</button>`;
+                tagsDiv.appendChild(tag);
+            }
+        });
+
+        // Add click handlers for tag removal.
+        tagsDiv.querySelectorAll('.adeptus-filter-tag-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.target.dataset.type;
+                const id = parseInt(e.target.dataset.id);
+                if (type === 'cohort') {
+                    this.activeCohortIds = (this.activeCohortIds || []).filter(cid => cid !== id);
+                } else {
+                    this.activeGroupIds = (this.activeGroupIds || []).filter(gid => gid !== id);
+                }
+                this.renderFilterTags();
+                this.generateReportWithFilters();
+            });
+        });
+
+        tagsContainer.style.display = (this.activeCohortIds?.length || this.activeGroupIds?.length) ? '' : 'none';
+    }
+
+    /**
+     * Generate report with current filter state.
+     */
+    async generateReportWithFilters() {
+        if (!this.selectedReport) {
+            return;
+        }
+
+        this.showLoading('Regenerating report with filters...');
+
+        const parameters = {};
+        const paramInputs = document.querySelectorAll('#config-form input, #config-form select');
+        paramInputs.forEach(input => {
+            parameters[input.name] = input.value;
+        });
+
+        try {
+            const data = await this.callExternalService('report_adeptus_insights_generate_report', {
+                reportid: this.selectedReport,
+                parameters: JSON.stringify(parameters),
+                reexecution: true,
+                cohortids: JSON.stringify(this.activeCohortIds || []),
+                groupids: JSON.stringify(this.activeGroupIds || []),
+            });
+
+            if (data.success) {
+                if (data.results && Array.isArray(data.results)) {
+                    data.results = data.results.map(row => {
+                        if (row.cells && Array.isArray(row.cells)) {
+                            const flatRow = {};
+                            row.cells.forEach(cell => {
+                                flatRow[cell.key] = cell.value;
+                            });
+                            return flatRow;
+                        }
+                        return row;
+                    });
+                }
+                this.displayResults(data);
+            } else {
+                this.showError(data.message || 'Failed to generate filtered report');
+            }
+        } catch (error) {
+            this.showError('Error generating filtered report');
+        } finally {
+            this.hideLoading();
+        }
     }
 
     initializeRecentReports() {
@@ -1599,6 +1851,9 @@ class AdeptusWizard {
     }
 
     displayResults(data) {
+        // Load cohort/group filters (async, non-blocking).
+        this.loadCohortGroupFilters();
+
         // Store current results for export
         this.currentResults = data;
 

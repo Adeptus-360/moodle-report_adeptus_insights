@@ -281,6 +281,16 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Phase 2: Cohort & Group Filters.
+    'report_adeptus_insights_get_cohort_group_filters' => [
+        'classname'   => 'report_adeptus_insights\external\get_cohort_group_filters',
+        'methodname'  => 'execute',
+        'description' => 'Get available cohort and group filter options for reports',
+        'type'        => 'read',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -323,6 +333,8 @@ $services = [
             // Registration & Bookmarks.
             'report_adeptus_insights_register_plugin',
             'report_adeptus_insights_bookmark_report',
+            // Phase 2: Cohort & Group Filters.
+            'report_adeptus_insights_get_cohort_group_filters',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

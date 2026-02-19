@@ -45,6 +45,8 @@ class generate_report extends external_api {
             'reportid' => new external_value(PARAM_TEXT, 'Report name/identifier'),
             'parameters' => new external_value(PARAM_RAW, 'JSON-encoded report parameters', VALUE_DEFAULT, '{}'),
             'reexecution' => new external_value(PARAM_BOOL, 'Whether this is a re-execution of saved report', VALUE_DEFAULT, false),
+            'cohortids' => new external_value(PARAM_RAW, 'JSON-encoded array of cohort IDs to filter by', VALUE_DEFAULT, '[]'),
+            'groupids' => new external_value(PARAM_RAW, 'JSON-encoded array of group IDs to filter by', VALUE_DEFAULT, '[]'),
         ]);
     }
 
@@ -56,7 +58,7 @@ class generate_report extends external_api {
      * @param bool $reexecution Whether this is a re-execution.
      * @return array Report results with data and chart info.
      */
-    public static function execute($reportid, $parametersjson = '{}', $reexecution = false) {
+    public static function execute($reportid, $parametersjson = '{}', $reexecution = false, $cohortids = '[]', $groupids = '[]') {
         global $CFG, $DB, $USER;
 
         // Parameter validation.
@@ -64,6 +66,8 @@ class generate_report extends external_api {
             'reportid' => $reportid,
             'parameters' => $parametersjson,
             'reexecution' => $reexecution,
+            'cohortids' => $cohortids ?? '[]',
+            'groupids' => $groupids ?? '[]',
         ]);
 
         // Context validation.
@@ -158,9 +162,18 @@ class generate_report extends external_api {
         // Merge report-defined parameters with provided ones.
         $reportparams = self::merge_parameters($report, $reportparams);
 
+        // Apply cohort and group filters to the SQL query.
+        $reportquery = $report['sqlquery'];
+        $parsedcohortids = json_decode($params['cohortids'], true) ?: [];
+        $parsedgroupids = json_decode($params['groupids'], true) ?: [];
+
+        if (!empty($parsedcohortids) || !empty($parsedgroupids)) {
+            $reportquery = self::apply_user_filters($reportquery, $parsedcohortids, $parsedgroupids);
+        }
+
         // Execute the SQL query.
         try {
-            $queryresult = self::execute_query($report['sqlquery'], $reportparams, $DB);
+            $queryresult = self::execute_query($reportquery, $reportparams, $DB);
             $results = $queryresult['results'];
             $headers = $queryresult['headers'];
         } catch (\Exception $e) {
@@ -334,6 +347,103 @@ class generate_report extends external_api {
         }
 
         return $mergedparams;
+    }
+
+    /**
+     * Apply cohort and group user filters to the report SQL.
+     *
+     * Detects the user ID column in the query (userid, user_id, id from {user}) and
+     * wraps the query with an additional WHERE clause filtering by cohort/group membership.
+     *
+     * @param string $sql Original SQL query.
+     * @param array $cohortids Array of cohort IDs to filter by.
+     * @param array $groupids Array of group IDs to filter by.
+     * @return string Modified SQL query.
+     */
+    private static function apply_user_filters($sql, array $cohortids, array $groupids) {
+        // Build a user ID subquery combining cohort and group membership.
+        $usersubqueries = [];
+
+        if (!empty($cohortids)) {
+            $cohortidlist = implode(',', array_map('intval', $cohortids));
+            $usersubqueries[] = "SELECT cm.userid FROM {cohort_members} cm WHERE cm.cohortid IN ($cohortidlist)";
+        }
+
+        if (!empty($groupids)) {
+            $groupidlist = implode(',', array_map('intval', $groupids));
+            $usersubqueries[] = "SELECT gm.userid FROM {groups_members} gm WHERE gm.groupid IN ($groupidlist)";
+        }
+
+        if (empty($usersubqueries)) {
+            return $sql;
+        }
+
+        // If both cohort and group filters, use INTERSECT (users must be in BOTH).
+        // Use INNER JOIN approach for DB compatibility since not all DBs support INTERSECT.
+        if (count($usersubqueries) > 1) {
+            $filtersubquery = "SELECT t1.userid FROM (" . $usersubqueries[0] . ") t1 "
+                . "INNER JOIN (" . $usersubqueries[1] . ") t2 ON t1.userid = t2.userid";
+        } else {
+            $filtersubquery = $usersubqueries[0];
+        }
+
+        // Detect the user column. Common patterns in Moodle reports:
+        // - u.id (from {user} u)
+        // - userid
+        // - user_id
+        // Strategy: wrap the entire query and filter the outer result.
+        // We detect which column to filter on.
+        $useridcol = self::detect_userid_column($sql);
+
+        if ($useridcol) {
+            // Wrap the original query and filter by user membership.
+            $sql = rtrim(rtrim($sql), ';');
+            $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
+                . "WHERE filtered_report.$useridcol IN ($filtersubquery)";
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Detect the user ID column name in a SQL query.
+     *
+     * @param string $sql The SQL query.
+     * @return string|null The user ID column alias, or null if not detected.
+     */
+    private static function detect_userid_column($sql) {
+        // Common user ID column patterns in order of likelihood.
+        $patterns = [
+            // Explicit userid column.
+            '/\bAS\s+userid\b/i' => 'userid',
+            '/\b(\w+\.)?userid\b/i' => 'userid',
+            // user_id variant.
+            '/\bAS\s+user_id\b/i' => 'user_id',
+            '/\b(\w+\.)?user_id\b/i' => 'user_id',
+            // u.id pattern (common: SELECT u.id, ...).
+            '/\bu\.id\b/i' => 'id',
+            // Generic id from user table.
+            '/FROM\s+\{user\}\s+\w*.*?\bSELECT\b/is' => 'id',
+        ];
+
+        foreach ($patterns as $pattern => $column) {
+            if (preg_match($pattern, $sql)) {
+                return $column;
+            }
+        }
+
+        // Fallback: check if there's an 'id' column in the SELECT that likely refers to users.
+        // Look for patterns like "SELECT u.id" or just the word userid anywhere.
+        if (preg_match('/SELECT\s+.*?\bu\.id\b/is', $sql)) {
+            return 'id';
+        }
+
+        // Last resort: if query references {user} table, assume 'id'.
+        if (preg_match('/\{user\}/i', $sql)) {
+            return 'id';
+        }
+
+        return null;
     }
 
     /**
