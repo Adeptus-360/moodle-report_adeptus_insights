@@ -1166,3 +1166,12 @@ $string['schedule_updated'] = 'Schedule updated successfully.';
 $string['email_subject'] = 'Email subject';
 $string['email_body'] = 'Email body';
 $string['actions'] = 'Actions';
+
+// Scheduled report PDF strings.
+$string['scheduled_pdf_report_label'] = 'Report:';
+$string['scheduled_pdf_schedule_label'] = 'Schedule:';
+$string['scheduled_pdf_frequency_label'] = 'Frequency:';
+$string['scheduled_pdf_generated_label'] = 'Generated:';
+$string['scheduled_pdf_rows_label'] = 'Total rows:';
+$string['scheduled_pdf_truncated'] = 'Showing {$a->shown} of {$a->total} rows. Export as CSV for the full dataset.';
+$string['scheduled_pdf_fallback_warning'] = 'PDF generation failed — report delivered as CSV instead.';

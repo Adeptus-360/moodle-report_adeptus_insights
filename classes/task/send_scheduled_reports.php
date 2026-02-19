@@ -140,14 +140,35 @@ class send_scheduled_reports extends \core\task\scheduled_task {
 
         $rows = $executor->execute_report($report, $params);
         $headers = $executor->get_headers($rows);
-        $filepath = $executor->export_to_csv($rows, $headers);
-
         $rowcount = count($rows);
+
+        // Determine export format from schedule config.
+        $requestedformat = $schedule->export_format ?? 'csv';
+        $reportname = isset($report->name) ? $report->name : null;
+
+        if ($requestedformat === 'pdf') {
+            // Check tier allows PDF.
+            $tierlimits = $this->get_tier_limits($this->get_plan_name());
+            if (!in_array('pdf', $tierlimits['formats'])) {
+                mtrace("  PDF format not allowed on current plan, falling back to CSV.");
+                $requestedformat = 'csv';
+            }
+        }
+
+        if ($requestedformat === 'pdf') {
+            $result = $executor->generate_pdf($rows, $headers, $schedule, $reportname);
+            $filepath = $result['path'];
+            $actualformat = $result['format']; // May be 'csv' if fallback occurred.
+        } else {
+            $filepath = $executor->export_to_csv($rows, $headers);
+            $actualformat = 'csv';
+        }
+
         $filesize = filesize($filepath);
 
         // Build filename.
         $cleanname = clean_filename($schedule->label);
-        $filename = $cleanname . '_' . date('Y-m-d') . '.csv';
+        $filename = $cleanname . '_' . date('Y-m-d') . '.' . $actualformat;
 
         // Move to dataroot temp for email_to_user.
         $tempdirrel = 'temp/adeptus_schedules';
@@ -204,7 +225,7 @@ class send_scheduled_reports extends \core\task\scheduled_task {
         $this->log_run($schedule->id, 'success', [
             'recipients_sent' => $sent,
             'recipients_failed' => $failed,
-            'export_format' => 'csv',
+            'export_format' => $actualformat,
             'attachment_size' => $filesize,
             'row_count' => $rowcount,
         ]);
@@ -539,6 +560,20 @@ class send_scheduled_reports extends \core\task\scheduled_task {
         }
 
         return true;
+    }
+
+    /**
+     * Get the current subscription plan name.
+     *
+     * @return string Plan name (lowercase) or empty string.
+     */
+    protected function get_plan_name(): string {
+        global $DB;
+        $sub = $DB->get_record('report_adeptus_insights_subscription', [], '*', IGNORE_MULTIPLE);
+        if (!$sub) {
+            return '';
+        }
+        return strtolower($sub->plan_name ?? '');
     }
 
     /**

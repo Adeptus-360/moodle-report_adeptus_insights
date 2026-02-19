@@ -182,6 +182,32 @@ class report_executor {
     }
 
     /**
+     * Export rows to a PDF temp file using the scheduled report template.
+     *
+     * Falls back to CSV if PDF generation fails (logs a warning).
+     *
+     * @param array $rows Array of result row objects.
+     * @param array $headers Column headers.
+     * @param \stdClass $schedule The schedule record.
+     * @param string|null $reportname Optional report display name.
+     * @return array ['path' => string, 'format' => 'pdf'|'csv'] — format may differ if fallback occurred.
+     */
+    public function generate_pdf(array $rows, array $headers, \stdClass $schedule, ?string $reportname = null): array {
+        try {
+            $template = new \report_adeptus_insights\pdf\scheduled_report_template();
+            $filepath = $template->generate($rows, $headers, $schedule, $reportname);
+            return ['path' => $filepath, 'format' => 'pdf'];
+        } catch (\Throwable $e) {
+            mtrace("  WARNING: PDF generation failed, falling back to CSV. Error: " . $e->getMessage());
+            debugging('Scheduled report PDF generation failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+
+            // Fall back to CSV.
+            $csvpath = $this->export_to_csv($rows, $headers);
+            return ['path' => $csvpath, 'format' => 'csv'];
+        }
+    }
+
+    /**
      * Clean up a temporary file.
      *
      * @param string $filepath Path to the file to delete.
