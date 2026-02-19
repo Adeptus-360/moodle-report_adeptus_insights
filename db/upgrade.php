@@ -126,5 +126,75 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026012701, 'report', 'adeptus_insights');
     }
 
+    // Upgrade to version 2026021901: Add scheduled reports tables.
+    if ($oldversion < 2026021901) {
+        // Table 1: report_adeptus_insights_schedules.
+        $table = new xmldb_table('report_adeptus_insights_schedules');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('reportid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('label', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('frequency', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, 'weekly');
+        $table->add_field('run_hour', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '7');
+        $table->add_field('run_dayofweek', XMLDB_TYPE_INTEGER, '1', null, null, null, null);
+        $table->add_field('run_dayofmonth', XMLDB_TYPE_INTEGER, '2', null, null, null, null);
+        $table->add_field('export_format', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'csv');
+        $table->add_field('report_params', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('email_subject', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('email_body', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('active', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('last_run', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('next_run', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('failure_count', XMLDB_TYPE_INTEGER, '3', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('created_by', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_created_by', XMLDB_KEY_FOREIGN, ['created_by'], 'user', ['id']);
+        $table->add_index('idx_next_run_active', XMLDB_INDEX_NOTUNIQUE, ['next_run', 'active']);
+        $table->add_index('idx_reportid', XMLDB_INDEX_NOTUNIQUE, ['reportid']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Table 2: report_adeptus_insights_sched_recip.
+        $table = new xmldb_table('report_adeptus_insights_sched_recip');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('scheduleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recipient_type', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('email', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('roleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_scheduleid', XMLDB_KEY_FOREIGN, ['scheduleid'], 'report_adeptus_insights_schedules', ['id']);
+        $table->add_key('fk_userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('fk_roleid', XMLDB_KEY_FOREIGN, ['roleid'], 'role', ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Table 3: report_adeptus_insights_sched_log.
+        $table = new xmldb_table('report_adeptus_insights_sched_log');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('scheduleid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recipients_sent', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('recipients_failed', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('export_format', XMLDB_TYPE_CHAR, '10', null, null, null, null);
+        $table->add_field('attachment_size', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('row_count', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('error_message', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_scheduleid', XMLDB_KEY_FOREIGN, ['scheduleid'], 'report_adeptus_insights_schedules', ['id']);
+        $table->add_index('idx_scheduleid_timecreated', XMLDB_INDEX_NOTUNIQUE, ['scheduleid', 'timecreated']);
+        $table->add_index('idx_status_timecreated', XMLDB_INDEX_NOTUNIQUE, ['status', 'timecreated']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026021901, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

@@ -43,4 +43,13 @@ $tasks = [
         'dayofweek' => '*',
         'month' => '*',
     ],
+    [
+        'classname' => 'report_adeptus_insights\task\send_scheduled_reports',
+        'blocking'  => 0,
+        'minute'    => '0',
+        'hour'      => '*',
+        'day'       => '*',
+        'dayofweek' => '*',
+        'month'     => '*',
+    ],
 ];

@@ -33,4 +33,18 @@ $capabilities = [
             'teacher' => CAP_ALLOW,
         ],
     ],
+    'report/adeptus_insights:manageschedules' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    'report/adeptus_insights:viewschedules' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];
