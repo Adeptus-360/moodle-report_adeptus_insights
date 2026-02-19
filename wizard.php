@@ -94,6 +94,7 @@ $categoryicons = [
     'MESSAGING Reports' => 'fa-envelope',
     'SCALES Reports' => 'fa-scale-balanced',
     'USER FILES Reports' => 'fa-folder-open',
+    'TEACHER PERFORMANCE Reports' => 'fa-chalkboard-teacher',
 ];
 
 // Define report priority keywords for free tier selection.

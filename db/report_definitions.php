@@ -1370,4 +1370,184 @@ ORDER BY period_label',
     'charttype' => 'line',
     'isactive' => 1,
   ],
+
+  // ============================================================
+  // TEACHER PERFORMANCE Reports (G7).
+  // Metrics for instructor/teacher performance analysis.
+  // ============================================================
+
+  [
+    'name' => 'Course completion rates by teacher',
+    'category' => 'TEACHER PERFORMANCE Reports',
+    'description' => 'Shows course completion rates for each teacher, identifying which teachers\' courses have the highest and lowest completion percentages.',
+    'sqlquery' => 'SELECT
+    tc.firstname AS "Teacher Firstname",
+    tc.lastname AS "Teacher Lastname",
+    tc.email AS "Teacher Email",
+    c.fullname AS "Course",
+    COUNT(DISTINCT sra.userid) AS "Enrolled Students",
+    COUNT(DISTINCT cc.userid) AS "Completed Students",
+    CASE
+        WHEN COUNT(DISTINCT sra.userid) > 0
+        THEN ROUND(COUNT(DISTINCT cc.userid) * 100.0 / COUNT(DISTINCT sra.userid), 1)
+        ELSE 0
+    END AS "Completion Rate (%)"
+FROM prefix_user u
+INNER JOIN prefix_role_assignments ra ON ra.userid = u.id
+INNER JOIN prefix_context ctx ON ctx.id = ra.contextid AND ctx.contextlevel = 50
+INNER JOIN prefix_course c ON c.id = ctx.instanceid
+LEFT JOIN prefix_role_assignments sra
+    ON sra.contextid = ctx.id AND sra.roleid = 5
+LEFT JOIN prefix_user su ON su.id = sra.userid AND su.deleted = 0
+LEFT JOIN prefix_course_completions cc
+    ON cc.course = c.id AND cc.userid = sra.userid AND cc.timecompleted IS NOT NULL
+WHERE ra.roleid IN (3, 4)
+  AND u.deleted = 0 AND u.suspended = 0
+GROUP BY u.id, u.firstname, u.lastname, u.email, c.id, c.fullname
+ORDER BY CASE
+    WHEN COUNT(DISTINCT sra.userid) > 0
+    THEN ROUND(COUNT(DISTINCT cc.userid) * 100.0 / COUNT(DISTINCT sra.userid), 1)
+    ELSE 0
+END DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Student engagement by teacher',
+    'category' => 'TEACHER PERFORMANCE Reports',
+    'description' => 'Measures average student engagement (log actions and activity completions) in each teacher\'s courses over the last 30 days.',
+    'sqlquery' => 'SELECT
+    u.firstname AS "Teacher Firstname",
+    u.lastname AS "Teacher Lastname",
+    u.email AS "Teacher Email",
+    c.fullname AS "Course",
+    COUNT(DISTINCT sra.userid) AS "Enrolled Students",
+    COALESCE(logs.total_actions, 0) AS "Total Student Actions (30d)",
+    CASE
+        WHEN COUNT(DISTINCT sra.userid) > 0
+        THEN ROUND(COALESCE(logs.total_actions, 0) / COUNT(DISTINCT sra.userid), 1)
+        ELSE 0
+    END AS "Avg Actions per Student",
+    COALESCE(cmc.completions, 0) AS "Activity Completions (30d)",
+    CASE
+        WHEN COUNT(DISTINCT sra.userid) > 0
+        THEN ROUND(COALESCE(cmc.completions, 0) / COUNT(DISTINCT sra.userid), 1)
+        ELSE 0
+    END AS "Avg Completions per Student"
+FROM prefix_user u
+INNER JOIN prefix_role_assignments ra ON ra.userid = u.id
+INNER JOIN prefix_context ctx ON ctx.id = ra.contextid AND ctx.contextlevel = 50
+INNER JOIN prefix_course c ON c.id = ctx.instanceid
+LEFT JOIN prefix_role_assignments sra
+    ON sra.contextid = ctx.id AND sra.roleid = 5
+LEFT JOIN (
+    SELECT courseid, COUNT(*) AS total_actions
+    FROM prefix_logstore_standard_log
+    WHERE timecreated >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+      AND userid > 0 AND anonymous = 0
+    GROUP BY courseid
+) logs ON logs.courseid = c.id
+LEFT JOIN (
+    SELECT cm.course AS courseid, COUNT(*) AS completions
+    FROM prefix_course_modules_completion cmc2
+    INNER JOIN prefix_course_modules cm ON cm.id = cmc2.coursemoduleid
+    WHERE cmc2.completionstate > 0
+      AND cmc2.timemodified >= UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
+    GROUP BY cm.course
+) cmc ON cmc.courseid = c.id
+WHERE ra.roleid IN (3, 4)
+  AND u.deleted = 0 AND u.suspended = 0
+GROUP BY u.id, u.firstname, u.lastname, u.email,
+         c.id, c.fullname, logs.total_actions, cmc.completions
+ORDER BY "Avg Actions per Student" DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Grading timeliness by teacher',
+    'category' => 'TEACHER PERFORMANCE Reports',
+    'description' => 'Calculates average time from student submission to grade per teacher and assignment, helping identify grading bottlenecks.',
+    'sqlquery' => 'SELECT
+    u.firstname AS "Teacher Firstname",
+    u.lastname AS "Teacher Lastname",
+    u.email AS "Teacher Email",
+    c.fullname AS "Course",
+    a.name AS "Assignment",
+    COUNT(DISTINCT ag.id) AS "Graded Submissions",
+    ROUND(AVG(
+        CASE
+            WHEN ag.timemodified > 0 AND asub.timemodified > 0
+                AND ag.timemodified >= asub.timemodified
+            THEN (ag.timemodified - asub.timemodified) / 3600.0
+            ELSE NULL
+        END
+    ), 1) AS "Avg Hours to Grade",
+    ROUND(MIN(
+        CASE
+            WHEN ag.timemodified > 0 AND asub.timemodified > 0
+                AND ag.timemodified >= asub.timemodified
+            THEN (ag.timemodified - asub.timemodified) / 3600.0
+            ELSE NULL
+        END
+    ), 1) AS "Min Hours to Grade",
+    ROUND(MAX(
+        CASE
+            WHEN ag.timemodified > 0 AND asub.timemodified > 0
+                AND ag.timemodified >= asub.timemodified
+            THEN (ag.timemodified - asub.timemodified) / 3600.0
+            ELSE NULL
+        END
+    ), 1) AS "Max Hours to Grade"
+FROM prefix_user u
+INNER JOIN prefix_role_assignments ra ON ra.userid = u.id
+INNER JOIN prefix_context ctx ON ctx.id = ra.contextid AND ctx.contextlevel = 50
+INNER JOIN prefix_course c ON c.id = ctx.instanceid
+INNER JOIN prefix_assign a ON a.course = c.id
+INNER JOIN prefix_assign_submission asub ON asub.assignment = a.id
+    AND asub.status = \'submitted\'
+INNER JOIN prefix_assign_grades ag ON ag.assignment = a.id
+    AND ag.userid = asub.userid AND ag.grade >= 0
+WHERE ra.roleid IN (3, 4)
+  AND u.deleted = 0 AND u.suspended = 0
+GROUP BY u.id, u.firstname, u.lastname, u.email,
+         c.id, c.fullname, a.id, a.name
+ORDER BY "Avg Hours to Grade" ASC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
+
+  [
+    'name' => 'Teacher course load',
+    'category' => 'TEACHER PERFORMANCE Reports',
+    'description' => 'Summary of each teacher\'s workload: number of courses assigned and total enrolled students across all their courses.',
+    'sqlquery' => 'SELECT
+    u.firstname AS "Teacher Firstname",
+    u.lastname AS "Teacher Lastname",
+    u.email AS "Teacher Email",
+    COUNT(DISTINCT ctx.instanceid) AS "Number of Courses",
+    COUNT(DISTINCT sra.userid) AS "Total Enrolled Students",
+    CASE
+        WHEN COUNT(DISTINCT ctx.instanceid) > 0
+        THEN ROUND(COUNT(DISTINCT sra.userid) / COUNT(DISTINCT ctx.instanceid), 1)
+        ELSE 0
+    END AS "Avg Students per Course"
+FROM prefix_user u
+INNER JOIN prefix_role_assignments ra ON ra.userid = u.id
+INNER JOIN prefix_context ctx ON ctx.id = ra.contextid AND ctx.contextlevel = 50
+LEFT JOIN prefix_role_assignments sra
+    ON sra.contextid = ctx.id AND sra.roleid = 5
+LEFT JOIN prefix_user su ON su.id = sra.userid AND su.deleted = 0
+WHERE ra.roleid IN (3, 4)
+  AND u.deleted = 0 AND u.suspended = 0
+GROUP BY u.id, u.firstname, u.lastname, u.email
+ORDER BY COUNT(DISTINCT ctx.instanceid) DESC, COUNT(DISTINCT sra.userid) DESC',
+    'parameters' => [],
+    'charttype' => 'bar',
+    'isactive' => 1,
+  ],
 ];
