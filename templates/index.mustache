@@ -31,8 +31,37 @@
     }
 }}
 
-<div class="adeptus-insights-dashboard">
+<div class="adeptus-insights-dashboard" data-viewmode="{{viewmode}}">
     <div class="container-fluid">
+        {{! Role-based mode indicator }}
+        {{#is_teacher_mode}}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="fa fa-chalkboard-teacher fa-lg mr-3" aria-hidden="true"></i>
+                    <div>
+                        <strong>{{#str}}teacher_view_label, report_adeptus_insights{{/str}}</strong>
+                        &mdash; {{#str}}teacher_view_description, report_adeptus_insights{{/str}}
+                        <span class="badge badge-info ml-2">{{teacher_course_count}} {{#str}}courses, report_adeptus_insights{{/str}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_teacher_mode}}
+        {{#is_learner_mode}}
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="fa fa-user-graduate fa-lg mr-3" aria-hidden="true"></i>
+                    <div>
+                        <strong>{{#str}}learner_view_label, report_adeptus_insights{{/str}}</strong>
+                        &mdash; {{#str}}learner_view_description, report_adeptus_insights{{/str}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_learner_mode}}
+
         <!-- Welcome section -->
         <div class="row mb-4">
             <div class="col-12">
@@ -90,6 +119,64 @@
             </div>
         </div>
 
+        {{! Teacher Reports Section }}
+        {{#is_teacher_mode}}
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fa fa-clipboard fa-lg mr-2" aria-hidden="true"></i>
+                        <h4 class="m-0">{{#str}}teacher_reports_section, report_adeptus_insights{{/str}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {{#teacher_reports}}
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card h-100 adeptus-report-card" data-report-key="{{key}}" data-report-params="{{params_json}}">
+                                    <div class="card-body text-center">
+                                        <i class="fa {{icon}} fa-2x mb-2 text-primary" aria-hidden="true"></i>
+                                        <h6 class="card-title">{{title}}</h6>
+                                        <p class="card-text small text-muted">{{description}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/teacher_reports}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_teacher_mode}}
+
+        {{! Learner Reports Section }}
+        {{#is_learner_mode}}
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <i class="fa fa-chart-line fa-lg mr-2" aria-hidden="true"></i>
+                        <h4 class="m-0">{{#str}}learner_reports_section, report_adeptus_insights{{/str}}</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {{#learner_reports}}
+                            <div class="col-md-4 col-sm-6 mb-3">
+                                <div class="card h-100 adeptus-report-card" data-report-key="{{key}}" data-report-params="{{params_json}}">
+                                    <div class="card-body text-center">
+                                        <i class="fa {{icon}} fa-2x mb-2 text-success" aria-hidden="true"></i>
+                                        <h6 class="card-title">{{title}}</h6>
+                                        <p class="card-text small text-muted">{{description}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {{/learner_reports}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/is_learner_mode}}
+
         <!-- Current subscription status -->
         {{#subscription}}
         <div class="row mt-4">
@@ -139,7 +226,8 @@
         </div>
         {{/subscription}}
 
-        <!-- Subscription Management & Support Banners -->
+        {{! Subscription Management & Support Banners — admin only }}
+        {{#is_admin_mode}}
         <div class="row mt-2">
             <!-- Subscription Management Banner -->
             <div class="col-md-6 mb-3 mb-md-0">
@@ -181,5 +269,6 @@
                 </div>
             </div>
         </div>
+        {{/is_admin_mode}}
     </div>
 </div>

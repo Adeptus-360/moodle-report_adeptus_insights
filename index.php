@@ -81,6 +81,9 @@ $PAGE->requires->css('/report/adeptus_insights/styles/notifications.css');
 $PAGE->requires->css('/report/adeptus_insights/styles/index.css');
 
 
+// Determine role-based view mode.
+$viewmode = \report_adeptus_insights\role_helper::get_view_mode();
+
 // If registered, show the main dashboard.
 echo $OUTPUT->header();
 
@@ -91,7 +94,44 @@ try {
     // Prepare template context.
     $templatecontext = [
         'subscription' => $subscription,
+        'viewmode' => $viewmode,
+        'is_admin_mode' => ($viewmode === \report_adeptus_insights\role_helper::MODE_ADMIN),
+        'is_teacher_mode' => ($viewmode === \report_adeptus_insights\role_helper::MODE_TEACHER),
+        'is_learner_mode' => ($viewmode === \report_adeptus_insights\role_helper::MODE_LEARNER),
     ];
+
+    // Add teacher-specific data.
+    if ($viewmode === \report_adeptus_insights\role_helper::MODE_TEACHER) {
+        $courseids = \report_adeptus_insights\role_helper::get_teacher_course_ids();
+        $templatecontext['teacher_courseids'] = implode(',', $courseids);
+        $templatecontext['teacher_course_count'] = count($courseids);
+        $teacherreports = \report_adeptus_insights\role_helper::get_teacher_reports($courseids);
+        $templatecontext['teacher_reports'] = array_map(function($report) {
+            return [
+                'key' => $report['key'],
+                'title' => get_string($report['titlekey'], 'report_adeptus_insights'),
+                'description' => get_string($report['desckey'], 'report_adeptus_insights'),
+                'icon' => $report['icon'],
+                'params_json' => json_encode($report['params']),
+            ];
+        }, $teacherreports);
+    }
+
+    // Add learner-specific data.
+    if ($viewmode === \report_adeptus_insights\role_helper::MODE_LEARNER) {
+        global $USER;
+        $learnerreports = \report_adeptus_insights\role_helper::get_learner_reports($USER->id);
+        $templatecontext['learner_userid'] = $USER->id;
+        $templatecontext['learner_reports'] = array_map(function($report) {
+            return [
+                'key' => $report['key'],
+                'title' => get_string($report['titlekey'], 'report_adeptus_insights'),
+                'description' => get_string($report['desckey'], 'report_adeptus_insights'),
+                'icon' => $report['icon'],
+                'params_json' => json_encode($report['params']),
+            ];
+        }, $learnerreports);
+    }
 
     // Render the template.
     echo $OUTPUT->render_from_template('report_adeptus_insights/index', $templatecontext);

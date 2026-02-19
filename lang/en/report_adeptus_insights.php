@@ -1192,3 +1192,27 @@ $string['filter_no_groups'] = 'No groups available';
 $string['filter_members'] = '{$a} members';
 $string['filter_results_filtered'] = 'Results filtered by {$a}';
 $string['filter_loading'] = 'Loading filters...';
+
+// G4: Role-based view mode strings.
+$string['teacher_view_label'] = 'Teacher View';
+$string['teacher_view_description'] = 'Showing reports scoped to your courses';
+$string['learner_view_label'] = 'My Progress';
+$string['learner_view_description'] = 'Showing your personal learning data';
+$string['teacher_reports_section'] = 'Teacher Reports';
+$string['learner_reports_section'] = 'My Progress';
+$string['teacher_report_completion'] = 'Course Completion';
+$string['teacher_report_completion_desc'] = 'Track student completion progress across your courses';
+$string['teacher_report_quiz'] = 'Quiz Attempts';
+$string['teacher_report_quiz_desc'] = 'View quiz attempt statistics and scores';
+$string['teacher_report_forum'] = 'Forum Activity';
+$string['teacher_report_forum_desc'] = 'Monitor student participation in forum discussions';
+$string['teacher_report_grades'] = 'Grade Overview';
+$string['teacher_report_grades_desc'] = 'Overview of grades across your courses';
+$string['learner_report_completion'] = 'My Completion';
+$string['learner_report_completion_desc'] = 'Track your course completion progress';
+$string['learner_report_grades'] = 'My Grades';
+$string['learner_report_grades_desc'] = 'View your grades across all courses';
+$string['learner_report_activity'] = 'My Activity';
+$string['learner_report_activity_desc'] = 'See your learning activity and engagement';
+$string['adeptus_insights:viewteacherdashboard'] = 'View teacher dashboard in Adeptus Insights';
+$string['adeptus_insights:viewlearnerdashboard'] = 'View learner dashboard in Adeptus Insights';

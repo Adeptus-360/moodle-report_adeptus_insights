@@ -30,7 +30,9 @@ $capabilities = [
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
         ],
     ],
     'report/adeptus_insights:manageschedules' => [
@@ -45,6 +47,21 @@ $capabilities = [
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'manager' => CAP_ALLOW,
+        ],
+    ],
+    'report/adeptus_insights:viewteacherdashboard' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+        ],
+    ],
+    'report/adeptus_insights:viewlearnerdashboard' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'student' => CAP_ALLOW,
         ],
     ],
 ];
