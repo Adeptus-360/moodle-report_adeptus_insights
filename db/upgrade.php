@@ -236,5 +236,50 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026021906, 'report', 'adeptus_insights');
     }
 
+    if ($oldversion < 2026021908) {
+        // Version 1.13.0: Rule-Based Alert Triggers (G10).
+
+        // Table: report_adeptus_alert_rules.
+        $table = new xmldb_table('report_adeptus_alert_rules');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('rule_type', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('threshold', XMLDB_TYPE_NUMBER, '10', null, XMLDB_NOTNULL, null, null, null, 2);
+        $table->add_field('course_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('role_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('notify_roles', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('enabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('created_by', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_course_id', XMLDB_KEY_FOREIGN, ['course_id'], 'course', ['id']);
+        $table->add_key('fk_role_id', XMLDB_KEY_FOREIGN, ['role_id'], 'role', ['id']);
+        $table->add_key('fk_created_by', XMLDB_KEY_FOREIGN, ['created_by'], 'user', ['id']);
+        $table->add_index('idx_enabled_type', XMLDB_INDEX_NOTUNIQUE, ['enabled', 'rule_type']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Table: report_adeptus_alert_logs.
+        $table = new xmldb_table('report_adeptus_alert_logs');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('rule_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('course_id', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('triggered_value', XMLDB_TYPE_NUMBER, '10', null, null, null, null, null, 2);
+        $table->add_field('notified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('fk_rule_id', XMLDB_KEY_FOREIGN, ['rule_id'], 'report_adeptus_alert_rules', ['id']);
+        $table->add_key('fk_user_id', XMLDB_KEY_FOREIGN, ['user_id'], 'user', ['id']);
+        $table->add_index('idx_rule_user_time', XMLDB_INDEX_NOTUNIQUE, ['rule_id', 'user_id', 'timecreated']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_plugin_savepoint(true, 2026021908, 'report', 'adeptus_insights');
+    }
+
     return true;
 }

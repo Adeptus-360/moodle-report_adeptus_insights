@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the Adeptus Insights report plugin.
+ * Message provider definitions for Adeptus Insights.
  *
  * @package     report_adeptus_insights
  * @copyright   2026 Adeptus 360 <info@adeptus360.com>
@@ -24,9 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026021908;
-$plugin->requires  = 2022112800; // Moodle 4.1.
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.13.0';
-$plugin->supported = [401, 500]; // Moodle 4.1 through 5.0.
+$messageproviders = [
+    'alert_rule_triggered' => [
+        'capability' => 'report/adeptus_insights:viewalerts',
+    ],
+];

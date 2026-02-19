@@ -61,4 +61,13 @@ $tasks = [
         'dayofweek' => '1',
         'month'     => '*',
     ],
+    [
+        'classname' => 'report_adeptus_insights\task\evaluate_alert_rules',
+        'blocking'  => 0,
+        'minute'    => '0',
+        'hour'      => '*',
+        'day'       => '*',
+        'dayofweek' => '*',
+        'month'     => '*',
+    ],
 ];

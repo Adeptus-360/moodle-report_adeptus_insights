@@ -357,7 +357,7 @@
             </INDEXES>
         </TABLE>
 
-        <!-- 19. Alert Digest Log -->
+        <!-- 19. Alert Digest Log (G8) -->
         <TABLE NAME="report_adeptus_alert_log" COMMENT="Tracks sent alert digests to prevent duplicates">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -371,6 +371,53 @@
             </KEYS>
             <INDEXES>
                 <INDEX NAME="idx_period_key" UNIQUE="true" FIELDS="period_key"/>
+            </INDEXES>
+        </TABLE>
+
+        <!-- 20. Rule-Based Alert Rules (G10) -->
+        <TABLE NAME="report_adeptus_alert_rules" COMMENT="Admin-defined alert trigger rules evaluated on cron">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
+                <FIELD NAME="rule_type" TYPE="char" LENGTH="30" NOTNULL="true"/>
+                <FIELD NAME="threshold" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="true"/>
+                <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="role_id" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="notify_roles" TYPE="text" NOTNULL="false"/>
+                <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+                <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk_course_id" TYPE="foreign" FIELDS="course_id" REFTABLE="course" REFFIELDS="id"/>
+                <KEY NAME="fk_role_id" TYPE="foreign" FIELDS="role_id" REFTABLE="role" REFFIELDS="id"/>
+                <KEY NAME="fk_created_by" TYPE="foreign" FIELDS="created_by" REFTABLE="user" REFFIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_enabled_type" UNIQUE="false" FIELDS="enabled,rule_type"/>
+            </INDEXES>
+        </TABLE>
+
+        <!-- 21. Rule-Based Alert Logs (G10) -->
+        <TABLE NAME="report_adeptus_alert_logs" COMMENT="Log of triggered rule-based alerts per user">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="rule_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="false"/>
+                <FIELD NAME="triggered_value" TYPE="number" LENGTH="10" DECIMALS="2" NOTNULL="false"/>
+                <FIELD NAME="notified" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+                <KEY NAME="fk_rule_id" TYPE="foreign" FIELDS="rule_id" REFTABLE="report_adeptus_alert_rules" REFFIELDS="id"/>
+                <KEY NAME="fk_user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_rule_user_time" UNIQUE="false" FIELDS="rule_id,user_id,timecreated"/>
             </INDEXES>
         </TABLE>
 

@@ -1311,3 +1311,32 @@ $string['branding_footer_text_desc'] = 'Custom text displayed in the footer area
 $string['branding_powered_by'] = 'Show "Powered by Adeptus 360"';
 $string['branding_powered_by_desc'] = 'Display a small "Powered by Adeptus 360" attribution in reports.';
 $string['managebranding'] = 'Manage white-label branding';
+
+// G10: Rule-Based Alert Triggers.
+$string['task_evaluate_alert_rules'] = 'Evaluate rule-based alert triggers';
+$string['alert_rule_triggered_subject'] = 'Alert triggered: {$a}';
+$string['alert_rule_triggered_body'] = 'Alert rule "{$a->rulename}" ({$a->ruletype}) was triggered.
+
+User: {$a->username}
+Course: {$a->coursename}
+Triggered value: {$a->value}
+Threshold: {$a->threshold}';
+$string['viewalerts'] = 'View alert rules and logs';
+$string['alert_rules'] = 'Alert Rules';
+$string['alert_rules_desc'] = 'Define rules that automatically detect at-risk learners and trigger notifications.';
+$string['alert_rule_name'] = 'Rule name';
+$string['alert_rule_type'] = 'Rule type';
+$string['alert_rule_type_grade_below'] = 'Grade below threshold';
+$string['alert_rule_type_completion_stalled'] = 'Completion stalled (days)';
+$string['alert_rule_type_inactive_days'] = 'Inactive days (no activity)';
+$string['alert_rule_type_login_gap'] = 'Login gap (days since last login)';
+$string['alert_rule_threshold'] = 'Threshold';
+$string['alert_rule_course'] = 'Course (optional)';
+$string['alert_rule_notify_roles'] = 'Notify roles';
+$string['alert_rule_enabled'] = 'Enabled';
+$string['alert_rule_created'] = 'Alert rule created successfully.';
+$string['alert_rule_updated'] = 'Alert rule updated successfully.';
+$string['alert_rule_deleted'] = 'Alert rule deleted successfully.';
+$string['alert_logs'] = 'Alert Logs';
+$string['alert_logs_desc'] = 'History of triggered rule-based alerts.';
+$string['alert_no_rules'] = 'No alert rules have been created yet.';
