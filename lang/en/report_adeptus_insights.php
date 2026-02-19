@@ -1288,3 +1288,26 @@ $string['alert_upgrade_button'] = 'Upgrade to Enterprise';
 $string['alert_digest_subject'] = 'At-Risk Learner Digest — {$a}';
 $string['task_send_alert_digest'] = 'Send at-risk learner alert digest';
 $string['managealerts'] = 'Manage inactivity alerts';
+
+// G9: White-Label / Reseller Branding.
+$string['branding_settings'] = 'White-Label Branding';
+$string['branding_settings_saved'] = 'Branding settings saved successfully.';
+$string['branding_enterprise_only'] = 'White-Label Branding is an Enterprise-tier feature.';
+$string['branding_upgrade_prompt'] = 'Upgrade to Enterprise to customise reports with your own logo, colours, and branding.';
+$string['branding_upgrade_button'] = 'Upgrade to Enterprise';
+$string['branding_logo_heading'] = 'Logo';
+$string['branding_logo'] = 'Custom logo';
+$string['branding_logo_desc'] = 'Upload your organisation logo (PNG, JPG, GIF or SVG, max 2 MB). Appears in report headers and PDF exports.';
+$string['branding_colours_heading'] = 'Colours';
+$string['branding_primary_colour'] = 'Primary colour';
+$string['branding_primary_colour_desc'] = 'Used for report headers, table headings, and accent elements.';
+$string['branding_secondary_colour'] = 'Secondary colour';
+$string['branding_secondary_colour_desc'] = 'Used for footers and supporting elements.';
+$string['branding_text_heading'] = 'Text & Attribution';
+$string['branding_header_text'] = 'Report header text';
+$string['branding_header_text_desc'] = 'Custom company or organisation name displayed in report headers (replaces "Adeptus 360").';
+$string['branding_footer_text'] = 'Report footer text';
+$string['branding_footer_text_desc'] = 'Custom text displayed in the footer area of reports and PDF exports.';
+$string['branding_powered_by'] = 'Show "Powered by Adeptus 360"';
+$string['branding_powered_by_desc'] = 'Display a small "Powered by Adeptus 360" attribution in reports.';
+$string['managebranding'] = 'Manage white-label branding';

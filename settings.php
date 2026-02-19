@@ -49,6 +49,14 @@ if ($hassiteconfig) {
         'report/adeptus_insights:viewschedules'
     ));
 
+    // Branding Settings page link in admin nav.
+    $ADMIN->add('reports', new admin_externalpage(
+        'report_adeptus_insights_branding',
+        get_string('branding_settings', 'report_adeptus_insights'),
+        new moodle_url('/report/adeptus_insights/branding_settings.php'),
+        'report/adeptus_insights:managebranding'
+    ));
+
     // Settings page (separate from the report link).
     $settings = new admin_settingpage('report_adeptus_insights_settings', get_string('settings', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);

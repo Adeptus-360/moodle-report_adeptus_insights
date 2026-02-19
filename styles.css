@@ -27,6 +27,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/* G9: White-Label Branding CSS Custom Properties */
+.path-report-adeptus_insights {
+    --adeptus-primary: #2980b9;
+    --adeptus-secondary: #7f8c8d;
+}
+
+.path-report-adeptus_insights .adeptus-wl-logo {
+    max-height: 48px;
+    margin-bottom: 0.5rem;
+}
+
+.path-report-adeptus_insights .adeptus-wl-header {
+    color: var(--adeptus-primary);
+    font-weight: 700;
+}
+
+.path-report-adeptus_insights .adeptus-wl-footer {
+    color: var(--adeptus-secondary);
+    font-size: 0.85rem;
+}
+
+.path-report-adeptus_insights .adeptus-powered-by {
+    color: #adb5bd;
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
 /* Lottie Animation Styles */
 .path-report-adeptus_insights [data-lottie],
 .path-report-adeptus_insights [data-lottie-path] {

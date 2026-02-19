@@ -86,6 +86,52 @@ function report_adeptus_insights_myprofile_navigation(
 }
 
 /**
+ * Serve plugin files (white-label logo).
+ *
+ * @param stdClass $course The course object.
+ * @param stdClass $cm The course module object.
+ * @param context $context The context.
+ * @param string $filearea The file area.
+ * @param array $args Extra arguments.
+ * @param bool $forcedownload Force download.
+ * @param array $options Additional options.
+ * @return bool False if file not found.
+ */
+function report_adeptus_insights_pluginfile(
+    $course,
+    $cm,
+    $context,
+    $filearea,
+    $args,
+    $forcedownload,
+    array $options = []
+) {
+    if ($context->contextlevel !== CONTEXT_SYSTEM) {
+        return false;
+    }
+
+    if ($filearea !== 'whitelabel_logo') {
+        return false;
+    }
+
+    require_login();
+
+    $itemid = (int) array_shift($args);
+    $filename = array_pop($args);
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'report_adeptus_insights', $filearea, $itemid, $filepath, $filename);
+
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+
+    send_stored_file($file, 86400, 0, $forcedownload, $options);
+    return true;
+}
+
+/**
  * Callback executed before HTTP headers are sent.
  *
  * Loads bundled third-party JS/CSS libraries on plugin pages.

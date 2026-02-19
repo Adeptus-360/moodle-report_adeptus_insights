@@ -72,4 +72,11 @@ $capabilities = [
             'editingteacher' => CAP_ALLOW,
         ],
     ],
+    'report/adeptus_insights:managebranding' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => [
+            'manager' => CAP_ALLOW,
+        ],
+    ],
 ];

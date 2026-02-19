@@ -278,6 +278,199 @@ class branding_manager {
         self::$brandingcache = null;
     }
 
+    // -------------------------------------------------------------------------
+    // G9: White-Label / Reseller Branding (Enterprise tier only).
+    // -------------------------------------------------------------------------
+
+    /**
+     * Check if white-label branding feature is available (Enterprise tier).
+     *
+     * @return bool True if the site has an Enterprise license.
+     */
+    public static function is_whitelabel_available(): bool {
+        $tier = get_config('report_adeptus_insights', 'license_tier');
+        return ($tier === 'enterprise');
+    }
+
+    /**
+     * Get all white-label branding settings.
+     *
+     * Returns the locally configured branding overrides set by the admin.
+     *
+     * @return array Associative array of branding settings.
+     */
+    public function get_whitelabel_settings(): array {
+        $component = 'report_adeptus_insights';
+
+        return [
+            'primary_colour'   => get_config($component, 'wl_primary_colour') ?: '#2980b9',
+            'secondary_colour' => get_config($component, 'wl_secondary_colour') ?: '#7f8c8d',
+            'footer_text'      => get_config($component, 'wl_footer_text') ?: '',
+            'header_text'      => get_config($component, 'wl_header_text') ?: '',
+            'powered_by'       => (bool) get_config($component, 'wl_powered_by'),
+        ];
+    }
+
+    /**
+     * Save white-label branding settings.
+     *
+     * @param array $settings Associative array of settings to save.
+     */
+    public function save_whitelabel_settings(array $settings): void {
+        $component = 'report_adeptus_insights';
+        $allowed = ['primary_colour', 'secondary_colour', 'footer_text', 'header_text', 'powered_by'];
+
+        foreach ($allowed as $key) {
+            if (array_key_exists($key, $settings)) {
+                set_config('wl_' . $key, $settings[$key], $component);
+            }
+        }
+    }
+
+    /**
+     * Get the white-label logo URL served via pluginfile.php.
+     *
+     * @return \moodle_url|null URL to the logo or null if none uploaded.
+     */
+    public function get_whitelabel_logo_url(): ?\moodle_url {
+        $fs = get_file_storage();
+        $context = \context_system::instance();
+        $files = $fs->get_area_files(
+            $context->id,
+            'report_adeptus_insights',
+            'whitelabel_logo',
+            0,
+            'timemodified DESC',
+            false
+        );
+
+        if (empty($files)) {
+            return null;
+        }
+
+        $file = reset($files);
+        return \moodle_url::make_pluginfile_url(
+            $file->get_contextid(),
+            $file->get_component(),
+            $file->get_filearea(),
+            $file->get_itemid(),
+            $file->get_filepath(),
+            $file->get_filename(),
+            false
+        );
+    }
+
+    /**
+     * Get raw logo file for PDF embedding.
+     *
+     * @return \stored_file|null The stored file or null.
+     */
+    public function get_whitelabel_logo_file(): ?\stored_file {
+        $fs = get_file_storage();
+        $context = \context_system::instance();
+        $files = $fs->get_area_files(
+            $context->id,
+            'report_adeptus_insights',
+            'whitelabel_logo',
+            0,
+            'timemodified DESC',
+            false
+        );
+
+        if (empty($files)) {
+            return null;
+        }
+
+        return reset($files);
+    }
+
+    /**
+     * Save an uploaded logo file.
+     *
+     * @param int $draftitemid The draft area item id from the file picker.
+     */
+    public function save_whitelabel_logo(int $draftitemid): void {
+        $context = \context_system::instance();
+        file_save_draft_area_files(
+            $draftitemid,
+            $context->id,
+            'report_adeptus_insights',
+            'whitelabel_logo',
+            0,
+            ['maxfiles' => 1, 'accepted_types' => ['image']]
+        );
+    }
+
+    /**
+     * Get merged PDF branding config that includes white-label overrides.
+     *
+     * If white-label is enabled and configured, overrides default branding.
+     *
+     * @return array Branding configuration array for PDF generation.
+     */
+    public function get_merged_pdf_branding_config(): array {
+        $config = $this->get_pdf_branding_config();
+
+        if (!self::is_whitelabel_available()) {
+            return $config;
+        }
+
+        $wl = $this->get_whitelabel_settings();
+
+        // Override colours.
+        $config['header_color'] = $this->hex_to_rgb($wl['primary_colour']);
+        $config['footer_color'] = $this->hex_to_rgb($wl['secondary_colour']);
+
+        // Override footer text.
+        if (!empty($wl['footer_text'])) {
+            $config['footer_text'] = $wl['footer_text'];
+        }
+
+        // Override header text / company name.
+        if (!empty($wl['header_text'])) {
+            $config['company_name'] = $wl['header_text'];
+        }
+
+        // Show/hide powered by.
+        $config['show_powered_by'] = $wl['powered_by'];
+
+        // Override logo with local upload if available.
+        $logofile = $this->get_whitelabel_logo_file();
+        if ($logofile) {
+            $mimetype = $logofile->get_mimetype();
+            $content = $logofile->get_content();
+            $datauri = 'data:' . $mimetype . ';base64,' . base64_encode($content);
+            $config['logo'] = $datauri;
+            $config['has_branding'] = true;
+
+            $imageinfo = $logofile->get_imageinfo();
+            if ($imageinfo) {
+                $config['logo_width'] = $imageinfo['width'];
+                $config['logo_height'] = $imageinfo['height'];
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * Convert a hex colour string to an RGB array.
+     *
+     * @param string $hex Hex colour (e.g. '#2980b9' or '2980b9').
+     * @return array [r, g, b] integer values.
+     */
+    private function hex_to_rgb(string $hex): array {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+        return [
+            (int) hexdec(substr($hex, 0, 2)),
+            (int) hexdec(substr($hex, 2, 2)),
+            (int) hexdec(substr($hex, 4, 2)),
+        ];
+    }
+
     /**
      * Extract raw image data from base64 data URI.
      *
