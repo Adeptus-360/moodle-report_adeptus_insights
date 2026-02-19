@@ -1266,3 +1266,25 @@ $string['grading_timeliness_by_teacher'] = 'Grading timeliness by teacher';
 $string['grading_timeliness_by_teacher_desc'] = 'Calculates average time from student submission to grade per teacher and assignment, helping identify grading bottlenecks.';
 $string['teacher_course_load'] = 'Teacher course load';
 $string['teacher_course_load_desc'] = 'Summary of each teacher\'s workload: number of courses assigned and total enrolled students across all their courses.';
+
+// G8: Inactivity Alerts & At-Risk Digest.
+$string['alert_settings'] = 'Inactivity Alerts';
+$string['alert_general_settings'] = 'Alert Configuration';
+$string['alert_enabled'] = 'Enable alerts';
+$string['alert_inactivity_days'] = 'Inactivity threshold (days)';
+$string['alert_inactivity_days_desc'] = 'Number of days without login before a learner is flagged as inactive.';
+$string['alert_completion_threshold'] = 'Completion rate threshold (%)';
+$string['alert_completion_threshold_desc'] = 'Learners with course completion below this percentage will be flagged.';
+$string['alert_frequency'] = 'Digest frequency';
+$string['alert_freq_daily'] = 'Daily';
+$string['alert_freq_weekly'] = 'Weekly';
+$string['alert_freq_monthly'] = 'Monthly';
+$string['alert_recipient_roles'] = 'Recipient roles';
+$string['alert_recipient_roles_desc'] = 'Select which roles should receive the at-risk learner digest email.';
+$string['alert_settings_saved'] = 'Alert settings saved successfully.';
+$string['alert_enterprise_only'] = 'Inactivity Alerts is an Enterprise-tier feature.';
+$string['alert_upgrade_prompt'] = 'Upgrade to Enterprise to unlock at-risk learner digests, inactivity alerts, and more.';
+$string['alert_upgrade_button'] = 'Upgrade to Enterprise';
+$string['alert_digest_subject'] = 'At-Risk Learner Digest — {$a}';
+$string['task_send_alert_digest'] = 'Send at-risk learner alert digest';
+$string['managealerts'] = 'Manage inactivity alerts';

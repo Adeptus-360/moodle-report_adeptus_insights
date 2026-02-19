@@ -33,6 +33,14 @@ if ($hassiteconfig) {
         'report/adeptus_insights:view'
     ));
 
+    // Alert Settings page link in admin nav.
+    $ADMIN->add('reports', new admin_externalpage(
+        'report_adeptus_insights_alerts',
+        get_string('alert_settings', 'report_adeptus_insights'),
+        new moodle_url('/report/adeptus_insights/alert_settings.php'),
+        'report/adeptus_insights:managealerts'
+    ));
+
     // Scheduled Reports page link in admin nav.
     $ADMIN->add('reports', new admin_externalpage(
         'report_adeptus_insights_schedules',
@@ -42,7 +50,7 @@ if ($hassiteconfig) {
     ));
 
     // Settings page (separate from the report link).
-    $settings = new admin_settingpage('report_adeptus_insights', get_string('settings', 'report_adeptus_insights'));
+    $settings = new admin_settingpage('report_adeptus_insights_settings', get_string('settings', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);
 
     // Email Notifications Section.

@@ -1,0 +1,84 @@
+{{!
+    @template report_adeptus_insights/alert_digest_email
+
+    At-risk learner digest email template.
+
+    Context variables:
+    * period - Period key (e.g. 2026-W08)
+    * siteurl - Site URL
+    * inactivity_days - Inactivity threshold
+    * completion_threshold - Completion % threshold
+    * has_inactive - Boolean
+    * inactive_courses - Array of courses with inactive learners
+    * has_low_completion - Boolean
+    * low_completion_courses - Array of courses with low completion
+    * generated_at - Human-readable timestamp
+}}
+<html>
+<head>
+<style>
+    body { font-family: Arial, sans-serif; color: #333; line-height: 1.5; }
+    .header { background: #2d3748; color: #fff; padding: 20px; border-radius: 8px 8px 0 0; }
+    .content { padding: 20px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; }
+    .section { margin-bottom: 24px; }
+    .section h3 { color: #e53e3e; margin-bottom: 8px; }
+    .course-block { background: #f7fafc; border-left: 4px solid #e53e3e; padding: 12px; margin-bottom: 12px; border-radius: 0 4px 4px 0; }
+    .course-name { font-weight: bold; font-size: 14px; margin-bottom: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 6px 8px; background: #edf2f7; border-bottom: 2px solid #cbd5e0; }
+    td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
+    .footer { font-size: 12px; color: #718096; margin-top: 20px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+</style>
+</head>
+<body>
+<div class="header">
+    <h2 style="margin:0;">⚠️ At-Risk Learner Digest</h2>
+    <p style="margin:4px 0 0 0; opacity:0.8;">Period: {{period}}</p>
+</div>
+<div class="content">
+
+{{#has_inactive}}
+<div class="section">
+    <h3>🔴 Inactive Learners (no login for {{inactivity_days}}+ days)</h3>
+    {{#inactive_courses}}
+    <div class="course-block">
+        <div class="course-name">{{coursename}} ({{learnercount}} learner{{^learnercount}}s{{/learnercount}}{{#learnercount}}{{^singlelearner}}s{{/singlelearner}}{{/learnercount}})</div>
+        <table>
+            <tr><th>Learner</th><th>Email</th><th>Last Access</th></tr>
+            {{#learners}}
+            <tr><td>{{fullname}}</td><td>{{email}}</td><td>{{lastaccess}}</td></tr>
+            {{/learners}}
+        </table>
+    </div>
+    {{/inactive_courses}}
+</div>
+{{/has_inactive}}
+
+{{#has_low_completion}}
+<div class="section">
+    <h3>📉 Low Completion Rate (below {{completion_threshold}}%)</h3>
+    {{#low_completion_courses}}
+    <div class="course-block">
+        <div class="course-name">{{coursename}} ({{learnercount}} learner{{^learnercount}}s{{/learnercount}}{{#learnercount}}{{^singlelearner}}s{{/singlelearner}}{{/learnercount}})</div>
+        <table>
+            <tr><th>Learner</th><th>Email</th><th>Completion</th></tr>
+            {{#learners}}
+            <tr><td>{{fullname}}</td><td>{{email}}</td><td>{{completion_pct}}%</td></tr>
+            {{/learners}}
+        </table>
+    </div>
+    {{/low_completion_courses}}
+</div>
+{{/has_low_completion}}
+
+{{^has_inactive}}{{^has_low_completion}}
+<p>No at-risk learners found for this period. 🎉</p>
+{{/has_low_completion}}{{/has_inactive}}
+
+<div class="footer">
+    <p>Generated: {{generated_at}} | <a href="{{siteurl}}/report/adeptus_insights/alert_settings.php">Manage Alert Settings</a></p>
+    <p>Powered by <strong>Adeptus Insights</strong> — Enterprise Edition</p>
+</div>
+</div>
+</body>
+</html>

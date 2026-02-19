@@ -338,5 +338,41 @@
             </INDEXES>
         </TABLE>
 
+        <!-- 18. Alert Configuration -->
+        <TABLE NAME="report_adeptus_alert_config" COMMENT="Alert configuration settings for at-risk learner digests">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="alert_type" TYPE="char" LENGTH="50" NOTNULL="true"/>
+                <FIELD NAME="threshold_value" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1"/>
+                <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_alert_type" UNIQUE="true" FIELDS="alert_type"/>
+            </INDEXES>
+        </TABLE>
+
+        <!-- 19. Alert Digest Log -->
+        <TABLE NAME="report_adeptus_alert_log" COMMENT="Tracks sent alert digests to prevent duplicates">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="period_key" TYPE="char" LENGTH="20" NOTNULL="true"/>
+                <FIELD NAME="recipients_sent" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="learners_found" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0"/>
+                <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_period_key" UNIQUE="true" FIELDS="period_key"/>
+            </INDEXES>
+        </TABLE>
+
     </TABLES>
 </XMLDB>

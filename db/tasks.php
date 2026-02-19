@@ -52,4 +52,13 @@ $tasks = [
         'dayofweek' => '*',
         'month'     => '*',
     ],
+    [
+        'classname' => 'report_adeptus_insights\task\send_alert_digest',
+        'blocking'  => 0,
+        'minute'    => '0',
+        'hour'      => '6',
+        'day'       => '*',
+        'dayofweek' => '1',
+        'month'     => '*',
+    ],
 ];
