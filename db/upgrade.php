@@ -132,5 +132,24 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026021500, 'report', 'adeptus_insights');
     }
 
+    if ($oldversion < 2026021910) {
+        // Fix bookmarks table: change reportid from int to char(255) for PostgreSQL compatibility.
+        // Report IDs are now string-based report names, not integer IDs.
+        $table = new xmldb_table('report_adeptus_insights_bookmarks');
+        $field = new xmldb_field('reportid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'userid');
+
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+
+        // Add unique index on userid + reportid to prevent duplicate bookmarks.
+        $index = new xmldb_index('idx_userid_reportid', XMLDB_INDEX_UNIQUE, ['userid', 'reportid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_plugin_savepoint(true, 2026021910, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
