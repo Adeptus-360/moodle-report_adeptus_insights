@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/.
+// This file is part of Moodle - http://moodle.org/
 //
-// Moodle is free software: you can redistribute it and/or modify.
-// it under the terms of the GNU General Public License as published by.
-// the Free Software Foundation, either version 3 of the License, or.
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,.
-// but WITHOUT ANY WARRANTY; without even the implied warranty of.
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License.
+// You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -44,11 +44,11 @@ $reportid = required_param('reportid', PARAM_TEXT);
 $format = required_param('format', PARAM_ALPHA);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
-// chart_data is a JSON blob from the frontend; validated below.
+// Chart_data is a JSON blob from the frontend; validated below.
 $chartdata = optional_param('chart_data', '', PARAM_RAW);
 
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
-// chart_image is a base64 data URI; validated below via regex and size check.
+// Chart_image is a base64 data URI; validated below via regex and size check.
 $chartimage = optional_param('chart_image', '', PARAM_RAW);
 
 // Validate chart_data: must be valid JSON if provided.
@@ -86,7 +86,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Check if we have report data from frontend.
 
-    // report_data is a JSON blob from the frontend containing report results; validated below.
+    // Report_data is a JSON blob from the frontend containing report results; validated below.
     $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
     // Validate report_data: must be valid JSON if provided.

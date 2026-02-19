@@ -1,17 +1,17 @@
 <?php
-// This file is part of Moodle - http://moodle.org/.
+// This file is part of Moodle - http://moodle.org/
 //
-// Moodle is free software: you can redistribute it and/or modify.
-// it under the terms of the GNU General Public License as published by.
-// the Free Software Foundation, either version 3 of the License, or.
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Moodle is distributed in the hope that it will be useful,.
-// but WITHOUT ANY WARRANTY; without even the implied warranty of.
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the.
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License.
+// You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
@@ -124,6 +124,12 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
 
         // Adeptus Insights savepoint reached.
         upgrade_plugin_savepoint(true, 2026012701, 'report', 'adeptus_insights');
+    }
+
+    if ($oldversion < 2026021500) {
+        // Version 1.5.0: CONTRIB-10263 reviewer feedback round 2.
+        // Code quality and standards fixes only — no database schema changes.
+        upgrade_plugin_savepoint(true, 2026021500, 'report', 'adeptus_insights');
     }
 
     return true;
