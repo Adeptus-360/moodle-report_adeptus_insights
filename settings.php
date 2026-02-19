@@ -33,6 +33,14 @@ if ($hassiteconfig) {
         'report/adeptus_insights:view'
     ));
 
+    // Scheduled Reports page link in admin nav.
+    $ADMIN->add('reports', new admin_externalpage(
+        'report_adeptus_insights_schedules',
+        get_string('scheduled_reports', 'report_adeptus_insights'),
+        new moodle_url('/report/adeptus_insights/scheduled_reports.php'),
+        'report/adeptus_insights:viewschedules'
+    ));
+
     // Settings page (separate from the report link).
     $settings = new admin_settingpage('report_adeptus_insights', get_string('settings', 'report_adeptus_insights'));
     $ADMIN->add('reports', $settings);
@@ -59,6 +67,51 @@ if ($hassiteconfig) {
         get_string('notification_email_desc', 'report_adeptus_insights'),
         '',
         PARAM_EMAIL
+    ));
+
+    // Scheduled Reports Settings Section.
+    $settings->add(new admin_setting_heading(
+        'report_adeptus_insights/scheduled_reports_heading',
+        get_string('settings_scheduled_reports', 'report_adeptus_insights'),
+        get_string('scheduled_reports_desc', 'report_adeptus_insights')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'report_adeptus_insights/enable_scheduled_reports',
+        get_string('enable_scheduled_reports', 'report_adeptus_insights'),
+        get_string('enable_scheduled_reports_desc', 'report_adeptus_insights'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'report_adeptus_insights/scheduled_reports_sender_name',
+        get_string('scheduled_reports_sender_name', 'report_adeptus_insights'),
+        get_string('scheduled_reports_sender_name_desc', 'report_adeptus_insights'),
+        'Adeptus Insights',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configcheckbox(
+        'report_adeptus_insights/scheduled_reports_pdf_fallback',
+        get_string('scheduled_reports_pdf_fallback', 'report_adeptus_insights'),
+        get_string('scheduled_reports_pdf_fallback_desc', 'report_adeptus_insights'),
+        1
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'report_adeptus_insights/scheduled_reports_max_recipients',
+        get_string('scheduled_reports_max_recipients', 'report_adeptus_insights'),
+        get_string('scheduled_reports_max_recipients_desc', 'report_adeptus_insights'),
+        '50',
+        PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'report_adeptus_insights/scheduled_reports_log_retention',
+        get_string('scheduled_reports_log_retention', 'report_adeptus_insights'),
+        get_string('scheduled_reports_log_retention_desc', 'report_adeptus_insights'),
+        '90',
+        PARAM_INT
     ));
 
     // Simple post-install redirect to subscription.
