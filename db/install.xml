@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="report/adeptus_insights/db" VERSION="2026012701" COMMENT="Adeptus Insights DB schema with Stripe integration">
+<XMLDB PATH="report/adeptus_insights/db" VERSION="2026021500" COMMENT="Adeptus Insights DB schema with Stripe integration">
     <TABLES>
 
         <!-- 1. Materialized Base Table -->
