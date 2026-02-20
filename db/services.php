@@ -291,6 +291,64 @@ $functions = [
         'capabilities' => 'report/adeptus_insights:view',
     ],
 
+    // Report management services.
+    'report_adeptus_insights_manage_category' => [
+        'classname'   => 'report_adeptus_insights\external\manage_category',
+        'methodname'  => 'execute',
+        'description' => 'Manage report categories (list, create, update, delete)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_manage_generated_reports' => [
+        'classname'   => 'report_adeptus_insights\external\manage_generated_reports',
+        'methodname'  => 'execute',
+        'description' => 'Manage generated reports (remove single or clear all)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_manage_recent_reports' => [
+        'classname'   => 'report_adeptus_insights\external\manage_recent_reports',
+        'methodname'  => 'execute',
+        'description' => 'Manage recent reports (clear all or remove single)',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_track_export' => [
+        'classname'   => 'report_adeptus_insights\external\track_export',
+        'methodname'  => 'execute',
+        'description' => 'Track report export for usage accounting',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_track_report_created' => [
+        'classname'   => 'report_adeptus_insights\external\track_report_created',
+        'methodname'  => 'execute',
+        'description' => 'Track report creation for usage accounting',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_track_report_deleted' => [
+        'classname'   => 'report_adeptus_insights\external\track_report_deleted',
+        'methodname'  => 'execute',
+        'description' => 'Track report deletion for usage accounting',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+    'report_adeptus_insights_update_report_category' => [
+        'classname'   => 'report_adeptus_insights\external\update_report_category',
+        'methodname'  => 'execute',
+        'description' => 'Update the category assignment for a report',
+        'type'        => 'write',
+        'ajax'        => true,
+        'capabilities' => 'report/adeptus_insights:view',
+    ],
+
 ];
 
 $services = [
@@ -335,6 +393,14 @@ $services = [
             'report_adeptus_insights_bookmark_report',
             // Phase 2: Cohort & Group Filters.
             'report_adeptus_insights_get_cohort_group_filters',
+            // Report management.
+            'report_adeptus_insights_manage_category',
+            'report_adeptus_insights_manage_generated_reports',
+            'report_adeptus_insights_manage_recent_reports',
+            'report_adeptus_insights_track_export',
+            'report_adeptus_insights_track_report_created',
+            'report_adeptus_insights_track_report_deleted',
+            'report_adeptus_insights_update_report_category',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

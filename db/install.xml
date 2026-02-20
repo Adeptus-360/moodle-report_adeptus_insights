@@ -99,12 +99,15 @@
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true"/>
-                <FIELD NAME="reportid" TYPE="int" LENGTH="10" NOTNULL="true"/>
+                <FIELD NAME="reportid" TYPE="char" LENGTH="255" NOTNULL="true"/>
                 <FIELD NAME="createdat" TYPE="int" LENGTH="10" NOTNULL="true"/>
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
+            <INDEXES>
+                <INDEX NAME="idx_reportid" UNIQUE="false" FIELDS="reportid"/>
+            </INDEXES>
         </TABLE>
 
         <!-- 7. Installation Settings Table -->

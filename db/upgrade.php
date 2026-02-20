@@ -281,5 +281,23 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026021908, 'report', 'adeptus_insights');
     }
 
+    if ($oldversion < 2026022000) {
+        // Fix bookmarks.reportid column: change from int to char(255) to support text-based report slugs.
+        $table = new xmldb_table('report_adeptus_insights_bookmarks');
+        $field = new xmldb_field('reportid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+
+        if ($dbman->table_exists($table)) {
+            $dbman->change_field_type($table, $field);
+
+            // Add index on reportid for lookup performance.
+            $index = new xmldb_index('idx_reportid', XMLDB_INDEX_NOTUNIQUE, ['reportid']);
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+
+        upgrade_plugin_savepoint(true, 2026022000, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
