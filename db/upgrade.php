@@ -299,5 +299,45 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026022000, 'report', 'adeptus_insights');
     }
 
+    if ($oldversion < 2026022001) {
+        // Fix 1: Create report_adeptus_insights_plans if it doesn't exist
+        // (rename from adeptus_stripe_plans only worked if old table existed).
+        $table = new xmldb_table('report_adeptus_insights_plans');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('stripe_product_id', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+            $table->add_field('stripe_price_id', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+            $table->add_field('ai_credits', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('ai_credits_pro', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('ai_credits_basic', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('exports', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('ix_stripe_price_id', XMLDB_INDEX_UNIQUE, ['stripe_price_id']);
+            $table->add_index('ix_stripe_product_id', XMLDB_INDEX_NOTUNIQUE, ['stripe_product_id']);
+            $dbman->create_table($table);
+        }
+
+        // Fix 2: Ensure decimal precision on alert_rules.threshold (10,2).
+        $table = new xmldb_table('report_adeptus_alert_rules');
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('threshold', XMLDB_TYPE_NUMBER, '10', null, XMLDB_NOTNULL, null, null, 'rule_type');
+            $field->setDecimals(2);
+            $dbman->change_field_precision($table, $field);
+        }
+
+        // Fix 3: Ensure decimal precision on alert_logs.triggered_value (10,2).
+        $table = new xmldb_table('report_adeptus_alert_logs');
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('triggered_value', XMLDB_TYPE_NUMBER, '10', null, null, null, null, 'course_id');
+            $field->setDecimals(2);
+            $dbman->change_field_precision($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2026022001, 'report', 'adeptus_insights');
+    }
+
     return true;
 }
