@@ -132,7 +132,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026021500, 'report', 'adeptus_insights');
     }
 
-    if ($oldversion < 2026021910) {
+    if ($oldversion < 2026021501) {
         // Fix bookmarks table: change reportid from int to char(255) for PostgreSQL compatibility.
         // Report IDs are now string-based report names, not integer IDs.
         $table = new xmldb_table('report_adeptus_insights_bookmarks');
@@ -148,7 +148,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
 
-        upgrade_plugin_savepoint(true, 2026021910, 'report', 'adeptus_insights');
+        upgrade_plugin_savepoint(true, 2026021501, 'report', 'adeptus_insights');
     }
 
     return true;
