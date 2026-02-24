@@ -21,8 +21,168 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/str', 'core/chartjs'], function($, Ajax, Str, Chart) {
+define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
     'use strict';
+
+    /**
+     * Minimal vanilla JS DOM helper - replaces jQuery for Moodle 5.x compatibility.
+     * Provides a chainable wrapper with the subset of jQuery API used in this module.
+     * This is NOT jQuery - it's a lightweight shim that will be removed
+     * once full vanilla JS migration is complete.
+     */
+    var $ = (function() {
+        var wrap = function(els) {
+            if (typeof els === 'string') {
+                if (els.trim().charAt(0) === '<') {
+                    var tmp = document.createElement('div');
+                    tmp.innerHTML = els.trim();
+                    els = Array.from(tmp.children);
+                } else {
+                    els = Array.from(document.querySelectorAll(els));
+                }
+            } else if (els instanceof Element || els === document || els === window) {
+                els = [els];
+            } else if (els && els._wrapped) {
+                return els;
+            } else if (!els) {
+                els = [];
+            } else if (!Array.isArray(els)) {
+                els = Array.from(els);
+            }
+            var obj = {
+                _wrapped: true,
+                length: els.length,
+                0: els[0],
+                get: function(i) { return els[i]; },
+                each: function(fn) { els.forEach(function(el, i) { fn.call(el, i, el); }); return obj; },
+                find: function(sel) { var r = []; els.forEach(function(el) { r.push.apply(r, Array.from(el.querySelectorAll(sel))); }); return wrap(r); },
+                closest: function(sel) { return els[0] ? wrap(els[0].closest(sel) || []) : wrap([]); },
+                addClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) el.classList.add(cn); }); }); return obj; },
+                removeClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) el.classList.remove(cn); }); }); return obj; },
+                hasClass: function(c) { return els[0] ? els[0].classList.contains(c) : false; },
+                toggleClass: function(c) { els.forEach(function(el) { el.classList.toggle(c); }); return obj; },
+                css: function(a, b) { if (typeof a === 'object') { els.forEach(function(el) { Object.keys(a).forEach(function(k) { el.style[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = a[k]; }); }); } else if (b !== undefined) { els.forEach(function(el) { el.style[a.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = b; }); } else { return els[0] ? getComputedStyle(els[0])[a] : ''; } return obj; },
+                text: function(t) { if (t === undefined) return els[0] ? els[0].textContent : ''; els.forEach(function(el) { el.textContent = t; }); return obj; },
+                html: function(h) { if (h === undefined) return els[0] ? els[0].innerHTML : ''; els.forEach(function(el) { el.innerHTML = h; }); return obj; },
+                val: function(v) { if (v === undefined) return els[0] ? els[0].value : ''; els.forEach(function(el) { el.value = v; }); return obj; },
+                attr: function(a, v) { if (v === undefined) return els[0] ? els[0].getAttribute(a) : null; els.forEach(function(el) { el.setAttribute(a, v); }); return obj; },
+                removeAttr: function(a) { els.forEach(function(el) { el.removeAttribute(a); }); return obj; },
+                prop: function(p, v) { if (v === undefined) return els[0] ? els[0][p] : undefined; els.forEach(function(el) { el[p] = v; }); return obj; },
+                data: function(k, v) { if (v === undefined) { if (!els[0]) return undefined; var dk = k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();}); var val2 = els[0].dataset[dk]; if (val2 === undefined) return undefined; try { return JSON.parse(val2); } catch(e) { return val2; } } els.forEach(function(el) { el.dataset[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = v; }); return obj; },
+                removeData: function(k) { els.forEach(function(el) { delete el.dataset[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})]; }); return obj; },
+                on: function(evt, selOrFn, fn) {
+                    var parts = evt.split('.');
+                    var evtName = parts[0];
+                    if (typeof selOrFn === 'function') { fn = selOrFn; selOrFn = null; }
+                    els.forEach(function(el) {
+                        if (selOrFn) {
+                            var handler = function(e) { var t = e.target.closest(selOrFn); if (t && el.contains(t)) { fn.call(t, e); } };
+                            el.addEventListener(evtName, handler);
+                            el._handlers = el._handlers || {};
+                            el._handlers[evt] = el._handlers[evt] || [];
+                            el._handlers[evt].push({orig: fn, wrapped: handler, sel: selOrFn});
+                        } else {
+                            el.addEventListener(evtName, fn);
+                            el._handlers = el._handlers || {};
+                            el._handlers[evt] = el._handlers[evt] || [];
+                            el._handlers[evt].push({orig: fn, wrapped: fn});
+                        }
+                    });
+                    return obj;
+                },
+                off: function(evt, selOrFn) {
+                    var parts = evt ? evt.split('.') : [];
+                    var evtName = parts[0] || '';
+                    els.forEach(function(el) {
+                        if (!el._handlers) return;
+                        if (evt && el._handlers[evt]) {
+                            el._handlers[evt].forEach(function(h) {
+                                if (!selOrFn || (typeof selOrFn === 'string' ? h.sel === selOrFn : h.orig === selOrFn)) {
+                                    el.removeEventListener(evtName, h.wrapped);
+                                }
+                            });
+                            if (!selOrFn) delete el._handlers[evt];
+                        }
+                    });
+                    return obj;
+                },
+                one: function(evt, fn) { els.forEach(function(el) { el.addEventListener(evt, function h(e) { el.removeEventListener(evt, h); fn.call(el, e); }); }); return obj; },
+                trigger: function(evt) { els.forEach(function(el) { el.dispatchEvent(new CustomEvent(evt, {bubbles: true})); }); return obj; },
+                append: function(child) {
+                    if (!els[0]) return obj;
+                    if (typeof child === 'string') { els[0].insertAdjacentHTML('beforeend', child); }
+                    else if (child && child._wrapped) { if (child[0]) els[0].appendChild(child[0]); }
+                    else if (child instanceof Node) { els[0].appendChild(child); }
+                    else if (child instanceof DocumentFragment) { els[0].appendChild(child); }
+                    return obj;
+                },
+                prepend: function(child) { if (!els[0]) return obj; if (typeof child === 'string') { els[0].insertAdjacentHTML('afterbegin', child); } else if (child && child._wrapped && child[0]) { els[0].insertBefore(child[0], els[0].firstChild); } else if (child instanceof Node) { els[0].insertBefore(child, els[0].firstChild); } return obj; },
+                before: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].insertAdjacentHTML('beforebegin', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0]); } return obj; },
+                after: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].insertAdjacentHTML('afterend', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0].nextSibling); } return obj; },
+                replaceWith: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].outerHTML = h; } else if (h && h._wrapped && h[0]) { els[0].parentNode.replaceChild(h[0], els[0]); } return obj; },
+                remove: function() { els.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); }); return obj; },
+                empty: function() { els.forEach(function(el) { el.innerHTML = ''; }); return obj; },
+                show: function() { els.forEach(function(el) { el.style.display = ''; }); return obj; },
+                hide: function() { els.forEach(function(el) { el.style.display = 'none'; }); return obj; },
+                focus: function() { if (els[0]) els[0].focus(); return obj; },
+                eq: function(i) { return wrap(els[i] ? [els[i]] : []); },
+                first: function() { return wrap(els[0] ? [els[0]] : []); },
+                last: function() { return wrap(els.length ? [els[els.length - 1]] : []); },
+                children: function() { return els[0] ? wrap(Array.from(els[0].children)) : wrap([]); },
+                parent: function() { return els[0] && els[0].parentNode ? wrap([els[0].parentNode]) : wrap([]); },
+                fadeOut: function(dur, cb) { els.forEach(function(el) { el.style.transition = 'opacity ' + (dur || 300) + 'ms'; el.style.opacity = '0'; setTimeout(function() { el.style.display = 'none'; el.style.transition = ''; el.style.opacity = ''; if (cb) cb.call(el); }, dur || 300); }); return obj; },
+                fadeIn: function(dur) { els.forEach(function(el) { el.style.display = ''; el.style.opacity = '0'; el.style.transition = 'opacity ' + (dur || 300) + 'ms'; requestAnimationFrame(function() { el.style.opacity = '1'; }); setTimeout(function() { el.style.transition = ''; }, dur || 300); }); return obj; },
+                tab: function(action) { if (els[0] && action === 'show') { var tab2 = window.bootstrap ? new window.bootstrap.Tab(els[0]) : null; if (tab2) tab2.show(); else els[0].click(); } return obj; },
+                click: function(fn) { if (fn) { return obj.on('click', fn); } els.forEach(function(el) { el.click(); }); return obj; },
+                scrollTop: function(v) { if (v === undefined) return els[0] ? els[0].scrollTop : 0; els.forEach(function(el) { el.scrollTop = v; }); return obj; },
+                next: function(sel) { var n = els[0] ? els[0].nextElementSibling : null; if (sel && n && !n.matches(sel)) n = null; return wrap(n ? [n] : []); },
+                prev: function(sel) { var p2 = els[0] ? els[0].previousElementSibling : null; if (sel && p2 && !p2.matches(sel)) p2 = null; return wrap(p2 ? [p2] : []); },
+                siblings: function() { var p2 = els[0] ? els[0].parentNode : null; if (!p2) return wrap([]); return wrap(Array.from(p2.children).filter(function(c3) { return c3 !== els[0]; })); },
+                is: function(sel) { return els[0] ? els[0].matches(sel) : false; },
+                index: function() { if (!els[0] || !els[0].parentNode) return -1; return Array.from(els[0].parentNode.children).indexOf(els[0]); },
+                outerHeight: function() { return els[0] ? els[0].offsetHeight : 0; },
+                height: function() { return els[0] ? els[0].clientHeight : 0; },
+                width: function() { return els[0] ? els[0].clientWidth : 0; }
+            };
+            for (var i = 0; i < els.length; i++) { obj[i] = els[i]; }
+            return obj;
+        };
+        var fn = function(sel) { return wrap(sel); };
+        fn.ajax = function(opts) {
+            var headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
+            var body = opts.data;
+            if (opts.contentType === false) {
+                delete headers['Content-Type'];
+            } else if (typeof body === 'object' && !(body instanceof FormData)) {
+                body = JSON.stringify(body);
+            }
+            var p = fetch(opts.url, {
+                method: opts.type || opts.method || 'GET',
+                headers: headers,
+                body: (opts.type || opts.method || 'GET').toUpperCase() === 'GET' ? undefined : body,
+                credentials: opts.xhrFields && opts.xhrFields.withCredentials ? 'include' : 'same-origin'
+            }).then(function(resp) {
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                return opts.dataType === 'json' || !opts.dataType ? resp.json() : resp.text();
+            }).then(function(data) {
+                if (opts.success) opts.success(data);
+                return data;
+            }).catch(function(err) {
+                if (opts.error) opts.error(err);
+                throw err;
+            });
+            return p;
+        };
+        fn.when = function() { return Promise.all(Array.from(arguments)); };
+        fn.Deferred = function() {
+            var d = {};
+            d.promise = new Promise(function(res, rej) { d.resolve = res; d.reject = rej; });
+            d.then = function(a, b) { return d.promise.then(a, b); };
+            d.catch = function(a) { return d.promise.catch(a); };
+            return d;
+        };
+        return fn;
+    })();
 
     /**
      * String storage object - populated from core/str.

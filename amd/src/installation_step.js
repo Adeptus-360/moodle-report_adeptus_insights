@@ -24,7 +24,7 @@
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, Str) {
+define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notification, Str) {
     'use strict';
 
     /**
@@ -120,12 +120,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
      */
     var updatePlansDisplay = function(interval) {
         var plans = plansData[interval] || plansData.monthly;
-        var container = $('#plans-container');
+        var container = document.getElementById('plans-container');
 
         if (!plans || plans.length === 0) {
             // No plans for this interval, show message
-            container.html('<div class="text-center p-4"><p class="text-muted">' +
-                STRINGS.annualPlansSoon + '</p></div>');
+            if (container) {
+                container.innerHTML = '<div class="text-center p-4"><p class="text-muted">' +
+                    STRINGS.annualPlansSoon + '</p></div>';
+            }
             return;
         }
 
@@ -134,7 +136,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
         plans.forEach(function(plan) {
             html += buildPlanCard(plan, interval);
         });
-        container.html(html);
+        if (container) {
+            container.innerHTML = html;
+        }
     };
 
     /**
@@ -268,31 +272,39 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
      */
     var initEventHandlers = function() {
         // Billing toggle handler
-        $('.adeptus-billing-toggle-btn').on('click', function() {
-            var interval = $(this).data('interval');
-            if (interval === currentInterval) {
-                return;
-            }
+        document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var interval = this.dataset.interval;
+                if (interval === currentInterval) {
+                    return;
+                }
 
-            // Update toggle UI
-            $('.adeptus-billing-toggle-btn').removeClass('active');
-            $(this).addClass('active');
-            currentInterval = interval;
+                // Update toggle UI
+                document.querySelectorAll('.adeptus-billing-toggle-btn').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                currentInterval = interval;
 
-            // Update plans display
-            updatePlansDisplay(interval);
+                // Update plans display
+                updatePlansDisplay(interval);
+            });
         });
 
         // Plan selection handler
-        $(document).on('click', '.select-adeptus-plan-btn', function() {
-            var stripeProduct = $(this).data('stripe-product');
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.select-adeptus-plan-btn');
+            if (btn) {
+                var stripeProduct = btn.dataset.stripeProduct;
 
-            if (stripeProduct) {
-                // Paid plan - redirect to billing portal
-                createBillingPortalSession();
-            } else {
-                // Free plan - complete installation
-                $('#complete-installation-form').submit();
+                if (stripeProduct) {
+                    // Paid plan - redirect to billing portal
+                    createBillingPortalSession();
+                } else {
+                    // Free plan - complete installation
+                    var form = document.getElementById('complete-installation-form');
+                    if (form) { form.submit(); }
+                }
             }
         });
     };

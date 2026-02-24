@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, Str) {
+define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notification, Str) {
     'use strict';
 
     var Swal = window.Swal;
@@ -265,9 +265,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Initialize progress bar widths from data-width attributes
          */
         initProgressBars: function() {
-            $('.adeptus-progress-fill[data-width]').each(function() {
-                var width = $(this).data('width') || 0;
-                $(this).css('width', width + '%');
+            document.querySelectorAll('.adeptus-progress-fill[data-width]').forEach(function(el) {
+                var width = el.dataset.width || 0;
+                el.style.width = width + '%';
             });
         },
 
@@ -354,60 +354,75 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Initialize event handlers
          */
         initEventHandlers: function() {
-            // Handle upgrade plan button - redirects to wizard for plan selection
-            $(document).on('click', '.btn-upgrade-plan, #upgrade-plan', function(e) {
-                e.preventDefault();
-                Subscription.handleUpgradeFromFree();
-            });
+            document.addEventListener('click', function(e) {
+                var target = e.target;
 
-            // Handle downgrade plan buttons (for paid plan users via billing portal)
-            $(document).on('click', '.btn-downgrade-plan', function(e) {
-                e.preventDefault();
-                Subscription.handleDowngradePlan($(this));
-            });
+                // Handle upgrade plan button
+                if (target.closest('.btn-upgrade-plan, #upgrade-plan')) {
+                    e.preventDefault();
+                    Subscription.handleUpgradeFromFree();
+                    return;
+                }
 
-            // Handle cancel subscription buttons
-            $(document).on('click', '.btn-cancel-subscription, #cancel-subscription', function(e) {
-                e.preventDefault();
-                Subscription.handleCancelSubscription($(this));
-            });
+                // Handle downgrade plan buttons
+                var downgradeBtn = target.closest('.btn-downgrade-plan');
+                if (downgradeBtn) {
+                    e.preventDefault();
+                    Subscription.handleDowngradePlan(downgradeBtn);
+                    return;
+                }
 
-            // Handle billing portal access
-            $(document).on('click', '.btn-billing-portal', function(e) {
-                e.preventDefault();
-                Subscription.openBillingPortal();
-            });
+                // Handle cancel subscription buttons
+                var cancelBtn = target.closest('.btn-cancel-subscription, #cancel-subscription');
+                if (cancelBtn) {
+                    e.preventDefault();
+                    Subscription.handleCancelSubscription(cancelBtn);
+                    return;
+                }
 
-            // Handle modify subscription button
-            $(document).on('click', '.btn-modify-subscription, #modify-subscription', function(e) {
-                e.preventDefault();
-                Subscription.openBillingPortal();
-            });
+                // Handle billing portal access
+                if (target.closest('.btn-billing-portal')) {
+                    e.preventDefault();
+                    Subscription.openBillingPortal();
+                    return;
+                }
 
-            // Handle view plans button (open billing portal)
-            $(document).on('click', '.btn-view-plans, #view-plans', function(e) {
-                e.preventDefault();
-                Subscription.openBillingPortal();
-            });
+                // Handle modify subscription button
+                if (target.closest('.btn-modify-subscription, #modify-subscription')) {
+                    e.preventDefault();
+                    Subscription.openBillingPortal();
+                    return;
+                }
 
-            // Handle select plan button (new subscriptions)
-            $(document).on('click', '.select-plan-btn', function(e) {
-                e.preventDefault();
-                var planId = $(this).data('plan-id');
-                var planName = $(this).data('plan-name');
-                Subscription.handleSelectPlan($(this), planId, planName);
-            });
+                // Handle view plans button
+                if (target.closest('.btn-view-plans, #view-plans')) {
+                    e.preventDefault();
+                    Subscription.openBillingPortal();
+                    return;
+                }
 
-            // Handle renew subscription button
-            $(document).on('click', '#renew-subscription', function(e) {
-                e.preventDefault();
-                Subscription.handleRenewSubscription();
-            });
+                // Handle select plan button (new subscriptions)
+                var selectBtn = target.closest('.select-plan-btn');
+                if (selectBtn) {
+                    e.preventDefault();
+                    var planId = selectBtn.dataset.planId;
+                    var planName = selectBtn.dataset.planName;
+                    Subscription.handleSelectPlan(selectBtn, planId, planName);
+                    return;
+                }
 
-            // Handle update payment button
-            $(document).on('click', '#update-payment', function(e) {
-                e.preventDefault();
-                Subscription.openBillingPortal();
+                // Handle renew subscription button
+                if (target.closest('#renew-subscription')) {
+                    e.preventDefault();
+                    Subscription.handleRenewSubscription();
+                    return;
+                }
+
+                // Handle update payment button
+                if (target.closest('#update-payment')) {
+                    e.preventDefault();
+                    Subscription.openBillingPortal();
+                }
             });
         },
 
@@ -415,9 +430,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Handle upgrade plan
          * @param $button
          */
-        handleUpgradePlan: function($button) {
-            var planId = $button.data('plan-id');
-            var planName = $button.data('plan-name');
+        handleUpgradePlan: function(button) {
+            var planId = button.dataset ? button.dataset.planId : button;
+            var planName = button.dataset ? button.dataset.planName : '';
 
             if (!planId) {
                 Swal.fire({
@@ -450,9 +465,9 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * Handle downgrade plan
          * @param $button
          */
-        handleDowngradePlan: function($button) {
-            var planId = $button.data('plan-id');
-            var planName = $button.data('plan-name');
+        handleDowngradePlan: function(button) {
+            var planId = button.dataset ? button.dataset.planId : button;
+            var planName = button.dataset ? button.dataset.planName : '';
 
             if (!planId) {
                 Swal.fire({
@@ -609,8 +624,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * @param subscriptionData
          */
         renderSubscriptionInfo: function(subscriptionData) {
-            var $container = $('.subscription-info');
-            if (!$container.length) {
+            var container = document.querySelector('.subscription-info');
+            if (!container) {
  return;
 }
 
@@ -663,7 +678,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             html += '</div>';
             html += '</div>';
 
-            $container.html(html);
+            container.innerHTML = html;
 
             // Update API access status globally
             Subscription.updateApiAccessStatus(subscriptionData);
@@ -683,15 +698,20 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             }
 
             // Disable/enable API-dependent elements
+            var apiButtons = document.querySelectorAll('.btn-send-message, .btn-generate-report, .btn-ai-assistant');
             if (apiAccessDisabled) {
-                $('.btn-send-message, .btn-generate-report, .btn-ai-assistant').prop('disabled', true)
-                    .attr('title', getString('api_access_disabled', 'API access disabled') + ': ' + (subscriptionData.status_message || ''));
+                apiButtons.forEach(function(btn) {
+                    btn.disabled = true;
+                    btn.title = getString('api_access_disabled', 'API access disabled') + ': ' + (subscriptionData.status_message || '');
+                });
 
                 // Show warning message
                 this.showApiAccessWarning(subscriptionData);
             } else {
-                $('.btn-send-message, .btn-generate-report, .btn-ai-assistant').prop('disabled', false)
-                    .removeAttr('title');
+                apiButtons.forEach(function(btn) {
+                    btn.disabled = false;
+                    btn.removeAttribute('title');
+                });
 
                 // Hide warning message
                 this.hideApiAccessWarning();
@@ -703,8 +723,8 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * @param subscriptionData
          */
         showApiAccessWarning: function(subscriptionData) {
-            var $existingWarning = $('.api-access-warning');
-            if ($existingWarning.length) {
+            var existingWarning = document.querySelector('.api-access-warning');
+            if (existingWarning) {
  return;
 }
 
@@ -721,14 +741,14 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
             warningHtml += '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
             warningHtml += '</div>';
 
-            $('body').prepend(warningHtml);
+            document.body.insertAdjacentHTML('afterbegin', warningHtml);
         },
 
         /**
          * Hide API access warning
          */
         hideApiAccessWarning: function() {
-            $('.api-access-warning').remove();
+            document.querySelectorAll('.api-access-warning').forEach(function(el) { el.remove(); });
         },
 
         /**
@@ -1218,7 +1238,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
          * @param planId
          * @param planName
          */
-        handleSelectPlan: function($button, planId, planName) {
+        handleSelectPlan: function(button, planId, planName) {
             if (!planId) {
                 Swal.fire({
                     icon: 'error',

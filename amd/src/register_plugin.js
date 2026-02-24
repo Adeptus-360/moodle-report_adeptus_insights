@@ -23,7 +23,7 @@
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery', 'core/str'], function($, Str) {
+define(['core/str'], function(Str) {
     'use strict';
 
     /**
@@ -95,9 +95,9 @@ define(['jquery', 'core/str'], function($, Str) {
      */
     var validateFields = function() {
         var missingFields = [];
-        var submitBtn = $('#register-btn');
-        var validationError = $('#validation-error');
-        var validationMessage = $('#validation-message');
+        var submitBtn = document.getElementById('register-btn');
+        var validationError = document.getElementById('validation-error');
+        var validationMessage = document.getElementById('validation-message');
 
         requiredFields.forEach(function(field) {
             var value = field.value ? field.value.trim() : '';
@@ -108,31 +108,37 @@ define(['jquery', 'core/str'], function($, Str) {
 
         if (missingFields.length > 0) {
             // Show validation error
-            validationError.css('display', 'block');
+            if (validationError) {
+                validationError.style.display = 'block';
+            }
             var message = STRINGS.missingFieldsMessage.replace('{fields}',
                 '<strong>' + missingFields.join(', ') + '</strong>');
-            validationMessage.html(message);
+            if (validationMessage) {
+                validationMessage.innerHTML = message;
+            }
 
             // Disable submit button
-            submitBtn.prop('disabled', true);
-            submitBtn.css({
-                'opacity': '0.5',
-                'cursor': 'not-allowed'
-            });
-            submitBtn.html('<i class="fa fa-ban"></i> ' + STRINGS.registrationDisabled);
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.innerHTML = '<i class="fa fa-ban"></i> ' + STRINGS.registrationDisabled;
+            }
 
             return false;
         } else {
             // Hide validation error
-            validationError.css('display', 'none');
+            if (validationError) {
+                validationError.style.display = 'none';
+            }
 
             // Enable submit button
-            submitBtn.prop('disabled', false);
-            submitBtn.css({
-                'opacity': '1',
-                'cursor': 'pointer'
-            });
-            submitBtn.html('<i class="fa fa-check"></i> ' + STRINGS.registerPlugin);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+                submitBtn.innerHTML = '<i class="fa fa-check"></i> ' + STRINGS.registerPlugin;
+            }
 
             return true;
         }
@@ -142,15 +148,15 @@ define(['jquery', 'core/str'], function($, Str) {
      * Initialize event handlers.
      */
     var initEventHandlers = function() {
-        var form = $('#registration-form');
-        var submitBtn = $('#register-btn');
-        var loadingOverlay = $('#loading-overlay');
+        var form = document.getElementById('registration-form');
+        var submitBtn = document.getElementById('register-btn');
+        var loadingOverlay = document.getElementById('loading-overlay');
 
-        if (!form.length) {
+        if (!form) {
             return;
         }
 
-        form.on('submit', function(e) {
+        form.addEventListener('submit', function(e) {
             // Validate before submitting
             if (!validateFields()) {
                 e.preventDefault();
@@ -158,9 +164,13 @@ define(['jquery', 'core/str'], function($, Str) {
             }
 
             // Show loading overlay
-            loadingOverlay.css('display', 'block');
-            submitBtn.prop('disabled', true);
-            submitBtn.html('<i class="fa fa-spinner fa-spin"></i> ' + STRINGS.registering);
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'block';
+            }
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + STRINGS.registering;
+            }
 
             // Form will submit normally
             return true;

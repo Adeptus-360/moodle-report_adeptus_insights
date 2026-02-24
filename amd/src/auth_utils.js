@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
     'use strict';
 
     /**
@@ -81,7 +81,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
 
             if (shouldEnableReadOnly) {
                 // Trigger read-only mode initialization.
-                $(document).trigger('adeptus:enableReadOnly');
+                document.dispatchEvent(new CustomEvent('adeptus:enableReadOnly'));
             }
         },
 
@@ -93,7 +93,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         initializeAuthFeatures: function(authData) {
             if (authData && authData.user_authorized && authData.has_api_key) {
                 // Enable interactive features.
-                $(document).trigger('adeptus:enableInteractiveFeatures');
+                document.dispatchEvent(new CustomEvent('adeptus:enableInteractiveFeatures'));
 
                 // Initialize AI Assistant if available.
                 if (typeof window.AdeptusAI !== 'undefined') {

@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
+define(['core/ajax', 'core/str'], function(Ajax, Str) {
     'use strict';
 
     /**
@@ -76,58 +76,74 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
             var self = this;
 
             // Next step buttons.
-            $(document).on('click', '.btn-next-step', function(e) {
-                e.preventDefault();
-                var nextStep = $(this).data('step');
-                if (self.validateCurrentStep()) {
-                    self.showStep(nextStep);
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('.btn-next-step');
+                if (btn) {
+                    e.preventDefault();
+                    var nextStep = btn.dataset.step;
+                    if (self.validateCurrentStep()) {
+                        self.showStep(nextStep);
+                    }
                 }
             });
 
             // Previous step buttons.
-            $(document).on('click', '.btn-prev-step, .adeptus-btn-back', function(e) {
-                e.preventDefault();
-                var prevStep = $(this).data('step');
-                if (prevStep) {
-                    self.showStep(prevStep);
-                } else {
-                    // Handle back buttons without data-step.
-                    var currentStepId = $(this).closest('.adeptus-wizard-step').attr('id');
-                    if (currentStepId === 'step-admin-info') {
-                        self.showStep('welcome');
-                    } else if (currentStepId === 'step-verification') {
-                        self.showStep('admin-info');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('.btn-prev-step, .adeptus-btn-back');
+                if (btn) {
+                    e.preventDefault();
+                    var prevStep = btn.dataset.step;
+                    if (prevStep) {
+                        self.showStep(prevStep);
+                    } else {
+                        var wizardStep = btn.closest('.adeptus-wizard-step');
+                        var currentStepId = wizardStep ? wizardStep.id : '';
+                        if (currentStepId === 'step-admin-info') {
+                            self.showStep('welcome');
+                        } else if (currentStepId === 'step-verification') {
+                            self.showStep('admin-info');
+                        }
                     }
                 }
             });
 
             // Register installation button.
-            $(document).on('click', '#register-installation', function(e) {
-                e.preventDefault();
-                self.submitRegistration();
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#register-installation')) {
+                    e.preventDefault();
+                    self.submitRegistration();
+                }
             });
 
             // Continue to subscription button.
-            $(document).on('click', '#continue-to-subscription', function(e) {
-                e.preventDefault();
-                window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#continue-to-subscription')) {
+                    e.preventDefault();
+                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/subscription.php';
+                }
             });
 
             // Go to dashboard button.
-            $(document).on('click', '#go-to-dashboard', function(e) {
-                e.preventDefault();
-                window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/index.php';
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#go-to-dashboard')) {
+                    e.preventDefault();
+                    window.location.href = M.cfg.wwwroot + '/report/adeptus_insights/index.php';
+                }
             });
 
             // Error close button.
-            $(document).on('click', '#error-close', function(e) {
-                e.preventDefault();
-                self.hideError();
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('#error-close')) {
+                    e.preventDefault();
+                    self.hideError();
+                }
             });
 
             // Form input changes - update summary.
-            $(document).on('input', '#admin_name, #admin_email', function() {
-                self.updateSummary();
+            document.addEventListener('input', function(e) {
+                if (e.target.matches('#admin_name, #admin_email')) {
+                    self.updateSummary();
+                }
             });
         },
 
@@ -138,11 +154,16 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          */
         showStep: function(stepName) {
             // Hide all steps.
-            $('.adeptus-wizard-step').removeClass('active');
+            document.querySelectorAll('.adeptus-wizard-step').forEach(function(el) {
+                el.classList.remove('active');
+            });
 
             // Show the requested step.
             var stepId = 'step-' + stepName;
-            $('#' + stepId).addClass('active');
+            var stepEl = document.getElementById(stepId);
+            if (stepEl) {
+                stepEl.classList.add('active');
+            }
 
             // Update current step.
             this.currentStep = stepName;
@@ -160,8 +181,10 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          */
         validateCurrentStep: function() {
             if (this.currentStep === 'admin-info') {
-                var adminName = $('#admin_name').val().trim();
-                var adminEmail = $('#admin_email').val().trim();
+                var adminNameEl = document.getElementById('admin_name');
+                var adminEmailEl = document.getElementById('admin_email');
+                var adminName = adminNameEl ? adminNameEl.value.trim() : '';
+                var adminEmail = adminEmailEl ? adminEmailEl.value.trim() : '';
 
                 if (!adminName) {
                     this.showFieldError('#admin_name', STRINGS.pleaseEnterName);
@@ -193,19 +216,32 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          * @param {string} message The error message.
          */
         showFieldError: function(selector, message) {
-            var $field = $(selector);
-            $field.addClass('is-invalid');
+            var field = document.querySelector(selector);
+            if (!field) {
+                return;
+            }
+            field.classList.add('is-invalid');
 
             // Remove existing error message.
-            $field.next('.invalid-feedback').remove();
+            var existing = field.nextElementSibling;
+            if (existing && existing.classList.contains('invalid-feedback')) {
+                existing.remove();
+            }
 
             // Add error message.
-            $field.after('<div class="invalid-feedback">' + message + '</div>');
+            var feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.innerHTML = message;
+            field.parentNode.insertBefore(feedback, field.nextSibling);
 
             // Remove error on input.
-            $field.one('input', function() {
-                $(this).removeClass('is-invalid');
-                $(this).next('.invalid-feedback').remove();
+            field.addEventListener('input', function handler() {
+                field.classList.remove('is-invalid');
+                var fb = field.nextElementSibling;
+                if (fb && fb.classList.contains('invalid-feedback')) {
+                    fb.remove();
+                }
+                field.removeEventListener('input', handler);
             });
         },
 
@@ -224,15 +260,21 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          * Update the summary on the verification step.
          */
         updateSummary: function() {
-            var adminName = $('#admin_name').val() || '-';
-            var adminEmail = $('#admin_email').val() || '-';
+            var adminNameEl = document.getElementById('admin_name');
+            var adminEmailEl = document.getElementById('admin_email');
+            var adminName = (adminNameEl ? adminNameEl.value : '') || '-';
+            var adminEmail = (adminEmailEl ? adminEmailEl.value : '') || '-';
 
-            $('#summary-admin-name').text(adminName);
-            $('#summary-admin-email').text(adminEmail);
+            var summaryName = document.getElementById('summary-admin-name');
+            var summaryEmail = document.getElementById('summary-admin-email');
+            if (summaryName) { summaryName.textContent = adminName; }
+            if (summaryEmail) { summaryEmail.textContent = adminEmail; }
 
             // Also update hidden form fields.
-            $('#form-admin-name').val(adminName);
-            $('#form-admin-email').val(adminEmail);
+            var formName = document.getElementById('form-admin-name');
+            var formEmail = document.getElementById('form-admin-email');
+            if (formName) { formName.value = adminName; }
+            if (formEmail) { formEmail.value = adminEmail; }
         },
 
         /**
@@ -246,8 +288,8 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
 
             // Get form data.
             var data = {
-                admin_name: this.formData.admin_name || $('#admin_name').val(),
-                admin_email: this.formData.admin_email || $('#admin_email').val()
+                admin_name: this.formData.admin_name || (document.getElementById('admin_name') ? document.getElementById('admin_name').value : ''),
+                admin_email: this.formData.admin_email || (document.getElementById('admin_email') ? document.getElementById('admin_email').value : '')
             };
 
             // Make AJAX call to register.
@@ -278,13 +320,15 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
             // Update success details.
             if (response.data) {
                 if (response.data.installation_id) {
-                    $('#success-installation-id').text(response.data.installation_id);
+                    var instIdEl = document.getElementById('success-installation-id');
+                    if (instIdEl) { instIdEl.textContent = response.data.installation_id; }
                 }
                 if (response.data.api_key) {
                     // Show masked API key.
                     var maskedKey = response.data.api_key.substring(0, 8) + '...' +
                         response.data.api_key.substring(response.data.api_key.length - 4);
-                    $('#success-api-key').text(maskedKey);
+                    var apiKeyEl = document.getElementById('success-api-key');
+                    if (apiKeyEl) { apiKeyEl.textContent = maskedKey; }
                 }
             }
 
@@ -296,14 +340,16 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          * Show loading overlay.
          */
         showLoading: function() {
-            $('#loading-overlay').addClass('active');
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) { overlay.classList.add('active'); }
         },
 
         /**
          * Hide loading overlay.
          */
         hideLoading: function() {
-            $('#loading-overlay').removeClass('active');
+            var overlay = document.getElementById('loading-overlay');
+            if (overlay) { overlay.classList.remove('active'); }
         },
 
         /**
@@ -312,15 +358,18 @@ define(['jquery', 'core/ajax', 'core/str'], function($, Ajax, Str) {
          * @param {string} message The error message.
          */
         showError: function(message) {
-            $('#error-message').text(message);
-            $('#error-overlay').addClass('active');
+            var errMsg = document.getElementById('error-message');
+            if (errMsg) { errMsg.textContent = message; }
+            var errOverlay = document.getElementById('error-overlay');
+            if (errOverlay) { errOverlay.classList.add('active'); }
         },
 
         /**
          * Hide error modal.
          */
         hideError: function() {
-            $('#error-overlay').removeClass('active');
+            var errOverlay = document.getElementById('error-overlay');
+            if (errOverlay) { errOverlay.classList.remove('active'); }
         }
     };
 

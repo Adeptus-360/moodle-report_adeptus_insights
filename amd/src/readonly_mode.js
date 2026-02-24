@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/notification', 'core/str'], function($, Notification, Str) {
+define(['core/notification', 'core/str'], function(Notification, Str) {
     'use strict';
 
     /** @var {Object} strings - Loaded language strings. */
@@ -60,12 +60,12 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
             // Load strings first, then set up event listeners.
             loadStrings().then(function() {
                 // Listen for read-only mode enable event.
-                $(document).on('adeptus:enableReadOnly', function() {
+                document.addEventListener('adeptus:enableReadOnly', function() {
                     ReadonlyMode.enable();
                 });
 
                 // Listen for read-only mode disable event.
-                $(document).on('adeptus:disableReadOnly', function() {
+                document.addEventListener('adeptus:disableReadOnly', function() {
                     ReadonlyMode.disable();
                 });
 
@@ -96,7 +96,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          */
         enable: function() {
             // Add read-only class to body
-            $('body').addClass('adeptus-readonly-mode');
+            document.body.classList.add('adeptus-readonly-mode');
 
             // Disable all interactive elements
             this.disableInteractiveElements();
@@ -111,7 +111,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
             this.disableButtons();
 
             // Trigger custom event
-            $(document).trigger('adeptus:readOnlyEnabled');
+            document.dispatchEvent(new CustomEvent('adeptus:readOnlyEnabled'));
         },
 
         /**
@@ -119,7 +119,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          */
         disable: function() {
             // Remove read-only class from body
-            $('body').removeClass('adeptus-readonly-mode');
+            document.body.classList.remove('adeptus-readonly-mode');
 
             // Re-enable all interactive elements
             this.enableInteractiveElements();
@@ -134,26 +134,40 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
             this.enableButtons();
 
             // Trigger custom event
-            $(document).trigger('adeptus:readOnlyDisabled');
+            document.dispatchEvent(new CustomEvent('adeptus:readOnlyDisabled'));
         },
 
         /**
          * Disable interactive elements
          */
+        /** @var {Function|null} _readonlySubmitHandler - Stored submit handler for removal. */
+        _readonlySubmitHandler: null,
+
         disableInteractiveElements: function() {
             // Disable inputs, textareas, selects
-            $('input, textarea, select').prop('disabled', true);
+            document.querySelectorAll('input, textarea, select').forEach(function(el) {
+                el.disabled = true;
+            });
 
             // Disable links that are not navigation
-            $('a:not(.nav-link):not(.breadcrumb-item a)').addClass('disabled').css('pointer-events', 'none');
+            document.querySelectorAll('a:not(.nav-link):not(.breadcrumb-item a)').forEach(function(el) {
+                el.classList.add('disabled');
+                el.style.pointerEvents = 'none';
+            });
 
             // Disable buttons
-            $('button:not(.nav-toggle)').prop('disabled', true);
+            document.querySelectorAll('button:not(.nav-toggle)').forEach(function(el) {
+                el.disabled = true;
+            });
 
             // Disable form submissions
-            $('form').on('submit.adeptus-readonly', function(e) {
+            this._readonlySubmitHandler = function(e) {
                 e.preventDefault();
                 return false;
+            };
+            var handler = this._readonlySubmitHandler;
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', handler);
             });
         },
 
@@ -162,27 +176,39 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          */
         enableInteractiveElements: function() {
             // Re-enable inputs, textareas, selects
-            $('input, textarea, select').prop('disabled', false);
+            document.querySelectorAll('input, textarea, select').forEach(function(el) {
+                el.disabled = false;
+            });
 
             // Re-enable links
-            $('a.disabled').removeClass('disabled').css('pointer-events', '');
+            document.querySelectorAll('a.disabled').forEach(function(el) {
+                el.classList.remove('disabled');
+                el.style.pointerEvents = '';
+            });
 
             // Re-enable buttons
-            $('button').prop('disabled', false);
+            document.querySelectorAll('button').forEach(function(el) {
+                el.disabled = false;
+            });
 
             // Re-enable form submissions
-            $('form').off('submit.adeptus-readonly');
+            if (this._readonlySubmitHandler) {
+                var handler = this._readonlySubmitHandler;
+                document.querySelectorAll('form').forEach(function(form) {
+                    form.removeEventListener('submit', handler);
+                });
+                this._readonlySubmitHandler = null;
+            }
         },
 
         /**
          * Disable forms
          */
         disableForms: function() {
-            $('form').each(function() {
-                var $form = $(this);
-                if (!$form.data('adeptus-original-action')) {
-                    $form.data('adeptus-original-action', $form.attr('action'));
-                    $form.attr('action', '#');
+            document.querySelectorAll('form').forEach(function(form) {
+                if (!form.dataset.adeptusOriginalAction) {
+                    form.dataset.adeptusOriginalAction = form.getAttribute('action') || '';
+                    form.setAttribute('action', '#');
                 }
             });
         },
@@ -191,12 +217,11 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          * Enable forms
          */
         enableForms: function() {
-            $('form').each(function() {
-                var $form = $(this);
-                var originalAction = $form.data('adeptus-original-action');
-                if (originalAction) {
-                    $form.attr('action', originalAction);
-                    $form.removeData('adeptus-original-action');
+            document.querySelectorAll('form').forEach(function(form) {
+                var originalAction = form.dataset.adeptusOriginalAction;
+                if (originalAction !== undefined) {
+                    form.setAttribute('action', originalAction);
+                    delete form.dataset.adeptusOriginalAction;
                 }
             });
         },
@@ -205,12 +230,12 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          * Disable buttons
          */
         disableButtons: function() {
-            $('button:not(.nav-toggle)').each(function() {
-                var $btn = $(this);
-                if (!$btn.data('adeptus-original-text')) {
-                    $btn.data('adeptus-original-text', $btn.text());
-                    $btn.text('Read-Only Mode');
-                    $btn.addClass('btn-secondary').removeClass('btn-primary btn-success btn-danger btn-warning btn-info');
+            document.querySelectorAll('button:not(.nav-toggle)').forEach(function(btn) {
+                if (!btn.dataset.adeptusOriginalText) {
+                    btn.dataset.adeptusOriginalText = btn.textContent;
+                    btn.textContent = 'Read-Only Mode';
+                    btn.classList.add('btn-secondary');
+                    btn.classList.remove('btn-primary', 'btn-success', 'btn-danger', 'btn-warning', 'btn-info');
                 }
             });
         },
@@ -219,13 +244,12 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          * Enable buttons
          */
         enableButtons: function() {
-            $('button').each(function() {
-                var $btn = $(this);
-                var originalText = $btn.data('adeptus-original-text');
+            document.querySelectorAll('button').forEach(function(btn) {
+                var originalText = btn.dataset.adeptusOriginalText;
                 if (originalText) {
-                    $btn.text(originalText);
-                    $btn.removeData('adeptus-original-text');
-                    $btn.removeClass('btn-secondary');
+                    btn.textContent = originalText;
+                    delete btn.dataset.adeptusOriginalText;
+                    btn.classList.remove('btn-secondary');
                 }
             });
         },
@@ -266,7 +290,7 @@ define(['jquery', 'core/notification', 'core/str'], function($, Notification, St
          * Check if read-only mode is active
          */
         isEnabled: function() {
-            return $('body').hasClass('adeptus-readonly-mode');
+            return document.body.classList.contains('adeptus-readonly-mode');
         }
     };
 
