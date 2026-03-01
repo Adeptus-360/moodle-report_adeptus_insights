@@ -1,0 +1,106 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_adeptus_insights/builder_report_view
+
+    Report Builder — execute and display report results.
+
+    Context variables:
+    * reportname - string
+    * reportdescription - string
+    * hasresults - boolean
+    * columns - array of {name}
+    * rows - array of {cells: [{value}]}
+    * rowcount - int
+    * executioncount - int
+    * csvurl - string
+    * editurl - string
+    * listurl - string
+    * warnings - array of strings
+    * haswarnings - boolean
+    * sql - string (generated SQL)
+
+    @package report_adeptus_insights
+}}
+
+<div class="adeptus-builder-view">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>{{reportname}}</h3>
+            {{#reportdescription}}
+            <p class="text-muted">{{reportdescription}}</p>
+            {{/reportdescription}}
+        </div>
+        <div class="btn-group">
+            <a href="{{{editurl}}}" class="btn btn-outline-secondary">
+                <i class="fa fa-pencil"></i> {{#str}}edit, report_adeptus_insights{{/str}}
+            </a>
+            {{#hasresults}}
+            <a href="{{{csvurl}}}" class="btn btn-outline-success">
+                <i class="fa fa-download"></i> {{#str}}builder_export_csv, report_adeptus_insights{{/str}}
+            </a>
+            {{/hasresults}}
+            <a href="{{{listurl}}}" class="btn btn-outline-primary">
+                <i class="fa fa-arrow-left"></i> {{#str}}builder_back_to_list, report_adeptus_insights{{/str}}
+            </a>
+        </div>
+    </div>
+
+    {{#haswarnings}}
+    <div class="alert alert-warning">
+        <strong>{{#str}}warning, report_adeptus_insights{{/str}}:</strong>
+        <ul class="mb-0">
+            {{#warnings}}
+            <li>{{.}}</li>
+            {{/warnings}}
+        </ul>
+    </div>
+    {{/haswarnings}}
+
+    {{#hasresults}}
+    <div class="mb-2 text-muted">
+        {{#str}}builder_showing_rows, report_adeptus_insights{{/str}}: {{rowcount}}
+        &middot; {{#str}}builder_total_executions, report_adeptus_insights{{/str}}: {{executioncount}}
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-sm">
+            <thead class="thead-light">
+                <tr>
+                    {{#columns}}
+                    <th>{{name}}</th>
+                    {{/columns}}
+                </tr>
+            </thead>
+            <tbody>
+                {{#rows}}
+                <tr>
+                    {{#cells}}
+                    <td>{{value}}</td>
+                    {{/cells}}
+                </tr>
+                {{/rows}}
+            </tbody>
+        </table>
+    </div>
+    {{/hasresults}}
+
+    {{^hasresults}}
+    <div class="alert alert-info">
+        {{#str}}builder_no_results, report_adeptus_insights{{/str}}
+    </div>
+    {{/hasresults}}
+</div>

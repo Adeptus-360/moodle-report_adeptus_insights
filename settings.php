@@ -49,6 +49,14 @@ if ($hassiteconfig) {
         'report/adeptus_insights:viewschedules'
     ));
 
+    // Report Builder page link in admin nav.
+    $ADMIN->add('reports', new admin_externalpage(
+        'report_adeptus_insights_builder',
+        get_string('builder_reports', 'report_adeptus_insights'),
+        new moodle_url('/report/adeptus_insights/builder_reports.php'),
+        'report/adeptus_insights:usebuilder'
+    ));
+
     // Branding Settings page link in admin nav.
     $ADMIN->add('reports', new admin_externalpage(
         'report_adeptus_insights_branding',

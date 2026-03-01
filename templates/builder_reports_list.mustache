@@ -1,0 +1,91 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_adeptus_insights/builder_reports_list
+
+    Report Builder — list of saved reports.
+
+    Context variables:
+    * reports - array of report objects
+    * createurl - URL to create a new report
+    * cancreate - boolean, whether user can create new reports
+    * tierwarning - string, tier limit warning message
+    * hasreports - boolean
+    * sesskey - session key
+
+    @package report_adeptus_insights
+}}
+
+<div class="adeptus-builder-reports">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>{{#str}}builder_reports, report_adeptus_insights{{/str}}</h3>
+        {{#cancreate}}
+        <a href="{{{createurl}}}" class="btn btn-primary">
+            <i class="fa fa-plus"></i> {{#str}}builder_create_report, report_adeptus_insights{{/str}}
+        </a>
+        {{/cancreate}}
+    </div>
+
+    {{#tierwarning}}
+    <div class="alert alert-warning">
+        {{{tierwarning}}}
+    </div>
+    {{/tierwarning}}
+
+    {{#hasreports}}
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>{{#str}}builder_col_name, report_adeptus_insights{{/str}}</th>
+                <th>{{#str}}builder_col_datasource, report_adeptus_insights{{/str}}</th>
+                <th>{{#str}}builder_col_lastrun, report_adeptus_insights{{/str}}</th>
+                <th>{{#str}}builder_col_runs, report_adeptus_insights{{/str}}</th>
+                <th>{{#str}}actions, report_adeptus_insights{{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#reports}}
+            <tr>
+                <td><a href="{{{viewurl}}}">{{{name}}}</a></td>
+                <td>{{datasource}}</td>
+                <td>{{lastrun}}</td>
+                <td>{{executioncount}}</td>
+                <td class="text-nowrap">
+                    <a href="{{{viewurl}}}" class="btn btn-sm btn-outline-primary" title="{{#str}}view, report_adeptus_insights{{/str}}">
+                        <i class="fa fa-play"></i>
+                    </a>
+                    <a href="{{{editurl}}}" class="btn btn-sm btn-outline-secondary" title="{{#str}}edit, report_adeptus_insights{{/str}}">
+                        <i class="fa fa-pencil"></i>
+                    </a>
+                    <a href="{{{deleteurl}}}" class="btn btn-sm btn-outline-danger"
+                       onclick="return confirm('{{#str}}builder_delete_confirm, report_adeptus_insights{{/str}}');"
+                       title="{{#str}}delete, report_adeptus_insights{{/str}}">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {{/reports}}
+        </tbody>
+    </table>
+    {{/hasreports}}
+
+    {{^hasreports}}
+    <div class="alert alert-info">
+        {{#str}}builder_no_reports, report_adeptus_insights{{/str}}
+    </div>
+    {{/hasreports}}
+</div>
