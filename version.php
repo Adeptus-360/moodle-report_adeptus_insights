@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_adeptus_insights';
-$plugin->version   = 2026022501;
+$plugin->version   = 2026030400;
 $plugin->requires  = 2022112800; // Moodle 4.1.
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.15.0';
+$plugin->release   = '2.0.0';
 $plugin->supported = [401, 500]; // Moodle 4.1 through 5.0.
