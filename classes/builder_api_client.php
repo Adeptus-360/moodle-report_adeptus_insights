@@ -26,6 +26,8 @@ namespace report_adeptus_insights;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/filelib.php');
+
 /**
  * Communicates with the Report Builder backend API.
  */
