@@ -43,7 +43,7 @@ class stripe_service {
     private $config;
 
     /** @var bool Whether test mode is enabled. */
-    private $istestmode;
+    private $is_test_mode;
 
     /**
      * Constructor.

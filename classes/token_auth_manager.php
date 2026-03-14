@@ -30,10 +30,13 @@ namespace report_adeptus_insights;
  */
 class token_auth_manager {
     /** @var installation_manager Installation manager instance. */
-    private $installationmanager;
+    private $installation_manager;
 
     /** @var object Current user object. */
-    private $currentuser;
+    private $current_user;
+
+    /** @var \cache|null Cache instance for API key storage. */
+    private $cache;
 
     /**
      * Constructor.

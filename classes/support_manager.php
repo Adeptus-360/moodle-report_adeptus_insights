@@ -32,7 +32,7 @@ namespace report_adeptus_insights;
  */
 class support_manager {
     /** @var installation_manager */
-    private $installationmanager;
+    private $installation_manager;
 
     /** @var string Product key for changelog lookups */
     private const PRODUCT_KEY = 'insights';

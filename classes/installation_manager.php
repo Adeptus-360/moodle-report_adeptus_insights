@@ -37,16 +37,16 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class installation_manager {
     /** @var string API key for backend authentication. */
-    private $apikey;
+    private $api_key;
 
     /** @var string Base URL for API requests. */
-    private $apiurl;
+    private $api_url;
 
-    /** @var string Installation ID for this Moodle instance. */
-    private $installationid;
+    /** @var string|null Installation ID for this Moodle instance. */
+    private $installation_id;
 
     /** @var bool Whether the installation is registered. */
-    private $isregistered;
+    private $is_registered;
 
     /** @var string Last error message from API operations. */
     private $lasterror;

@@ -32,7 +32,7 @@ namespace report_adeptus_insights;
  */
 class notification_manager {
     /** @var error_handler Error handler instance. */
-    private $errorhandler;
+    private $error_handler;
 
     /** @var array Array of notification messages. */
     private $notifications;

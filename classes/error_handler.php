@@ -32,13 +32,13 @@ namespace report_adeptus_insights;
  */
 class error_handler {
     /** @var array Error code definitions. */
-    private $errorcodes;
+    private $error_codes;
 
     /** @var array Recovery action suggestions. */
-    private $recoveryactions;
+    private $recovery_actions;
 
     /** @var array Admin contact information. */
-    private $admincontact;
+    private $admin_contact;
 
     /**
      * Constructor.

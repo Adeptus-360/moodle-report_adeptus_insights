@@ -53,7 +53,7 @@ class branding_manager {
      *
      * @var installation_manager
      */
-    private $installationmanager;
+    private $installation_manager;
 
     /**
      * Cached branding data.
