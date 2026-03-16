@@ -104,13 +104,13 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 return;
             }
 
-            // Only show if there are options.
+            // If no options, keep hidden.
             if (cohortOptions.length === 0 && groupOptions.length === 0) {
                 filterBar.style.display = 'none';
                 return;
             }
 
-            filterBar.style.display = '';
+            // Don't auto-show — let the calling code decide when to display via show().
 
             // Populate cohorts.
             cohortSelect.innerHTML = '';
@@ -310,6 +310,34 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
          */
         getGroupOptions: function() {
             return groupOptions;
+        },
+
+        /**
+         * Show the filter bar (only if filters are loaded and available).
+         */
+        show: function() {
+            var filterBar = document.getElementById('cohort-group-filter-bar');
+            if (filterBar && (cohortOptions.length > 0 || groupOptions.length > 0)) {
+                filterBar.style.display = '';
+            }
+        },
+
+        /**
+         * Hide the filter bar.
+         */
+        hide: function() {
+            var filterBar = document.getElementById('cohort-group-filter-bar');
+            if (filterBar) {
+                filterBar.style.display = 'none';
+            }
+        },
+
+        /**
+         * Check if filter data has been loaded and options are available.
+         * @return {boolean}
+         */
+        isAvailable: function() {
+            return filtersLoaded && (cohortOptions.length > 0 || groupOptions.length > 0);
         }
     };
 });

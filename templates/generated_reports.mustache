@@ -58,9 +58,6 @@
     </div>
 
     <div class="container-fluid">
-        <!-- Cohort & Group Filter Bar -->
-        {{> report_adeptus_insights/cohort_group_filter_bar}}
-
         <!-- Main Content -->
         <div class="row">
             <!-- Reports List -->
@@ -134,6 +131,8 @@
                             </div>
                             <p class="mt-3 text-muted">{{#str}}loading_report_data, report_adeptus_insights{{/str}}</p>
                         </div>
+                        <!-- Cohort & Group Filter Bar (appears inside report view) -->
+                        {{> report_adeptus_insights/cohort_group_filter_bar}}
                         <div id="report-content" class="d-none">
                             <!-- Report content will be injected here -->
                         </div>

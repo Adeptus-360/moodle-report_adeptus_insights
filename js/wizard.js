@@ -1007,7 +1007,8 @@ class AdeptusWizard {
             return;
         }
 
-        filterBar.style.display = '';
+        // Don't auto-show — filter bar will be shown when results step is active.
+        // filterBar.style.display = '';
 
         // Populate cohort dropdown.
         cohortSelect.innerHTML = '';
@@ -3004,6 +3005,17 @@ class AdeptusWizard {
         // Show target step
         document.getElementById(stepId).classList.add('active');
         this.currentStep = stepId;
+
+        // Show filter bar only on results step.
+        var filterBar = document.getElementById('cohort-group-filter-bar');
+        if (filterBar) {
+            if (stepId === 'step-results' && this.filtersLoaded &&
+                (this.cohortOptions.length > 0 || this.groupOptions.length > 0)) {
+                filterBar.style.display = '';
+            } else {
+                filterBar.style.display = 'none';
+            }
+        }
         
         // Scroll to top
         document.getElementById('wizard-container').scrollIntoView({ behavior: 'smooth' });

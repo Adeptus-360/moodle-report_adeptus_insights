@@ -1349,6 +1349,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 $('#report-placeholder').removeClass('d-none');
                 $('#report-category-selector').addClass('d-none');
                 $('.adeptus-report-view-title').text(STRINGS.selectAReport);
+                CohortGroupFilter.hide();
 
                 Swal.close();
                 self.showToast(STRINGS.reportDeletedSuccess, 'success');
@@ -2399,6 +2400,9 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
             }
 
             $('#report-content').html(contentHtml).removeClass('d-none');
+
+            // Show filter bar now that a report is displayed.
+            CohortGroupFilter.show();
 
             self.currentView = 'table';
 
