@@ -350,6 +350,18 @@ class generate_report extends external_api {
     }
 
     /**
+     * Public static wrapper for apply_user_filters, callable from other external services.
+     *
+     * @param string $sql Original SQL query.
+     * @param array $cohortids Array of cohort IDs to filter by.
+     * @param array $groupids Array of group IDs to filter by.
+     * @return string Modified SQL query.
+     */
+    public static function apply_user_filters_static($sql, array $cohortids, array $groupids) {
+        return self::apply_user_filters($sql, $cohortids, $groupids);
+    }
+
+    /**
      * Apply cohort and group user filters to the report SQL.
      *
      * Detects the user ID column in the query (userid, user_id, id from {user}) and
@@ -378,21 +390,15 @@ class generate_report extends external_api {
             return $sql;
         }
 
-        // If both cohort and group filters, use INTERSECT (users must be in BOTH).
-        // Use INNER JOIN approach for DB compatibility since not all DBs support INTERSECT.
+        // If both cohort and group filters, use UNION (users in EITHER cohort or group).
+        // Changed from INTERSECT to UNION for more inclusive filtering.
         if (count($usersubqueries) > 1) {
-            $filtersubquery = "SELECT t1.userid FROM (" . $usersubqueries[0] . ") t1 "
-                . "INNER JOIN (" . $usersubqueries[1] . ") t2 ON t1.userid = t2.userid";
+            $filtersubquery = $usersubqueries[0] . " UNION " . $usersubqueries[1];
         } else {
             $filtersubquery = $usersubqueries[0];
         }
 
-        // Detect the user column. Common patterns in Moodle reports:
-        // - u.id (from {user} u)
-        // - userid
-        // - user_id
-        // Strategy: wrap the entire query and filter the outer result.
-        // We detect which column to filter on.
+        // Detect the user column in the SELECT clause.
         $useridcol = self::detect_userid_column($sql);
 
         if ($useridcol) {
@@ -400,50 +406,207 @@ class generate_report extends external_api {
             $sql = rtrim(rtrim($sql), ';');
             $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
                 . "WHERE filtered_report.$useridcol IN ($filtersubquery)";
+            debugging('apply_user_filters: Detected userid col=' . $useridcol . ', wrapped SQL.', DEBUG_DEVELOPER);
+        } else {
+            // Fallback: try to JOIN against the user filter using common table references.
+            // This handles cases where we can't detect the userid column in SELECT,
+            // but the query does reference the {user} table.
+            $sql = rtrim(rtrim($sql), ';');
+            $fallbackcol = self::detect_userid_column_fallback($sql);
+            if ($fallbackcol) {
+                $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
+                    . "WHERE filtered_report.$fallbackcol IN ($filtersubquery)";
+                debugging('apply_user_filters: Used fallback col=' . $fallbackcol . ', wrapped SQL.', DEBUG_DEVELOPER);
+            } else {
+                // Last resort: try all common user ID column names.
+                // Wrap with a subquery that checks multiple possible column names.
+                debugging('apply_user_filters: Could not detect userid column. Trying brute-force approach.', DEBUG_DEVELOPER);
+                $sql = self::apply_user_filters_bruteforce($sql, $filtersubquery);
+            }
         }
 
         return $sql;
     }
 
     /**
-     * Detect the user ID column name in a SQL query.
+     * Detect the user ID column name in a SQL query by analysing the SELECT clause.
+     *
+     * Focuses on the SELECT clause to find the output column name that represents
+     * a user ID, which is what will be available in the wrapped outer query.
      *
      * @param string $sql The SQL query.
      * @return string|null The user ID column alias, or null if not detected.
      */
     private static function detect_userid_column($sql) {
-        // Common user ID column patterns in order of likelihood.
-        $patterns = [
-            // Explicit userid column.
-            '/\bAS\s+userid\b/i' => 'userid',
-            '/\b(\w+\.)?userid\b/i' => 'userid',
-            // user_id variant.
-            '/\bAS\s+user_id\b/i' => 'user_id',
-            '/\b(\w+\.)?user_id\b/i' => 'user_id',
-            // u.id pattern (common: SELECT u.id, ...).
-            '/\bu\.id\b/i' => 'id',
-            // Generic id from user table.
-            '/FROM\s+\{user\}\s+\w*.*?\bSELECT\b/is' => 'id',
-        ];
-
-        foreach ($patterns as $pattern => $column) {
-            if (preg_match($pattern, $sql)) {
-                return $column;
-            }
+        // Extract the SELECT clause (everything between SELECT and FROM).
+        // Handle nested subqueries by finding the main FROM.
+        $selectclause = self::extract_select_clause($sql);
+        if (empty($selectclause)) {
+            return null;
         }
 
-        // Fallback: check if there's an 'id' column in the SELECT that likely refers to users.
-        // Look for patterns like "SELECT u.id" or just the word userid anywhere.
-        if (preg_match('/SELECT\s+.*?\bu\.id\b/is', $sql)) {
+        // Priority 1: Explicit alias "AS userid" or "AS user_id" in SELECT.
+        if (preg_match('/\bAS\s+userid\b/i', $selectclause)) {
+            return 'userid';
+        }
+        if (preg_match('/\bAS\s+user_id\b/i', $selectclause)) {
+            return 'user_id';
+        }
+        if (preg_match('/\bAS\s+learnerid\b/i', $selectclause)) {
+            return 'learnerid';
+        }
+        if (preg_match('/\bAS\s+studentid\b/i', $selectclause)) {
+            return 'studentid';
+        }
+
+        // Priority 2: Bare column references like "u.userid", "ue.userid", etc.
+        // When selected as "table.userid", the output column name is "userid".
+        if (preg_match('/\b\w+\.userid\b/i', $selectclause)) {
+            return 'userid';
+        }
+        if (preg_match('/\b\w+\.user_id\b/i', $selectclause)) {
+            return 'user_id';
+        }
+
+        // Priority 3: Just "userid" as a column in SELECT.
+        if (preg_match('/\buserid\b/i', $selectclause)) {
+            return 'userid';
+        }
+
+        // Priority 4: "u.id" pattern (very common: SELECT u.id, u.firstname, ...).
+        // The output column will be "id".
+        if (preg_match('/\bu\.id\b/i', $selectclause)) {
             return 'id';
         }
 
-        // Last resort: if query references {user} table, assume 'id'.
+        // Priority 5: Any table.id where the table is likely a user table alias.
+        // Common aliases: u, usr, users, student, learner.
+        if (preg_match('/\b(u|usr|users?|student|learner)\.id\b/i', $selectclause)) {
+            return 'id';
+        }
+
+        return null;
+    }
+
+    /**
+     * Extract the SELECT clause from a SQL query (between SELECT and the main FROM).
+     *
+     * @param string $sql The SQL query.
+     * @return string The SELECT clause content, or empty string.
+     */
+    private static function extract_select_clause($sql) {
+        $sql = trim($sql);
+        // Remove leading SELECT keyword.
+        if (!preg_match('/^\s*SELECT\s+(DISTINCT\s+)?/is', $sql, $m)) {
+            return '';
+        }
+
+        $start = strlen($m[0]);
+        $depth = 0;
+        $len = strlen($sql);
+
+        // Walk through to find the main FROM (not inside subqueries).
+        for ($i = $start; $i < $len; $i++) {
+            $char = $sql[$i];
+            if ($char === '(') {
+                $depth++;
+            } elseif ($char === ')') {
+                $depth--;
+            } elseif ($depth === 0) {
+                // Check for FROM keyword at this level.
+                if (preg_match('/\bFROM\b/i', substr($sql, $i, 5))) {
+                    return substr($sql, $start, $i - $start);
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Fallback user ID column detection: scan the full SQL for clues.
+     *
+     * @param string $sql The SQL query.
+     * @return string|null Column name or null.
+     */
+    private static function detect_userid_column_fallback($sql) {
+        // Check if the query references {user} table — if so, the join likely uses an id column.
+        if (preg_match('/\{user\}\s+(\w+)/i', $sql, $m)) {
+            $alias = $m[1];
+            // Check if this alias's id appears in SELECT.
+            $selectclause = self::extract_select_clause($sql);
+            if (!empty($selectclause) && preg_match('/\b' . preg_quote($alias, '/') . '\.id\b/i', $selectclause)) {
+                return 'id';
+            }
+        }
+
+        // Check for userid anywhere in SELECT.
+        $selectclause = self::extract_select_clause($sql);
+        if (!empty($selectclause)) {
+            // Look for any column ending in 'userid' or 'user_id'.
+            if (preg_match('/\b(\w*userid)\b/i', $selectclause, $m)) {
+                return strtolower($m[1]);
+            }
+            if (preg_match('/\b(\w*user_id)\b/i', $selectclause, $m)) {
+                return strtolower($m[1]);
+            }
+        }
+
+        // If query references {user} at all, try 'id' as the column.
         if (preg_match('/\{user\}/i', $sql)) {
             return 'id';
         }
 
         return null;
+    }
+
+    /**
+     * Brute-force filter application: try wrapping with common user ID column names.
+     * Tests each candidate and returns the first valid wrapping.
+     *
+     * @param string $sql The original SQL (already rtrimmed).
+     * @param string $filtersubquery The user filter subquery.
+     * @return string Modified SQL.
+     */
+    private static function apply_user_filters_bruteforce($sql, $filtersubquery) {
+        global $DB;
+
+        // Try to execute a limited version to discover column names.
+        $testsql = rtrim(rtrim($sql), ';');
+        try {
+            $testresult = $DB->get_records_sql($testsql . " LIMIT 1", []);
+            if (!empty($testresult)) {
+                $firstrow = reset($testresult);
+                $columns = array_keys((array) $firstrow);
+
+                // Look for user ID columns in the result set.
+                $candidates = ['userid', 'user_id', 'id', 'learnerid', 'studentid', 'uid'];
+                foreach ($candidates as $candidate) {
+                    if (in_array($candidate, $columns)) {
+                        debugging('apply_user_filters_bruteforce: Found column ' . $candidate . ' in result set.', DEBUG_DEVELOPER);
+                        return "SELECT filtered_report.* FROM ($sql) filtered_report "
+                            . "WHERE filtered_report.$candidate IN ($filtersubquery)";
+                    }
+                }
+
+                // Try any column containing 'user' and 'id'.
+                foreach ($columns as $col) {
+                    $lower = strtolower($col);
+                    if (strpos($lower, 'user') !== false && strpos($lower, 'id') !== false) {
+                        debugging('apply_user_filters_bruteforce: Found user-id-like column ' . $col, DEBUG_DEVELOPER);
+                        return "SELECT filtered_report.* FROM ($sql) filtered_report "
+                            . "WHERE filtered_report.$col IN ($filtersubquery)";
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            debugging('apply_user_filters_bruteforce: Test query failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
+
+        // If all detection fails, return original SQL unchanged and log it.
+        debugging('apply_user_filters: WARNING - Could not detect any user ID column. '
+            . 'Filter NOT applied. SQL starts with: ' . substr($sql, 0, 200), DEBUG_DEVELOPER);
+        return $sql;
     }
 
     /**

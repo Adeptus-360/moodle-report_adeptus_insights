@@ -45,14 +45,18 @@ try {
 
         $sql = $data['sql'] ?? '';
         $params = isset($data['params']) ? json_encode($data['params']) : '{}';
+        $cohortids = isset($data['cohortids']) ? json_encode($data['cohortids']) : '[]';
+        $groupids = isset($data['groupids']) ? json_encode($data['groupids']) : '[]';
     } else {
         // Fallback to standard form parameters.
         require_sesskey();
         $sql = required_param('sql', PARAM_RAW);
         $params = optional_param('params', '{}', PARAM_RAW);
+        $cohortids = optional_param('cohortids', '[]', PARAM_RAW);
+        $groupids = optional_param('groupids', '[]', PARAM_RAW);
     }
 
-    $result = \report_adeptus_insights\external\execute_ai_report::execute($sql, $params);
+    $result = \report_adeptus_insights\external\execute_ai_report::execute($sql, $params, $cohortids, $groupids);
 
     // The external service returns data and headers as JSON strings.
     // Decode them so the final response has arrays, not strings.

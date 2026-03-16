@@ -30,8 +30,9 @@ define([
     'core/chartjs',
     'core/templates',
     'core/str',
-    'report_adeptus_insights/auth_utils'
-], function(Ajax, Notification, Chart, Templates, Str, AuthUtils) {
+    'report_adeptus_insights/auth_utils',
+    'report_adeptus_insights/cohort_group_filter'
+], function(Ajax, Notification, Chart, Templates, Str, AuthUtils, CohortGroupFilter) {
     var Swal = window.Swal;
 
     /**
@@ -507,6 +508,7 @@ define([
                     this.setUserName(userName);
                     this.updateSubscriptionInfo();
                     this.setupEventListeners();
+                    this.initCohortGroupFilters();
                     this.loadChatHistory();
                     this.loadReportsHistory();
                     this.loadCategories(); // Load report categories for save dialog
@@ -541,6 +543,21 @@ define([
                 this.checkReportEligibility(); // Check report limits even on fallback
                 getAssistantContainer().fadeIn(200);
             }
+        },
+
+        /**
+         * Initialize the cohort & group filter bar using the shared module.
+         */
+        initCohortGroupFilters: function() {
+            // The filter bar is in the template. Initialize the shared module
+            // with a callback that re-executes the current report with filters.
+            CohortGroupFilter.init({
+                onFilterChange: function() {
+                    // Filters changed — no auto-re-execution here since assistant
+                    // uses on-demand report execution. Filters will be included
+                    // in the next executeReportLocally call.
+                }
+            });
         },
 
         initializeLoaderStyles: function() {
@@ -5420,11 +5437,15 @@ define([
                 // Show loading indicator
                 self.showLoading();
 
+                // Include cohort/group filters if active.
+                var filters = CohortGroupFilter.getActiveFilters();
                 var promises = Ajax.call([{
                     methodname: 'report_adeptus_insights_execute_ai_report',
                     args: {
                         sql: sql,
-                        params: JSON.stringify(params)
+                        params: JSON.stringify(params),
+                        cohortids: JSON.stringify(filters.cohortids || []),
+                        groupids: JSON.stringify(filters.groupids || [])
                     }
                 }]);
 

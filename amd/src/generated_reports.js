@@ -21,7 +21,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
+define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort_group_filter'], function(Ajax, Str, Chart, CohortGroupFilter) {
     'use strict';
 
     /**
@@ -461,6 +461,16 @@ define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
             self.loadCategories();
             self.bindViewToggle();
             self.bindCategoryManagement();
+
+            // Initialize cohort & group filters.
+            CohortGroupFilter.init({
+                onFilterChange: function() {
+                    // If a report is currently displayed, re-execute it with the new filters.
+                    if (self.currentReport && self.currentReport.slug) {
+                        self.loadReportDetails(self.currentReport.slug);
+                    }
+                }
+            });
         },
 
         /**
@@ -2045,6 +2055,9 @@ define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
             var parameters = cachedReport.parameters || {};
             var reportTemplateId = cachedReport.report_template_id || cachedReport.name;
 
+            // Include active filters.
+            var filters = CohortGroupFilter.getActiveFilters();
+
             $.ajax({
                 url: M.cfg.wwwroot + '/lib/ajax/service.php?sesskey=' + M.cfg.sesskey +
                     '&info=report_adeptus_insights_generate_report',
@@ -2056,7 +2069,9 @@ define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
                     args: {
                         reportid: reportTemplateId,
                         parameters: JSON.stringify(parameters),
-                        reexecution: true
+                        reexecution: true,
+                        cohortids: JSON.stringify(filters.cohortids || []),
+                        groupids: JSON.stringify(filters.groupids || [])
                     }
                 }]),
                 timeout: 60000,
@@ -2147,6 +2162,9 @@ define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
         executeReportLocally: function(sql, params) {
             params = params || {};
 
+            // Include active filters.
+            var filters = CohortGroupFilter.getActiveFilters();
+
             return new Promise(function(resolve, reject) {
                 $.ajax({
                     url: M.cfg.wwwroot + '/report/adeptus_insights/ajax/execute_ai_report.php',
@@ -2155,6 +2173,8 @@ define(['core/ajax', 'core/str', 'core/chartjs'], function(Ajax, Str, Chart) {
                     data: JSON.stringify({
                         sql: sql,
                         params: params,
+                        cohortids: filters.cohortids || [],
+                        groupids: filters.groupids || [],
                         sesskey: M.cfg.sesskey
                     }),
                     timeout: 60000,

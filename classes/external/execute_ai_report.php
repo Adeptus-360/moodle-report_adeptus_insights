@@ -47,6 +47,8 @@ class execute_ai_report extends external_api {
         return new external_function_parameters([
             'sql' => new external_value(PARAM_RAW, 'SQL query to execute'),
             'params' => new external_value(PARAM_RAW, 'JSON-encoded parameters', VALUE_DEFAULT, '{}'),
+            'cohortids' => new external_value(PARAM_RAW, 'JSON-encoded array of cohort IDs to filter by', VALUE_DEFAULT, '[]'),
+            'groupids' => new external_value(PARAM_RAW, 'JSON-encoded array of group IDs to filter by', VALUE_DEFAULT, '[]'),
         ]);
     }
 
@@ -55,15 +57,19 @@ class execute_ai_report extends external_api {
      *
      * @param string $sql SQL query
      * @param string $params JSON-encoded parameters
+     * @param string $cohortids JSON-encoded cohort IDs
+     * @param string $groupids JSON-encoded group IDs
      * @return array Result
      */
-    public static function execute(string $sql, string $params = '{}'): array {
+    public static function execute(string $sql, string $params = '{}', string $cohortids = '[]', string $groupids = '[]'): array {
         global $CFG, $DB;
 
         // Validate parameters.
         $validatedparams = self::validate_parameters(self::execute_parameters(), [
             'sql' => $sql,
             'params' => $params,
+            'cohortids' => $cohortids ?? '[]',
+            'groupids' => $groupids ?? '[]',
         ]);
 
         // Validate context.
@@ -142,6 +148,14 @@ class execute_ai_report extends external_api {
                     'row_count' => 0,
                 ];
             }
+        }
+
+        // Apply cohort and group filters if provided.
+        $parsedcohortids = json_decode($validatedparams['cohortids'], true) ?: [];
+        $parsedgroupids = json_decode($validatedparams['groupids'], true) ?: [];
+
+        if (!empty($parsedcohortids) || !empty($parsedgroupids)) {
+            $sql = generate_report::apply_user_filters_static($sql, $parsedcohortids, $parsedgroupids);
         }
 
         try {
