@@ -178,6 +178,12 @@ class generate_report extends external_api {
             $queryresult = self::execute_query($reportquery, $reportparams, $DB);
             $results = $queryresult['results'];
             $headers = $queryresult['headers'];
+        } catch (\dml_read_exception $e) {
+            // Capture the underlying DB error for diagnosis.
+            $sqlerror = $e->error ?? $e->getMessage();
+            $debugsql = $e->sql ?? substr($reportquery, 0, 500);
+            debugging('SQL execution failed (DML): ' . $sqlerror . ' | SQL: ' . $debugsql, DEBUG_DEVELOPER);
+            return self::error_response('error_executing_report', $sqlerror . ' [SQL: ' . substr($debugsql, 0, 200) . ']');
         } catch (\Exception $e) {
             debugging('SQL execution failed: ' . $e->getMessage() . ' | SQL: ' . substr($reportquery, 0, 1000), DEBUG_DEVELOPER);
             return self::error_response('error_executing_report', $e->getMessage());
@@ -396,41 +402,245 @@ class generate_report extends external_api {
         }
 
         // If both cohort and group filters, use UNION (users in EITHER cohort or group).
-        // Changed from INTERSECT to UNION for more inclusive filtering.
         if (count($usersubqueries) > 1) {
             $filtersubquery = $usersubqueries[0] . " UNION " . $usersubqueries[1];
         } else {
             $filtersubquery = $usersubqueries[0];
         }
 
-        // Detect the user column in the SELECT clause.
-        $useridcol = self::detect_userid_column($sql);
+        // Strategy: Instead of wrapping the query (which fails when the SELECT clause
+        // doesn't expose a userid column), detect the user table alias in the
+        // FROM/JOIN clauses and inject an AND condition into the WHERE clause.
+        $useralias = self::detect_user_table_alias($sql);
 
-        if ($useridcol) {
-            // Wrap the original query and filter by user membership.
-            $sql = rtrim(rtrim($sql), ';');
-            $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
-                . "WHERE filtered_report.$useridcol IN ($filtersubquery)";
-            debugging('apply_user_filters: Detected userid col=' . $useridcol . ', wrapped SQL.', DEBUG_DEVELOPER);
-        } else {
-            // Fallback: try to JOIN against the user filter using common table references.
-            // This handles cases where we can't detect the userid column in SELECT,
-            // but the query does reference the {user} table.
-            $sql = rtrim(rtrim($sql), ';');
-            $fallbackcol = self::detect_userid_column_fallback($sql);
-            if ($fallbackcol) {
-                $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
-                    . "WHERE filtered_report.$fallbackcol IN ($filtersubquery)";
-                debugging('apply_user_filters: Used fallback col=' . $fallbackcol . ', wrapped SQL.', DEBUG_DEVELOPER);
+        if ($useralias) {
+            if ($useralias === '__no_alias__') {
+                // {user} table used without alias — reference "id" directly.
+                $filtercondition = "id IN ($filtersubquery)";
             } else {
-                // Last resort: try all common user ID column names.
-                // Wrap with a subquery that checks multiple possible column names.
-                debugging('apply_user_filters: Could not detect userid column. Trying brute-force approach.', DEBUG_DEVELOPER);
-                $sql = self::apply_user_filters_bruteforce($sql, $filtersubquery);
+                $filtercondition = "$useralias.id IN ($filtersubquery)";
+            }
+            $sql = self::inject_where_condition($sql, $filtercondition);
+            debugging('apply_user_filters: Injected filter via user alias=' . $useralias, DEBUG_DEVELOPER);
+        } else {
+            // No {user} table found — try to find a userid column reference in JOIN conditions
+            // like "ON x.userid = ..." and inject a condition on that column.
+            $useridref = self::detect_userid_join_reference($sql);
+            if ($useridref) {
+                $filtercondition = "$useridref IN ($filtersubquery)";
+                $sql = self::inject_where_condition($sql, $filtercondition);
+                debugging('apply_user_filters: Injected filter via userid ref=' . $useridref, DEBUG_DEVELOPER);
+            } else {
+                // Last resort: fall back to wrapping approach with SELECT column detection.
+                $useridcol = self::detect_userid_column($sql);
+                if ($useridcol) {
+                    $sql = rtrim(rtrim($sql), ';');
+                    $sql = "SELECT filtered_report.* FROM ($sql) filtered_report "
+                        . "WHERE filtered_report.$useridcol IN ($filtersubquery)";
+                    debugging('apply_user_filters: Wrapped with SELECT col=' . $useridcol, DEBUG_DEVELOPER);
+                } else {
+                    debugging('apply_user_filters: Could not detect any user reference. Returning unfiltered.', DEBUG_DEVELOPER);
+                }
             }
         }
 
         return $sql;
+    }
+
+    /**
+     * Detect the alias used for the {user} table in the query.
+     *
+     * Matches patterns like:
+     *   {user} AS u, {user} u, {user} AS users, JOIN {user} u ON ...
+     *
+     * @param string $sql The SQL query.
+     * @return string|null The user table alias, or null if not found.
+     */
+    /**
+     * Detect how the {user} table is referenced and return a column reference
+     * suitable for filtering (e.g., "u.id" or "{user}.id").
+     *
+     * @param string $sql The SQL query.
+     * @return string|null A column reference like "u.id" or null.
+     */
+    private static function detect_user_table_alias($sql) {
+        // Exclude SQL keywords that might follow {user}.
+        $sqlkeywords = ['WHERE', 'GROUP', 'ORDER', 'LIMIT', 'ON', 'SET', 'HAVING', 'UNION',
+                        'LEFT', 'RIGHT', 'INNER', 'OUTER', 'CROSS', 'JOIN', 'AND', 'OR', 'NOT'];
+
+        // Match {user} AS alias or {user} alias (but not {user_enrolments} etc.)
+        if (preg_match('/\{user\}\s+(?:AS\s+)?(\w+)/i', $sql, $matches)) {
+            $alias = $matches[1];
+            if (!in_array(strtoupper($alias), $sqlkeywords)) {
+                return $alias;
+            }
+        }
+
+        // No alias found — check if {user} is used directly in the main FROM clause
+        // (not inside a subquery). e.g. "FROM {user} WHERE ...".
+        // We must not match {user} inside parenthesised subqueries.
+        $noalias = self::is_user_table_in_main_from($sql);
+        if ($noalias) {
+            return '__no_alias__';
+        }
+
+        return null;
+    }
+
+    /**
+     * Detect a userid column reference in JOIN ON conditions.
+     *
+     * Looks for patterns like "ON x.userid = u.id" or "ON st.userid = u.id"
+     * and returns the table.userid reference (e.g., "st.userid").
+     *
+     * @param string $sql The SQL query.
+     * @return string|null A table.userid reference, or null.
+     */
+    private static function detect_userid_join_reference($sql) {
+        // Match patterns like: ON alias.userid = ... or ... = alias.userid
+        if (preg_match('/\bON\b.*?(\w+\.userid)\b/i', $sql, $matches)) {
+            return $matches[1];
+        }
+
+        // Also check for alias.userid in SELECT, WHERE, or GROUP BY (not inside subqueries).
+        // This catches patterns like "SELECT l.userid ... FROM {logstore_standard_log} l".
+        if (preg_match('/\b(\w+)\.userid\b/i', $sql, $matches)) {
+            $alias = $matches[1];
+            // Verify this alias appears in FROM/JOIN (not just a subquery).
+            if (preg_match('/(?:FROM|JOIN)\s+\{\w+\}\s+(?:AS\s+)?' . preg_quote($alias, '/') . '\b/i', $sql)) {
+                return $alias . '.userid';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Inject an AND condition into the WHERE clause of a SQL query.
+     *
+     * If the query has no WHERE clause, adds one. Handles ORDER BY, GROUP BY,
+     * HAVING, LIMIT, and UNION by inserting before them.
+     *
+     * @param string $sql The original SQL query.
+     * @param string $condition The condition to inject (without AND prefix).
+     * @return string The modified SQL query.
+     */
+    private static function inject_where_condition($sql, $condition) {
+        $sql = rtrim(rtrim($sql), ';');
+
+        // Find the position of the main WHERE clause (not inside subqueries).
+        // We need to be careful about nested subqueries containing their own WHERE.
+        $wherepos = self::find_main_where_position($sql);
+
+        if ($wherepos !== false) {
+            // Has a WHERE clause — find where to insert the AND condition.
+            // Insert before ORDER BY, GROUP BY, HAVING, LIMIT, or end of query.
+            $insertbefore = self::find_clause_end_position($sql, $wherepos);
+            $sql = substr($sql, 0, $insertbefore) . " AND $condition" . substr($sql, $insertbefore);
+        } else {
+            // No WHERE clause — insert before ORDER BY, GROUP BY, HAVING, LIMIT, or end.
+            $insertbefore = self::find_clause_end_position($sql, 0);
+            $sql = substr($sql, 0, $insertbefore) . " WHERE $condition" . substr($sql, $insertbefore);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Check if {user} table appears in the main FROM/JOIN clause (not inside subqueries).
+     *
+     * @param string $sql The SQL query.
+     * @return bool True if {user} is in the main FROM/JOIN without an alias.
+     */
+    private static function is_user_table_in_main_from($sql) {
+        $depth = 0;
+        $len = strlen($sql);
+        $i = 0;
+        $sqlupper = strtoupper($sql);
+
+        while ($i < $len) {
+            if ($sql[$i] === '(') {
+                $depth++;
+            } else if ($sql[$i] === ')') {
+                $depth--;
+            } else if ($depth === 0) {
+                // Check for FROM {user} or JOIN {user} at top level.
+                if (preg_match('/\A(?:FROM|JOIN)\s+\{user\}(?:\s+(?:WHERE|GROUP|ORDER|LIMIT|HAVING|LEFT|RIGHT|INNER|CROSS|JOIN|ON)\b|\s*$)/i', substr($sql, $i))) {
+                    return true;
+                }
+            }
+            $i++;
+        }
+        return false;
+    }
+
+    /**
+     * Find the position of the main WHERE keyword (not inside subqueries).
+     *
+     * @param string $sql The SQL query.
+     * @return int|false Position of WHERE keyword, or false if not found.
+     */
+    private static function find_main_where_position($sql) {
+        $depth = 0;
+        $len = strlen($sql);
+        $i = 0;
+
+        while ($i < $len) {
+            $char = $sql[$i];
+            if ($char === '(') {
+                $depth++;
+            } else if ($char === ')') {
+                $depth--;
+            } else if ($depth === 0) {
+                // Check for WHERE keyword at top level.
+                if (strtoupper(substr($sql, $i, 6)) === 'WHERE ' ||
+                    strtoupper(substr($sql, $i, 6)) === "WHERE\t" ||
+                    strtoupper(substr($sql, $i, 6)) === "WHERE\n") {
+                    return $i;
+                }
+            }
+            $i++;
+        }
+        return false;
+    }
+
+    /**
+     * Find the position where we should insert a WHERE/AND condition.
+     *
+     * Scans for ORDER BY, GROUP BY, HAVING, LIMIT, UNION at the top level
+     * (not inside subqueries) starting from the given offset.
+     *
+     * @param string $sql The SQL query.
+     * @param int $startfrom Start scanning from this position.
+     * @return int The position to insert before.
+     */
+    private static function find_clause_end_position($sql, $startfrom) {
+        $depth = 0;
+        $len = strlen($sql);
+        $i = $startfrom;
+        $keywords = ['ORDER BY', 'GROUP BY', 'HAVING', 'LIMIT', 'UNION'];
+
+        while ($i < $len) {
+            $char = $sql[$i];
+            if ($char === '(') {
+                $depth++;
+            } else if ($char === ')') {
+                $depth--;
+            } else if ($depth === 0) {
+                $remaining = strtoupper(substr($sql, $i));
+                foreach ($keywords as $kw) {
+                    if (strpos($remaining, $kw) === 0) {
+                        // Verify it's a word boundary.
+                        $afterkw = $i + strlen($kw);
+                        if ($afterkw >= $len || !ctype_alpha($sql[$afterkw])) {
+                            return $i;
+                        }
+                    }
+                }
+            }
+            $i++;
+        }
+        return $len;
     }
 
     /**
