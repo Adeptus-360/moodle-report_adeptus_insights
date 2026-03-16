@@ -1745,10 +1745,10 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 });
             });
 
-            $.when(assistantPromise, wizardPromise).then(
-                function(assistantRes, wizardRes) {
-                    var aRes = assistantRes[0] || assistantRes || {};
-                    var wRes = wizardRes[0] || wizardRes || {};
+            Promise.all([assistantPromise, wizardPromise]).then(
+                function(results) {
+                    var aRes = results[0] || {};
+                    var wRes = results[1] || {};
 
                     var assistantReports = aRes.reports || aRes.data || [];
                     var wizardReports = wRes.reports || [];
