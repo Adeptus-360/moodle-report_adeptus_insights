@@ -168,7 +168,9 @@ class generate_report extends external_api {
         $parsedgroupids = json_decode($params['groupids'], true) ?: [];
 
         if (!empty($parsedcohortids) || !empty($parsedgroupids)) {
+            debugging('Applying filters: cohorts=' . json_encode($parsedcohortids) . ', groups=' . json_encode($parsedgroupids), DEBUG_DEVELOPER);
             $reportquery = self::apply_user_filters($reportquery, $parsedcohortids, $parsedgroupids);
+            debugging('Filtered SQL: ' . substr($reportquery, 0, 500), DEBUG_DEVELOPER);
         }
 
         // Execute the SQL query.
@@ -177,6 +179,7 @@ class generate_report extends external_api {
             $results = $queryresult['results'];
             $headers = $queryresult['headers'];
         } catch (\Exception $e) {
+            debugging('SQL execution failed: ' . $e->getMessage() . ' | SQL: ' . substr($reportquery, 0, 1000), DEBUG_DEVELOPER);
             return self::error_response('error_executing_report', $e->getMessage());
         }
 
@@ -229,9 +232,11 @@ class generate_report extends external_api {
      * @return array Error response array.
      */
     private static function error_response($stringkey, $extra = '') {
-        $message = get_string($stringkey, 'report_adeptus_insights');
+        // Properly interpolate {$a} placeholder with the extra info.
         if ($extra) {
-            $message .= ': ' . $extra;
+            $message = get_string($stringkey, 'report_adeptus_insights', $extra);
+        } else {
+            $message = get_string($stringkey, 'report_adeptus_insights');
         }
         return [
             'success' => false,
