@@ -1,0 +1,59 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template   report_adeptus_insights/cohort_group_filter_bar
+    @package    report_adeptus_insights
+    @copyright  2026 Adeptus 360 <info@adeptus360.com>
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Reusable cohort & group filter bar partial.
+    Include in any page template with: report_adeptus_insights/cohort_group_filter_bar
+}}
+<div class="adeptus-filter-bar" id="cohort-group-filter-bar" style="display: none;">
+    <div class="adeptus-filter-bar-header">
+        <i class="fa-solid fa-filter"></i>
+        <span>{{#str}}filter_cohorts_groups, report_adeptus_insights{{/str}}</span>
+    </div>
+    <div class="adeptus-filter-bar-controls">
+        <div class="adeptus-filter-field">
+            <label for="filter-cohort">{{#str}}filter_cohort, report_adeptus_insights{{/str}}</label>
+            <select id="filter-cohort" class="form-control" multiple>
+                <!-- Populated dynamically -->
+            </select>
+        </div>
+        <div class="adeptus-filter-field">
+            <label for="filter-group">{{#str}}filter_group, report_adeptus_insights{{/str}}</label>
+            <select id="filter-group" class="form-control" multiple>
+                <!-- Populated dynamically -->
+            </select>
+        </div>
+        <div class="adeptus-filter-actions">
+            <button class="adeptus-btn-primary adeptus-btn-sm" id="apply-filters">
+                <i class="fa-solid fa-check"></i> {{#str}}filter_apply, report_adeptus_insights{{/str}}
+            </button>
+            <button class="adeptus-btn-secondary adeptus-btn-sm" id="clear-filters">
+                <i class="fa-solid fa-times"></i> {{#str}}filter_clear, report_adeptus_insights{{/str}}
+            </button>
+        </div>
+    </div>
+    <div class="adeptus-filter-active" id="filter-active-tags" style="display: none;">
+        <span class="adeptus-filter-active-label">{{#str}}filter_active, report_adeptus_insights{{/str}}:</span>
+        <div class="adeptus-filter-tags" id="filter-tags">
+            <!-- Active filter tags rendered here -->
+        </div>
+    </div>
+</div>
