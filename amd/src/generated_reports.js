@@ -1748,7 +1748,9 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
 
             Promise.all([assistantPromise, wizardPromise]).then(
                 function(results) {
-                    var aRes = results[0] || {};
+                    // assistantPromise resolves with [parsed], so unwrap the array.
+                    var rawAssistant = results[0];
+                    var aRes = Array.isArray(rawAssistant) ? (rawAssistant[0] || {}) : (rawAssistant || {});
                     var wRes = results[1] || {};
 
                     var assistantReports = aRes.reports || aRes.data || [];
