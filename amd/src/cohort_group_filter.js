@@ -59,8 +59,11 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
                 this.clearFilters();
             }.bind(this));
 
-            // Load filter options.
-            this.loadFilters();
+            // Load filter options and show the bar when ready.
+            var self = this;
+            this.loadFilters().then(function() {
+                self.show();
+            });
         },
 
         /**

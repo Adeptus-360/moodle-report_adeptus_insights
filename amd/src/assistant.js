@@ -46,8 +46,25 @@ define([
             if (typeof els === 'string') {
                 // HTML string - parse it
                 if (els.trim().charAt(0) === '<') {
-                    var tmp = document.createElement('div');
-                    tmp.innerHTML = els.trim();
+                    var html = els.trim();
+                    // Table-related elements need correct parent context for parsing.
+                    // Browsers strip <tr>, <td>, <th>, <thead>, <tbody>, <tfoot> inside <div>.
+                    var tableTagMatch = html.match(/^<(tr|td|th|thead|tbody|tfoot)[\s>]/i);
+                    var tmp;
+                    if (tableTagMatch) {
+                        var tag = tableTagMatch[1].toLowerCase();
+                        if (tag === 'tr') {
+                            tmp = document.createElement('tbody');
+                        } else if (tag === 'td' || tag === 'th') {
+                            tmp = document.createElement('tr');
+                        } else {
+                            // thead, tbody, tfoot
+                            tmp = document.createElement('table');
+                        }
+                    } else {
+                        tmp = document.createElement('div');
+                    }
+                    tmp.innerHTML = html;
                     els = Array.from(tmp.children);
                 } else {
                     els = Array.from(document.querySelectorAll(els));
@@ -557,6 +574,13 @@ define([
                     // uses on-demand report execution. Filters will be included
                     // in the next executeReportLocally call.
                 }
+            });
+            // Show the filter bar once filters finish loading.
+            // loadFilters() returns a promise — wait for it, then show.
+            CohortGroupFilter.loadFilters().then(function() {
+                CohortGroupFilter.show();
+            }).catch(function() {
+                // Filters unavailable — bar stays hidden (handled by loadFilters catch).
             });
         },
 
