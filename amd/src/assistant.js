@@ -566,13 +566,15 @@ define([
          * Initialize the cohort & group filter bar using the shared module.
          */
         initCohortGroupFilters: function() {
+            var self = this;
             // The filter bar is in the template. Initialize the shared module
             // with a callback that re-executes the current report with filters.
             CohortGroupFilter.init({
                 onFilterChange: function() {
-                    // Filters changed — no auto-re-execution here since assistant
-                    // uses on-demand report execution. Filters will be included
-                    // in the next executeReportLocally call.
+                    // Filters changed — re-execute the currently viewed report if one is displayed.
+                    if (self.currentViewedReport && self.currentViewedReport.slug) {
+                        self.fetchAndDisplayReport(self.currentViewedReport.slug);
+                    }
                 }
             });
             // Show the filter bar once filters finish loading.
@@ -4865,6 +4867,9 @@ define([
             // Store current report and data for export functionality
             self.currentViewedReport = report;
             self.currentViewedReportData = data;
+
+            // Show the cohort/group filter bar when a report is displayed.
+            CohortGroupFilter.show();
 
             // Always destroy any existing chart/graph instances to prevent data mixup
             if (self.reportChartInstance) {
