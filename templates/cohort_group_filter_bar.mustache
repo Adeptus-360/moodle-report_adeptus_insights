@@ -41,11 +41,11 @@
                 <!-- Populated dynamically -->
             </select>
         </div>
-        <div class="adeptus-filter-actions">
+        <div class="adeptus-filter-actions" style="display: flex; flex-direction: column; gap: 0.5rem; align-self: flex-start;">
             <button class="adeptus-btn-primary adeptus-btn-sm" id="apply-filters">
                 <i class="fa-solid fa-check"></i> {{#str}}filter_apply, report_adeptus_insights{{/str}}
             </button>
-            <button class="adeptus-btn-secondary adeptus-btn-sm" id="clear-filters">
+            <button class="adeptus-btn-primary adeptus-btn-sm" id="clear-filters">
                 <i class="fa-solid fa-times"></i> {{#str}}filter_clear, report_adeptus_insights{{/str}}
             </button>
         </div>

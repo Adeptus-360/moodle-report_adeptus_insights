@@ -44,7 +44,7 @@ try {
     // Try to get reports list — fall back to empty array.
     $settings = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
     if ($settings && !empty($settings->api_key) && !empty($settings->api_url)) {
-        $url = rtrim($settings->api_url, '/') . '/api/reports';
+        $url = rtrim($settings->api_url, '/') . '/ai-reports';
         $curl = new \curl();
         $curl->setopt(['CURLOPT_TIMEOUT' => 15, 'CURLOPT_CONNECTTIMEOUT' => 10]);
         $headers = [
