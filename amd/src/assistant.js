@@ -4490,6 +4490,8 @@ define([
          * @param callback
          */
         loadReportsHistory: function(callback) {
+            var self = this;
+
             // Initialize cachedReports if not already
             if (!this.cachedReports) {
                 this.cachedReports = [];
@@ -4498,121 +4500,92 @@ define([
             $('#report-history-loader').removeClass('d-none');
             $('#report-history-table-wrapper').addClass('d-none');
 
-            this.ajaxWithAuth({
-                url: this.backendUrl + '/ai-reports',
-                method: 'GET',
-                timeout: 10000, // 10 second timeout
-                success: (response) => {
+            // Use Moodle AJAX proxy to load AI reports
+            Ajax.call([{
+                methodname: 'report_adeptus_insights_get_ai_reports',
+                args: {}
+            }])[0].done(function(response) {
+                var parsedData = response.data ? JSON.parse(response.data) : {};
+                var reportsFromProxy = parsedData.reports || parsedData.data || [];
 
-                    // Cache reports for reuse - handle different response formats
-                    const reports = response.reports || response.data || [];
-                    this.cachedReports = Array.isArray(reports) ? reports : [];
+                // Cache reports for reuse
+                self.cachedReports = Array.isArray(reportsFromProxy) ? reportsFromProxy : [];
+                self.reportsLoaded = true;
 
-                    // Mark that reports have been loaded
-                    this.reportsLoaded = true;
+                self.updateReportsHistory(self.cachedReports);
+                $('#report-history-loader').addClass('d-none');
+                $('#report-history-table-wrapper').removeClass('d-none');
 
+                // Destroy existing DataTable if it exists
+                if (self.reportsDataTable) {
+                    self.reportsDataTable.destroy();
+                    self.reportsDataTable = null;
+                }
 
-                    this.updateReportsHistory(this.cachedReports);
-                    $('#report-history-loader').addClass('d-none');
-                    $('#report-history-table-wrapper').removeClass('d-none');
-
-                    // Destroy existing DataTable if it exists
-                    if (this.reportsDataTable) {
-                        this.reportsDataTable.destroy();
-                        this.reportsDataTable = null;
-                    }
-
-                    // Only initialize DataTable if we have data and table structure is ready
-                    setTimeout(() => {
-                        try {
-                            const tableElement = document.getElementById('reports-history-table');
-                            if (!tableElement) {
-                                return;
-                            }
-
-                            const tbody = tableElement.querySelector('tbody');
-                            const thead = tableElement.querySelector('thead');
-
-                            // Verify table structure before initializing DataTable
-                            if (thead && tbody && thead.rows.length > 0 && thead.rows[0].cells.length > 0) {
-                                // Check if DataTable is already initialized and destroy it first
-                                if (this.reportsDataTable) {
-                                    this.reportsDataTable.destroy();
-                                    this.reportsDataTable = null;
-                                }
-
-                                // Count header and data columns to ensure they match
-                                const headerCells = thead.rows[0].cells.length;
-                                const dataRows = tbody.rows;
-                                let dataCells = 0;
-
-                                if (dataRows.length > 0) {
-                                    dataCells = dataRows[0].cells.length;
-                                }
-
-
-                                if (headerCells === dataCells && headerCells > 0) {
-                                    // Only initialize DataTable if we have actual data rows (not just empty state)
-                                    if (dataRows.length > 0 && !dataRows[0].cells[0].textContent.includes('No reports')) {
-                    this.reportsDataTable = new simpleDatatables.DataTable("#reports-history-table", {
-                        searchable: true,
-                        fixedHeight: false,
-                        perPage: 10,
-                        loading: false // Disable loading indicator
-                    });
-
-                                        // Remove the loading class from the wrapper
-                                        setTimeout(() => {
-                                            // Remove the datatable-loading class from the wrapper
-                                            $('.datatable-wrapper').removeClass('datatable-loading');
-                                            $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
-                                            // Also remove any actual loading elements if they exist
-                                            $('.dataTable-loading').remove();
-                                        }, 100);
-                                    } else {
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            // Fallback: table will still be functional without DataTable features.
+                // Only initialize DataTable if we have data and table structure is ready
+                setTimeout(function() {
+                    try {
+                        var tableElement = document.getElementById('reports-history-table');
+                        if (!tableElement) {
+                            return;
                         }
 
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
-                    }, 100); // Small delay to ensure DOM is ready
-                },
-                error: (xhr, status) => {
-                    // Always hide loader and show table
-                    $('#report-history-loader').addClass('d-none');
-                    $('#report-history-table-wrapper').removeClass('d-none');
+                        var tbody = tableElement.querySelector('tbody');
+                        var thead = tableElement.querySelector('thead');
 
-                    // Show appropriate error message
-                    const tbody = $('#reports-history-table tbody');
-                    tbody.empty();
+                        if (thead && tbody && thead.rows.length > 0 && thead.rows[0].cells.length > 0) {
+                            if (self.reportsDataTable) {
+                                self.reportsDataTable.destroy();
+                                self.reportsDataTable = null;
+                            }
 
-                    if (status === 'timeout') {
-                        tbody.append(
-                            `<tr><td colspan="3" class="text-center text-warning">Loading reports timed out. Please refresh the page.</td></tr>`
-                        );
-                    } else if (xhr.status === 401 || xhr.status === 403) {
-                        tbody.append(
-                            `<tr><td colspan="3" class="text-center text-danger">Authentication error. Please log in again.</td></tr>`
-                        );
-                    } else {
-                        // Use cached reports if available
-                        if (this.cachedReports && this.cachedReports.length > 0) {
-                            this.updateReportsHistory(this.cachedReports);
-                        } else {
-                            tbody.append(
-                                `<tr><td colspan="3" class="text-center text-muted">Unable to load reports. Please try again later.</td></tr>`
-                            );
+                            var headerCells = thead.rows[0].cells.length;
+                            var dataRows = tbody.rows;
+                            var dataCells = dataRows.length > 0 ? dataRows[0].cells.length : 0;
+
+                            if (headerCells === dataCells && headerCells > 0) {
+                                if (dataRows.length > 0 && !dataRows[0].cells[0].textContent.includes('No reports')) {
+                                    self.reportsDataTable = new window.simpleDatatables.DataTable("#reports-history-table", {
+                                        searchable: true,
+                                        fixedHeight: false,
+                                        perPage: 10,
+                                        loading: false
+                                    });
+
+                                    setTimeout(function() {
+                                        $('.datatable-wrapper').removeClass('datatable-loading');
+                                        $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
+                                        $('.dataTable-loading').remove();
+                                    }, 100);
+                                }
+                            }
                         }
+                    } catch (error) {
+                        // DataTable initialization failed — table still functional without it.
                     }
 
                     if (typeof callback === 'function') {
                         callback();
                     }
+                }, 100);
+            }).fail(function() {
+                // Always hide loader and show table
+                $('#report-history-loader').addClass('d-none');
+                $('#report-history-table-wrapper').removeClass('d-none');
+
+                var tbody = $('#reports-history-table tbody');
+                tbody.empty();
+
+                if (self.cachedReports && self.cachedReports.length > 0) {
+                    self.updateReportsHistory(self.cachedReports);
+                } else {
+                    tbody.append(
+                        '<tr><td colspan="3" class="text-center text-muted">Unable to load reports. Please try again later.</td></tr>'
+                    );
+                }
+
+                if (typeof callback === 'function') {
+                    callback();
                 }
             });
         },
