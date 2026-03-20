@@ -27,6 +27,7 @@ require_once(__DIR__ . '/../../config.php');
 $CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 require_login();
 
