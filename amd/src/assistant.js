@@ -161,7 +161,7 @@ define([
                 parent: function() { return els[0] && els[0].parentNode ? wrap([els[0].parentNode]) : wrap([]); },
                 fadeOut: function(dur, cb) { els.forEach(function(el) { el.style.transition = 'opacity ' + (dur || 300) + 'ms'; el.style.opacity = '0'; setTimeout(function() { el.style.display = 'none'; el.style.transition = ''; el.style.opacity = ''; if (cb) cb.call(el); }, dur || 300); }); return obj; },
                 fadeIn: function(dur) { els.forEach(function(el) { el.style.display = ''; el.style.opacity = '0'; el.style.transition = 'opacity ' + (dur || 300) + 'ms'; requestAnimationFrame(function() { el.style.opacity = '1'; }); setTimeout(function() { el.style.transition = ''; }, dur || 300); }); return obj; },
-                tab: function(action) { if (els[0] && action === 'show') { var tab = new (window.bootstrap || {}).Tab(els[0]); if (tab) tab.show(); else els[0].click(); } return obj; },
+                tab: function(action) { if (els[0] && action === 'show') { try { var BSTab = window.bootstrap && window.bootstrap.Tab; if (BSTab) { var tab = new BSTab(els[0]); tab.show(); } else { els[0].click(); } } catch(e) { els[0].click(); } } return obj; },
                 click: function(fn) { if (fn) { return obj.on('click', fn); } els.forEach(function(el) { el.click(); }); return obj; },
                 scrollTop: function(v) { if (v === undefined) return els[0] ? els[0].scrollTop : 0; els.forEach(function(el) { el.scrollTop = v; }); return obj; },
                 next: function(sel) { var n = els[0] ? els[0].nextElementSibling : null; if (sel && n && !n.matches(sel)) n = null; return wrap(n ? [n] : []); },
@@ -522,48 +522,49 @@ define([
 
         _initAfterStrings: function(getAssistantContainer) {
             var self = this;
-            // Initialize authentication system
+            // Initialize authentication system.
+            // Use the PHP-provided 'authenticated' flag as primary check to avoid
+            // race conditions with auth_utils AMD module loading. AuthUtils may not
+            // have set window.adeptusAuthData yet when this code runs.
             try {
-                // Check if user is authenticated
-                if (AuthUtils.isAuthenticated()) {
+                var isAuthed = this.authenticated || AuthUtils.isAuthenticated();
+
+                var doInit = function(ctx) {
                     var authStatus = AuthUtils.getAuthStatus();
                     var userName = (authStatus && authStatus.user && authStatus.user.name) || 'User';
-                    this.setUserName(userName);
-                    this.updateSubscriptionInfo();
-                    this.setupEventListeners();
-                    this.initCohortGroupFilters();
-                    this.loadChatHistory();
-                    this.loadReportsHistory();
-                    this.loadCategories(); // Load report categories for save dialog
-                    this.checkReportEligibility(); // Check report limits on startup
+                    ctx.setUserName(userName);
+                    ctx.updateSubscriptionInfo();
+                    ctx.setupEventListeners();
+                    ctx.initCohortGroupFilters();
+                    ctx.loadChatHistory();
+                    ctx.loadReportsHistory();
+                    ctx.loadCategories();
+                    ctx.checkReportEligibility();
                     getAssistantContainer().fadeIn(200);
-                } else {
-                    // Try to refresh authentication
-                    AuthUtils.refreshAuthStatus();
+                };
 
-                    // Check authentication status after refresh
-                    setTimeout(function() {
+                if (isAuthed) {
+                    doInit(this);
+                } else {
+                    // Auth_utils may still be loading — poll briefly then give up.
+                    AuthUtils.refreshAuthStatus();
+                    var attempts = 0;
+                    var pollInterval = setInterval(function() {
+                        attempts++;
                         if (AuthUtils.isAuthenticated()) {
-                            var authStat = AuthUtils.getAuthStatus();
-                            var uName = (authStat && authStat.user && authStat.user.name) || 'User';
-                            self.setUserName(uName);
-                            self.updateSubscriptionInfo();
-                            self.setupEventListeners();
-                            self.loadChatHistory();
-                            self.loadReportsHistory();
-                            self.loadCategories();
-                            self.checkReportEligibility();
-                            getAssistantContainer().fadeIn(200);
-                        } else {
-                            // Show read-only mode or error message
+                            clearInterval(pollInterval);
+                            doInit(self);
+                        } else if (attempts >= 10) {
+                            // 2 seconds elapsed — auth truly unavailable
+                            clearInterval(pollInterval);
                             self.showAuthenticationError();
                         }
-                    }, 500);
+                    }, 200);
                 }
             } catch (error) {
                 // Fallback to basic initialization
                 this.setupEventListeners();
-                this.checkReportEligibility(); // Check report limits even on fallback
+                this.checkReportEligibility();
                 getAssistantContainer().fadeIn(200);
             }
         },
@@ -663,6 +664,13 @@ define([
 
             $('#create-new-chat').on('click', function() {
                 self.createNewChat();
+            });
+
+            // Load reports when user clicks the Reports tab.
+            // Bootstrap tab switching only shows/hides panels — we need to
+            // ensure report data is loaded and rendered.
+            $('#reports-tab').on('click', function() {
+                self.switchToReportsTab();
             });
         },
 
@@ -4463,11 +4471,17 @@ define([
                 $('.datatable-wrapper').removeClass('datatable-loading');
                 $('#report-history-table-wrapper .datatable-wrapper').removeClass('datatable-loading');
             }, 200);
-            $('#reports-tab').tab('show');
-            $('#assistant-tab').removeClass('active').attr('aria-selected', 'false');
-            $('#reports-tab').addClass('active').attr('aria-selected', 'true');
-            $('#assistant-panel').removeClass('show active');
-            $('#reports-panel').addClass('show active');
+
+            // Only manipulate tab classes if not already on the Reports tab
+            // (Bootstrap native data-toggle may have already switched the panels).
+            var reportsPanel = document.getElementById('reports-panel');
+            if (!reportsPanel || !reportsPanel.classList.contains('active')) {
+                $('#reports-tab').tab('show');
+                $('#assistant-tab').removeClass('active').attr('aria-selected', 'false');
+                $('#reports-tab').addClass('active').attr('aria-selected', 'true');
+                $('#assistant-panel').removeClass('show active');
+                $('#reports-panel').addClass('show active');
+            }
 
             // Reset view placeholder
             $('.adeptus-report-view-title').text('Select a Report');
