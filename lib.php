@@ -142,46 +142,6 @@ function report_adeptus_insights_pluginfile(
     return true;
 }
 
-/**
- * Callback executed before HTTP headers are sent.
- *
- * Loads bundled third-party JS/CSS libraries on plugin pages.
- * All libraries are bundled with the plugin — no external CDN calls.
- *
- * Libraries loaded here:
- * - SweetAlert2 v11.26.18 (lib/sweetalert2/)
- * - Simple DataTables v3.2.0 (amd/vendor/)
- */
-function report_adeptus_insights_before_http_headers() {
-    global $PAGE;
-
-    // Only load JS on plugin pages to avoid impacting other parts of Moodle.
-    try {
-        $pageurl = $PAGE->url->out(false);
-    } catch (Exception $e) {
-        // URL not set yet, skip.
-        return;
-    }
-
-    if (strpos($pageurl, '/report/adeptus_insights/') === false) {
-        return;
-    }
-
-    // Load local SweetAlert2 library (bundled with plugin, no CDN).
-    $PAGE->requires->js(
-        new moodle_url('/report/adeptus_insights/lib/sweetalert2/sweetalert2.all.min.js'),
-        true
-    );
-
-    // Load local Simple DataTables library (bundled with plugin, no CDN).
-    // This creates the global `simpleDatatables` used by assistant.js and generated_reports.js.
-    $PAGE->requires->js(
-        new moodle_url('/report/adeptus_insights/amd/vendor/simple-datatables.js'),
-        true
-    );
-
-    // Load Simple DataTables CSS (bundled with plugin, no CDN).
-    $PAGE->requires->css(
-        new moodle_url('/report/adeptus_insights/amd/vendor/style.css')
-    );
-}
+// Note: before_http_headers callback migrated to db/hooks.php for Moodle 4.3+.
+// See classes/hook/callback/before_http_headers.php for the hook-based implementation.
+// Legacy function removed to prevent deprecation warnings on Moodle 4.5+.

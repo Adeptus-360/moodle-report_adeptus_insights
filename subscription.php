@@ -24,8 +24,6 @@
 
 require_once('../../config.php');
 
-// Force Boost theme for consistent plugin UI.
-$CFG->theme = 'boost';
 
 require_once($CFG->libdir . '/adminlib.php');
 
