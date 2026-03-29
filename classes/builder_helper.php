@@ -28,6 +28,8 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Helper methods for building report definitions and exporting data.
+ *
+ * @package     report_adeptus_insights
  */
 class builder_helper {
 

@@ -28,6 +28,26 @@
     * sesskey - session key
 
     @package report_adeptus_insights
+
+    Example context (json):
+    {
+        "reports": [
+            {
+                "name": "Monthly Enrolment Report",
+                "datasource": "enrolments",
+                "lastrun": "2026-03-01 09:00",
+                "executioncount": 12,
+                "viewurl": "https://example.com/view?id=1",
+                "editurl": "https://example.com/edit?id=1",
+                "deleteurl": "https://example.com/delete?id=1"
+            }
+        ],
+        "createurl": "https://example.com/create",
+        "cancreate": true,
+        "tierwarning": "",
+        "hasreports": true,
+        "sesskey": "abc123"
+    }
 }}
 
 <div class="adeptus-builder-reports">

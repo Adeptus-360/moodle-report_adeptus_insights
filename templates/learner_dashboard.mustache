@@ -5,6 +5,34 @@
     @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
     Learner self-service progress dashboard.
+
+    Example context (json):
+    {
+        "summary": {
+            "total_courses": 5,
+            "completed_courses": 2,
+            "total_time": "12h 30m",
+            "average_grade_display": "78%"
+        },
+        "has_courses": true,
+        "courses": [
+            {
+                "fullname": "Introduction to Moodle",
+                "shortname": "INTRO101",
+                "completion_bar_class": "bg-success",
+                "completion_percentage": 75,
+                "completed_activities": 6,
+                "total_activities": 8,
+                "time_spent": "3h 15m",
+                "has_grade": true,
+                "grade": "85%"
+            }
+        ],
+        "has_activities": false,
+        "activities": [],
+        "has_learner_reports": false,
+        "learner_reports": []
+    }
 }}
 
 <div class="adeptus-learner-dashboard">

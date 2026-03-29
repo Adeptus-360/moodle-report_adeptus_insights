@@ -16,6 +16,35 @@
     * has_low_completion - Boolean
     * low_completion_courses - Array of courses with low completion
     * generated_at - Human-readable timestamp
+
+    Example context (json):
+    {
+        "period": "2026-W08",
+        "siteurl": "https://example.com",
+        "inactivity_days": 14,
+        "completion_threshold": 50,
+        "has_inactive": true,
+        "inactive_courses": [
+            {
+                "coursename": "Introduction to Moodle",
+                "learnercount": 2,
+                "learners": [
+                    {"fullname": "Jane Doe", "email": "jane@example.com", "lastaccess": "2026-01-15"}
+                ]
+            }
+        ],
+        "has_low_completion": true,
+        "low_completion_courses": [
+            {
+                "coursename": "Advanced Topics",
+                "learnercount": 1,
+                "learners": [
+                    {"fullname": "John Smith", "email": "john@example.com", "completion_pct": 25}
+                ]
+            }
+        ],
+        "generated_at": "2026-02-20 10:30:00"
+    }
 }}
 <html>
 <head>

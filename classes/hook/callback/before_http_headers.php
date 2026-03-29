@@ -33,6 +33,8 @@ namespace report_adeptus_insights\hook\callback;
 
 /**
  * Callback for the before_http_headers hook.
+ *
+ * @package     report_adeptus_insights
  */
 class before_http_headers {
 
@@ -40,6 +42,7 @@ class before_http_headers {
      * Load bundled JS/CSS libraries on plugin pages.
      *
      * @param \core\hook\output\before_http_headers $hook The hook instance.
+     * @return void
      */
     public static function execute(\core\hook\output\before_http_headers $hook): void {
         global $PAGE;

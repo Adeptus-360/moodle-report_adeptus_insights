@@ -30,11 +30,15 @@ require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Moodleform for creating/editing a builder report.
+ *
+ * @package     report_adeptus_insights
  */
 class builder_report_form extends \moodleform {
 
     /**
      * Define the form elements.
+     *
+     * @return void
      */
     protected function definition() {
         $mform = $this->_form;

@@ -35,6 +35,23 @@
     * sql - string (generated SQL)
 
     @package report_adeptus_insights
+
+    Example context (json):
+    {
+        "reportname": "Monthly Enrolment Report",
+        "reportdescription": "Shows enrolment counts by month",
+        "hasresults": true,
+        "columns": [{"name": "Month"}, {"name": "Enrolments"}],
+        "rows": [{"cells": [{"value": "January"}, {"value": "42"}]}],
+        "rowcount": 1,
+        "executioncount": 5,
+        "csvurl": "https://example.com/export.csv",
+        "editurl": "https://example.com/edit",
+        "listurl": "https://example.com/list",
+        "warnings": [],
+        "haswarnings": false,
+        "sql": "SELECT month, COUNT(*) FROM enrolments GROUP BY month"
+    }
 }}
 
 <div class="adeptus-builder-view">

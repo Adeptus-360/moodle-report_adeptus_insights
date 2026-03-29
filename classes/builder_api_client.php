@@ -30,6 +30,8 @@ require_once($CFG->libdir . '/filelib.php');
 
 /**
  * Communicates with the Report Builder backend API.
+ *
+ * @package     report_adeptus_insights
  */
 class builder_api_client {
 
