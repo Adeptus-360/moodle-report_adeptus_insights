@@ -36,7 +36,7 @@ define([], function() {
         /**
          * Initialize - no-op since auth is handled by Moodle.
          *
-         * @returns {Promise} Promise that resolves immediately
+         * @return {Promise} Promise that resolves immediately
          */
         init: function() {
             return Promise.resolve();
@@ -46,7 +46,7 @@ define([], function() {
          * Check if user is authenticated.
          * Always returns true since Moodle handles authentication.
          *
-         * @returns {boolean} True
+         * @return {boolean} True
          */
         isAuthenticated: function() {
             return true;
@@ -55,7 +55,7 @@ define([], function() {
         /**
          * Get authentication data.
          *
-         * @returns {Object} Auth data from window or empty object
+         * @return {Object} Auth data from window or empty object
          */
         getAuthData: function() {
             return window.adeptusAuthData || {};

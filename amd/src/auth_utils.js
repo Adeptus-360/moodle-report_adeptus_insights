@@ -105,7 +105,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         /**
          * Check if user is authenticated.
          *
-         * @returns {boolean} True if user is authenticated
+         * @return {boolean} True if user is authenticated
          */
         isAuthenticated: function() {
             return window.adeptusAuthData &&
@@ -116,7 +116,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         /**
          * Get authentication data.
          *
-         * @returns {Object|null} Authentication data or null
+         * @return {Object|null} Authentication data or null
          */
         getAuthData: function() {
             return window.adeptusAuthData || null;
@@ -125,7 +125,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         /**
          * Get authentication status (alias for getAuthData for compatibility).
          *
-         * @returns {Object|null} Authentication data or null
+         * @return {Object|null} Authentication data or null
          */
         getAuthStatus: function() {
             return window.adeptusAuthData || null;
@@ -134,7 +134,7 @@ define(['core/ajax', 'core/notification'], function(Ajax, Notification) {
         /**
          * Get authentication headers for API requests.
          *
-         * @returns {Object} Headers object with authorization
+         * @return {Object} Headers object with authorization
          */
         getAuthHeaders: function() {
             var authData = this.getAuthData();

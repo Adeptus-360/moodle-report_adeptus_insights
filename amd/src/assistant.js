@@ -218,7 +218,7 @@ define([
 
     /**
      * Load all language strings needed for the module
-     * @returns {Promise} Promise that resolves when strings are loaded
+     * @return {Promise} Promise that resolves when strings are loaded
      */
     var loadStrings = function() {
         return Str.get_strings([
@@ -439,7 +439,7 @@ define([
      * Get a loaded string, with fallback
      * @param {string} key - The string key
      * @param {string} fallback - Fallback value if string not loaded
-     * @returns {string} The string value
+     * @return {string} The string value
      */
     var getString = function(key, fallback) {
         return strings[key] || fallback || key;
@@ -728,7 +728,7 @@ define([
          * Render MCQ history view (disabled, showing selected answer if available)
          * @param {Array} questions - Array of MCQ questions
          * @param {string} selectedAnswer - The selected answer if any
-         * @returns {string} HTML string
+         * @return {string} HTML string
          */
         renderMCQHistory: function(questions, selectedAnswer) {
             selectedAnswer = selectedAnswer || null;
@@ -3571,7 +3571,7 @@ define([
         /**
          * Get category options HTML for the save dialog dropdown
          * @param {string} suggestedCategory - The AI-suggested category name
-         * @returns {string} HTML options string
+         * @return {string} HTML options string
          */
         getCategoryOptionsHtml: function(suggestedCategory) {
             if (!this.cachedCategories || this.cachedCategories.length === 0) {
@@ -5197,7 +5197,7 @@ define([
         /**
          * Linkify URLs in text - converts URLs to clickable links
          * @param {string} text - The text that may contain URLs
-         * @returns {string} Text with URLs converted to anchor tags
+         * @return {string} Text with URLs converted to anchor tags
          */
         linkifyUrls: function(text) {
             if (!text || typeof text !== 'string') {
@@ -5226,7 +5226,7 @@ define([
          * Format cell value for display - handles URLs, nulls, and special formatting
          * @param {*} value - The cell value
          * @param {string} header - The column header (used for context-aware formatting)
-         * @returns {string} Formatted HTML for the cell
+         * @return {string} Formatted HTML for the cell
          */
         formatCellValue: function(value, header) {
             if (value === null || value === undefined || value === '') {
@@ -5447,7 +5447,7 @@ define([
          *
          * @param {string} sql - The SQL query to execute
          * @param {Object} params - Optional parameters for the query
-         * @returns {Promise<Object>} Promise resolving to {data: array, headers: array, error: string|null}
+         * @return {Promise<Object>} Promise resolving to {data: array, headers: array, error: string|null}
          */
         executeReportLocally: function(sql, params = {}) {
             var self = this;

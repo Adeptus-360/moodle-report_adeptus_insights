@@ -35,7 +35,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
 
     /**
      * Load all language strings needed for the module
-     * @returns {Promise} Promise that resolves when strings are loaded
+     * @return {Promise} Promise that resolves when strings are loaded
      */
     var loadStrings = function() {
         return Str.get_strings([
@@ -218,7 +218,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
      * Get a loaded string, with fallback
      * @param {string} key - The string key
      * @param {string} fallback - Fallback value if string not loaded
-     * @returns {string} The string value
+     * @return {string} The string value
      */
     var getString = function(key, fallback) {
         return strings[key] || fallback || key;

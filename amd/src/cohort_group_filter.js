@@ -69,7 +69,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Load cohort and group filter options from the Moodle external service.
          *
-         * @returns {Promise}
+         * @return {Promise}
          */
         loadFilters: function() {
             if (filtersLoaded) {
@@ -225,7 +225,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Get the current active filter state.
          *
-         * @returns {Object} {cohortids: number[], groupids: number[]}
+         * @return {Object} {cohortids: number[], groupids: number[]}
          */
         getActiveFilters: function() {
             return {
@@ -291,7 +291,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Check if any filters are currently active.
          *
-         * @returns {boolean}
+         * @return {boolean}
          */
         hasActiveFilters: function() {
             return activeCohortIds.length > 0 || activeGroupIds.length > 0;
@@ -300,7 +300,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Get the cohort options loaded from the server.
          *
-         * @returns {Array}
+         * @return {Array}
          */
         getCohortOptions: function() {
             return cohortOptions;
@@ -309,7 +309,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         /**
          * Get the group options loaded from the server.
          *
-         * @returns {Array}
+         * @return {Array}
          */
         getGroupOptions: function() {
             return groupOptions;

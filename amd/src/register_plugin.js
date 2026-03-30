@@ -40,7 +40,7 @@ define(['core/str'], function(Str) {
 
     /**
      * Load all required localized strings.
-     * @returns {Promise} Promise resolved when strings are loaded
+     * @return {Promise} Promise resolved when strings are loaded
      */
     var loadStrings = function() {
         return Str.get_strings([
@@ -91,7 +91,7 @@ define(['core/str'], function(Str) {
 
     /**
      * Validate required fields.
-     * @returns {boolean} True if all fields are valid
+     * @return {boolean} True if all fields are valid
      */
     var validateFields = function() {
         var missingFields = [];

@@ -35,7 +35,7 @@ define([], function() {
     /**
      * Format large numbers in compact form (e.g., 1.5k, 2.3M).
      * @param {number} n - The number to format
-     * @returns {string} Formatted number string
+     * @return {string} Formatted number string
      */
     var numberFormatter = function(n) {
         var v = +n;

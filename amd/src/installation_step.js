@@ -47,7 +47,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
 
     /**
      * Load all required localized strings.
-     * @returns {Promise} Promise resolved when strings are loaded
+     * @return {Promise} Promise resolved when strings are loaded
      */
     var loadStrings = function() {
         return Str.get_strings([
@@ -145,7 +145,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
      * Build HTML for a single plan card.
      * @param {Object} plan - Plan data object
      * @param {string} interval - Billing interval
-     * @returns {string} HTML string for the plan card
+     * @return {string} HTML string for the plan card
      */
     var buildPlanCard = function(plan, interval) {
         var badgeHtml = '';

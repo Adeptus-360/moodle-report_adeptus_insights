@@ -33,7 +33,7 @@ define(['core/notification', 'core/str'], function(Notification, Str) {
 
     /**
      * Load required language strings.
-     * @returns {Promise} Promise that resolves when strings are loaded.
+     * @return {Promise} Promise that resolves when strings are loaded.
      */
     var loadStrings = function() {
         return Str.get_strings([

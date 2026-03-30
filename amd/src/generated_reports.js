@@ -192,7 +192,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
 
     /**
      * Load all localized strings from Moodle's language API.
-     * @returns {Promise}
+     * @return {Promise}
      */
     var loadStrings = function() {
         return Str.get_strings([
@@ -514,7 +514,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
         /**
          * Check export eligibility before exporting using external service.
          * @param {string} format - The export format.
-         * @returns {Promise}
+         * @return {Promise}
          */
         checkExportEligibility: function(format) {
             return new Promise(function(resolve) {
@@ -533,7 +533,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
         /**
          * Capture chart as image for PDF export.
          * Uses native toDataURL with html2canvas fallback.
-         * @returns {Promise}
+         * @return {Promise}
          */
         captureChartImage: function() {
             var self = this;
@@ -588,7 +588,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
 
         /**
          * Load html2canvas library bundled with the plugin.
-         * @returns {Promise}
+         * @return {Promise}
          */
         loadHtml2Canvas: function() {
             return new Promise(function(resolve, reject) {
@@ -1602,7 +1602,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
          * Detect numeric columns in data.
          * @param {Array} data - The data array.
          * @param {Array} headers - The headers array.
-         * @returns {Array}
+         * @return {Array}
          */
         detectNumericColumns: function(data, headers) {
             if (!data || data.length === 0) {
@@ -1648,7 +1648,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
 
         /**
          * Get the authentication token.
-         * @returns {string|null}
+         * @return {string|null}
          */
         getAuthToken: function() {
             var authData = window.adeptusAuthData;
@@ -1661,7 +1661,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
         /**
          * Format a date for display.
          * @param {string} dateStr - The date string to format.
-         * @returns {string}
+         * @return {string}
          */
         formatDate: function(dateStr) {
             if (!dateStr) {
@@ -2150,7 +2150,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
          * Execute SQL locally for SaaS model.
          * @param {string} sql - The SQL query to execute.
          * @param {Object} params - Query parameters.
-         * @returns {Promise}
+         * @return {Promise}
          */
         executeReportLocally: function(sql, params) {
             params = params || {};
@@ -2484,7 +2484,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
         /**
          * Generate chart colors.
          * @param {number} count - Number of colors needed.
-         * @returns {Array}
+         * @return {Array}
          */
         generateChartColors: function(count) {
             var baseColors = [
@@ -2507,7 +2507,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
          * @param {Array} values - The values array.
          * @param {string} valueKey - The value key label.
          * @param {Array} colors - The colors array.
-         * @returns {Object}
+         * @return {Object}
          */
         createChartConfig: function(chartType, labels, values, valueKey, colors) {
             var reportName = (this.currentReport && this.currentReport.description) ||

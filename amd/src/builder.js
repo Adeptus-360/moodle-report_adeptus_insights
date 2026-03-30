@@ -22,8 +22,7 @@
  * @module     report_adeptus_insights/builder
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-     * @return {void}
-     */
+ */
 
 define([], function() {
     'use strict';
@@ -34,7 +33,7 @@ define([], function() {
     /**
      * Get columns for a given entity from the catalog.
      * @param {string} entity
-     * @returns {Array}
+     * @return {Array}
      */
     const getEntityColumns = function(entity) {
         if (!entity || !catalog[entity]) {
@@ -191,7 +190,7 @@ define([], function() {
      * @param {Array} columns
      * @param {number} idx
      * @param {Object} filter
-     * @returns {string}
+     * @return {string}
      */
     const buildFilterRow = function(columns, idx, filter) {
         let fieldOptions = '<option value="">-- Field --</option>';
