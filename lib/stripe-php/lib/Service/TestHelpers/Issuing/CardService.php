@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -7,6 +21,7 @@ namespace Stripe\Service\TestHelpers\Issuing;
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ * @package report_adeptus_insights
  */
 class CardService extends \Stripe\Service\AbstractService
 {
@@ -22,8 +37,7 @@ class CardService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Issuing\Card
      */
-    public function deliverCard($id, $params = null, $opts = null)
-    {
+    public function deliverCard($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/test_helpers/issuing/cards/%s/shipping/deliver', $id), $params, $opts);
     }
 
@@ -39,8 +53,7 @@ class CardService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Issuing\Card
      */
-    public function failCard($id, $params = null, $opts = null)
-    {
+    public function failCard($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/test_helpers/issuing/cards/%s/shipping/fail', $id), $params, $opts);
     }
 
@@ -56,8 +69,7 @@ class CardService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Issuing\Card
      */
-    public function returnCard($id, $params = null, $opts = null)
-    {
+    public function returnCard($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/test_helpers/issuing/cards/%s/shipping/return', $id), $params, $opts);
     }
 
@@ -73,8 +85,7 @@ class CardService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Issuing\Card
      */
-    public function shipCard($id, $params = null, $opts = null)
-    {
+    public function shipCard($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/test_helpers/issuing/cards/%s/shipping/ship', $id), $params, $opts);
     }
 
@@ -91,8 +102,7 @@ class CardService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Issuing\Card
      */
-    public function submitCard($id, $params = null, $opts = null)
-    {
+    public function submitCard($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/test_helpers/issuing/cards/%s/shipping/submit', $id), $params, $opts);
     }
 }

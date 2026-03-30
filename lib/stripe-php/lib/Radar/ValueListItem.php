@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -16,6 +30,7 @@ namespace Stripe\Radar;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property string $value The value of the item.
  * @property string $value_list The identifier of the value list this item belongs to.
+ * @package report_adeptus_insights
  */
 class ValueListItem extends \Stripe\ApiResource
 {
@@ -32,12 +47,11 @@ class ValueListItem extends \Stripe\ApiResource
      *
      * @return \Stripe\Radar\ValueListItem the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -55,12 +69,11 @@ class ValueListItem extends \Stripe\ApiResource
      *
      * @return \Stripe\Radar\ValueListItem the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -78,8 +91,7 @@ class ValueListItem extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Radar\ValueListItem> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -95,8 +107,7 @@ class ValueListItem extends \Stripe\ApiResource
      *
      * @return \Stripe\Radar\ValueListItem
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();

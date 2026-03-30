@@ -107,136 +107,131 @@ file_prepare_draft_area(
 );
 
 echo $OUTPUT->header();
-?>
 
-<form method="post" action="" enctype="multipart/form-data" class="mform">
-    <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
+$component = 'report_adeptus_insights';
+$sesskeyval = sesskey();
 
-    <fieldset>
-        <legend><?php echo get_string('branding_logo_heading', 'report_adeptus_insights'); ?></legend>
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="id_whitelabel_logo">
-                    <?php echo get_string('branding_logo', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <?php if ($logourl): ?>
-                    <div class="mb-2">
-                        <img src="<?php echo $logourl; ?>" alt="Current logo" style="max-height:60px;">
-                    </div>
-                <?php endif; ?>
-                <input type="hidden" name="whitelabel_logo" value="<?php echo $draftitemid; ?>">
-                <?php
-                $PAGE->requires->js_call_amd('core/form-filetreemgr', 'init', [
-                    $draftitemid,
-                    'whitelabel_logo',
-                    'report_adeptus_insights',
-                    ['maxfiles' => 1, 'accepted_types' => ['.png', '.jpg', '.jpeg', '.gif', '.svg']],
-                ]);
-                ?>
-                <div id="filemanager-<?php echo $draftitemid; ?>"></div>
-                <small class="form-text text-muted">
-                    <?php echo get_string('branding_logo_desc', 'report_adeptus_insights'); ?>
-                </small>
-            </div>
-        </div>
-    </fieldset>
+echo '<form method="post" action="" enctype="multipart/form-data" class="mform">';
+echo '<input type="hidden" name="sesskey" value="' . $sesskeyval . '">';
 
-    <fieldset>
-        <legend><?php echo get_string('branding_colours_heading', 'report_adeptus_insights'); ?></legend>
+// Logo fieldset.
+echo '<fieldset>';
+echo '<legend>' . get_string('branding_logo_heading', $component) . '</legend>';
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="id_whitelabel_logo">';
+echo get_string('branding_logo', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+if ($logourl) {
+    echo '<div class="mb-2">';
+    echo '<img src="' . $logourl . '" alt="Current logo" style="max-height:60px;">';
+    echo '</div>';
+}
+echo '<input type="hidden" name="whitelabel_logo" value="' . $draftitemid . '">';
+$PAGE->requires->js_call_amd('core/form-filetreemgr', 'init', [
+    $draftitemid,
+    'whitelabel_logo',
+    'report_adeptus_insights',
+    ['maxfiles' => 1, 'accepted_types' => ['.png', '.jpg', '.jpeg', '.gif', '.svg']],
+]);
+echo '<div id="filemanager-' . $draftitemid . '"></div>';
+echo '<small class="form-text text-muted">';
+echo get_string('branding_logo_desc', $component);
+echo '</small>';
+echo '</div></div>';
+echo '</fieldset>';
 
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="primary_colour">
-                    <?php echo get_string('branding_primary_colour', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <input type="color" id="primary_colour" name="primary_colour"
-                       value="<?php echo s($current['primary_colour']); ?>" class="form-control" style="width:80px;height:40px;">
-                <small class="form-text text-muted">
-                    <?php echo get_string('branding_primary_colour_desc', 'report_adeptus_insights'); ?>
-                </small>
-            </div>
-        </div>
+// Colours fieldset.
+echo '<fieldset>';
+echo '<legend>' . get_string('branding_colours_heading', $component) . '</legend>';
 
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="secondary_colour">
-                    <?php echo get_string('branding_secondary_colour', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <input type="color" id="secondary_colour" name="secondary_colour"
-                       value="<?php echo s($current['secondary_colour']); ?>" class="form-control" style="width:80px;height:40px;">
-                <small class="form-text text-muted">
-                    <?php echo get_string('branding_secondary_colour_desc', 'report_adeptus_insights'); ?>
-                </small>
-            </div>
-        </div>
-    </fieldset>
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="primary_colour">';
+echo get_string('branding_primary_colour', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+echo '<input type="color" id="primary_colour" name="primary_colour"';
+echo ' value="' . s($current['primary_colour']) . '"';
+echo ' class="form-control" style="width:80px;height:40px;">';
+echo '<small class="form-text text-muted">';
+echo get_string('branding_primary_colour_desc', $component);
+echo '</small>';
+echo '</div></div>';
 
-    <fieldset>
-        <legend><?php echo get_string('branding_text_heading', 'report_adeptus_insights'); ?></legend>
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="secondary_colour">';
+echo get_string('branding_secondary_colour', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+echo '<input type="color" id="secondary_colour" name="secondary_colour"';
+echo ' value="' . s($current['secondary_colour']) . '"';
+echo ' class="form-control" style="width:80px;height:40px;">';
+echo '<small class="form-text text-muted">';
+echo get_string('branding_secondary_colour_desc', $component);
+echo '</small>';
+echo '</div></div>';
+echo '</fieldset>';
 
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="header_text">
-                    <?php echo get_string('branding_header_text', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <input type="text" id="header_text" name="header_text"
-                       value="<?php echo s($current['header_text']); ?>" class="form-control" maxlength="255">
-                <small class="form-text text-muted">
-                    <?php echo get_string('branding_header_text_desc', 'report_adeptus_insights'); ?>
-                </small>
-            </div>
-        </div>
+// Text fieldset.
+echo '<fieldset>';
+echo '<legend>' . get_string('branding_text_heading', $component) . '</legend>';
 
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="footer_text">
-                    <?php echo get_string('branding_footer_text', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <input type="text" id="footer_text" name="footer_text"
-                       value="<?php echo s($current['footer_text']); ?>" class="form-control" maxlength="255">
-                <small class="form-text text-muted">
-                    <?php echo get_string('branding_footer_text_desc', 'report_adeptus_insights'); ?>
-                </small>
-            </div>
-        </div>
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="header_text">';
+echo get_string('branding_header_text', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+echo '<input type="text" id="header_text" name="header_text"';
+echo ' value="' . s($current['header_text']) . '"';
+echo ' class="form-control" maxlength="255">';
+echo '<small class="form-text text-muted">';
+echo get_string('branding_header_text_desc', $component);
+echo '</small>';
+echo '</div></div>';
 
-        <div class="form-group row fitem">
-            <div class="col-md-3 col-form-label">
-                <label for="powered_by">
-                    <?php echo get_string('branding_powered_by', 'report_adeptus_insights'); ?>
-                </label>
-            </div>
-            <div class="col-md-9">
-                <div class="form-check">
-                    <input type="hidden" name="powered_by" value="0">
-                    <input type="checkbox" id="powered_by" name="powered_by" value="1"
-                           class="form-check-input" <?php echo $current['powered_by'] ? 'checked' : ''; ?>>
-                    <label class="form-check-label" for="powered_by">
-                        <?php echo get_string('branding_powered_by_desc', 'report_adeptus_insights'); ?>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </fieldset>
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="footer_text">';
+echo get_string('branding_footer_text', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+echo '<input type="text" id="footer_text" name="footer_text"';
+echo ' value="' . s($current['footer_text']) . '"';
+echo ' class="form-control" maxlength="255">';
+echo '<small class="form-text text-muted">';
+echo get_string('branding_footer_text_desc', $component);
+echo '</small>';
+echo '</div></div>';
 
-    <div class="form-group row fitem">
-        <div class="col-md-9 offset-md-3">
-            <button type="submit" class="btn btn-primary">
-                <?php echo get_string('savechanges'); ?>
-            </button>
-        </div>
-    </div>
-</form>
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-3 col-form-label">';
+echo '<label for="powered_by">';
+echo get_string('branding_powered_by', $component);
+echo '</label></div>';
+echo '<div class="col-md-9">';
+echo '<div class="form-check">';
+echo '<input type="hidden" name="powered_by" value="0">';
+$poweredchecked = $current['powered_by'] ? 'checked' : '';
+echo '<input type="checkbox" id="powered_by" name="powered_by" value="1"';
+echo ' class="form-check-input" ' . $poweredchecked . '>';
+echo '<label class="form-check-label" for="powered_by">';
+echo get_string('branding_powered_by_desc', $component);
+echo '</label>';
+echo '</div>';
+echo '</div></div>';
+echo '</fieldset>';
 
-<?php
+// Submit button.
+echo '<div class="form-group row fitem">';
+echo '<div class="col-md-9 offset-md-3">';
+echo '<button type="submit" class="btn btn-primary">';
+echo get_string('savechanges');
+echo '</button>';
+echo '</div></div>';
+echo '</form>';
+
 echo $OUTPUT->footer();

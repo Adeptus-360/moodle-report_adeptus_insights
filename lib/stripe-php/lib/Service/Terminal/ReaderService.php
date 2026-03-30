@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -7,6 +21,7 @@ namespace Stripe\Service\Terminal;
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ * @package report_adeptus_insights
  */
 class ReaderService extends \Stripe\Service\AbstractService
 {
@@ -20,8 +35,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Terminal\Reader>
      */
-    public function all($params = null, $opts = null)
-    {
+    public function all($params = null, $opts = null) {
         return $this->requestCollection('get', '/v1/terminal/readers', $params, $opts);
     }
 
@@ -36,8 +50,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function cancelAction($id, $params = null, $opts = null)
-    {
+    public function cancelAction($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s/cancel_action', $id), $params, $opts);
     }
 
@@ -51,8 +64,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function create($params = null, $opts = null)
-    {
+    public function create($params = null, $opts = null) {
         return $this->request('post', '/v1/terminal/readers', $params, $opts);
     }
 
@@ -67,8 +79,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function delete($id, $params = null, $opts = null)
-    {
+    public function delete($id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/terminal/readers/%s', $id), $params, $opts);
     }
 
@@ -83,8 +94,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function processPaymentIntent($id, $params = null, $opts = null)
-    {
+    public function processPaymentIntent($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s/process_payment_intent', $id), $params, $opts);
     }
 
@@ -99,8 +109,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function processSetupIntent($id, $params = null, $opts = null)
-    {
+    public function processSetupIntent($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s/process_setup_intent', $id), $params, $opts);
     }
 
@@ -115,8 +124,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function refundPayment($id, $params = null, $opts = null)
-    {
+    public function refundPayment($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s/refund_payment', $id), $params, $opts);
     }
 
@@ -131,8 +139,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function retrieve($id, $params = null, $opts = null)
-    {
+    public function retrieve($id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/terminal/readers/%s', $id), $params, $opts);
     }
 
@@ -147,8 +154,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function setReaderDisplay($id, $params = null, $opts = null)
-    {
+    public function setReaderDisplay($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s/set_reader_display', $id), $params, $opts);
     }
 
@@ -164,8 +170,7 @@ class ReaderService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Terminal\Reader
      */
-    public function update($id, $params = null, $opts = null)
-    {
+    public function update($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/terminal/readers/%s', $id), $params, $opts);
     }
 }

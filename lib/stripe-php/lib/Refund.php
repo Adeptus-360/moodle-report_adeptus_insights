@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -31,6 +45,7 @@ namespace Stripe;
  * @property null|string|\Stripe\TransferReversal $source_transfer_reversal The transfer reversal that's associated with the refund. Only present if the charge came from another Stripe account.
  * @property null|string $status Status of the refund. This can be <code>pending</code>, <code>requires_action</code>, <code>succeeded</code>, <code>failed</code>, or <code>canceled</code>. Learn more about <a href="https://stripe.com/docs/refunds#failed-refunds">failed refunds</a>.
  * @property null|string|\Stripe\TransferReversal $transfer_reversal This refers to the transfer reversal object if the accompanying transfer reverses. This is only applicable if the charge was created using the destination parameter.
+ * @package report_adeptus_insights
  */
 class Refund extends ApiResource
 {
@@ -75,12 +90,11 @@ class Refund extends ApiResource
      *
      * @return \Stripe\Refund the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -99,8 +113,7 @@ class Refund extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Refund> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -116,8 +129,7 @@ class Refund extends ApiResource
      *
      * @return \Stripe\Refund
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -139,12 +151,11 @@ class Refund extends ApiResource
      *
      * @return \Stripe\Refund the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -159,10 +170,9 @@ class Refund extends ApiResource
      *
      * @return \Stripe\Refund the canceled refund
      */
-    public function cancel($params = null, $opts = null)
-    {
+    public function cancel($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

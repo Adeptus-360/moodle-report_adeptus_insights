@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -36,6 +50,7 @@ namespace Stripe;
  * @property null|string $tax_exempt Describes the customer's tax exemption status, which is <code>none</code>, <code>exempt</code>, or <code>reverse</code>. When set to <code>reverse</code>, invoice and receipt PDFs include the following text: <strong>&quot;Reverse charge&quot;</strong>.
  * @property null|\Stripe\Collection<\Stripe\TaxId> $tax_ids The customer's tax IDs.
  * @property null|string|\Stripe\TestHelpers\TestClock $test_clock ID of the test clock that this customer belongs to.
+ * @package report_adeptus_insights
  */
 class Customer extends ApiResource
 {
@@ -58,12 +73,11 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Customer the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -81,12 +95,11 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Customer the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -103,8 +116,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Customer> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -120,8 +132,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Customer
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -152,20 +163,18 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Customer the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
         return $obj;
     }
 
-    public static function getSavedNestedResources()
-    {
+    public static function getSavedNestedResources() {
         static $savedNestedResources = null;
         if (null === $savedNestedResources) {
             $savedNestedResources = new Util\Set([
@@ -182,10 +191,9 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Customer the updated customer
      */
-    public function deleteDiscount($params = null, $opts = null)
-    {
+    public function deleteDiscount($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/discount';
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom(['discount' => null], $opts, true);
 
         return $this;
@@ -200,10 +208,9 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\PaymentMethod> list of payment methods
      */
-    public static function allPaymentMethods($id, $params = null, $opts = null)
-    {
+    public static function allPaymentMethods($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/payment_methods';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -219,10 +226,9 @@ class Customer extends ApiResource
      *
      * @return \Stripe\PaymentMethod the retrieved payment method
      */
-    public function retrievePaymentMethod($payment_method, $params = null, $opts = null)
-    {
+    public function retrievePaymentMethod($payment_method, $params = null, $opts = null) {
         $url = $this->instanceUrl() . '/payment_methods/' . $payment_method;
-        list($response, $opts) = $this->_request('get', $url, $params, $opts);
+        [$response, $opts] = $this->_request('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response, $opts);
         $obj->setLastResponse($response);
 
@@ -237,8 +243,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\SearchResult<\Stripe\Customer> the customer search results
      */
-    public static function search($params = null, $opts = null)
-    {
+    public static function search($params = null, $opts = null) {
         $url = '/v1/customers/search';
 
         return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
@@ -255,8 +260,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\CustomerBalanceTransaction> the list of customer balance transactions
      */
-    public static function allBalanceTransactions($id, $params = null, $opts = null)
-    {
+    public static function allBalanceTransactions($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_BALANCE_TRANSACTIONS, $params, $opts);
     }
 
@@ -269,8 +273,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public static function createBalanceTransaction($id, $params = null, $opts = null)
-    {
+    public static function createBalanceTransaction($id, $params = null, $opts = null) {
         return self::_createNestedResource($id, static::PATH_BALANCE_TRANSACTIONS, $params, $opts);
     }
 
@@ -284,8 +287,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public static function retrieveBalanceTransaction($id, $balanceTransactionId, $params = null, $opts = null)
-    {
+    public static function retrieveBalanceTransaction($id, $balanceTransactionId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_BALANCE_TRANSACTIONS, $balanceTransactionId, $params, $opts);
     }
 
@@ -299,8 +301,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public static function updateBalanceTransaction($id, $balanceTransactionId, $params = null, $opts = null)
-    {
+    public static function updateBalanceTransaction($id, $balanceTransactionId, $params = null, $opts = null) {
         return self::_updateNestedResource($id, static::PATH_BALANCE_TRANSACTIONS, $balanceTransactionId, $params, $opts);
     }
     const PATH_CASH_BALANCE_TRANSACTIONS = '/cash_balance_transactions';
@@ -314,8 +315,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\CustomerCashBalanceTransaction> the list of customer cash balance transactions
      */
-    public static function allCashBalanceTransactions($id, $params = null, $opts = null)
-    {
+    public static function allCashBalanceTransactions($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_CASH_BALANCE_TRANSACTIONS, $params, $opts);
     }
 
@@ -329,8 +329,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CustomerCashBalanceTransaction
      */
-    public static function retrieveCashBalanceTransaction($id, $cashBalanceTransactionId, $params = null, $opts = null)
-    {
+    public static function retrieveCashBalanceTransaction($id, $cashBalanceTransactionId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_CASH_BALANCE_TRANSACTIONS, $cashBalanceTransactionId, $params, $opts);
     }
     const PATH_SOURCES = '/sources';
@@ -344,8 +343,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\BankAccount|\Stripe\Card|\Stripe\Source> the list of payment sources (BankAccount, Card or Source)
      */
-    public static function allSources($id, $params = null, $opts = null)
-    {
+    public static function allSources($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_SOURCES, $params, $opts);
     }
 
@@ -358,8 +356,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public static function createSource($id, $params = null, $opts = null)
-    {
+    public static function createSource($id, $params = null, $opts = null) {
         return self::_createNestedResource($id, static::PATH_SOURCES, $params, $opts);
     }
 
@@ -373,8 +370,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public static function deleteSource($id, $sourceId, $params = null, $opts = null)
-    {
+    public static function deleteSource($id, $sourceId, $params = null, $opts = null) {
         return self::_deleteNestedResource($id, static::PATH_SOURCES, $sourceId, $params, $opts);
     }
 
@@ -388,8 +384,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public static function retrieveSource($id, $sourceId, $params = null, $opts = null)
-    {
+    public static function retrieveSource($id, $sourceId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_SOURCES, $sourceId, $params, $opts);
     }
 
@@ -403,8 +398,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public static function updateSource($id, $sourceId, $params = null, $opts = null)
-    {
+    public static function updateSource($id, $sourceId, $params = null, $opts = null) {
         return self::_updateNestedResource($id, static::PATH_SOURCES, $sourceId, $params, $opts);
     }
     const PATH_CASH_BALANCE = '/cash_balance';
@@ -419,8 +413,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CashBalance
      */
-    public static function retrieveCashBalance($id, $cashBalanceId, $params = null, $opts = null)
-    {
+    public static function retrieveCashBalance($id, $cashBalanceId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_CASH_BALANCE, $params, $opts);
     }
 
@@ -434,8 +427,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\CashBalance
      */
-    public static function updateCashBalance($id, $cashBalanceId, $params = null, $opts = null)
-    {
+    public static function updateCashBalance($id, $cashBalanceId, $params = null, $opts = null) {
         return self::_updateNestedResource($id, static::PATH_CASH_BALANCE, $params, $opts);
     }
     const PATH_TAX_IDS = '/tax_ids';
@@ -449,8 +441,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\TaxId> the list of tax ids
      */
-    public static function allTaxIds($id, $params = null, $opts = null)
-    {
+    public static function allTaxIds($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_TAX_IDS, $params, $opts);
     }
 
@@ -463,8 +454,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\TaxId
      */
-    public static function createTaxId($id, $params = null, $opts = null)
-    {
+    public static function createTaxId($id, $params = null, $opts = null) {
         return self::_createNestedResource($id, static::PATH_TAX_IDS, $params, $opts);
     }
 
@@ -478,8 +468,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\TaxId
      */
-    public static function deleteTaxId($id, $taxIdId, $params = null, $opts = null)
-    {
+    public static function deleteTaxId($id, $taxIdId, $params = null, $opts = null) {
         return self::_deleteNestedResource($id, static::PATH_TAX_IDS, $taxIdId, $params, $opts);
     }
 
@@ -493,8 +482,7 @@ class Customer extends ApiResource
      *
      * @return \Stripe\TaxId
      */
-    public static function retrieveTaxId($id, $taxIdId, $params = null, $opts = null)
-    {
+    public static function retrieveTaxId($id, $taxIdId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_TAX_IDS, $taxIdId, $params, $opts);
     }
 }

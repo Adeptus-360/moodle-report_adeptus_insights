@@ -24,7 +24,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Helper methods for building report definitions and exporting data.
@@ -32,7 +31,6 @@ defined('MOODLE_INTERNAL') || die();
  * @package     report_adeptus_insights
  */
 class builder_helper {
-
     /**
      * Build a report definition array from Moodle form data.
      *

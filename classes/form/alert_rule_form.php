@@ -32,7 +32,6 @@ require_once($CFG->libdir . '/formslib.php');
  * Form for creating/editing alert rules.
  */
 class alert_rule_form extends \moodleform {
-
     /**
      * Define the form elements.
      */

@@ -36,7 +36,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class schedule_form extends \moodleform {
-
     /**
      * Define the form elements.
      */
@@ -49,7 +48,7 @@ class schedule_form extends \moodleform {
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_INT);
 
-        // ── Section 1: Report ──────────────────────────────────────────────
+        // Section 1: Report.
         $mform->addElement('header', 'reporthdr', get_string('report', 'report_adeptus_insights'));
 
         // Report selector.
@@ -69,7 +68,7 @@ class schedule_form extends \moodleform {
         $mform->addRule('label', null, 'required', null, 'client');
         $mform->addHelpButton('label', 'schedule_label', 'report_adeptus_insights');
 
-        // ── Section 2: Frequency ───────────────────────────────────────────
+        // Section 2: Frequency.
         $mform->addElement('header', 'frequencyhdr', get_string('frequency', 'report_adeptus_insights'));
 
         $freqoptions = [
@@ -117,7 +116,7 @@ class schedule_form extends \moodleform {
         $mform->hideIf('run_dayofmonth', 'frequency', 'neq', 'monthly');
         $mform->setType('run_dayofmonth', PARAM_INT);
 
-        // ── Section 3: Export Format ───────────────────────────────────────
+        // Section 3: Export Format.
         $mform->addElement('header', 'formathdr', get_string('export', 'report_adeptus_insights'));
 
         $formatoptions = [
@@ -128,35 +127,44 @@ class schedule_form extends \moodleform {
         $mform->setDefault('export_format', 'csv');
         $mform->setType('export_format', PARAM_ALPHA);
 
-        // ── Section 4: Email ───────────────────────────────────────────────
+        // Section 4: Email.
         $mform->addElement('header', 'emailhdr', get_string('email', 'report_adeptus_insights'));
 
         $mform->addElement('text', 'email_subject', get_string('email_subject', 'report_adeptus_insights'), ['size' => 80]);
         $mform->setType('email_subject', PARAM_TEXT);
 
-        $mform->addElement('textarea', 'email_body', get_string('email_body', 'report_adeptus_insights'),
-            ['rows' => 5, 'cols' => 80]);
+        $mform->addElement(
+            'textarea',
+            'email_body',
+            get_string('email_body', 'report_adeptus_insights'),
+            ['rows' => 5, 'cols' => 80]
+        );
         $mform->setType('email_body', PARAM_TEXT);
 
-        // ── Section 5: Recipients ──────────────────────────────────────────
+        // Section 5: Recipients.
         $mform->addElement('header', 'recipientshdr', get_string('recipients', 'report_adeptus_insights'));
 
         // Ad-hoc email addresses.
-        $mform->addElement('textarea', 'recipients_emails',
+        $mform->addElement(
+            'textarea',
+            'recipients_emails',
             get_string('recipients_email', 'report_adeptus_insights'),
-            ['rows' => 4, 'cols' => 60]);
+            ['rows' => 4, 'cols' => 60]
+        );
         $mform->addHelpButton('recipients_emails', 'recipients_email', 'report_adeptus_insights');
         $mform->setType('recipients_emails', PARAM_TEXT);
 
         // Moodle users autocomplete (multi-select).
         $useroptions = [];
-        $mform->addElement('autocomplete', 'recipients_userids',
+        $mform->addElement(
+            'autocomplete',
+            'recipients_userids',
             get_string('recipients_users', 'report_adeptus_insights'),
             $useroptions,
             [
                 'multiple' => true,
                 'ajax' => 'core_user/form_user_selector',
-                'valuehtmlcallback' => function($userid) {
+                'valuehtmlcallback' => function ($userid) {
                     global $DB, $OUTPUT;
                     $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
                     if (!$user) {
@@ -175,20 +183,27 @@ class schedule_form extends \moodleform {
             foreach ($roles as $role) {
                 $roleoptions[$role->id] = role_get_name($role);
             }
-            $mform->addElement('select', 'recipients_roleid',
-                get_string('recipients_role', 'report_adeptus_insights'), $roleoptions);
+            $mform->addElement(
+                'select',
+                'recipients_roleid',
+                get_string('recipients_role', 'report_adeptus_insights'),
+                $roleoptions
+            );
             $mform->addHelpButton('recipients_roleid', 'recipients_role', 'report_adeptus_insights');
             $mform->setType('recipients_roleid', PARAM_INT);
         }
 
-        // ── Active toggle ──────────────────────────────────────────────────
+        // Active toggle.
         $mform->addElement('header', 'statushdr', get_string('status', 'report_adeptus_insights'));
-        $mform->addElement('advcheckbox', 'active',
-            get_string('schedule_status_active', 'report_adeptus_insights'));
+        $mform->addElement(
+            'advcheckbox',
+            'active',
+            get_string('schedule_status_active', 'report_adeptus_insights')
+        );
         $mform->setDefault('active', 1);
         $mform->setType('active', PARAM_INT);
 
-        // ── Buttons ────────────────────────────────────────────────────────
+        // Buttons.
         $this->add_action_buttons(true, get_string('save', 'report_adeptus_insights'));
     }
 

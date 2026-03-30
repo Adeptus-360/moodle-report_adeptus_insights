@@ -24,13 +24,11 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Helper class for role-based view mode detection.
  */
 class role_helper {
-
     /** @var string Admin/manager full-access mode. */
     const MODE_ADMIN = 'admin';
 

@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -25,6 +39,7 @@ namespace Stripe;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property string $type Transaction type: <code>adjustment</code>, <code>applied_to_invoice</code>, <code>credit_note</code>, <code>initial</code>, <code>invoice_overpaid</code>, <code>invoice_too_large</code>, <code>invoice_too_small</code>, <code>unspent_receiver_credit</code>, or <code>unapplied_from_invoice</code>. See the <a href="https://stripe.com/docs/billing/customer/balance#types">Customer Balance page</a> to learn more about transaction types.
+ * @package report_adeptus_insights
  */
 class CustomerBalanceTransaction extends ApiResource
 {
@@ -44,8 +59,7 @@ class CustomerBalanceTransaction extends ApiResource
     /**
      * @return string the API URL for this balance transaction
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         $id = $this['id'];
         $customer = $this['customer'];
         if (!$id) {
@@ -70,8 +84,7 @@ class CustomerBalanceTransaction extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Customer Balance Transactions cannot be retrieved without a ' .
                'customer ID. Retrieve a Customer Balance Transaction using ' .
                "`Customer::retrieveBalanceTransaction('customer_id', " .
@@ -87,8 +100,7 @@ class CustomerBalanceTransaction extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Customer Balance Transactions cannot be updated without a ' .
                'customer ID. Update a Customer Balance Transaction using ' .
                "`Customer::updateBalanceTransaction('customer_id', " .

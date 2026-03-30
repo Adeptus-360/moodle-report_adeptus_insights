@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -25,6 +39,7 @@ namespace Stripe\Tax;
  * @property null|\Stripe\StripeObject $shipping_cost The shipping cost details for the transaction.
  * @property int $tax_date Timestamp of date at which the tax rules and rates in effect applies for the calculation.
  * @property string $type If <code>reversal</code>, this transaction reverses an earlier transaction.
+ * @package report_adeptus_insights
  */
 class Transaction extends \Stripe\ApiResource
 {
@@ -43,8 +58,7 @@ class Transaction extends \Stripe\ApiResource
      *
      * @return \Stripe\Tax\Transaction
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -60,10 +74,9 @@ class Transaction extends \Stripe\ApiResource
      *
      * @return \Stripe\Tax\Transaction the created transaction
      */
-    public static function createFromCalculation($params = null, $opts = null)
-    {
+    public static function createFromCalculation($params = null, $opts = null) {
         $url = static::classUrl() . '/create_from_calculation';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -78,10 +91,9 @@ class Transaction extends \Stripe\ApiResource
      *
      * @return \Stripe\Tax\Transaction the created transaction
      */
-    public static function createReversal($params = null, $opts = null)
-    {
+    public static function createReversal($params = null, $opts = null) {
         $url = static::classUrl() . '/create_reversal';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -97,10 +109,9 @@ class Transaction extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Tax\TransactionLineItem> list of transaction line items
      */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
+    public static function allLineItems($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 

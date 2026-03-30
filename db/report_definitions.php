@@ -1103,10 +1103,10 @@ AND cs.name LIKE "Introduction to programming"',
     'isactive' => 1,
   ],
 
-  // ============================================================
+  // SECTION =====================================================.
   // TIME TRACKING Reports — Log-event delta method (G5).
   // Uses mdl_logstore_standard_log with 30-min session cap.
-  // ============================================================
+  // SECTION =====================================================.
 
   [
     'name' => 'Time on LMS per learner (last 30 days)',
@@ -1210,7 +1210,8 @@ ORDER BY u.lastname, u.firstname, t.total_seconds DESC',
   [
     'name' => 'Average time per activity across a course',
     'category' => 'TIME TRACKING Reports',
-    'description' => 'Average time learners spend on each activity/resource within a course, based on log-event deltas with a 30-minute cap. Replace COURSEID with the target course ID.',
+    'description' => 'Average time learners spend on each activity/resource within a course, ' .
+        'based on log-event deltas with a 30-minute cap. Replace COURSEID with the target course ID.',
     'sqlquery' => 'SELECT
     cm.id AS "Activity ID",
     COALESCE(m.name, \'unknown\') AS "Activity Type",
@@ -1371,10 +1372,10 @@ ORDER BY period_label',
     'isactive' => 1,
   ],
 
-  // ============================================================
+  // SECTION =====================================================.
   // TEACHER PERFORMANCE Reports (G7).
   // Metrics for instructor/teacher performance analysis.
-  // ============================================================
+  // SECTION =====================================================.
 
   [
     'name' => 'Course completion rates by teacher',

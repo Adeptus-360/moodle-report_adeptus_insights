@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -15,6 +29,7 @@ namespace Stripe\Tax;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property string $status The status of the Tax <code>Settings</code>.
  * @property \Stripe\StripeObject $status_details
+ * @package report_adeptus_insights
  */
 class Settings extends \Stripe\SingletonApiResource
 {
@@ -32,8 +47,7 @@ class Settings extends \Stripe\SingletonApiResource
      *
      * @return \Stripe\Tax\Settings
      */
-    public static function retrieve($opts = null)
-    {
+    public static function retrieve($opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static(null, $opts);
         $instance->refresh();
@@ -49,12 +63,11 @@ class Settings extends \Stripe\SingletonApiResource
      *
      * @return static the updated resource
      */
-    public static function update($params = null, $opts = null)
-    {
+    public static function update($params = null, $opts = null) {
         self::_validateParams($params);
         $url = '/v1/tax/settings';
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -72,12 +85,11 @@ class Settings extends \Stripe\SingletonApiResource
      *     future major version of the library. Use the static method `update`
      *     on the resource instead.
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         $params = $this->serializeParameters();
         if (\count($params) > 0) {
             $url = $this->instanceUrl();
-            list($response, $opts) = $this->_request('post', $url, $params, $opts, ['save']);
+            [$response, $opts] = $this->_request('post', $url, $params, $opts, ['save']);
             $this->refreshFrom($response, $opts);
         }
 

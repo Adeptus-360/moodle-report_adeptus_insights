@@ -40,7 +40,6 @@ require_once($CFG->libdir . '/gradelib.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class learner_dashboard {
-
     /** @var int The learner's user ID. */
     private int $userid;
 

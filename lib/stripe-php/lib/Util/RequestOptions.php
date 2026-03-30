@@ -1,10 +1,25 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\Util;
 
 /**
  * @phpstan-type RequestOptionsArray array{api_key?: string, idempotency_key?: string, stripe_account?: string, stripe_context?: string, stripe_version?: string, api_base?: string }
  * @psalm-type RequestOptionsArray = array{api_key?: string, idempotency_key?: string, stripe_account?: string, stripe_context?: string, stripe_version?: string, api_base?: string }
+ * @package report_adeptus_insights
  */
 class RequestOptions
 {
@@ -30,8 +45,7 @@ class RequestOptions
      * @param array<string, string> $headers
      * @param null|string $base
      */
-    public function __construct($key = null, $headers = [], $base = null)
-    {
+    public function __construct($key = null, $headers = [], $base = null) {
         $this->apiKey = $key;
         $this->headers = $headers;
         $this->apiBase = $base;
@@ -40,8 +54,7 @@ class RequestOptions
     /**
      * @return array<string, string>
      */
-    public function __debugInfo()
-    {
+    public function __debugInfo() {
         return [
             'apiKey' => $this->redactedApiKey(),
             'headers' => $this->headers,
@@ -58,8 +71,7 @@ class RequestOptions
      *
      * @return RequestOptions
      */
-    public function merge($options, $strict = false)
-    {
+    public function merge($options, $strict = false) {
         $other_options = self::parse($options, $strict);
         if (null === $other_options->apiKey) {
             $other_options->apiKey = $this->apiKey;
@@ -75,8 +87,7 @@ class RequestOptions
     /**
      * Discards all headers that we don't want to persist across requests.
      */
-    public function discardNonPersistentHeaders()
-    {
+    public function discardNonPersistentHeaders() {
         foreach ($this->headers as $k => $v) {
             if (!\in_array($k, self::$HEADERS_TO_PERSIST, true)) {
                 unset($this->headers[$k]);
@@ -94,8 +105,7 @@ class RequestOptions
      *
      * @return RequestOptions
      */
-    public static function parse($options, $strict = false)
-    {
+    public static function parse($options, $strict = false) {
         if ($options instanceof self) {
             return clone $options;
         }
@@ -169,8 +179,7 @@ class RequestOptions
     }
 
     /** @return string */
-    private function redactedApiKey()
-    {
+    private function redactedApiKey() {
         if (null === $this->apiKey) {
             return '';
         }

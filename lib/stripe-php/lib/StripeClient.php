@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
@@ -77,6 +91,7 @@ namespace Stripe;
  * @property \Stripe\Service\V2\V2ServiceFactory $v2
  * @property \Stripe\Service\WebhookEndpointService $webhookEndpoints
  * // The end of the section generated from our OpenAPI spec
+ * @package report_adeptus_insights
  */
 class StripeClient extends BaseStripeClient
 {
@@ -85,13 +100,11 @@ class StripeClient extends BaseStripeClient
      */
     private $coreServiceFactory;
 
-    public function __get($name)
-    {
+    public function __get($name) {
         return $this->getService($name);
     }
 
-    public function getService($name)
-    {
+    public function getService($name) {
         if (null === $this->coreServiceFactory) {
             $this->coreServiceFactory = new \Stripe\Service\CoreServiceFactory($this);
         }

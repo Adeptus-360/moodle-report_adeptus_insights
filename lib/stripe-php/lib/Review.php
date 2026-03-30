@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -24,6 +38,7 @@ namespace Stripe;
  * @property null|string|\Stripe\PaymentIntent $payment_intent The PaymentIntent ID associated with this review, if one exists.
  * @property string $reason The reason the review is currently open or closed. One of <code>rule</code>, <code>manual</code>, <code>approved</code>, <code>refunded</code>, <code>refunded_as_fraud</code>, <code>disputed</code>, or <code>redacted</code>.
  * @property null|\Stripe\StripeObject $session Information related to the browsing session of the user who initiated the payment.
+ * @package report_adeptus_insights
  */
 class Review extends ApiResource
 {
@@ -50,8 +65,7 @@ class Review extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Review> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -67,8 +81,7 @@ class Review extends ApiResource
      *
      * @return \Stripe\Review
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -98,10 +111,9 @@ class Review extends ApiResource
      *
      * @return \Stripe\Review the approved review
      */
-    public function approve($params = null, $opts = null)
-    {
+    public function approve($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/approve';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @package     report_adeptus_insights
  */
 class builder_report_form extends \moodleform {
-
     /**
      * Define the form elements.
      *
@@ -50,18 +49,22 @@ class builder_report_form extends \moodleform {
         $mform->addElement('hidden', 'id', $id);
         $mform->setType('id', PARAM_INT);
 
-        // ---- Report Details ----
+        // Report Details.
         $mform->addElement('header', 'detailshdr', get_string('builder_details_header', 'report_adeptus_insights'));
 
         $mform->addElement('text', 'name', get_string('builder_report_name', 'report_adeptus_insights'), ['size' => 60]);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
 
-        $mform->addElement('textarea', 'description', get_string('builder_report_description', 'report_adeptus_insights'),
-            ['rows' => 3, 'cols' => 60]);
+        $mform->addElement(
+            'textarea',
+            'description',
+            get_string('builder_report_description', 'report_adeptus_insights'),
+            ['rows' => 3, 'cols' => 60]
+        );
         $mform->setType('description', PARAM_TEXT);
 
-        // ---- Data Source ----
+        // Data Source.
         $mform->addElement('header', 'datasourcehdr', get_string('builder_datasource_header', 'report_adeptus_insights'));
 
         $sources = ['' => get_string('builder_select_datasource', 'report_adeptus_insights')];
@@ -71,11 +74,16 @@ class builder_report_form extends \moodleform {
                 $sources[$key] = $entityname;
             }
         }
-        $mform->addElement('select', 'datasource', get_string('builder_datasource', 'report_adeptus_insights'), $sources,
-            ['id' => 'id_datasource']);
+        $mform->addElement(
+            'select',
+            'datasource',
+            get_string('builder_datasource', 'report_adeptus_insights'),
+            $sources,
+            ['id' => 'id_datasource']
+        );
         $mform->addRule('datasource', get_string('required'), 'required', null, 'client');
 
-        // ---- Column Picker ----
+        // Column Picker.
         // Columns are rendered dynamically by AMD JS based on selected datasource.
         // We add a hidden container div that JS will populate with checkboxes.
         $mform->addElement('header', 'columnshdr', get_string('builder_columns_header', 'report_adeptus_insights'));
@@ -86,7 +94,7 @@ class builder_report_form extends \moodleform {
         $mform->addElement('hidden', 'columns_json', '');
         $mform->setType('columns_json', PARAM_RAW);
 
-        // ---- Filters ----
+        // Filters.
         $mform->addElement('header', 'filtershdr', get_string('builder_filters_header', 'report_adeptus_insights'));
         $mform->addElement('html', '<div id="builder-filters-container">' .
             '<p class="text-muted">' . get_string('builder_select_datasource_first', 'report_adeptus_insights') . '</p>' .
@@ -94,7 +102,7 @@ class builder_report_form extends \moodleform {
         $mform->addElement('hidden', 'filters_json', '');
         $mform->setType('filters_json', PARAM_RAW);
 
-        // ---- Sort Order ----
+        // Sort Order.
         $mform->addElement('header', 'sorthdr', get_string('builder_sort_header', 'report_adeptus_insights'));
         $mform->addElement('html', '<div id="builder-sort-container">' .
             '<p class="text-muted">' . get_string('builder_select_datasource_first', 'report_adeptus_insights') . '</p>' .
@@ -102,7 +110,7 @@ class builder_report_form extends \moodleform {
         $mform->addElement('hidden', 'sort_json', '');
         $mform->setType('sort_json', PARAM_RAW);
 
-        // ---- Actions ----
+        // Actions.
         $this->add_action_buttons(true, $id ? get_string('builder_save_report', 'report_adeptus_insights')
             : get_string('builder_create_report', 'report_adeptus_insights'));
 

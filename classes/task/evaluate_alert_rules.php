@@ -24,13 +24,11 @@
 
 namespace report_adeptus_insights\task;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Hourly task that evaluates alert rules and sends notifications for new alerts.
  */
 class evaluate_alert_rules extends \core\task\scheduled_task {
-
     /**
      * Return the task name.
      *

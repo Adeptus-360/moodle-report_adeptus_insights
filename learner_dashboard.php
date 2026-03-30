@@ -54,7 +54,7 @@ try {
     // Add learner reports for the reports card section.
     $learnerreports = \report_adeptus_insights\role_helper::get_learner_reports($USER->id);
     $dashboarddata['has_learner_reports'] = !empty($learnerreports);
-    $dashboarddata['learner_reports'] = array_map(function($report) {
+    $dashboarddata['learner_reports'] = array_map(function ($report) {
         return [
             'key' => $report['key'],
             'title' => get_string($report['titlekey'], 'report_adeptus_insights'),
@@ -66,7 +66,6 @@ try {
 
     // Render the learner dashboard template.
     echo $OUTPUT->render_from_template('report_adeptus_insights/learner_dashboard', $dashboarddata);
-
 } catch (\dml_exception $e) {
     echo $OUTPUT->notification(
         get_string('error_database', 'report_adeptus_insights'),

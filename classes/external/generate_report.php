@@ -64,6 +64,8 @@ class generate_report extends external_api {
      * @param string $reportid Report name/identifier.
      * @param string $parametersjson JSON-encoded parameters.
      * @param bool $reexecution Whether this is a re-execution.
+     * @param string $cohortids JSON-encoded array of cohort IDs to filter by.
+     * @param string $groupids JSON-encoded array of group IDs to filter by.
      * @return array Report results with data and chart info.
      */
     public static function execute($reportid, $parametersjson = '{}', $reexecution = false, $cohortids = '[]', $groupids = '[]') {
@@ -176,7 +178,9 @@ class generate_report extends external_api {
         $parsedgroupids = json_decode($params['groupids'], true) ?: [];
 
         if (!empty($parsedcohortids) || !empty($parsedgroupids)) {
-            debugging('Applying filters: cohorts=' . json_encode($parsedcohortids) . ', groups=' . json_encode($parsedgroupids), DEBUG_DEVELOPER);
+            $debugmsg = 'Applying filters: cohorts=' . json_encode($parsedcohortids) .
+                ', groups=' . json_encode($parsedgroupids);
+            debugging($debugmsg, DEBUG_DEVELOPER);
             $reportquery = self::apply_user_filters($reportquery, $parsedcohortids, $parsedgroupids);
             debugging('Filtered SQL: ' . substr($reportquery, 0, 500), DEBUG_DEVELOPER);
         }
@@ -423,7 +427,7 @@ class generate_report extends external_api {
 
         if ($useralias) {
             if ($useralias === '__no_alias__') {
-                // {user} table used without alias — reference "id" directly.
+                // User table used without alias — reference "id" directly.
                 $filtercondition = "id IN ($filtersubquery)";
             } else {
                 $filtercondition = "$useralias.id IN ($filtersubquery)";
@@ -505,7 +509,7 @@ class generate_report extends external_api {
      * @return string|null A table.userid reference, or null.
      */
     private static function detect_userid_join_reference($sql) {
-        // Match patterns like: ON alias.userid = ... or ... = alias.userid
+        // Match patterns like: ON alias.userid = ... or ... = alias.userid.
         if (preg_match('/\bON\b.*?(\w+\.userid)\b/i', $sql, $matches)) {
             return $matches[1];
         }
@@ -573,7 +577,9 @@ class generate_report extends external_api {
                 $depth--;
             } else if ($depth === 0) {
                 // Check for FROM {user} or JOIN {user} at top level.
-                if (preg_match('/\A(?:FROM|JOIN)\s+\{user\}(?:\s+(?:WHERE|GROUP|ORDER|LIMIT|HAVING|LEFT|RIGHT|INNER|CROSS|JOIN|ON)\b|\s*$)/i', substr($sql, $i))) {
+                $pattern = '/\A(?:FROM|JOIN)\s+\{user\}(?:\s+' .
+                        '(?:WHERE|GROUP|ORDER|LIMIT|HAVING|LEFT|RIGHT|INNER|CROSS|JOIN|ON)\b|\s*$)/i';
+                if (preg_match($pattern, substr($sql, $i))) {
                     return true;
                 }
             }
@@ -601,9 +607,11 @@ class generate_report extends external_api {
                 $depth--;
             } else if ($depth === 0) {
                 // Check for WHERE keyword at top level.
-                if (strtoupper(substr($sql, $i, 6)) === 'WHERE ' ||
+                if (
+                    strtoupper(substr($sql, $i, 6)) === 'WHERE ' ||
                     strtoupper(substr($sql, $i, 6)) === "WHERE\t" ||
-                    strtoupper(substr($sql, $i, 6)) === "WHERE\n") {
+                    strtoupper(substr($sql, $i, 6)) === "WHERE\n"
+                ) {
                     return $i;
                 }
             }
@@ -733,9 +741,9 @@ class generate_report extends external_api {
             $char = $sql[$i];
             if ($char === '(') {
                 $depth++;
-            } elseif ($char === ')') {
+            } else if ($char === ')') {
                 $depth--;
-            } elseif ($depth === 0) {
+            } else if ($depth === 0) {
                 // Check for FROM keyword at this level.
                 if (preg_match('/\bFROM\b/i', substr($sql, $i, 5))) {
                     return substr($sql, $start, $i - $start);

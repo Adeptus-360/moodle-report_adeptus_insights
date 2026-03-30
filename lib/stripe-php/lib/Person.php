@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -42,6 +56,7 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $requirements Information about the requirements for this person, including what information needs to be collected, and by when.
  * @property null|bool $ssn_last_4_provided Whether the last four digits of the person's Social Security number have been provided (U.S. only).
  * @property null|\Stripe\StripeObject $verification
+ * @package report_adeptus_insights
  */
 class Person extends ApiResource
 {
@@ -62,8 +77,7 @@ class Person extends ApiResource
     /**
      * @return string the API URL for this Stripe account reversal
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         $id = $this['id'];
         $account = $this['account'];
         if (!$id) {
@@ -89,8 +103,7 @@ class Person extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Persons cannot be retrieved without an account ID. Retrieve ' .
                "a person using `Account::retrievePerson('account_id', " .
                "'person_id')`.";
@@ -105,8 +118,7 @@ class Person extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Persons cannot be updated without an account ID. Update ' .
                 "a person using `Account::updatePerson('account_id', " .
                 "'person_id', \$updateParams)`.";
@@ -125,12 +137,11 @@ class Person extends ApiResource
      *     future major version of the library. Use the static method `update`
      *     on the resource instead.
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         $params = $this->serializeParameters();
         if (\count($params) > 0) {
             $url = $this->instanceUrl();
-            list($response, $opts) = $this->_request('post', $url, $params, $opts, ['save']);
+            [$response, $opts] = $this->_request('post', $url, $params, $opts, ['save']);
             $this->refreshFrom($response, $opts);
         }
 

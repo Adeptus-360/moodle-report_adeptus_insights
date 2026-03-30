@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -76,6 +90,7 @@ namespace Stripe\Checkout;
  * @property null|\Stripe\StripeObject $total_details Tax and discount details for the computed total amount.
  * @property null|string $ui_mode The UI mode of the Session. Defaults to <code>hosted</code>.
  * @property null|string $url The URL to the Checkout Session. Redirect customers to this URL to take them to Checkout. If you’re using <a href="https://stripe.com/docs/payments/checkout/custom-domains">Custom Domains</a>, the URL will use your subdomain. Otherwise, it’ll use <code>checkout.stripe.com.</code> This value is only present when the session is active.
+ * @package report_adeptus_insights
  */
 class Session extends \Stripe\ApiResource
 {
@@ -127,12 +142,11 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Checkout\Session the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -149,8 +163,7 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Checkout\Session> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -166,8 +179,7 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Checkout\Session
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -186,12 +198,11 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Checkout\Session the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -206,10 +217,9 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Checkout\Session the expired session
      */
-    public function expire($params = null, $opts = null)
-    {
+    public function expire($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/expire';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -224,10 +234,9 @@ class Session extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\LineItem> list of line items
      */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
+    public static function allLineItems($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 

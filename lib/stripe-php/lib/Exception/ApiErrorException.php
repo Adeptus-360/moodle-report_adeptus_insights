@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\Exception;
 
 /**
  * Implements properties and methods common to all (non-SPL) Stripe exceptions.
+ * @package report_adeptus_insights
  */
 abstract class ApiErrorException extends \Exception implements ExceptionInterface
 {
@@ -57,8 +72,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|\Stripe\ErrorObject
      */
-    public function getError()
-    {
+    public function getError() {
         return $this->error;
     }
 
@@ -67,8 +81,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|\Stripe\ErrorObject $error
      */
-    public function setError($error)
-    {
+    public function setError($error) {
         $this->error = $error;
     }
 
@@ -77,8 +90,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|string
      */
-    public function getHttpBody()
-    {
+    public function getHttpBody() {
         return $this->httpBody;
     }
 
@@ -87,8 +99,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|string $httpBody
      */
-    public function setHttpBody($httpBody)
-    {
+    public function setHttpBody($httpBody) {
         $this->httpBody = $httpBody;
     }
 
@@ -97,8 +108,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|array|\Stripe\Util\CaseInsensitiveArray
      */
-    public function getHttpHeaders()
-    {
+    public function getHttpHeaders() {
         return $this->httpHeaders;
     }
 
@@ -107,8 +117,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|array|\Stripe\Util\CaseInsensitiveArray $httpHeaders
      */
-    public function setHttpHeaders($httpHeaders)
-    {
+    public function setHttpHeaders($httpHeaders) {
         $this->httpHeaders = $httpHeaders;
     }
 
@@ -117,8 +126,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|int
      */
-    public function getHttpStatus()
-    {
+    public function getHttpStatus() {
         return $this->httpStatus;
     }
 
@@ -127,8 +135,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|int $httpStatus
      */
-    public function setHttpStatus($httpStatus)
-    {
+    public function setHttpStatus($httpStatus) {
         $this->httpStatus = $httpStatus;
     }
 
@@ -137,8 +144,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|array<string, mixed>
      */
-    public function getJsonBody()
-    {
+    public function getJsonBody() {
         return $this->jsonBody;
     }
 
@@ -147,8 +153,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|array<string, mixed> $jsonBody
      */
-    public function setJsonBody($jsonBody)
-    {
+    public function setJsonBody($jsonBody) {
         $this->jsonBody = $jsonBody;
     }
 
@@ -157,8 +162,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|string
      */
-    public function getRequestId()
-    {
+    public function getRequestId() {
         return $this->requestId;
     }
 
@@ -167,8 +171,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|string $requestId
      */
-    public function setRequestId($requestId)
-    {
+    public function setRequestId($requestId) {
         $this->requestId = $requestId;
     }
 
@@ -180,8 +183,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return null|string
      */
-    public function getStripeCode()
-    {
+    public function getStripeCode() {
         return $this->stripeCode;
     }
 
@@ -190,8 +192,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @param null|string $stripeCode
      */
-    public function setStripeCode($stripeCode)
-    {
+    public function setStripeCode($stripeCode) {
         $this->stripeCode = $stripeCode;
     }
 
@@ -200,8 +201,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
      *
      * @return string
      */
-    public function __toString()
-    {
+    public function __toString() {
         $parentStr = parent::__toString();
         $statusStr = (null === $this->getHttpStatus()) ? '' : "(Status {$this->getHttpStatus()}) ";
         $idStr = (null === $this->getRequestId()) ? '' : "(Request {$this->getRequestId()}) ";
@@ -209,8 +209,7 @@ abstract class ApiErrorException extends \Exception implements ExceptionInterfac
         return "Error sending request to Stripe: {$statusStr}{$idStr}{$this->getMessage()}\n{$parentStr}";
     }
 
-    protected function constructErrorObject()
-    {
+    protected function constructErrorObject() {
         if (null === $this->jsonBody || !\array_key_exists('error', $this->jsonBody)) {
             return null;
         }

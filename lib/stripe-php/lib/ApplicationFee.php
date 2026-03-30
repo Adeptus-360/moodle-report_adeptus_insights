@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -20,6 +34,7 @@ namespace Stripe;
  * @property null|string|\Stripe\Charge $originating_transaction ID of the corresponding charge on the platform account, if this fee was the result of a charge using the <code>destination</code> parameter.
  * @property bool $refunded Whether the fee has been fully refunded. If the fee is only partially refunded, this attribute will still be false.
  * @property \Stripe\Collection<\Stripe\ApplicationFeeRefund> $refunds A list of refunds that have been applied to the fee.
+ * @package report_adeptus_insights
  */
 class ApplicationFee extends ApiResource
 {
@@ -38,8 +53,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\ApplicationFee> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -56,8 +70,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\ApplicationFee
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -76,8 +89,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\ApplicationFeeRefund> the list of application fee refunds
      */
-    public static function allRefunds($id, $params = null, $opts = null)
-    {
+    public static function allRefunds($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_REFUNDS, $params, $opts);
     }
 
@@ -90,8 +102,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\ApplicationFeeRefund
      */
-    public static function createRefund($id, $params = null, $opts = null)
-    {
+    public static function createRefund($id, $params = null, $opts = null) {
         return self::_createNestedResource($id, static::PATH_REFUNDS, $params, $opts);
     }
 
@@ -105,8 +116,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\ApplicationFeeRefund
      */
-    public static function retrieveRefund($id, $refundId, $params = null, $opts = null)
-    {
+    public static function retrieveRefund($id, $refundId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_REFUNDS, $refundId, $params, $opts);
     }
 
@@ -120,8 +130,7 @@ class ApplicationFee extends ApiResource
      *
      * @return \Stripe\ApplicationFeeRefund
      */
-    public static function updateRefund($id, $refundId, $params = null, $opts = null)
-    {
+    public static function updateRefund($id, $refundId, $params = null, $opts = null) {
         return self::_updateNestedResource($id, static::PATH_REFUNDS, $refundId, $params, $opts);
     }
 }

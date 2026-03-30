@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -7,6 +21,7 @@ namespace Stripe\Service;
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ * @package report_adeptus_insights
  */
 class AccountService extends \Stripe\Service\AbstractService
 {
@@ -21,8 +36,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Account>
      */
-    public function all($params = null, $opts = null)
-    {
+    public function all($params = null, $opts = null) {
         return $this->requestCollection('get', '/v1/accounts', $params, $opts);
     }
 
@@ -39,8 +53,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Capability>
      */
-    public function allCapabilities($parentId, $params = null, $opts = null)
-    {
+    public function allCapabilities($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/accounts/%s/capabilities', $parentId), $params, $opts);
     }
 
@@ -55,8 +68,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\BankAccount|\Stripe\Card>
      */
-    public function allExternalAccounts($parentId, $params = null, $opts = null)
-    {
+    public function allExternalAccounts($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/accounts/%s/external_accounts', $parentId), $params, $opts);
     }
 
@@ -73,8 +85,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Person>
      */
-    public function allPersons($parentId, $params = null, $opts = null)
-    {
+    public function allPersons($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/accounts/%s/persons', $parentId), $params, $opts);
     }
 
@@ -97,8 +108,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account
      */
-    public function create($params = null, $opts = null)
-    {
+    public function create($params = null, $opts = null) {
         return $this->request('post', '/v1/accounts', $params, $opts);
     }
 
@@ -113,8 +123,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\BankAccount|\Stripe\Card
      */
-    public function createExternalAccount($parentId, $params = null, $opts = null)
-    {
+    public function createExternalAccount($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/external_accounts', $parentId), $params, $opts);
     }
 
@@ -133,8 +142,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\LoginLink
      */
-    public function createLoginLink($parentId, $params = null, $opts = null)
-    {
+    public function createLoginLink($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/login_links', $parentId), $params, $opts);
     }
 
@@ -149,8 +157,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Person
      */
-    public function createPerson($parentId, $params = null, $opts = null)
-    {
+    public function createPerson($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/persons', $parentId), $params, $opts);
     }
 
@@ -177,8 +184,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account
      */
-    public function delete($id, $params = null, $opts = null)
-    {
+    public function delete($id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/accounts/%s', $id), $params, $opts);
     }
 
@@ -194,8 +200,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\BankAccount|\Stripe\Card
      */
-    public function deleteExternalAccount($parentId, $id, $params = null, $opts = null)
-    {
+    public function deleteExternalAccount($parentId, $id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/accounts/%s/external_accounts/%s', $parentId, $id), $params, $opts);
     }
 
@@ -215,8 +220,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Person
      */
-    public function deletePerson($parentId, $id, $params = null, $opts = null)
-    {
+    public function deletePerson($parentId, $id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/accounts/%s/persons/%s', $parentId, $id), $params, $opts);
     }
 
@@ -237,8 +241,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account
      */
-    public function reject($id, $params = null, $opts = null)
-    {
+    public function reject($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/reject', $id), $params, $opts);
     }
 
@@ -254,8 +257,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Capability
      */
-    public function retrieveCapability($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveCapability($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/accounts/%s/capabilities/%s', $parentId, $id), $params, $opts);
     }
 
@@ -271,8 +273,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\BankAccount|\Stripe\Card
      */
-    public function retrieveExternalAccount($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveExternalAccount($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/accounts/%s/external_accounts/%s', $parentId, $id), $params, $opts);
     }
 
@@ -288,8 +289,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Person
      */
-    public function retrievePerson($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrievePerson($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/accounts/%s/persons/%s', $parentId, $id), $params, $opts);
     }
 
@@ -322,8 +322,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account
      */
-    public function update($id, $params = null, $opts = null)
-    {
+    public function update($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s', $id), $params, $opts);
     }
 
@@ -340,8 +339,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Capability
      */
-    public function updateCapability($parentId, $id, $params = null, $opts = null)
-    {
+    public function updateCapability($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/capabilities/%s', $parentId, $id), $params, $opts);
     }
 
@@ -367,8 +365,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\BankAccount|\Stripe\Card
      */
-    public function updateExternalAccount($parentId, $id, $params = null, $opts = null)
-    {
+    public function updateExternalAccount($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/external_accounts/%s', $parentId, $id), $params, $opts);
     }
 
@@ -384,8 +381,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Person
      */
-    public function updatePerson($parentId, $id, $params = null, $opts = null)
-    {
+    public function updatePerson($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/accounts/%s/persons/%s', $parentId, $id), $params, $opts);
     }
 
@@ -400,8 +396,7 @@ class AccountService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account
      */
-    public function retrieve($id = null, $params = null, $opts = null)
-    {
+    public function retrieve($id = null, $params = null, $opts = null) {
         if (null === $id) {
             return $this->request('get', '/v1/account', $params, $opts);
         }

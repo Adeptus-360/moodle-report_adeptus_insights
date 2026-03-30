@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\V2;
 
@@ -11,6 +25,7 @@ namespace Stripe\V2;
  * @property null|string $next_page_url
  * @property null|string $previous_page_url
  * @property TStripeObject[] $data
+ * @package report_adeptus_insights
  */
 class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAggregate
 {
@@ -21,8 +36,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
     /**
      * @return string the base URL for the given class
      */
-    public static function baseUrl()
-    {
+    public static function baseUrl() {
         return \Stripe\Stripe::$apiBase;
     }
 
@@ -30,8 +44,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($k)
-    {
+    public function offsetGet($k) {
         if (\is_string($k)) {
             return parent::offsetGet($k);
         }
@@ -47,8 +60,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
      * @return int the number of objects in the current page
      */
     #[\ReturnTypeWillChange]
-    public function count()
-    {
+    public function count() {
         return \count($this->data);
     }
 
@@ -57,8 +69,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
      *    across objects in the current page
      */
     #[\ReturnTypeWillChange]
-    public function getIterator()
-    {
+    public function getIterator() {
         return new \ArrayIterator($this->data);
     }
 
@@ -66,8 +77,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
      * @return \ArrayIterator an iterator that can be used to iterate
      *    backwards across objects in the current page
      */
-    public function getReverseIterator()
-    {
+    public function getReverseIterator() {
         return new \ArrayIterator(\array_reverse($this->data));
     }
 
@@ -79,8 +89,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
      *    encountered, the next page will be fetched automatically for
      *    continued iteration.
      */
-    public function autoPagingIterator()
-    {
+    public function autoPagingIterator() {
         $page = $this->data;
         $next_page_url = $this->next_page_url;
 
@@ -92,7 +101,7 @@ class Collection extends \Stripe\StripeObject implements \Countable, \IteratorAg
                 break;
             }
 
-            list($response, $opts) = $this->_request(
+            [$response, $opts] = $this->_request(
                 'get',
                 $next_page_url,
                 null,

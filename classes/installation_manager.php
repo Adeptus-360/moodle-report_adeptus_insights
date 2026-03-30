@@ -37,16 +37,16 @@ require_once($CFG->libdir . '/filelib.php');
  */
 class installation_manager {
     /** @var string API key for backend authentication. */
-    private $api_key;
+    private $apikey;
 
     /** @var string Base URL for API requests. */
-    private $api_url;
+    private $apiurl;
 
     /** @var string|null Installation ID for this Moodle instance. */
-    private $installation_id;
+    private $installationid;
 
     /** @var bool Whether the installation is registered. */
-    private $is_registered;
+    private $isregistered;
 
     /** @var string Last error message from API operations. */
     private $lasterror;
@@ -62,26 +62,26 @@ class installation_manager {
             // Get ANY existing record (not just id=1, as insert_record auto-generates IDs).
             $settings = $DB->get_record('report_adeptus_insights_settings', [], '*', IGNORE_MULTIPLE);
             if ($settings) {
-                $this->api_key = $settings->api_key;
+                $this->apikey = $settings->api_key;
                 // Allow config.php override for development/staging.
-                $this->api_url = !empty($CFG->adeptus360_backend_url)
+                $this->apiurl = !empty($CFG->adeptus360_backend_url)
                     ? rtrim($CFG->adeptus360_backend_url, '/')
                     : $settings->api_url;
-                $this->installation_id = $settings->installation_id;
-                $this->is_registered = (bool)$settings->is_registered;
+                $this->installationid = $settings->installation_id;
+                $this->isregistered = (bool)$settings->is_registered;
             } else {
-                $this->api_key = '';
+                $this->apikey = '';
                 // Use centralized API config.
-                $this->api_url = api_config::get_backend_url();
-                $this->installation_id = null;
-                $this->is_registered = false;
+                $this->apiurl = api_config::get_backend_url();
+                $this->installationid = null;
+                $this->isregistered = false;
             }
         } catch (\Exception $e) {
-            $this->api_key = '';
+            $this->apikey = '';
             // Use centralized API config.
-            $this->api_url = api_config::get_backend_url();
-            $this->installation_id = null;
-            $this->is_registered = false;
+            $this->apiurl = api_config::get_backend_url();
+            $this->installationid = null;
+            $this->isregistered = false;
         }
     }
 
@@ -93,7 +93,7 @@ class installation_manager {
     public function is_registered() {
         global $DB;
 
-        if ($this->is_registered) {
+        if ($this->isregistered) {
             return true;
         }
 
@@ -102,9 +102,9 @@ class installation_manager {
             $status = $this->check_site_registration_status();
             if ($status && isset($status['success']) && $status['success']) {
                 // Update local registration status.
-                $this->is_registered = true;
-                $this->installation_id = $status['data']['installation_id'] ?? null;
-                $this->api_key = $status['data']['api_key'] ?? '';
+                $this->isregistered = true;
+                $this->installationid = $status['data']['installation_id'] ?? null;
+                $this->apikey = $status['data']['api_key'] ?? '';
 
                 // Save to local database.
                 $this->save_installation_settings();
@@ -125,7 +125,7 @@ class installation_manager {
      * @return string The API key.
      */
     public function get_api_key() {
-        return $this->api_key;
+        return $this->apikey;
     }
 
     /**
@@ -134,7 +134,7 @@ class installation_manager {
      * @return string|null The installation ID or null if not set.
      */
     public function get_installation_id() {
-        return $this->installation_id;
+        return $this->installationid;
     }
 
     /**
@@ -143,7 +143,7 @@ class installation_manager {
      * @return string The API URL.
      */
     public function get_api_url() {
-        return $this->api_url;
+        return $this->apiurl;
     }
 
     /**
@@ -194,9 +194,9 @@ class installation_manager {
 
             if ($existingstatus && isset($existingstatus['success']) && $existingstatus['success']) {
                 // Use the existing installation data.
-                $this->api_key = $existingstatus['data']['api_key'] ?? '';
-                $this->installation_id = $existingstatus['data']['installation_id'] ?? null;
-                $this->is_registered = true;
+                $this->apikey = $existingstatus['data']['api_key'] ?? '';
+                $this->installationid = $existingstatus['data']['installation_id'] ?? null;
+                $this->isregistered = true;
 
                 // Save settings to database.
                 $this->save_installation_settings();
@@ -222,9 +222,9 @@ class installation_manager {
             $response = $this->make_api_request('installation/register', $data);
 
             if ($response && isset($response['success']) && $response['success']) {
-                $this->api_key = $response['data']['api_key'] ?? '';
-                $this->installation_id = $response['data']['installation_id'] ?? null;
-                $this->is_registered = true;
+                $this->apikey = $response['data']['api_key'] ?? '';
+                $this->installationid = $response['data']['installation_id'] ?? null;
+                $this->isregistered = true;
 
                 // Save settings to database.
                 $this->save_installation_settings();
@@ -238,9 +238,9 @@ class installation_manager {
                 // Check if the error is due to site already existing.
                 if (isset($response['code']) && $response['code'] === 'SITE_EXISTS') {
                     // Set the existing installation data.
-                    $this->api_key = $response['data']['api_key'] ?? '';
-                    $this->installation_id = $response['data']['existing_installation_id'] ?? null;
-                    $this->is_registered = true;
+                    $this->apikey = $response['data']['api_key'] ?? '';
+                    $this->installationid = $response['data']['existing_installation_id'] ?? null;
+                    $this->isregistered = true;
 
                     // Save settings to database.
                     $this->save_installation_settings();
@@ -371,7 +371,7 @@ class installation_manager {
      * @return bool True if registration is valid, false otherwise.
      */
     public function check_registration_status() {
-        if (!$this->is_registered || !$this->api_key) {
+        if (!$this->isregistered || !$this->apikey) {
             $this->set_registration_required_notification();
             return false;
         }
@@ -382,7 +382,7 @@ class installation_manager {
             if ($response && isset($response['success']) && $response['success']) {
                 return true;
             } else {
-                $this->is_registered = false;
+                $this->isregistered = false;
                 $this->set_registration_required_notification();
                 return false;
             }
@@ -553,7 +553,7 @@ class installation_manager {
      * @return array Result with success status and message.
      */
     public function sync_reports_from_backend() {
-        if (!$this->is_registered) {
+        if (!$this->isregistered) {
             return [
                 'success' => false,
                 'message' => get_string('not_registered', 'report_adeptus_insights'),
@@ -591,7 +591,7 @@ class installation_manager {
      * @return bool True if subscription status was updated, false otherwise.
      */
     public function check_subscription_status() {
-        if (!$this->is_registered) {
+        if (!$this->isregistered) {
             return [
                 'success' => false,
                 'message' => get_string('not_registered', 'report_adeptus_insights'),
@@ -621,7 +621,7 @@ class installation_manager {
      * @return array Result with success status and message.
      */
     public function create_subscription($planid, $paymentmethodid, $billingemail) {
-        if (!$this->is_registered) {
+        if (!$this->isregistered) {
             return [
                 'success' => false,
                 'message' => get_string('not_registered', 'report_adeptus_insights'),
@@ -797,7 +797,7 @@ class installation_manager {
      * Get backend URL for API requests
      */
     public function get_backend_url() {
-        return $this->api_url;
+        return $this->apiurl;
     }
 
     /**
@@ -997,7 +997,7 @@ class installation_manager {
     public function get_available_plans() {
         try {
             // Check if plugin is registered first.
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return [
                     'success' => false,
                     'message' => get_string('plugin_not_registered', 'report_adeptus_insights'),
@@ -1117,7 +1117,7 @@ class installation_manager {
      * @return array Activation result
      */
     public function activate_free_plan($planid) {
-        if (!$this->is_registered) {
+        if (!$this->isregistered) {
             return [
                 'success' => false,
                 'message' => get_string('not_registered', 'report_adeptus_insights'),
@@ -1180,7 +1180,7 @@ class installation_manager {
      * @throws \Exception On connection or response errors.
      */
     public function make_api_request($endpoint, $data = [], $method = 'POST') {
-        $url = $this->api_url . '/' . $endpoint;
+        $url = $this->apiurl . '/' . $endpoint;
 
         // Use Moodle's curl wrapper for proxy support.
         $curl = new \curl();
@@ -1190,8 +1190,8 @@ class installation_manager {
         $curl->setHeader('Accept: application/json');
 
         // Add API key to headers for authenticated endpoints.
-        if ($this->api_key && !in_array($endpoint, ['subscription/config'])) {
-            $curl->setHeader('Authorization: Bearer ' . $this->api_key);
+        if ($this->apikey && !in_array($endpoint, ['subscription/config'])) {
+            $curl->setHeader('Authorization: Bearer ' . $this->apikey);
         }
 
         // Set curl options.
@@ -1241,10 +1241,10 @@ class installation_manager {
 
         try {
             $record = (object)[
-                'api_key' => $this->api_key ?: '',
-                'api_url' => $this->api_url ?: api_config::get_backend_url(),
-                'installation_id' => $this->installation_id,
-                'is_registered' => $this->is_registered ? 1 : 0,
+                'api_key' => $this->apikey ?: '',
+                'api_url' => $this->apiurl ?: api_config::get_backend_url(),
+                'installation_id' => $this->installationid,
+                'is_registered' => $this->isregistered ? 1 : 0,
                 'registration_date' => time(),
                 'last_sync' => time(),
                 'timecreated' => time(),
@@ -1635,7 +1635,7 @@ class installation_manager {
     public function create_product_portal_session($productid, $returnurl) {
         try {
             // Check if installation is registered.
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 $msg = get_string('error_installation_not_registered', 'report_adeptus_insights');
                 return ['success' => false, 'message' => $msg];
             }
@@ -1803,7 +1803,7 @@ class installation_manager {
      */
     public function get_subscription_with_usage() {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return $this->get_free_tier_defaults();
             }
 
@@ -1894,7 +1894,7 @@ class installation_manager {
      */
     public function check_report_access($reportkey) {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 // For unregistered installations, allow free tier reports only.
                 return [
                     'allowed' => true, // Allow generation but track locally.
@@ -1953,7 +1953,7 @@ class installation_manager {
      */
     public function track_report_generation($reportkey, $isaigenerated = false) {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return false;
             }
 
@@ -1981,7 +1981,7 @@ class installation_manager {
      */
     public function track_report_deletion($reportkey, $isaigenerated = false) {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return false;
             }
 
@@ -2053,7 +2053,7 @@ class installation_manager {
      */
     public function track_export($format) {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return false;
             }
 
@@ -2076,7 +2076,7 @@ class installation_manager {
      */
     public function track_ai_credits($type, $amount) {
         try {
-            if (!$this->is_registered()) {
+            if (!$this->isregistered()) {
                 return false;
             }
 

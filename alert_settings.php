@@ -91,100 +91,129 @@ $recipientroles = get_config('report_adeptus_insights', 'alert_recipient_roles')
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('alert_settings', 'report_adeptus_insights'));
-?>
 
-<form method="post" action="<?php echo $PAGE->url; ?>" class="mform">
-    <input type="hidden" name="sesskey" value="<?php echo sesskey(); ?>">
+$component = 'report_adeptus_insights';
+$pageurl = $PAGE->url;
+$sesskeyval = sesskey();
+$yesstr = get_string('yes');
+$nostr = get_string('no');
+$enabledsel = $enabled ? 'selected' : '';
+$disabledsel = !$enabled ? 'selected' : '';
 
-    <fieldset>
-        <legend><?php echo get_string('alert_general_settings', 'report_adeptus_insights'); ?></legend>
+echo '<form method="post" action="' . $pageurl . '" class="mform">';
+echo '<input type="hidden" name="sesskey" value="' . $sesskeyval . '">';
+echo '<fieldset>';
+echo '<legend>' . get_string('alert_general_settings', $component) . '</legend>';
 
-        <div class="form-group row mb-3">
-            <label class="col-sm-3 col-form-label" for="alert_enabled">
-                <?php echo get_string('alert_enabled', 'report_adeptus_insights'); ?>
-            </label>
-            <div class="col-sm-9">
-                <select name="alert_enabled" id="alert_enabled" class="form-control custom-select">
-                    <option value="1" <?php echo $enabled ? 'selected' : ''; ?>><?php echo get_string('yes'); ?></option>
-                    <option value="0" <?php echo !$enabled ? 'selected' : ''; ?>><?php echo get_string('no'); ?></option>
-                </select>
-            </div>
-        </div>
+// Enabled field.
+echo '<div class="form-group row mb-3">';
+echo '<label class="col-sm-3 col-form-label" for="alert_enabled">';
+echo get_string('alert_enabled', $component);
+echo '</label>';
+echo '<div class="col-sm-9">';
+echo '<select name="alert_enabled" id="alert_enabled" class="form-control custom-select">';
+echo '<option value="1" ' . $enabledsel . '>' . $yesstr . '</option>';
+echo '<option value="0" ' . $disabledsel . '>' . $nostr . '</option>';
+echo '</select>';
+echo '</div></div>';
 
-        <div class="form-group row mb-3">
-            <label class="col-sm-3 col-form-label" for="alert_inactivity_days">
-                <?php echo get_string('alert_inactivity_days', 'report_adeptus_insights'); ?>
-            </label>
-            <div class="col-sm-9">
-                <input type="number" name="alert_inactivity_days" id="alert_inactivity_days"
-                       class="form-control" value="<?php echo $inactivitydays; ?>" min="1" max="365">
-                <small class="form-text text-muted"><?php echo get_string('alert_inactivity_days_desc', 'report_adeptus_insights'); ?></small>
-            </div>
-        </div>
+// Inactivity days field.
+echo '<div class="form-group row mb-3">';
+echo '<label class="col-sm-3 col-form-label" for="alert_inactivity_days">';
+echo get_string('alert_inactivity_days', $component);
+echo '</label>';
+echo '<div class="col-sm-9">';
+echo '<input type="number" name="alert_inactivity_days" id="alert_inactivity_days"';
+echo ' class="form-control" value="' . $inactivitydays . '" min="1" max="365">';
+echo '<small class="form-text text-muted">';
+echo get_string('alert_inactivity_days_desc', $component);
+echo '</small>';
+echo '</div></div>';
 
-        <div class="form-group row mb-3">
-            <label class="col-sm-3 col-form-label" for="alert_completion_threshold">
-                <?php echo get_string('alert_completion_threshold', 'report_adeptus_insights'); ?>
-            </label>
-            <div class="col-sm-9">
-                <input type="number" name="alert_completion_threshold" id="alert_completion_threshold"
-                       class="form-control" value="<?php echo $completionthreshold; ?>" min="1" max="100">
-                <small class="form-text text-muted"><?php echo get_string('alert_completion_threshold_desc', 'report_adeptus_insights'); ?></small>
-            </div>
-        </div>
+// Completion threshold field.
+echo '<div class="form-group row mb-3">';
+echo '<label class="col-sm-3 col-form-label" for="alert_completion_threshold">';
+echo get_string('alert_completion_threshold', $component);
+echo '</label>';
+echo '<div class="col-sm-9">';
+echo '<input type="number" name="alert_completion_threshold"';
+echo ' id="alert_completion_threshold"';
+echo ' class="form-control" value="' . $completionthreshold . '" min="1" max="100">';
+echo '<small class="form-text text-muted">';
+echo get_string('alert_completion_threshold_desc', $component);
+echo '</small>';
+echo '</div></div>';
 
-        <div class="form-group row mb-3">
-            <label class="col-sm-3 col-form-label" for="alert_frequency">
-                <?php echo get_string('alert_frequency', 'report_adeptus_insights'); ?>
-            </label>
-            <div class="col-sm-9">
-                <select name="alert_frequency" id="alert_frequency" class="form-control custom-select">
-                    <option value="daily" <?php echo $frequency === 'daily' ? 'selected' : ''; ?>><?php echo get_string('alert_freq_daily', 'report_adeptus_insights'); ?></option>
-                    <option value="weekly" <?php echo $frequency === 'weekly' ? 'selected' : ''; ?>><?php echo get_string('alert_freq_weekly', 'report_adeptus_insights'); ?></option>
-                    <option value="monthly" <?php echo $frequency === 'monthly' ? 'selected' : ''; ?>><?php echo get_string('alert_freq_monthly', 'report_adeptus_insights'); ?></option>
-                </select>
-            </div>
-        </div>
+// Frequency field.
+$dailysel = ($frequency === 'daily') ? 'selected' : '';
+$weeklysel = ($frequency === 'weekly') ? 'selected' : '';
+$monthlysel = ($frequency === 'monthly') ? 'selected' : '';
 
-        <div class="form-group row mb-3">
-            <label class="col-sm-3 col-form-label" for="alert_recipient_roles">
-                <?php echo get_string('alert_recipient_roles', 'report_adeptus_insights'); ?>
-            </label>
-            <div class="col-sm-9">
-                <?php
-                $allroles = ['manager' => get_string('manager', 'role'), 'editingteacher' => get_string('editingteacher', 'role'), 'teacher' => get_string('teacher', 'role')];
-                $selectedroles = array_map('trim', explode(',', $recipientroles));
-                foreach ($allroles as $shortname => $displayname) {
-                    $checked = in_array($shortname, $selectedroles) ? 'checked' : '';
-                    echo "<div class='form-check'>";
-                    echo "<input type='checkbox' class='form-check-input' name='roles[{$shortname}]' value='{$shortname}' {$checked} id='role_{$shortname}'>";
-                    echo "<label class='form-check-label' for='role_{$shortname}'>{$displayname}</label>";
-                    echo "</div>";
-                }
-                ?>
-                <input type="hidden" name="alert_recipient_roles" id="alert_recipient_roles" value="<?php echo s($recipientroles); ?>">
-                <small class="form-text text-muted"><?php echo get_string('alert_recipient_roles_desc', 'report_adeptus_insights'); ?></small>
-            </div>
-        </div>
-    </fieldset>
+echo '<div class="form-group row mb-3">';
+echo '<label class="col-sm-3 col-form-label" for="alert_frequency">';
+echo get_string('alert_frequency', $component);
+echo '</label>';
+echo '<div class="col-sm-9">';
+echo '<select name="alert_frequency" id="alert_frequency" class="form-control custom-select">';
+echo '<option value="daily" ' . $dailysel . '>';
+echo get_string('alert_freq_daily', $component) . '</option>';
+echo '<option value="weekly" ' . $weeklysel . '>';
+echo get_string('alert_freq_weekly', $component) . '</option>';
+echo '<option value="monthly" ' . $monthlysel . '>';
+echo get_string('alert_freq_monthly', $component) . '</option>';
+echo '</select>';
+echo '</div></div>';
 
-    <div class="form-group row">
-        <div class="col-sm-9 offset-sm-3">
-            <button type="submit" class="btn btn-primary"><?php echo get_string('savechanges'); ?></button>
-        </div>
-    </div>
-</form>
+// Recipient roles field.
+echo '<div class="form-group row mb-3">';
+echo '<label class="col-sm-3 col-form-label" for="alert_recipient_roles">';
+echo get_string('alert_recipient_roles', $component);
+echo '</label>';
+echo '<div class="col-sm-9">';
 
-<script>
+$allroles = [
+    'manager' => get_string('manager', 'role'),
+    'editingteacher' => get_string('editingteacher', 'role'),
+    'teacher' => get_string('teacher', 'role'),
+];
+$selectedroles = array_map('trim', explode(',', $recipientroles));
+foreach ($allroles as $shortname => $displayname) {
+    $checked = in_array($shortname, $selectedroles) ? 'checked' : '';
+    echo "<div class='form-check'>";
+    echo "<input type='checkbox' class='form-check-input'";
+    echo " name='roles[{$shortname}]' value='{$shortname}'";
+    echo " {$checked} id='role_{$shortname}'>";
+    echo "<label class='form-check-label'";
+    echo " for='role_{$shortname}'>{$displayname}</label>";
+    echo "</div>";
+}
+
+$escapedrecipient = s($recipientroles);
+echo '<input type="hidden" name="alert_recipient_roles"';
+echo ' id="alert_recipient_roles" value="' . $escapedrecipient . '">';
+echo '<small class="form-text text-muted">';
+echo get_string('alert_recipient_roles_desc', $component);
+echo '</small>';
+echo '</div></div>';
+
+echo '</fieldset>';
+
+echo '<div class="form-group row">';
+echo '<div class="col-sm-9 offset-sm-3">';
+echo '<button type="submit" class="btn btn-primary">';
+echo get_string('savechanges') . '</button>';
+echo '</div></div>';
+echo '</form>';
+
+echo '<script>';
 // Sync checkboxes to hidden field.
-document.querySelector('form').addEventListener('submit', function() {
-    var checked = [];
-    document.querySelectorAll('input[name^="roles["]:checked').forEach(function(cb) {
-        checked.push(cb.value);
-    });
-    document.getElementById('alert_recipient_roles').value = checked.join(',');
-});
-</script>
+echo 'document.querySelector(\'form\').addEventListener(\'submit\', function() {';
+echo '    var checked = [];';
+echo '    document.querySelectorAll(\'input[name^="roles["]:checked\')';
+echo '        .forEach(function(cb) { checked.push(cb.value); });';
+echo '    document.getElementById(\'alert_recipient_roles\')';
+echo '        .value = checked.join(\',\');';
+echo '});';
+echo '</script>';
 
-<?php
 echo $OUTPUT->footer();

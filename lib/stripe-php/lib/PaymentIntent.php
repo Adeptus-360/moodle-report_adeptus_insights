@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -57,6 +71,7 @@ namespace Stripe;
  * @property string $status Status of this PaymentIntent, one of <code>requires_payment_method</code>, <code>requires_confirmation</code>, <code>requires_action</code>, <code>processing</code>, <code>requires_capture</code>, <code>canceled</code>, or <code>succeeded</code>. Read more about each PaymentIntent <a href="https://stripe.com/docs/payments/intents#intent-statuses">status</a>.
  * @property null|\Stripe\StripeObject $transfer_data The data that automatically creates a Transfer after the payment finalizes. Learn more about the <a href="https://stripe.com/docs/payments/connected-accounts">use case for connected accounts</a>.
  * @property null|string $transfer_group A string that identifies the resulting payment as part of a group. Learn more about the <a href="https://stripe.com/docs/connect/separate-charges-and-transfers">use case for connected accounts</a>.
+ * @package report_adeptus_insights
  */
 class PaymentIntent extends ApiResource
 {
@@ -110,12 +125,11 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -132,8 +146,7 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\PaymentIntent> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -156,8 +169,7 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -182,12 +194,11 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -202,10 +213,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the applied payment intent
      */
-    public function applyCustomerBalance($params = null, $opts = null)
-    {
+    public function applyCustomerBalance($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/apply_customer_balance';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -219,10 +229,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the canceled payment intent
      */
-    public function cancel($params = null, $opts = null)
-    {
+    public function cancel($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -236,10 +245,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the captured payment intent
      */
-    public function capture($params = null, $opts = null)
-    {
+    public function capture($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/capture';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -253,10 +261,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the confirmed payment intent
      */
-    public function confirm($params = null, $opts = null)
-    {
+    public function confirm($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/confirm';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -270,10 +277,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the incremented payment intent
      */
-    public function incrementAuthorization($params = null, $opts = null)
-    {
+    public function incrementAuthorization($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/increment_authorization';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -287,10 +293,9 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\PaymentIntent the verified payment intent
      */
-    public function verifyMicrodeposits($params = null, $opts = null)
-    {
+    public function verifyMicrodeposits($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/verify_microdeposits';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -304,8 +309,7 @@ class PaymentIntent extends ApiResource
      *
      * @return \Stripe\SearchResult<\Stripe\PaymentIntent> the payment intent search results
      */
-    public static function search($params = null, $opts = null)
-    {
+    public static function search($params = null, $opts = null) {
         $url = '/v1/payment_intents/search';
 
         return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);

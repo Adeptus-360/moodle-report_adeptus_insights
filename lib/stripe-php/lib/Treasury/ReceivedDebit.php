@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -23,6 +37,7 @@ namespace Stripe\Treasury;
  * @property null|\Stripe\StripeObject $reversal_details Details describing when a ReceivedDebit might be reversed.
  * @property string $status Status of the ReceivedDebit. ReceivedDebits are created with a status of either <code>succeeded</code> (approved) or <code>failed</code> (declined). The failure reason can be found under the <code>failure_code</code>.
  * @property null|string|\Stripe\Treasury\Transaction $transaction The Transaction associated with this object.
+ * @package report_adeptus_insights
  */
 class ReceivedDebit extends \Stripe\ApiResource
 {
@@ -51,8 +66,7 @@ class ReceivedDebit extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Treasury\ReceivedDebit> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -69,8 +83,7 @@ class ReceivedDebit extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\ReceivedDebit
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();

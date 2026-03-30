@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\ApiOperations;
 
@@ -6,6 +20,7 @@ namespace Stripe\ApiOperations;
  * Trait for resources that need to make API requests.
  *
  * This trait should only be applied to classes that derive from StripeObject.
+ * @package report_adeptus_insights
  */
 trait Request
 {
@@ -14,8 +29,7 @@ trait Request
      *
      * @throws \Stripe\Exception\InvalidArgumentException if $params exists and is not an array
      */
-    protected static function _validateParams($params = null)
-    {
+    protected static function _validateParams($params = null) {
         if ($params && !\is_array($params)) {
             $message = 'You must pass an array as the first argument to Stripe API '
                 . 'method calls.  (HINT: an example call to create a charge '
@@ -38,10 +52,9 @@ trait Request
      *
      * @return array tuple containing (the JSON response, $options)
      */
-    protected function _request($method, $url, $params = [], $options = null, $usage = [], $apiMode = 'v1')
-    {
+    protected function _request($method, $url, $params = [], $options = null, $usage = [], $apiMode = 'v1') {
         $opts = $this->_opts->merge($options);
-        list($resp, $options) = static::_staticRequest($method, $url, $params, $opts, $usage, $apiMode);
+        [$resp, $options] = static::_staticRequest($method, $url, $params, $opts, $usage, $apiMode);
         $this->setLastResponse($resp);
 
         return [$resp->json, $options];
@@ -58,11 +71,10 @@ trait Request
      *
      * @return \Stripe\Collection|\Stripe\SearchResult
      */
-    protected static function _requestPage($url, $resultClass, $params = null, $options = null, $usage = [])
-    {
+    protected static function _requestPage($url, $resultClass, $params = null, $options = null, $usage = []) {
         self::_validateParams($params);
 
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $options, $usage);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $options, $usage);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         if (!($obj instanceof $resultClass)) {
             throw new \Stripe\Exception\UnexpectedValueException(
@@ -85,8 +97,7 @@ trait Request
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      */
-    protected function _requestStream($method, $url, $readBodyChunk, $params = [], $options = null, $usage = [])
-    {
+    protected function _requestStream($method, $url, $readBodyChunk, $params = [], $options = null, $usage = []) {
         $opts = $this->_opts->merge($options);
         static::_staticStreamingRequest($method, $url, $readBodyChunk, $params, $opts, $usage);
     }
@@ -103,12 +114,11 @@ trait Request
      *
      * @return array tuple containing (the JSON response, $options)
      */
-    protected static function _staticRequest($method, $url, $params, $options, $usage = [], $apiMode = 'v1')
-    {
+    protected static function _staticRequest($method, $url, $params, $options, $usage = [], $apiMode = 'v1') {
         $opts = \Stripe\Util\RequestOptions::parse($options);
         $baseUrl = isset($opts->apiBase) ? $opts->apiBase : static::baseUrl();
         $requestor = new \Stripe\ApiRequestor($opts->apiKey, $baseUrl);
-        list($response, $opts->apiKey) = $requestor->request($method, $url, $params, $opts->headers, $apiMode, $usage);
+        [$response, $opts->apiKey] = $requestor->request($method, $url, $params, $opts->headers, $apiMode, $usage);
         $opts->discardNonPersistentHeaders();
 
         return [$response, $opts];
@@ -124,8 +134,7 @@ trait Request
      *
      * @throws \Stripe\Exception\ApiErrorException if the request fails
      */
-    protected static function _staticStreamingRequest($method, $url, $readBodyChunk, $params, $options, $usage = [])
-    {
+    protected static function _staticStreamingRequest($method, $url, $readBodyChunk, $params, $options, $usage = []) {
         $opts = \Stripe\Util\RequestOptions::parse($options);
         $baseUrl = isset($opts->apiBase) ? $opts->apiBase : static::baseUrl();
         $requestor = new \Stripe\ApiRequestor($opts->apiKey, $baseUrl);

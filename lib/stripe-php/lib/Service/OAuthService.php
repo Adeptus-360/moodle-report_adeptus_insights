@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\Service;
 
@@ -14,8 +28,7 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\StripeObject the object returned by Stripe's Connect API
      */
-    protected function requestConnect($method, $path, $params, $opts)
-    {
+    protected function requestConnect($method, $path, $params, $opts) {
         $opts = $this->_parseOpts($opts);
         $opts->apiBase = $this->_getBase($opts);
 
@@ -30,8 +43,7 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return string the URL to Stripe's OAuth form
      */
-    public function authorizeUrl($params = null, $opts = null)
-    {
+    public function authorizeUrl($params = null, $opts = null) {
         $params = $params ?: [];
 
         $opts = $this->_parseOpts($opts);
@@ -57,8 +69,7 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\StripeObject object containing the response from the API
      */
-    public function token($params = null, $opts = null)
-    {
+    public function token($params = null, $opts = null) {
         $params = $params ?: [];
         $params['client_secret'] = $this->_getClientSecret($params);
 
@@ -75,16 +86,14 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\StripeObject object containing the response from the API
      */
-    public function deauthorize($params = null, $opts = null)
-    {
+    public function deauthorize($params = null, $opts = null) {
         $params = $params ?: [];
         $params['client_id'] = $this->_getClientId($params);
 
         return $this->requestConnect('post', '/oauth/deauthorize', $params, $opts);
     }
 
-    private function _getClientId($params = null)
-    {
+    private function _getClientId($params = null) {
         $clientId = ($params && \array_key_exists('client_id', $params)) ? $params['client_id'] : null;
 
         if (null === $clientId) {
@@ -106,8 +115,7 @@ class OAuthService extends \Stripe\Service\AbstractService
         return $clientId;
     }
 
-    private function _getClientSecret($params = null)
-    {
+    private function _getClientSecret($params = null) {
         if (\array_key_exists('client_secret', $params)) {
             return $params['client_secret'];
         }
@@ -122,8 +130,7 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Util\RequestOptions
      */
-    private function _parseOpts($opts)
-    {
+    private function _parseOpts($opts) {
         if (\is_array($opts)) {
             if (\array_key_exists('connect_base', $opts)) {
                 // Throw an exception for the convenience of anybody migrating to
@@ -141,8 +148,7 @@ class OAuthService extends \Stripe\Service\AbstractService
      *
      * @return string
      */
-    private function _getBase($opts)
-    {
+    private function _getBase($opts) {
         return isset($opts->apiBase) ?
           $opts->apiBase :
           $this->client->getConnectBase();

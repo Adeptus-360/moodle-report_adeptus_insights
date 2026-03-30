@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -7,6 +21,7 @@ namespace Stripe\Service;
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ * @package report_adeptus_insights
  */
 class CustomerService extends \Stripe\Service\AbstractService
 {
@@ -21,8 +36,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Customer>
      */
-    public function all($params = null, $opts = null)
-    {
+    public function all($params = null, $opts = null) {
         return $this->requestCollection('get', '/v1/customers', $params, $opts);
     }
 
@@ -38,8 +52,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\CustomerBalanceTransaction>
      */
-    public function allBalanceTransactions($parentId, $params = null, $opts = null)
-    {
+    public function allBalanceTransactions($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/customers/%s/balance_transactions', $parentId), $params, $opts);
     }
 
@@ -55,8 +68,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\CustomerCashBalanceTransaction>
      */
-    public function allCashBalanceTransactions($parentId, $params = null, $opts = null)
-    {
+    public function allCashBalanceTransactions($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/customers/%s/cash_balance_transactions', $parentId), $params, $opts);
     }
 
@@ -71,8 +83,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\PaymentMethod>
      */
-    public function allPaymentMethods($id, $params = null, $opts = null)
-    {
+    public function allPaymentMethods($id, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/customers/%s/payment_methods', $id), $params, $opts);
     }
 
@@ -87,8 +98,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source>
      */
-    public function allSources($parentId, $params = null, $opts = null)
-    {
+    public function allSources($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/customers/%s/sources', $parentId), $params, $opts);
     }
 
@@ -103,8 +113,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\TaxId>
      */
-    public function allTaxIds($parentId, $params = null, $opts = null)
-    {
+    public function allTaxIds($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/customers/%s/tax_ids', $parentId), $params, $opts);
     }
 
@@ -118,8 +127,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Customer
      */
-    public function create($params = null, $opts = null)
-    {
+    public function create($params = null, $opts = null) {
         return $this->request('post', '/v1/customers', $params, $opts);
     }
 
@@ -135,8 +143,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public function createBalanceTransaction($parentId, $params = null, $opts = null)
-    {
+    public function createBalanceTransaction($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/balance_transactions', $parentId), $params, $opts);
     }
 
@@ -155,8 +162,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\FundingInstructions
      */
-    public function createFundingInstructions($id, $params = null, $opts = null)
-    {
+    public function createFundingInstructions($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/funding_instructions', $id), $params, $opts);
     }
 
@@ -177,8 +183,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public function createSource($parentId, $params = null, $opts = null)
-    {
+    public function createSource($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/sources', $parentId), $params, $opts);
     }
 
@@ -193,8 +198,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\TaxId
      */
-    public function createTaxId($parentId, $params = null, $opts = null)
-    {
+    public function createTaxId($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/tax_ids', $parentId), $params, $opts);
     }
 
@@ -210,8 +214,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Customer
      */
-    public function delete($id, $params = null, $opts = null)
-    {
+    public function delete($id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/customers/%s', $id), $params, $opts);
     }
 
@@ -226,8 +229,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Discount
      */
-    public function deleteDiscount($id, $params = null, $opts = null)
-    {
+    public function deleteDiscount($id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/customers/%s/discount', $id), $params, $opts);
     }
 
@@ -243,8 +245,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public function deleteSource($parentId, $id, $params = null, $opts = null)
-    {
+    public function deleteSource($parentId, $id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/customers/%s/sources/%s', $parentId, $id), $params, $opts);
     }
 
@@ -260,8 +261,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\TaxId
      */
-    public function deleteTaxId($parentId, $id, $params = null, $opts = null)
-    {
+    public function deleteTaxId($parentId, $id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/customers/%s/tax_ids/%s', $parentId, $id), $params, $opts);
     }
 
@@ -276,8 +276,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Customer
      */
-    public function retrieve($id, $params = null, $opts = null)
-    {
+    public function retrieve($id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s', $id), $params, $opts);
     }
 
@@ -294,8 +293,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public function retrieveBalanceTransaction($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveBalanceTransaction($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/balance_transactions/%s', $parentId, $id), $params, $opts);
     }
 
@@ -310,8 +308,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CashBalance
      */
-    public function retrieveCashBalance($parentId, $params = null, $opts = null)
-    {
+    public function retrieveCashBalance($parentId, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/cash_balance', $parentId), $params, $opts);
     }
 
@@ -328,8 +325,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CustomerCashBalanceTransaction
      */
-    public function retrieveCashBalanceTransaction($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveCashBalanceTransaction($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/cash_balance_transactions/%s', $parentId, $id), $params, $opts);
     }
 
@@ -345,8 +341,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\PaymentMethod
      */
-    public function retrievePaymentMethod($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrievePaymentMethod($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/payment_methods/%s', $parentId, $id), $params, $opts);
     }
 
@@ -362,8 +357,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public function retrieveSource($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveSource($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/sources/%s', $parentId, $id), $params, $opts);
     }
 
@@ -379,8 +373,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\TaxId
      */
-    public function retrieveTaxId($parentId, $id, $params = null, $opts = null)
-    {
+    public function retrieveTaxId($parentId, $id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/customers/%s/tax_ids/%s', $parentId, $id), $params, $opts);
     }
 
@@ -399,8 +392,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\SearchResult<\Stripe\Customer>
      */
-    public function search($params = null, $opts = null)
-    {
+    public function search($params = null, $opts = null) {
         return $this->requestSearchResult('get', '/v1/customers/search', $params, $opts);
     }
 
@@ -427,8 +419,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Customer
      */
-    public function update($id, $params = null, $opts = null)
-    {
+    public function update($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s', $id), $params, $opts);
     }
 
@@ -445,8 +436,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CustomerBalanceTransaction
      */
-    public function updateBalanceTransaction($parentId, $id, $params = null, $opts = null)
-    {
+    public function updateBalanceTransaction($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/balance_transactions/%s', $parentId, $id), $params, $opts);
     }
 
@@ -461,8 +451,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\CashBalance
      */
-    public function updateCashBalance($parentId, $params = null, $opts = null)
-    {
+    public function updateCashBalance($parentId, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/cash_balance', $parentId), $params, $opts);
     }
 
@@ -478,8 +467,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public function updateSource($parentId, $id, $params = null, $opts = null)
-    {
+    public function updateSource($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/sources/%s', $parentId, $id), $params, $opts);
     }
 
@@ -495,8 +483,7 @@ class CustomerService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Account|\Stripe\BankAccount|\Stripe\Card|\Stripe\Source
      */
-    public function verifySource($parentId, $id, $params = null, $opts = null)
-    {
+    public function verifySource($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/customers/%s/sources/%s/verify', $parentId, $id), $params, $opts);
     }
 }

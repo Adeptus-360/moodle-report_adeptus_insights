@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
@@ -24,6 +38,7 @@ namespace Stripe;
  * @property int $total_count
  * @property bool $has_more
  * @property TStripeObject[] $data
+ * @package report_adeptus_insights
  */
 class SearchResult extends StripeObject implements \Countable, \IteratorAggregate
 {
@@ -37,8 +52,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
     /**
      * @return string the base URL for the given class
      */
-    public static function baseUrl()
-    {
+    public static function baseUrl() {
         return Stripe::$apiBase;
     }
 
@@ -47,8 +61,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return array the filters
      */
-    public function getFilters()
-    {
+    public function getFilters() {
         return $this->filters;
     }
 
@@ -57,8 +70,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @param array $filters the filters
      */
-    public function setFilters($filters)
-    {
+    public function setFilters($filters) {
         $this->filters = $filters;
     }
 
@@ -66,8 +78,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($k)
-    {
+    public function offsetGet($k) {
         if (\is_string($k)) {
             return parent::offsetGet($k);
         }
@@ -87,16 +98,15 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return SearchResult<TStripeObject>
      */
-    public function all($params = null, $opts = null)
-    {
+    public function all($params = null, $opts = null) {
         self::_validateParams($params);
-        list($url, $params) = $this->extractPathAndUpdateParams($params);
+        [$url, $params] = $this->extractPathAndUpdateParams($params);
 
-        list($response, $opts) = $this->_request('get', $url, $params, $opts);
+        [$response, $opts] = $this->_request('get', $url, $params, $opts);
         $obj = Util\Util::convertToStripeObject($response, $opts);
         if (!($obj instanceof \Stripe\SearchResult)) {
             throw new \Stripe\Exception\UnexpectedValueException(
-                'Expected type ' . \Stripe\SearchResult::class . ', got "' . \get_class($obj) . '" instead.'
+                'Expected type ' . self::class . ', got "' . \get_class($obj) . '" instead.'
             );
         }
         $obj->setFilters($params);
@@ -108,8 +118,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      * @return int the number of objects in the current page
      */
     #[\ReturnTypeWillChange]
-    public function count()
-    {
+    public function count() {
         return \count($this->data);
     }
 
@@ -118,8 +127,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *    across objects in the current page
      */
     #[\ReturnTypeWillChange]
-    public function getIterator()
-    {
+    public function getIterator() {
         return new \ArrayIterator($this->data);
     }
 
@@ -131,8 +139,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *    encountered, the next page will be fetched automatically for
      *    continued iteration.
      */
-    public function autoPagingIterator()
-    {
+    public function autoPagingIterator() {
         $page = $this;
 
         while (true) {
@@ -157,9 +164,8 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return SearchResult
      */
-    public static function emptySearchResult($opts = null)
-    {
-        return SearchResult::constructFrom(['data' => []], $opts);
+    public static function emptySearchResult($opts = null) {
+        return self::constructFrom(['data' => []], $opts);
     }
 
     /**
@@ -167,8 +173,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return bool
      */
-    public function isEmpty()
-    {
+    public function isEmpty() {
         return empty($this->data);
     }
 
@@ -185,8 +190,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return SearchResult<TStripeObject>
      */
-    public function nextPage($params = null, $opts = null)
-    {
+    public function nextPage($params = null, $opts = null) {
         if (!$this->has_more) {
             return static::emptySearchResult($opts);
         }
@@ -205,8 +209,7 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return null|TStripeObject
      */
-    public function first()
-    {
+    public function first() {
         return \count($this->data) > 0 ? $this->data[0] : null;
     }
 
@@ -215,13 +218,11 @@ class SearchResult extends StripeObject implements \Countable, \IteratorAggregat
      *
      * @return null|TStripeObject
      */
-    public function last()
-    {
+    public function last() {
         return \count($this->data) > 0 ? $this->data[\count($this->data) - 1] : null;
     }
 
-    private function extractPathAndUpdateParams($params)
-    {
+    private function extractPathAndUpdateParams($params) {
         $url = \parse_url($this->url);
 
         if (!isset($url['path'])) {

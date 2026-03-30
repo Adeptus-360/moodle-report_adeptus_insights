@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -58,6 +72,7 @@ namespace Stripe;
  * @property null|string|\Stripe\Transfer $transfer ID of the transfer to the <code>destination</code> account (only applicable if the charge was created using the <code>destination</code> parameter).
  * @property null|\Stripe\StripeObject $transfer_data An optional dictionary including the account to automatically transfer to as part of a destination charge. <a href="https://stripe.com/docs/connect/destination-charges">See the Connect documentation</a> for details.
  * @property null|string $transfer_group A string that identifies this transaction as part of a group. See the <a href="https://stripe.com/docs/connect/separate-charges-and-transfers#transfer-options">Connect documentation</a> for details.
+ * @package report_adeptus_insights
  */
 class Charge extends ApiResource
 {
@@ -83,12 +98,11 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Charge the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -106,8 +120,7 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Charge> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -126,8 +139,7 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Charge
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -147,12 +159,11 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Charge the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -220,10 +231,9 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Charge the captured charge
      */
-    public function capture($params = null, $opts = null)
-    {
+    public function capture($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/capture';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -237,8 +247,7 @@ class Charge extends ApiResource
      *
      * @return \Stripe\SearchResult<\Stripe\Charge> the charge search results
      */
-    public static function search($params = null, $opts = null)
-    {
+    public static function search($params = null, $opts = null) {
         $url = '/v1/charges/search';
 
         return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
@@ -255,8 +264,7 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Refund> the list of refunds
      */
-    public static function allRefunds($id, $params = null, $opts = null)
-    {
+    public static function allRefunds($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_REFUNDS, $params, $opts);
     }
 
@@ -270,8 +278,7 @@ class Charge extends ApiResource
      *
      * @return \Stripe\Refund
      */
-    public static function retrieveRefund($id, $refundId, $params = null, $opts = null)
-    {
+    public static function retrieveRefund($id, $refundId, $params = null, $opts = null) {
         return self::_retrieveNestedResource($id, static::PATH_REFUNDS, $refundId, $params, $opts);
     }
 }

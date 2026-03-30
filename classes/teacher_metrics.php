@@ -24,7 +24,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Teacher metrics helper for generating teacher-specific SQL queries.
@@ -37,7 +36,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_metrics {
-
     /** @var int Role ID for editing teacher. */
     const ROLE_EDITING_TEACHER = 3;
 

@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -40,6 +54,7 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $networks
  * @property null|string $status For external accounts that are cards, possible values are <code>new</code> and <code>errored</code>. If a payout fails, the status is set to <code>errored</code> and <a href="https://stripe.com/docs/payouts#payout-schedule">scheduled payouts</a> are stopped until account details are updated.
  * @property null|string $tokenization_method If the card number is tokenized, this is the method that was used. Can be <code>android_pay</code> (includes Google Pay), <code>apple_pay</code>, <code>masterpass</code>, <code>visa_checkout</code>, or null.
+ * @package report_adeptus_insights
  */
 class Card extends ApiResource
 {
@@ -55,12 +70,11 @@ class Card extends ApiResource
      *
      * @return \Stripe\Card the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -99,13 +113,12 @@ class Card extends ApiResource
      *    cased because cards are nested resources that may belong to different
      *    top-level resources.
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         if ($this['customer']) {
             $base = Customer::classUrl();
             $parent = $this['customer'];
             $path = 'sources';
-        } elseif ($this['account']) {
+        } else if ($this['account']) {
             $base = Account::classUrl();
             $parent = $this['account'];
             $path = 'external_accounts';
@@ -126,8 +139,7 @@ class Card extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Cards cannot be retrieved without a customer ID or an ' .
                'account ID. Retrieve a card using ' .
                "`Customer::retrieveSource('customer_id', 'card_id')` or " .
@@ -143,8 +155,7 @@ class Card extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Cards cannot be updated without a customer ID or an ' .
                'account ID. Update a card using ' .
                "`Customer::updateSource('customer_id', 'card_id', " .
@@ -165,12 +176,11 @@ class Card extends ApiResource
      *     future major version of the library. Use the static method `update`
      *     on the resource instead.
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         $params = $this->serializeParameters();
         if (\count($params) > 0) {
             $url = $this->instanceUrl();
-            list($response, $opts) = $this->_request('post', $url, $params, $opts, ['save']);
+            [$response, $opts] = $this->_request('post', $url, $params, $opts, ['save']);
             $this->refreshFrom($response, $opts);
         }
 

@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -43,6 +57,7 @@ namespace Stripe;
  * @property null|string|\Stripe\TestHelpers\TestClock $test_clock ID of the test clock this quote belongs to.
  * @property \Stripe\StripeObject $total_details
  * @property null|\Stripe\StripeObject $transfer_data The account (if any) the payments will be attributed to for tax reporting, and where funds from each payment will be transferred to for each of the invoices.
+ * @package report_adeptus_insights
  */
 class Quote extends ApiResource
 {
@@ -71,12 +86,11 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -93,8 +107,7 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Quote> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -110,8 +123,7 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -130,12 +142,11 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -150,10 +161,9 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote the accepted quote
      */
-    public function accept($params = null, $opts = null)
-    {
+    public function accept($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/accept';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -167,10 +177,9 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote the canceled quote
      */
-    public function cancel($params = null, $opts = null)
-    {
+    public function cancel($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -184,10 +193,9 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Quote the finalized quote
      */
-    public function finalizeQuote($params = null, $opts = null)
-    {
+    public function finalizeQuote($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/finalize';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -202,10 +210,9 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\LineItem> list of line items
      */
-    public static function allComputedUpfrontLineItems($id, $params = null, $opts = null)
-    {
+    public static function allComputedUpfrontLineItems($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/computed_upfront_line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -221,10 +228,9 @@ class Quote extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\LineItem> list of line items
      */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
+    public static function allLineItems($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -240,8 +246,7 @@ class Quote extends ApiResource
      *
      * @return void
      */
-    public function pdf($readBodyChunkCallable, $params = null, $opts = null)
-    {
+    public function pdf($readBodyChunkCallable, $params = null, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         if (!isset($opts->apiBase)) {
             $opts->apiBase = \Stripe\Stripe::$apiUploadBase;

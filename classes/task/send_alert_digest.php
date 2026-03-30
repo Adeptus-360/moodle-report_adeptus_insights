@@ -26,7 +26,6 @@ namespace report_adeptus_insights\task;
 
 use report_adeptus_insights\alert_engine;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Scheduled task: send at-risk learner digest emails.
@@ -36,7 +35,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_alert_digest extends \core\task\scheduled_task {
-
     /**
      * Return task name.
      * @return string

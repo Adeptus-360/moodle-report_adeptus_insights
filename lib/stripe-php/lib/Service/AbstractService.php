@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\Service;
 
 /**
  * Abstract base class for all services.
+ * @package report_adeptus_insights
  */
 abstract class AbstractService
 {
@@ -22,8 +37,7 @@ abstract class AbstractService
      *
      * @param \Stripe\StripeClientInterface $client
      */
-    public function __construct($client)
-    {
+    public function __construct($client) {
         $this->client = $client;
         $this->streamingClient = $client;
     }
@@ -33,8 +47,7 @@ abstract class AbstractService
      *
      * @return \Stripe\StripeClientInterface
      */
-    public function getClient()
-    {
+    public function getClient() {
         return $this->client;
     }
 
@@ -43,8 +56,7 @@ abstract class AbstractService
      *
      * @return \Stripe\StripeStreamingClientInterface
      */
-    public function getStreamingClient()
-    {
+    public function getStreamingClient() {
         return $this->streamingClient;
     }
 
@@ -56,8 +68,7 @@ abstract class AbstractService
      *
      * @param null|array $params
      */
-    private static function formatParams($params)
-    {
+    private static function formatParams($params) {
         if (null === $params) {
             return null;
         }
@@ -70,34 +81,29 @@ abstract class AbstractService
         return $params;
     }
 
-    protected function request($method, $path, $params, $opts)
-    {
+    protected function request($method, $path, $params, $opts) {
         return $this->getClient()->request($method, $path, self::formatParams($params), $opts);
     }
 
-    protected function requestStream($method, $path, $readBodyChunkCallable, $params, $opts)
-    {
+    protected function requestStream($method, $path, $readBodyChunkCallable, $params, $opts) {
         // TODO (MAJOR): Add this method to StripeClientInterface
         // @phpstan-ignore-next-line
         return $this->getStreamingClient()->requestStream($method, $path, $readBodyChunkCallable, self::formatParams($params), $opts);
     }
 
-    protected function requestCollection($method, $path, $params, $opts)
-    {
+    protected function requestCollection($method, $path, $params, $opts) {
         // TODO (MAJOR): Add this method to StripeClientInterface
         // @phpstan-ignore-next-line
         return $this->getClient()->requestCollection($method, $path, self::formatParams($params), $opts);
     }
 
-    protected function requestSearchResult($method, $path, $params, $opts)
-    {
+    protected function requestSearchResult($method, $path, $params, $opts) {
         // TODO (MAJOR): Add this method to StripeClientInterface
         // @phpstan-ignore-next-line
         return $this->getClient()->requestSearchResult($method, $path, self::formatParams($params), $opts);
     }
 
-    protected function buildPath($basePath, ...$ids)
-    {
+    protected function buildPath($basePath, ...$ids) {
         foreach ($ids as $id) {
             if (null === $id || '' === \trim($id)) {
                 $msg = 'The resource ID cannot be null or whitespace.';

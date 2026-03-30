@@ -280,7 +280,9 @@ class execute_ai_report extends external_api {
         $maxpasses = 10;
         for ($i = 0; $i < $maxpasses; $i++) {
             $newsql = preg_replace_callback(
-                '/\bIF\s*\(([^(),]+(?:\([^()]*\))?[^(),]*),\s*([^(),]+(?:\([^()]*\))?[^(),]*),\s*([^(),]+(?:\([^()]*\))?[^(),]*)\)/i',
+                '/\bIF\s*\(([^(),]+(?:\([^()]*\))?[^(),]*),' .
+                '\s*([^(),]+(?:\([^()]*\))?[^(),]*),' .
+                '\s*([^(),]+(?:\([^()]*\))?[^(),]*)\)/i',
                 function ($matches) {
                     return 'CASE WHEN ' . trim($matches[1]) . ' THEN ' . trim($matches[2]) . ' ELSE ' . trim($matches[3]) . ' END';
                 },

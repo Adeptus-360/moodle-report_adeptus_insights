@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -21,6 +35,7 @@ namespace Stripe\Terminal;
  * @property \Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property string $serial_number Serial number of the reader.
  * @property null|string $status The networking status of the reader. We do not recommend using this field in flows that may block taking payments.
+ * @package report_adeptus_insights
  */
 class Reader extends \Stripe\ApiResource
 {
@@ -50,12 +65,11 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -72,12 +86,11 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -93,8 +106,7 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Terminal\Reader> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -110,8 +122,7 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -131,12 +142,11 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -151,10 +161,9 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the canceled reader
      */
-    public function cancelAction($params = null, $opts = null)
-    {
+    public function cancelAction($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/cancel_action';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -168,10 +177,9 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the processed reader
      */
-    public function processPaymentIntent($params = null, $opts = null)
-    {
+    public function processPaymentIntent($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/process_payment_intent';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -185,10 +193,9 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the processed reader
      */
-    public function processSetupIntent($params = null, $opts = null)
-    {
+    public function processSetupIntent($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/process_setup_intent';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -202,10 +209,9 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the refunded reader
      */
-    public function refundPayment($params = null, $opts = null)
-    {
+    public function refundPayment($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/refund_payment';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -219,10 +225,9 @@ class Reader extends \Stripe\ApiResource
      *
      * @return \Stripe\Terminal\Reader the seted reader
      */
-    public function setReaderDisplay($params = null, $opts = null)
-    {
+    public function setReaderDisplay($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/set_reader_display';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

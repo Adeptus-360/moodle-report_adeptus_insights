@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -21,6 +35,7 @@ namespace Stripe;
  * @property \Stripe\Source $source <p><code>Source</code> objects allow you to accept a variety of payment methods. They represent a customer's payment instrument, and can be used with the Stripe API just like a <code>Card</code> object: once chargeable, they can be charged, or can be attached to customers.</p><p>Stripe doesn't recommend using the deprecated <a href="https://stripe.com/docs/api/sources">Sources API</a>. We recommend that you adopt the <a href="https://stripe.com/docs/api/payment_methods">PaymentMethods API</a>. This newer API provides access to our latest features and payment method types.</p><p>Related guides: <a href="https://stripe.com/docs/sources">Sources API</a> and <a href="https://stripe.com/docs/sources/customers">Sources &amp; Customers</a>.</p>
  * @property string $status The status of the mandate notification. Valid statuses are <code>pending</code> or <code>submitted</code>.
  * @property string $type The type of source this mandate notification is attached to. Should be the source type identifier code for the payment method, such as <code>three_d_secure</code>.
+ * @package report_adeptus_insights
  */
 class SourceMandateNotification extends ApiResource
 {

@@ -38,7 +38,6 @@ use report_adeptus_insights\branding_manager;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class scheduled_report_template {
-
     /** @var int Column threshold for switching to landscape orientation. */
     const LANDSCAPE_THRESHOLD = 6;
 
@@ -85,7 +84,7 @@ class scheduled_report_template {
             }
 
             // Format headers.
-            $formattedheaders = array_map(function($h) {
+            $formattedheaders = array_map(function ($h) {
                 return ucwords(str_replace('_', ' ', $h));
             }, $columns);
 

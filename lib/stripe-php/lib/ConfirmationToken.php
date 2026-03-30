@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -27,6 +41,7 @@ namespace Stripe;
  * @property null|string $setup_intent ID of the SetupIntent that this ConfirmationToken was used to confirm, or null if this ConfirmationToken has not yet been used.
  * @property null|\Stripe\StripeObject $shipping Shipping information collected on this ConfirmationToken.
  * @property bool $use_stripe_sdk Indicates whether the Stripe SDK is used to handle confirmation flow. Defaults to <code>true</code> on ConfirmationToken.
+ * @package report_adeptus_insights
  */
 class ConfirmationToken extends ApiResource
 {
@@ -45,8 +60,7 @@ class ConfirmationToken extends ApiResource
      *
      * @return \Stripe\ConfirmationToken
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();

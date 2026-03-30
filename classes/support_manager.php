@@ -32,7 +32,7 @@ namespace report_adeptus_insights;
  */
 class support_manager {
     /** @var installation_manager */
-    private $installation_manager;
+    private $installationmanager;
 
     /** @var string Product key for changelog lookups */
     private const PRODUCT_KEY = 'insights';
@@ -67,7 +67,7 @@ class support_manager {
      * Constructor.
      */
     public function __construct() {
-        $this->installation_manager = new installation_manager();
+        $this->installationmanager = new installation_manager();
     }
 
     /**
@@ -76,7 +76,7 @@ class support_manager {
      * @return bool
      */
     public function is_available(): bool {
-        return $this->installation_manager->is_registered();
+        return $this->installationmanager->is_registered();
     }
 
     /**
@@ -171,7 +171,7 @@ class support_manager {
                 $response = $this->make_multipart_request('support/tickets', $data, $attachments);
             } else {
                 // Standard JSON request without files.
-                $response = $this->installation_manager->make_api_request('support/tickets', $data);
+                $response = $this->installationmanager->make_api_request('support/tickets', $data);
             }
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -204,8 +204,8 @@ class support_manager {
      * @return array|null Response data
      */
     protected function make_multipart_request(string $endpoint, array $data, array $files): ?array {
-        $apiurl = $this->installation_manager->get_api_url();
-        $apikey = $this->installation_manager->get_api_key();
+        $apiurl = $this->installationmanager->get_api_url();
+        $apikey = $this->installationmanager->get_api_key();
         $url = $apiurl . '/' . $endpoint;
 
         // Use Moodle's curl wrapper.
@@ -313,7 +313,7 @@ class support_manager {
                 $endpoint .= '?' . http_build_query($params);
             }
 
-            $response = $this->installation_manager->make_api_request($endpoint, [], 'GET');
+            $response = $this->installationmanager->make_api_request($endpoint, [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -352,7 +352,7 @@ class support_manager {
         }
 
         try {
-            $response = $this->installation_manager->make_api_request("support/tickets/{$ticketid}", [], 'GET');
+            $response = $this->installationmanager->make_api_request("support/tickets/{$ticketid}", [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -426,7 +426,7 @@ class support_manager {
                 $response = $this->make_multipart_request("support/tickets/{$ticketid}/reply", $data, $attachments);
             } else {
                 // Standard JSON request without files.
-                $response = $this->installation_manager->make_api_request("support/tickets/{$ticketid}/reply", $data);
+                $response = $this->installationmanager->make_api_request("support/tickets/{$ticketid}/reply", $data);
             }
 
             if ($response && isset($response['success']) && $response['success']) {
@@ -468,7 +468,7 @@ class support_manager {
                 $endpoint .= '?' . http_build_query($params);
             }
 
-            $response = $this->installation_manager->make_api_request($endpoint, [], 'GET');
+            $response = $this->installationmanager->make_api_request($endpoint, [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [
@@ -502,12 +502,12 @@ class support_manager {
     public function check_for_updates(?string $currentversion = null): array {
         try {
             if ($currentversion === null) {
-                $currentversion = $this->installation_manager->get_plugin_version();
+                $currentversion = $this->installationmanager->get_plugin_version();
             }
 
             $endpoint = 'updates/check/' . self::PRODUCT_KEY . '?version=' . urlencode($currentversion);
 
-            $response = $this->installation_manager->make_api_request($endpoint, [], 'GET');
+            $response = $this->installationmanager->make_api_request($endpoint, [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 return [

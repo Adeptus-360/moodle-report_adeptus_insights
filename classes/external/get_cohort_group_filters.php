@@ -46,7 +46,6 @@ use external_value;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_cohort_group_filters extends external_api {
-
     /**
      * Returns description of method parameters.
      *
@@ -109,8 +108,12 @@ class get_cohort_group_filters extends external_api {
         foreach ($categories as $category) {
             $catcontext = \context_coursecat::instance($category->id, IGNORE_MISSING);
             if ($catcontext && has_capability('moodle/cohort:view', $catcontext)) {
-                $records = $DB->get_records('cohort', ['contextid' => $catcontext->id], 'name ASC',
-                    'id, name, idnumber, description, contextid');
+                $records = $DB->get_records(
+                    'cohort',
+                    ['contextid' => $catcontext->id],
+                    'name ASC',
+                    'id, name, idnumber, description, contextid'
+                );
                 foreach ($records as $record) {
                     $membercount = $DB->count_records('cohort_members', ['cohortid' => $record->id]);
                     $cohorts[] = [
@@ -168,8 +171,12 @@ class get_cohort_group_filters extends external_api {
 
             $canviewall = has_capability('moodle/site:accessallgroups', $coursecontext);
             if ($canviewall) {
-                $coursegroups = $DB->get_records('groups', ['courseid' => $course->id], 'name ASC',
-                    'id, name, courseid, idnumber');
+                $coursegroups = $DB->get_records(
+                    'groups',
+                    ['courseid' => $course->id],
+                    'name ASC',
+                    'id, name, courseid, idnumber'
+                );
             } else {
                 // Only groups the user belongs to.
                 $sql = "SELECT g.id, g.name, g.courseid, g.idnumber

@@ -32,13 +32,13 @@ namespace report_adeptus_insights;
  */
 class error_handler {
     /** @var array Error code definitions. */
-    private $error_codes;
+    private $errorcodes;
 
     /** @var array Recovery action suggestions. */
-    private $recovery_actions;
+    private $recoveryactions;
 
     /** @var array Admin contact information. */
-    private $admin_contact;
+    private $admincontact;
 
     /**
      * Constructor.
@@ -53,7 +53,7 @@ class error_handler {
      * Initialize error codes and their user-friendly messages
      */
     private function initialize_error_codes() {
-        $this->error_codes = [
+        $this->errorcodes = [
             'MISSING_HEADERS' => [
                 'title' => get_string('errorhandler_missing_headers_title', 'report_adeptus_insights'),
                 'message' => get_string('errorhandler_missing_headers_message', 'report_adeptus_insights'),
@@ -148,7 +148,7 @@ class error_handler {
      * Initialize recovery actions
      */
     private function initialize_recovery_actions() {
-        $this->recovery_actions = [
+        $this->recoveryactions = [
             'refresh_page' => [
                 'action' => 'refresh_page',
                 'label' => get_string('errorhandler_refresh_page', 'report_adeptus_insights'),
@@ -189,7 +189,7 @@ class error_handler {
     private function initialize_admin_contact() {
         global $CFG;
 
-        $this->admin_contact = [
+        $this->admincontact = [
             'email' => get_config('report_adeptus_insights', 'notification_email')
                 ?: 'admin@' . parse_url($CFG->wwwroot, PHP_URL_HOST),
             'support_url' => get_config('report_adeptus_insights', 'support_url') ?: null,
@@ -205,7 +205,7 @@ class error_handler {
      * @return array|null Error information or null if not found
      */
     public function get_error_info($errorcode) {
-        return $this->error_codes[$errorcode] ?? $this->error_codes['UNKNOWN_ERROR'];
+        return $this->errorcodes[$errorcode] ?? $this->errorcodes['UNKNOWN_ERROR'];
     }
 
     /**
@@ -215,7 +215,7 @@ class error_handler {
      * @return array|null Recovery action information or null if not found
      */
     public function get_recovery_action($actionkey) {
-        return $this->recovery_actions[$actionkey] ?? null;
+        return $this->recoveryactions[$actionkey] ?? null;
     }
 
     /**
@@ -224,7 +224,7 @@ class error_handler {
      * @return array Admin contact information
      */
     public function get_admin_contact() {
-        return $this->admin_contact;
+        return $this->admincontact;
     }
 
     /**
@@ -245,7 +245,7 @@ class error_handler {
             'user_message' => $errorinfo['user_message'],
             'severity' => $errorinfo['severity'],
             'recovery_action' => $recoveryaction,
-            'admin_contact' => $this->admin_contact,
+            'admin_contact' => $this->admincontact,
             'timestamp' => time(),
             'additional_data' => $additionaldata,
             'suggestions' => $this->get_suggestions($errorcode, $additionaldata),

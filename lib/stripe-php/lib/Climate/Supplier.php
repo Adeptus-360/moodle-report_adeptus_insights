@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -14,6 +28,7 @@ namespace Stripe\Climate;
  * @property \Stripe\StripeObject[] $locations The locations in which this supplier operates.
  * @property string $name Name of this carbon removal supplier.
  * @property string $removal_pathway The scientific pathway used for carbon removal.
+ * @package report_adeptus_insights
  */
 class Supplier extends \Stripe\ApiResource
 {
@@ -33,8 +48,7 @@ class Supplier extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Climate\Supplier> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -50,8 +64,7 @@ class Supplier extends \Stripe\ApiResource
      *
      * @return \Stripe\Climate\Supplier
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();

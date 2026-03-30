@@ -37,7 +37,6 @@ namespace report_adeptus_insights\hook\callback;
  * @package     report_adeptus_insights
  */
 class before_http_headers {
-
     /**
      * Load bundled JS/CSS libraries on plugin pages.
      *

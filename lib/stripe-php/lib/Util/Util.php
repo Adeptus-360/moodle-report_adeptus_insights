@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\Util;
 
@@ -18,8 +32,7 @@ abstract class Util
      *
      * @return bool true if the given object is a list
      */
-    public static function isList($array)
-    {
+    public static function isList($array) {
         if (!\is_array($array)) {
             return false;
         }
@@ -42,8 +55,7 @@ abstract class Util
      *
      * @return array|StripeObject
      */
-    public static function convertToStripeObject($resp, $opts, $apiMode = 'v1')
-    {
+    public static function convertToStripeObject($resp, $opts, $apiMode = 'v1') {
         $types = 'v1' === $apiMode ? \Stripe\Util\ObjectTypes::mapping
             : \Stripe\Util\ObjectTypes::v2Mapping;
         if (self::isList($resp)) {
@@ -55,7 +67,8 @@ abstract class Util
             return $mapped;
         }
         if (\is_array($resp)) {
-            if (isset($resp['object']) && \is_string($resp['object'])
+            if (
+                isset($resp['object']) && \is_string($resp['object'])
                 && isset($types[$resp['object']])
             ) {
                 $class = $types[$resp['object']];
@@ -67,7 +80,7 @@ abstract class Util
                         $class = \Stripe\StripeObject::class;
                     }
                 }
-            } elseif (\array_key_exists('data', $resp) && \array_key_exists('next_page_url', $resp)) {
+            } else if (\array_key_exists('data', $resp) && \array_key_exists('next_page_url', $resp)) {
                 // TODO: this is a horrible hack. The API needs
                 // to return something for `object` here.
                 $class = \Stripe\V2\Collection::class;
@@ -87,8 +100,7 @@ abstract class Util
      *
      * @throws \ReflectionException
      */
-    public static function json_decode_thin_event_object($json, $class)
-    {
+    public static function json_decode_thin_event_object($json, $class) {
         $reflection = new \ReflectionClass($class);
         $instance = $reflection->newInstanceWithoutConstructor();
         $json = json_decode($json, true);
@@ -101,7 +113,7 @@ abstract class Util
                     $related_object->url = $json['related_object']['url'];
                     $related_object->type = $json['related_object']['type'];
                     $property->setValue($instance, $related_object);
-                } elseif ('reason' === $property->getName()) {
+                } else if ('reason' === $property->getName()) {
                     $reason = new \Stripe\Reason();
                     $reason->id = $json['reason']['id'];
                     $reason->idempotency_key = $json['reason']['idempotency_key'];
@@ -122,8 +134,7 @@ abstract class Util
      * @return mixed|string the UTF8-encoded string, or the object passed in if
      *    it wasn't a string
      */
-    public static function utf8($value)
-    {
+    public static function utf8($value) {
         if (null === self::$isMbstringAvailable) {
             self::$isMbstringAvailable = \function_exists('mb_detect_encoding')
                 && \function_exists('mb_convert_encoding');
@@ -141,7 +152,8 @@ abstract class Util
             }
         }
 
-        if (\is_string($value) && self::$isMbstringAvailable
+        if (
+            \is_string($value) && self::$isMbstringAvailable
             && 'UTF-8' !== \mb_detect_encoding($value, 'UTF-8', true)
         ) {
             return mb_convert_encoding($value, 'UTF-8', 'ISO-8859-1');
@@ -159,8 +171,7 @@ abstract class Util
      *
      * @return bool true if the strings are equal, false otherwise
      */
-    public static function secureCompare($a, $b)
-    {
+    public static function secureCompare($a, $b) {
         if (null === self::$isHashEqualsAvailable) {
             self::$isHashEqualsAvailable = \function_exists('hash_equals');
         }
@@ -189,8 +200,7 @@ abstract class Util
      *
      * @return mixed
      */
-    public static function objectsToIds($h)
-    {
+    public static function objectsToIds($h) {
         if ($h instanceof \Stripe\ApiResource) {
             return $h->id;
         }
@@ -223,12 +233,11 @@ abstract class Util
      *
      * @return string
      */
-    public static function encodeParameters($params, $apiMode = 'v1')
-    {
+    public static function encodeParameters($params, $apiMode = 'v1') {
         $flattenedParams = self::flattenParams($params, null, $apiMode);
         $pieces = [];
         foreach ($flattenedParams as $param) {
-            list($k, $v) = $param;
+            [$k, $v] = $param;
             $pieces[] = self::urlEncode($k) . '=' . self::urlEncode($v);
         }
 
@@ -256,7 +265,7 @@ abstract class Util
                     $result,
                     self::flattenParamsList($value, $calculatedKey, $apiMode)
                 );
-            } elseif (\is_array($value)) {
+            } else if (\is_array($value)) {
                 $result = \array_merge(
                     $result,
                     self::flattenParams($value, $calculatedKey, $apiMode)
@@ -289,7 +298,7 @@ abstract class Util
                     $result,
                     self::flattenParamsList($elem, $calculatedKey)
                 );
-            } elseif (\is_array($elem)) {
+            } else if (\is_array($elem)) {
                 $result = \array_merge(
                     $result,
                     self::flattenParams($elem, "{$calculatedKey}[{$i}]")
@@ -311,8 +320,7 @@ abstract class Util
      *
      * @return string the URL-encoded string
      */
-    public static function urlEncode($key)
-    {
+    public static function urlEncode($key) {
         $s = \urlencode((string) $key);
 
         // Don't use strict form encoding by changing the square bracket control
@@ -323,8 +331,7 @@ abstract class Util
         return \str_replace('%5D', ']', $s);
     }
 
-    public static function normalizeId($id)
-    {
+    public static function normalizeId($id) {
         if (\is_array($id)) {
             // see https://github.com/stripe/stripe-php/pull/1602
             if (!isset($id['id'])) {
@@ -345,13 +352,11 @@ abstract class Util
      *
      * @return int current time in millis
      */
-    public static function currentTimeMillis()
-    {
+    public static function currentTimeMillis() {
         return (int) \round(\microtime(true) * 1000);
     }
 
-    public static function getApiMode($path)
-    {
+    public static function getApiMode($path) {
         $apiMode = 'v1';
         if ('/v2' === substr($path, 0, 3)) {
             $apiMode = 'v2';

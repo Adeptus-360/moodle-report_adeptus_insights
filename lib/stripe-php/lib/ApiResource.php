@@ -1,11 +1,27 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
 /**
  * Class ApiResource.
  *
- * */
+ * * @package report_adeptus_insights
+ * @package report_adeptus_insights
+ */
 abstract class ApiResource extends StripeObject
 {
     use ApiOperations\Request;
@@ -17,8 +33,7 @@ abstract class ApiResource extends StripeObject
      * update. Doing so is not the default behavior because API resources
      * should normally be persisted on their own RESTful endpoints.
      */
-    public static function getSavedNestedResources()
-    {
+    public static function getSavedNestedResources() {
         static $savedNestedResources = null;
         if (null === $savedNestedResources) {
             $savedNestedResources = new Util\Set();
@@ -36,12 +51,13 @@ abstract class ApiResource extends StripeObject
      */
     public $saveWithParent = false;
 
-    public function __set($k, $v)
-    {
+    public function __set($k, $v) {
         parent::__set($k, $v);
         $v = $this->{$k};
-        if ((static::getSavedNestedResources()->includes($k))
-            && ($v instanceof ApiResource)) {
+        if (
+            (static::getSavedNestedResources()->includes($k))
+            && ($v instanceof ApiResource)
+        ) {
             $v->saveWithParent = true;
         }
     }
@@ -51,12 +67,11 @@ abstract class ApiResource extends StripeObject
      *
      * @return ApiResource the refreshed resource
      */
-    public function refresh()
-    {
+    public function refresh() {
         $requestor = new ApiRequestor($this->_opts->apiKey, static::baseUrl());
         $url = $this->instanceUrl();
 
-        list($response, $this->_opts->apiKey) = $requestor->request(
+        [$response, $this->_opts->apiKey] = $requestor->request(
             'get',
             $url,
             $this->_retrieveOptions,
@@ -71,16 +86,14 @@ abstract class ApiResource extends StripeObject
     /**
      * @return string the base URL for the given class
      */
-    public static function baseUrl()
-    {
+    public static function baseUrl() {
         return Stripe::$apiBase;
     }
 
     /**
      * @return string the endpoint URL for the given class
      */
-    public static function classUrl()
-    {
+    public static function classUrl() {
         // Replace dots with slashes for namespaced resources, e.g. if the object's name is
         // "foo.bar", then its URL will be "/v1/foo/bars".
 
@@ -97,8 +110,7 @@ abstract class ApiResource extends StripeObject
      *
      * @return string the instance endpoint URL for the given class
      */
-    public static function resourceUrl($id)
-    {
+    public static function resourceUrl($id) {
         if (null === $id) {
             $class = static::class;
             $message = 'Could not determine which URL to request: '
@@ -116,8 +128,7 @@ abstract class ApiResource extends StripeObject
     /**
      * @return string the full API URL for this API resource
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         return static::resourceUrl($this['id']);
     }
 }

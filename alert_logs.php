@@ -72,7 +72,8 @@ echo html_writer::start_tag('form', [
     'class' => 'form-inline mb-3',
 ]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'courseid', 'value' => $courseid]);
-echo html_writer::label(get_string('alert_logs_filter_rule', 'report_adeptus_insights') . ': ', 'ruleid', true, ['class' => 'mr-2']);
+$filterlabel = get_string('alert_logs_filter_rule', 'report_adeptus_insights') . ': ';
+echo html_writer::label($filterlabel, 'ruleid', true, ['class' => 'mr-2']);
 echo html_writer::select($ruleoptions, 'ruleid', $ruleid, false, ['class' => 'form-control mr-3']);
 echo html_writer::empty_tag('input', [
     'type' => 'submit',

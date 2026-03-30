@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -26,6 +40,7 @@ namespace Stripe\FinancialConnections;
  * @property null|string[] $subscriptions The list of data refresh subscriptions requested on this account.
  * @property string[] $supported_payment_method_types The <a href="https://stripe.com/docs/api/payment_methods/object#payment_method_object-type">PaymentMethod type</a>(s) that can be created from this account.
  * @property null|\Stripe\StripeObject $transaction_refresh The state of the most recent attempt to refresh the account transactions.
+ * @package report_adeptus_insights
  */
 class Account extends \Stripe\ApiResource
 {
@@ -57,8 +72,7 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\FinancialConnections\Account> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -74,8 +88,7 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\FinancialConnections\Account
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -91,10 +104,9 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\FinancialConnections\Account the disconnected account
      */
-    public function disconnect($params = null, $opts = null)
-    {
+    public function disconnect($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/disconnect';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -109,10 +121,9 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\FinancialConnections\AccountOwner> list of account owners
      */
-    public static function allOwners($id, $params = null, $opts = null)
-    {
+    public static function allOwners($id, $params = null, $opts = null) {
         $url = static::resourceUrl($id) . '/owners';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -127,10 +138,9 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\FinancialConnections\Account the refreshed account
      */
-    public function refreshAccount($params = null, $opts = null)
-    {
+    public function refreshAccount($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/refresh';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -144,10 +154,9 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\FinancialConnections\Account the subscribed account
      */
-    public function subscribe($params = null, $opts = null)
-    {
+    public function subscribe($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/subscribe';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -161,10 +170,9 @@ class Account extends \Stripe\ApiResource
      *
      * @return \Stripe\FinancialConnections\Account the unsubscribed account
      */
-    public function unsubscribe($params = null, $opts = null)
-    {
+    public function unsubscribe($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/unsubscribe';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

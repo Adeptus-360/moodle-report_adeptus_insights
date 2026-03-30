@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -66,6 +80,7 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $us_bank_account
  * @property null|\Stripe\StripeObject $wechat_pay
  * @property null|\Stripe\StripeObject $zip
+ * @package report_adeptus_insights
  */
 class PaymentMethod extends ApiResource
 {
@@ -141,12 +156,11 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\PaymentMethod the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -166,8 +180,7 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\PaymentMethod> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -186,8 +199,7 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\PaymentMethod
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -207,12 +219,11 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\PaymentMethod the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -227,10 +238,9 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\PaymentMethod the attached payment method
      */
-    public function attach($params = null, $opts = null)
-    {
+    public function attach($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/attach';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -244,10 +254,9 @@ class PaymentMethod extends ApiResource
      *
      * @return \Stripe\PaymentMethod the detached payment method
      */
-    public function detach($params = null, $opts = null)
-    {
+    public function detach($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/detach';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

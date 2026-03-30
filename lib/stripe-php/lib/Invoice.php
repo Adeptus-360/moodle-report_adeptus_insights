@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -122,6 +136,7 @@ namespace Stripe;
  * @property \Stripe\StripeObject[] $total_tax_amounts The aggregate amounts calculated per tax rate for all line items.
  * @property null|\Stripe\StripeObject $transfer_data The account (if any) the payment will be attributed to for tax reporting, and where funds from the payment will be transferred to for the invoice.
  * @property null|int $webhooks_delivered_at Invoices are automatically paid or sent 1 hour after webhooks are delivered, or until all webhook delivery attempts have <a href="https://stripe.com/docs/billing/webhooks#understand">been exhausted</a>. This field tracks the time when webhooks for this invoice were successfully delivered. If the invoice had no webhooks to deliver, this will be set while the invoice is being created.
+ * @package report_adeptus_insights
  */
 class Invoice extends ApiResource
 {
@@ -166,12 +181,11 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -191,12 +205,11 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -214,8 +227,7 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Invoice> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -231,8 +243,7 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -258,12 +269,11 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -281,10 +291,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the added invoice
      */
-    public function addLines($params = null, $opts = null)
-    {
+    public function addLines($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/add_lines';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -298,10 +307,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the created invoice
      */
-    public static function createPreview($params = null, $opts = null)
-    {
+    public static function createPreview($params = null, $opts = null) {
         $url = static::classUrl() . '/create_preview';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -316,10 +324,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the finalized invoice
      */
-    public function finalizeInvoice($params = null, $opts = null)
-    {
+    public function finalizeInvoice($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/finalize';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -333,10 +340,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the uncollectible invoice
      */
-    public function markUncollectible($params = null, $opts = null)
-    {
+    public function markUncollectible($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/mark_uncollectible';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -350,10 +356,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the paid invoice
      */
-    public function pay($params = null, $opts = null)
-    {
+    public function pay($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/pay';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -367,10 +372,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the removed invoice
      */
-    public function removeLines($params = null, $opts = null)
-    {
+    public function removeLines($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/remove_lines';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -384,10 +388,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the sent invoice
      */
-    public function sendInvoice($params = null, $opts = null)
-    {
+    public function sendInvoice($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/send';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -401,10 +404,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the upcoming invoice
      */
-    public static function upcoming($params = null, $opts = null)
-    {
+    public static function upcoming($params = null, $opts = null) {
         $url = static::classUrl() . '/upcoming';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -419,10 +421,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\InvoiceLineItem> list of invoice line items
      */
-    public static function upcomingLines($params = null, $opts = null)
-    {
+    public static function upcomingLines($params = null, $opts = null) {
         $url = static::classUrl() . '/upcoming/lines';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -437,10 +438,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the updated invoice
      */
-    public function updateLines($params = null, $opts = null)
-    {
+    public function updateLines($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/update_lines';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -454,10 +454,9 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Invoice the voided invoice
      */
-    public function voidInvoice($params = null, $opts = null)
-    {
+    public function voidInvoice($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/void';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -471,8 +470,7 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\SearchResult<\Stripe\Invoice> the invoice search results
      */
-    public static function search($params = null, $opts = null)
-    {
+    public static function search($params = null, $opts = null) {
         $url = '/v1/invoices/search';
 
         return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
@@ -489,8 +487,7 @@ class Invoice extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\InvoiceLineItem> the list of invoice line items
      */
-    public static function allLines($id, $params = null, $opts = null)
-    {
+    public static function allLines($id, $params = null, $opts = null) {
         return self::_allNestedResources($id, static::PATH_LINES, $params, $opts);
     }
 }

@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
@@ -72,11 +86,10 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      * @param array<string, mixed>|string $config the API key as a string, or an array containing
      *   the client configuration settings
      */
-    public function __construct($config = [])
-    {
+    public function __construct($config = []) {
         if (\is_string($config)) {
             $config = ['api_key' => $config];
-        } elseif (!\is_array($config)) {
+        } else if (!\is_array($config)) {
             throw new \Stripe\Exception\InvalidArgumentException('$config must be a string or an array');
         }
 
@@ -97,8 +110,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return null|string the API key used by the client to send requests
      */
-    public function getApiKey()
-    {
+    public function getApiKey() {
         return $this->config['api_key'];
     }
 
@@ -107,8 +119,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return null|string the client ID used by the client in OAuth requests
      */
-    public function getClientId()
-    {
+    public function getClientId() {
         return $this->config['client_id'];
     }
 
@@ -117,8 +128,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return string the base URL for Stripe's API
      */
-    public function getApiBase()
-    {
+    public function getApiBase() {
         return $this->config['api_base'];
     }
 
@@ -127,8 +137,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return string the base URL for Stripe's OAuth API
      */
-    public function getConnectBase()
-    {
+    public function getConnectBase() {
         return $this->config['connect_base'];
     }
 
@@ -137,8 +146,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return string the base URL for Stripe's Files API
      */
-    public function getFilesBase()
-    {
+    public function getFilesBase() {
         return $this->config['files_base'];
     }
 
@@ -147,8 +155,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return string the base URL for Stripe's Meter Events API
      */
-    public function getMeterEventsBase()
-    {
+    public function getMeterEventsBase() {
         return $this->config['meter_events_base'];
     }
 
@@ -157,8 +164,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return null|array information to identify a plugin that integrates Stripe using this library
      */
-    public function getAppInfo()
-    {
+    public function getAppInfo() {
         return $this->config['app_info'];
     }
 
@@ -172,8 +178,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\StripeObject the object returned by Stripe's API
      */
-    public function request($method, $path, $params, $opts)
-    {
+    public function request($method, $path, $params, $opts) {
         $defaultRequestOpts = $this->defaultOpts;
         $apiMode = \Stripe\Util\Util::getApiMode($path);
 
@@ -181,7 +186,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
 
         $baseUrl = $opts->apiBase ?: $this->getApiBase();
         $requestor = new \Stripe\ApiRequestor($this->apiKeyForRequest($opts), $baseUrl, $this->getAppInfo());
-        list($response, $opts->apiKey) = $requestor->request($method, $path, $params, $opts->headers, $apiMode, ['stripe_client']);
+        [$response, $opts->apiKey] = $requestor->request($method, $path, $params, $opts->headers, $apiMode, ['stripe_client']);
         $opts->discardNonPersistentHeaders();
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts, $apiMode);
         if (\is_array($obj)) {
@@ -206,8 +211,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\ApiResponse
      */
-    public function rawRequest($method, $path, $params = null, $opts = [])
-    {
+    public function rawRequest($method, $path, $params = null, $opts = []) {
         if ('post' !== $method && null !== $params) {
             throw new Exception\InvalidArgumentException('Error: rawRequest only supports $params on post requests. Please pass null and add your parameters to $path');
         }
@@ -230,7 +234,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
         $opts->headers = \array_merge($opts->headers, $headers);
         $baseUrl = $opts->apiBase ?: $this->getApiBase();
         $requestor = new \Stripe\ApiRequestor($this->apiKeyForRequest($opts), $baseUrl);
-        list($response) = $requestor->request($method, $path, $params, $opts->headers, $apiMode, ['raw_request']);
+        [$response] = $requestor->request($method, $path, $params, $opts->headers, $apiMode, ['raw_request']);
 
         return $response;
     }
@@ -247,13 +251,12 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * with chunks of bytes from the body if the request is successful
      */
-    public function requestStream($method, $path, $readBodyChunkCallable, $params, $opts)
-    {
+    public function requestStream($method, $path, $readBodyChunkCallable, $params, $opts) {
         $opts = $this->defaultOpts->merge($opts, true);
         $baseUrl = $opts->apiBase ?: $this->getApiBase();
         $requestor = new \Stripe\ApiRequestor($this->apiKeyForRequest($opts), $baseUrl, $this->getAppInfo());
         $apiMode = \Stripe\Util\Util::getApiMode($path);
-        list($response, $opts->apiKey) = $requestor->requestStream($method, $path, $readBodyChunkCallable, $params, $opts->headers, $apiMode, ['stripe_client']);
+        [$response, $opts->apiKey] = $requestor->requestStream($method, $path, $readBodyChunkCallable, $params, $opts->headers, $apiMode, ['stripe_client']);
     }
 
     /**
@@ -266,8 +269,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\Collection|\Stripe\V2\Collection of ApiResources
      */
-    public function requestCollection($method, $path, $params, $opts)
-    {
+    public function requestCollection($method, $path, $params, $opts) {
         $obj = $this->request($method, $path, $params, $opts);
         $apiMode = \Stripe\Util\Util::getApiMode($path);
         if ('v1' === $apiMode) {
@@ -300,8 +302,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\SearchResult of ApiResources
      */
-    public function requestSearchResult($method, $path, $params, $opts)
-    {
+    public function requestSearchResult($method, $path, $params, $opts) {
         $obj = $this->request($method, $path, $params, $opts);
         if (!($obj instanceof \Stripe\SearchResult)) {
             $received_class = \get_class($obj);
@@ -321,8 +322,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return string
      */
-    private function apiKeyForRequest($opts)
-    {
+    private function apiKeyForRequest($opts) {
         $apiKey = $opts->apiKey ?: $this->getApiKey();
 
         if (null === $apiKey) {
@@ -341,8 +341,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @throws \Stripe\Exception\InvalidArgumentException
      */
-    private function validateConfig($config)
-    {
+    private function validateConfig($config) {
         // api_key
         if (null !== $config['api_key'] && !\is_string($config['api_key'])) {
             throw new \Stripe\Exception\InvalidArgumentException('api_key must be null or a string');
@@ -425,8 +424,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\StripeObject
      * */
-    public function deserialize($json, $apiMode = 'v1')
-    {
+    public function deserialize($json, $apiMode = 'v1') {
         return \Stripe\Util\Util::convertToStripeObject(\json_decode($json, true), [], $apiMode);
     }
 
@@ -448,8 +446,7 @@ class BaseStripeClient implements StripeClientInterface, StripeStreamingClientIn
      *
      * @return \Stripe\ThinEvent
      */
-    public function parseThinEvent($payload, $sigHeader, $secret, $tolerance = Webhook::DEFAULT_TOLERANCE)
-    {
+    public function parseThinEvent($payload, $sigHeader, $secret, $tolerance = Webhook::DEFAULT_TOLERANCE) {
         $eventData = Util::utf8($payload);
         WebhookSignature::verifyHeader($payload, $sigHeader, $secret, $tolerance);
 

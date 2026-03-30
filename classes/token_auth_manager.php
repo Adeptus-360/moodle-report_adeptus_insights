@@ -30,10 +30,10 @@ namespace report_adeptus_insights;
  */
 class token_auth_manager {
     /** @var installation_manager Installation manager instance. */
-    private $installation_manager;
+    private $installationmanager;
 
     /** @var object Current user object. */
-    private $current_user;
+    private $currentuser;
 
     /** @var \cache|null Cache instance for API key storage. */
     private $cache;
@@ -44,8 +44,8 @@ class token_auth_manager {
     public function __construct() {
         global $USER;
 
-        $this->installation_manager = new installation_manager();
-        $this->current_user = $USER;
+        $this->installationmanager = new installation_manager();
+        $this->currentuser = $USER;
 
         // Initialize cache for API key storage - will be done when needed.
         $this->cache = null;
@@ -80,14 +80,14 @@ class token_auth_manager {
         }
 
         // Check if plugin is registered and has valid API key.
-        if (!$this->installation_manager->is_registered()) {
+        if (!$this->installationmanager->is_registered()) {
             if ($redirect) {
                 redirect(new \moodle_url('/report/adeptus_insights/register_plugin.php'));
             }
             return false;
         }
 
-        $apikey = $this->installation_manager->get_api_key();
+        $apikey = $this->installationmanager->get_api_key();
         if (empty($apikey)) {
             if ($redirect) {
                 redirect(new \moodle_url('/report/adeptus_insights/register_plugin.php'));
@@ -120,17 +120,17 @@ class token_auth_manager {
             'user_authorized' => false,
             'auth_errors' => [],
             'user' => [
-                'id' => $this->current_user->id ?? null,
-                'name' => fullname($this->current_user) ?? 'Unknown User',
-                'username' => $this->current_user->username ?? null,
-                'email' => $this->current_user->email ?? null,
+                'id' => $this->currentuser->id ?? null,
+                'name' => fullname($this->currentuser) ?? 'Unknown User',
+                'username' => $this->currentuser->username ?? null,
+                'email' => $this->currentuser->email ?? null,
             ],
         ];
 
-        if ($this->installation_manager->is_registered()) {
+        if ($this->installationmanager->is_registered()) {
             $authstatus['is_registered'] = true;
-            $apikey = $this->installation_manager->get_api_key();
-            $installationid = $this->installation_manager->get_installation_id();
+            $apikey = $this->installationmanager->get_api_key();
+            $installationid = $this->installationmanager->get_installation_id();
 
             if (!empty($apikey)) {
                 $authstatus['has_api_key'] = true;
@@ -176,7 +176,7 @@ class token_auth_manager {
                     }
                 } else {
                     // Fallback to local data if backend fails.
-                    $subscription = $this->installation_manager->get_subscription_details();
+                    $subscription = $this->installationmanager->get_subscription_details();
                     if ($subscription) {
                         $authstatus['subscription'] = [
                             'plan_name' => $subscription->plan_name ?? 'Unknown',
@@ -265,7 +265,7 @@ class token_auth_manager {
      */
     private function get_backend_subscription_data($apikey) {
         try {
-            $backendurl = $this->installation_manager->get_api_url();
+            $backendurl = $this->installationmanager->get_api_url();
             $statusendpoint = $backendurl . '/installation/status';
 
             $postdata = json_encode([
@@ -375,7 +375,7 @@ class token_auth_manager {
     public function get_auth_headers() {
         global $CFG;
 
-        $apikey = $this->get_cached_api_key() ?: $this->installation_manager->get_api_key();
+        $apikey = $this->get_cached_api_key() ?: $this->installationmanager->get_api_key();
         $siteurl = $CFG->wwwroot;
 
         return [

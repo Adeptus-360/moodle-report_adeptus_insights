@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -25,6 +39,7 @@ namespace Stripe;
  * @property null|string|\Stripe\ApplicationFee|\Stripe\ApplicationFeeRefund|\Stripe\Charge|\Stripe\ConnectCollectionTransfer|\Stripe\CustomerCashBalanceTransaction|\Stripe\Dispute|\Stripe\Issuing\Authorization|\Stripe\Issuing\Dispute|\Stripe\Issuing\Transaction|\Stripe\Payout|\Stripe\Refund|\Stripe\ReserveTransaction|\Stripe\TaxDeductedAtSource|\Stripe\Topup|\Stripe\Transfer|\Stripe\TransferReversal $source This transaction relates to the Stripe object.
  * @property string $status The transaction's net funds status in the Stripe balance, which are either <code>available</code> or <code>pending</code>.
  * @property string $type Transaction type: <code>adjustment</code>, <code>advance</code>, <code>advance_funding</code>, <code>anticipation_repayment</code>, <code>application_fee</code>, <code>application_fee_refund</code>, <code>charge</code>, <code>climate_order_purchase</code>, <code>climate_order_refund</code>, <code>connect_collection_transfer</code>, <code>contribution</code>, <code>issuing_authorization_hold</code>, <code>issuing_authorization_release</code>, <code>issuing_dispute</code>, <code>issuing_transaction</code>, <code>obligation_outbound</code>, <code>obligation_reversal_inbound</code>, <code>payment</code>, <code>payment_failure_refund</code>, <code>payment_network_reserve_hold</code>, <code>payment_network_reserve_release</code>, <code>payment_refund</code>, <code>payment_reversal</code>, <code>payment_unreconciled</code>, <code>payout</code>, <code>payout_cancel</code>, <code>payout_failure</code>, <code>refund</code>, <code>refund_failure</code>, <code>reserve_transaction</code>, <code>reserved_funds</code>, <code>stripe_fee</code>, <code>stripe_fx_fee</code>, <code>tax_fee</code>, <code>topup</code>, <code>topup_reversal</code>, <code>transfer</code>, <code>transfer_cancel</code>, <code>transfer_failure</code>, or <code>transfer_refund</code>. Learn more about <a href="https://stripe.com/docs/reports/balance-transaction-types">balance transaction types and what they represent</a>. To classify transactions for accounting purposes, consider <code>reporting_category</code> instead.
+ * @package report_adeptus_insights
  */
 class BalanceTransaction extends ApiResource
 {
@@ -86,8 +101,7 @@ class BalanceTransaction extends ApiResource
      *
      * @return \Stripe\Collection<\Stripe\BalanceTransaction> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -106,8 +120,7 @@ class BalanceTransaction extends ApiResource
      *
      * @return \Stripe\BalanceTransaction
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();

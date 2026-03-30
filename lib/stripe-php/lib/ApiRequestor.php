@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
 /**
  * Class ApiRequestor.
+ * @package report_adeptus_insights
  */
 class ApiRequestor
 {
@@ -45,8 +60,7 @@ class ApiRequestor
      * @param null|string $apiBase
      * @param null|array $appInfo
      */
-    public function __construct($apiKey = null, $apiBase = null, $appInfo = null)
-    {
+    public function __construct($apiKey = null, $apiBase = null, $appInfo = null) {
         $this->_apiKey = $apiKey;
         if (!$apiBase) {
             $apiBase = Stripe::$apiBase;
@@ -64,8 +78,7 @@ class ApiRequestor
      *
      * @return string
      */
-    private static function _telemetryJson($requestTelemetry)
-    {
+    private static function _telemetryJson($requestTelemetry) {
         $payload = [
             'last_request_metrics' => [
                 'request_id' => $requestTelemetry->requestId,
@@ -92,8 +105,7 @@ class ApiRequestor
      *
      * @return ApiResource|array|mixed|string
      */
-    private static function _encodeObjects($d)
-    {
+    private static function _encodeObjects($d) {
         if ($d instanceof ApiResource) {
             return Util\Util::utf8($d->id);
         }
@@ -127,11 +139,10 @@ class ApiRequestor
      *
      * @return array tuple containing (ApiReponse, API key)
      */
-    public function request($method, $url, $params = null, $headers = null, $apiMode = 'v1', $usage = [])
-    {
+    public function request($method, $url, $params = null, $headers = null, $apiMode = 'v1', $usage = []) {
         $params = $params ?: [];
         $headers = $headers ?: [];
-        list($rbody, $rcode, $rheaders, $myApiKey) =
+        [$rbody, $rcode, $rheaders, $myApiKey] =
             $this->_requestRaw($method, $url, $params, $headers, $apiMode, $usage);
         $json = $this->_interpretResponse($rbody, $rcode, $rheaders, $apiMode);
         $resp = new ApiResponse($rbody, $rcode, $rheaders, $json);
@@ -150,11 +161,10 @@ class ApiRequestor
      *
      * @throws Exception\ApiErrorException
      */
-    public function requestStream($method, $url, $readBodyChunkCallable, $params = null, $headers = null, $apiMode = 'v1', $usage = [])
-    {
+    public function requestStream($method, $url, $readBodyChunkCallable, $params = null, $headers = null, $apiMode = 'v1', $usage = []) {
         $params = $params ?: [];
         $headers = $headers ?: [];
-        list($rbody, $rcode, $rheaders, $myApiKey) =
+        [$rbody, $rcode, $rheaders, $myApiKey] =
             $this->_requestRawStreaming($method, $url, $params, $headers, $apiMode, $usage, $readBodyChunkCallable);
         if ($rcode >= 300) {
             $this->_interpretResponse($rbody, $rcode, $rheaders, $apiMode);
@@ -171,8 +181,7 @@ class ApiRequestor
      * @throws Exception\UnexpectedValueException
      * @throws Exception\ApiErrorException
      */
-    public function handleErrorResponse($rbody, $rcode, $rheaders, $resp, $apiMode)
-    {
+    public function handleErrorResponse($rbody, $rcode, $rheaders, $resp, $apiMode) {
         if (!\is_array($resp) || !isset($resp['error'])) {
             $msg = "Invalid response object from API: {$rbody} "
                 . "(HTTP response code was {$rcode})";
@@ -205,8 +214,7 @@ class ApiRequestor
      *
      * @return Exception\ApiErrorException
      */
-    private static function _specificV1APIError($rbody, $rcode, $rheaders, $resp, $errorData)
-    {
+    private static function _specificV1APIError($rbody, $rcode, $rheaders, $resp, $errorData) {
         $msg = isset($errorData['message']) ? $errorData['message'] : null;
         $param = isset($errorData['param']) ? $errorData['param'] : null;
         $code = isset($errorData['code']) ? $errorData['code'] : null;
@@ -224,8 +232,8 @@ class ApiRequestor
                     return Exception\IdempotencyException::factory($msg, $rcode, $rbody, $resp, $rheaders, $code);
                 }
 
-            // fall through in generic 400 or 404, returns InvalidRequestException by default
-            // no break
+                // fall through in generic 400 or 404, returns InvalidRequestException by default
+                // no break
             case 404:
                 return Exception\InvalidRequestException::factory($msg, $rcode, $rbody, $resp, $rheaders, $code, $param);
 
@@ -257,8 +265,7 @@ class ApiRequestor
      *
      * @return Exception\ApiErrorException
      */
-    private static function _specificV2APIError($rbody, $rcode, $rheaders, $resp, $errorData)
-    {
+    private static function _specificV2APIError($rbody, $rcode, $rheaders, $resp, $errorData) {
         $msg = isset($errorData['message']) ? $errorData['message'] : null;
         $code = isset($errorData['code']) ? $errorData['code'] : null;
         $type = isset($errorData['type']) ? $errorData['type'] : null;
@@ -294,8 +301,7 @@ class ApiRequestor
      *
      * @return Exception\OAuth\OAuthErrorException
      */
-    private static function _specificOAuthError($rbody, $rcode, $rheaders, $resp, $errorCode)
-    {
+    private static function _specificOAuthError($rbody, $rcode, $rheaders, $resp, $errorCode) {
         $description = isset($resp['error_description']) ? $resp['error_description'] : $errorCode;
 
         switch ($errorCode) {
@@ -329,8 +335,7 @@ class ApiRequestor
      *
      * @return null|string
      */
-    private static function _formatAppInfo($appInfo)
-    {
+    private static function _formatAppInfo($appInfo) {
         if (null !== $appInfo) {
             $string = $appInfo['name'];
             if (\array_key_exists('version', $appInfo) && null !== $appInfo['version']) {
@@ -354,8 +359,7 @@ class ApiRequestor
      *
      * @return bool
      */
-    private static function _isDisabled($disableFunctionsOutput, $functionName)
-    {
+    private static function _isDisabled($disableFunctionsOutput, $functionName) {
         $disabledFunctions = \explode(',', $disableFunctionsOutput);
         foreach ($disabledFunctions as $disabledFunction) {
             if (\trim($disabledFunction) === $functionName) {
@@ -376,8 +380,7 @@ class ApiRequestor
      *
      * @return array
      */
-    private static function _defaultHeaders($apiKey, $clientInfo = null, $appInfo = null, $apiMode = 'v1')
-    {
+    private static function _defaultHeaders($apiKey, $clientInfo = null, $appInfo = null, $apiMode = 'v1') {
         $uaString = "Stripe/{$apiMode} PhpBindings/" . Stripe::VERSION;
 
         $langVersion = \PHP_VERSION;
@@ -416,8 +419,7 @@ class ApiRequestor
      * @param array $headers
      * @param 'v1'|'v2' $apiMode
      */
-    private function _prepareRequest($method, $url, $params, $headers, $apiMode)
-    {
+    private function _prepareRequest($method, $url, $params, $headers, $apiMode) {
         $myApiKey = $this->_apiKey;
         if (!$myApiKey) {
             $myApiKey = Stripe::$apiKey;
@@ -474,16 +476,16 @@ class ApiRequestor
             if (\is_resource($v)) {
                 $hasFile = true;
                 $params[$k] = self::_processResourceParam($v);
-            } elseif ($v instanceof \CURLFile) {
+            } else if ($v instanceof \CURLFile) {
                 $hasFile = true;
             }
         }
 
         if ($hasFile) {
             $defaultHeaders['Content-Type'] = 'multipart/form-data';
-        } elseif ('v2' === $apiMode) {
+        } else if ('v2' === $apiMode) {
             $defaultHeaders['Content-Type'] = 'application/json';
-        } elseif ('v1' === $apiMode) {
+        } else if ('v1' === $apiMode) {
             $defaultHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
         } else {
             throw new Exception\InvalidArgumentException('Unknown API mode: ' . $apiMode);
@@ -512,13 +514,12 @@ class ApiRequestor
      *
      * @return array
      */
-    private function _requestRaw($method, $url, $params, $headers, $apiMode, $usage)
-    {
-        list($absUrl, $rawHeaders, $params, $hasFile, $myApiKey) = $this->_prepareRequest($method, $url, $params, $headers, $apiMode);
+    private function _requestRaw($method, $url, $params, $headers, $apiMode, $usage) {
+        [$absUrl, $rawHeaders, $params, $hasFile, $myApiKey] = $this->_prepareRequest($method, $url, $params, $headers, $apiMode);
 
         $requestStartMs = Util\Util::currentTimeMillis();
 
-        list($rbody, $rcode, $rheaders) = $this->httpClient()->request(
+        [$rbody, $rcode, $rheaders] = $this->httpClient()->request(
             $method,
             $absUrl,
             $rawHeaders,
@@ -556,13 +557,12 @@ class ApiRequestor
      *
      * @return array
      */
-    private function _requestRawStreaming($method, $url, $params, $headers, $apiMode, $usage, $readBodyChunkCallable)
-    {
-        list($absUrl, $rawHeaders, $params, $hasFile, $myApiKey) = $this->_prepareRequest($method, $url, $params, $headers, $apiMode);
+    private function _requestRawStreaming($method, $url, $params, $headers, $apiMode, $usage, $readBodyChunkCallable) {
+        [$absUrl, $rawHeaders, $params, $hasFile, $myApiKey] = $this->_prepareRequest($method, $url, $params, $headers, $apiMode);
 
         $requestStartMs = Util\Util::currentTimeMillis();
 
-        list($rbody, $rcode, $rheaders) = $this->streamingHttpClient()->requestStream(
+        [$rbody, $rcode, $rheaders] = $this->streamingHttpClient()->requestStream(
             $method,
             $absUrl,
             $rawHeaders,
@@ -592,8 +592,7 @@ class ApiRequestor
      *
      * @return \CURLFile|string
      */
-    private function _processResourceParam($resource)
-    {
+    private function _processResourceParam($resource) {
         if ('stream' !== \get_resource_type($resource)) {
             throw new Exception\InvalidArgumentException(
                 'Attempted to upload a resource that is not a stream'
@@ -622,8 +621,7 @@ class ApiRequestor
      *
      * @return array
      */
-    private function _interpretResponse($rbody, $rcode, $rheaders, $apiMode)
-    {
+    private function _interpretResponse($rbody, $rcode, $rheaders, $apiMode) {
         $resp = \json_decode($rbody, true);
         $jsonError = \json_last_error();
         if (null === $resp && \JSON_ERROR_NONE !== $jsonError) {
@@ -645,8 +643,7 @@ class ApiRequestor
      *
      * @param HttpClient\ClientInterface $client
      */
-    public static function setHttpClient($client)
-    {
+    public static function setHttpClient($client) {
         self::$_httpClient = $client;
     }
 
@@ -655,8 +652,7 @@ class ApiRequestor
      *
      * @param HttpClient\StreamingClientInterface $client
      */
-    public static function setStreamingHttpClient($client)
-    {
+    public static function setStreamingHttpClient($client) {
         self::$_streamingHttpClient = $client;
     }
 
@@ -665,16 +661,14 @@ class ApiRequestor
      *
      * Resets any stateful telemetry data
      */
-    public static function resetTelemetry()
-    {
+    public static function resetTelemetry() {
         self::$requestTelemetry = null;
     }
 
     /**
      * @return HttpClient\ClientInterface
      */
-    private function httpClient()
-    {
+    private function httpClient() {
         if (!self::$_httpClient) {
             self::$_httpClient = HttpClient\CurlClient::instance();
         }
@@ -685,8 +679,7 @@ class ApiRequestor
     /**
      * @return HttpClient\StreamingClientInterface
      */
-    private function streamingHttpClient()
-    {
+    private function streamingHttpClient() {
         if (!self::$_streamingHttpClient) {
             self::$_streamingHttpClient = HttpClient\CurlClient::instance();
         }

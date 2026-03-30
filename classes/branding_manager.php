@@ -28,7 +28,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Manages branding assets for PDF exports.
@@ -53,7 +52,7 @@ class branding_manager {
      *
      * @var installation_manager
      */
-    private $installation_manager;
+    private $installationmanager;
 
     /**
      * Cached branding data.
@@ -66,7 +65,7 @@ class branding_manager {
      * Constructor.
      */
     public function __construct() {
-        $this->installation_manager = new installation_manager();
+        $this->installationmanager = new installation_manager();
     }
 
     /**
@@ -85,12 +84,12 @@ class branding_manager {
         }
 
         // Check if plugin is registered.
-        if (!$this->installation_manager->is_registered()) {
+        if (!$this->installationmanager->is_registered()) {
             return null;
         }
 
         try {
-            $response = $this->installation_manager->make_api_request('branding/logo', [], 'GET');
+            $response = $this->installationmanager->make_api_request('branding/logo', [], 'GET');
 
             if ($response && isset($response['success']) && $response['success']) {
                 $data = $response['data'];
@@ -281,9 +280,7 @@ class branding_manager {
         self::$brandingcache = null;
     }
 
-    // -------------------------------------------------------------------------
     // G9: White-Label / Reseller Branding (Enterprise tier only).
-    // -------------------------------------------------------------------------
 
     /**
      * Check if white-label branding feature is available (Enterprise tier).

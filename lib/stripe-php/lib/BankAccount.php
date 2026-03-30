@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -32,6 +46,7 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $requirements Information about the requirements for the bank account, including what information needs to be collected.
  * @property null|string $routing_number The routing transit number for the bank account.
  * @property string $status <p>For bank accounts, possible values are <code>new</code>, <code>validated</code>, <code>verified</code>, <code>verification_failed</code>, or <code>errored</code>. A bank account that hasn't had any activity or validation performed is <code>new</code>. If Stripe can determine that the bank account exists, its status will be <code>validated</code>. Note that there often isn’t enough information to know (e.g., for smaller credit unions), and the validation is not always run. If customer bank account verification has succeeded, the bank account status will be <code>verified</code>. If the verification failed for any reason, such as microdeposit failure, the status will be <code>verification_failed</code>. If a payout sent to this bank account fails, we'll set the status to <code>errored</code> and will not continue to send <a href="https://stripe.com/docs/payouts#payout-schedule">scheduled payouts</a> until the bank details are updated.</p><p>For external accounts, possible values are <code>new</code>, <code>errored</code> and <code>verification_failed</code>. If a payout fails, the status is set to <code>errored</code> and scheduled payouts are stopped until account details are updated. In the US and India, if we can't <a href="https://support.stripe.com/questions/bank-account-ownership-verification">verify the owner of the bank account</a>, we'll set the status to <code>verification_failed</code>. Other validations aren't run against external accounts because they're only used for payouts. This means the other statuses don't apply.</p>
+ * @package report_adeptus_insights
  */
 class BankAccount extends ApiResource
 {
@@ -47,12 +62,11 @@ class BankAccount extends ApiResource
      *
      * @return \Stripe\BankAccount the deleted resource
      */
-    public function delete($params = null, $opts = null)
-    {
+    public function delete($params = null, $opts = null) {
         self::_validateParams($params);
 
         $url = $this->instanceUrl();
-        list($response, $opts) = $this->_request('delete', $url, $params, $opts);
+        [$response, $opts] = $this->_request('delete', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -73,13 +87,12 @@ class BankAccount extends ApiResource
      * @return string The instance URL for this resource. It needs to be special
      *    cased because it doesn't fit into the standard resource pattern.
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         if ($this['customer']) {
             $base = Customer::classUrl();
             $parent = $this['customer'];
             $path = 'sources';
-        } elseif ($this['account']) {
+        } else if ($this['account']) {
             $base = Account::classUrl();
             $parent = $this['account'];
             $path = 'external_accounts';
@@ -100,8 +113,7 @@ class BankAccount extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Bank accounts cannot be retrieved without a customer ID or ' .
                'an account ID. Retrieve a bank account using ' .
                "`Customer::retrieveSource('customer_id', " .
@@ -118,8 +130,7 @@ class BankAccount extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Bank accounts cannot be updated without a customer ID or an ' .
                'account ID. Update a bank account using ' .
                "`Customer::updateSource('customer_id', 'bank_account_id', " .
@@ -140,12 +151,11 @@ class BankAccount extends ApiResource
      *     future major version of the library. Use the static method `update`
      *     on the resource instead.
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         $params = $this->serializeParameters();
         if (\count($params) > 0) {
             $url = $this->instanceUrl();
-            list($response, $opts) = $this->_request('post', $url, $params, $opts, ['save']);
+            [$response, $opts] = $this->_request('post', $url, $params, $opts, ['save']);
             $this->refreshFrom($response, $opts);
         }
 
@@ -160,10 +170,9 @@ class BankAccount extends ApiResource
      *
      * @return BankAccount the verified bank account
      */
-    public function verify($params = null, $opts = null)
-    {
+    public function verify($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/verify';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

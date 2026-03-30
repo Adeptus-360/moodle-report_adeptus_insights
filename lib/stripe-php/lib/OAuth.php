@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
@@ -12,8 +26,7 @@ abstract class OAuth
      *
      * @return string the URL to Stripe's OAuth form
      */
-    public static function authorizeUrl($params = null, $opts = null)
-    {
+    public static function authorizeUrl($params = null, $opts = null) {
         $params = $params ?: [];
 
         $base = ($opts && \array_key_exists('connect_base', $opts)) ? $opts['connect_base'] : Stripe::$connectBase;
@@ -38,11 +51,10 @@ abstract class OAuth
      *
      * @return StripeObject object containing the response from the API
      */
-    public static function token($params = null, $opts = null)
-    {
+    public static function token($params = null, $opts = null) {
         $base = ($opts && \array_key_exists('connect_base', $opts)) ? $opts['connect_base'] : Stripe::$connectBase;
         $requestor = new ApiRequestor(null, $base);
-        list($response, $apiKey) = $requestor->request(
+        [$response, $apiKey] = $requestor->request(
             'post',
             '/oauth/token',
             $params,
@@ -62,13 +74,12 @@ abstract class OAuth
      *
      * @return StripeObject object containing the response from the API
      */
-    public static function deauthorize($params = null, $opts = null)
-    {
+    public static function deauthorize($params = null, $opts = null) {
         $params = $params ?: [];
         $base = ($opts && \array_key_exists('connect_base', $opts)) ? $opts['connect_base'] : Stripe::$connectBase;
         $requestor = new ApiRequestor(null, $base);
         $params['client_id'] = self::_getClientId($params);
-        list($response, $apiKey) = $requestor->request(
+        [$response, $apiKey] = $requestor->request(
             'post',
             '/oauth/deauthorize',
             $params,
@@ -78,8 +89,7 @@ abstract class OAuth
         return Util\Util::convertToStripeObject($response->json, $opts);
     }
 
-    private static function _getClientId($params = null)
-    {
+    private static function _getClientId($params = null) {
         $clientId = ($params && \array_key_exists('client_id', $params)) ? $params['client_id'] : null;
         if (null === $clientId) {
             $clientId = Stripe::getClientId();

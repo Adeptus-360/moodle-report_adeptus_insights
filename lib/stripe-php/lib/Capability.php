@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -17,6 +31,7 @@ namespace Stripe;
  * @property null|int $requested_at Time at which the capability was requested. Measured in seconds since the Unix epoch.
  * @property null|\Stripe\StripeObject $requirements
  * @property string $status The status of the capability.
+ * @package report_adeptus_insights
  */
 class Capability extends ApiResource
 {
@@ -30,8 +45,7 @@ class Capability extends ApiResource
     /**
      * @return string the API URL for this Stripe account reversal
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         $id = $this['id'];
         $account = $this['account'];
         if (!$id) {
@@ -57,8 +71,7 @@ class Capability extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Capabilities cannot be retrieved without an account ID. ' .
                'Retrieve a capability using `Account::retrieveCapability(' .
                "'account_id', 'capability_id')`.";
@@ -73,8 +86,7 @@ class Capability extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Capabilities cannot be updated without an account ID. ' .
                    'Update a capability using `Account::updateCapability(' .
                    "'account_id', 'capability_id', \$updateParams)`.";
@@ -93,12 +105,11 @@ class Capability extends ApiResource
      *     future major version of the library. Use the static method `update`
      *     on the resource instead.
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         $params = $this->serializeParameters();
         if (\count($params) > 0) {
             $url = $this->instanceUrl();
-            list($response, $opts) = $this->_request('post', $url, $params, $opts, ['save']);
+            [$response, $opts] = $this->_request('post', $url, $params, $opts, ['save']);
             $this->refreshFrom($response, $opts);
         }
 

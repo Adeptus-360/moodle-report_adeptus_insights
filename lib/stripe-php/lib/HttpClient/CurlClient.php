@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe\HttpClient;
 
@@ -28,8 +42,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
 {
     protected static $instance;
 
-    public static function instance()
-    {
+    public static function instance() {
         if (!static::$instance) {
             static::$instance = new static();
         }
@@ -66,8 +79,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param null|array|callable $defaultOptions
      * @param null|\Stripe\Util\RandomGenerator $randomGenerator
      */
-    public function __construct($defaultOptions = null, $randomGenerator = null)
-    {
+    public function __construct($defaultOptions = null, $randomGenerator = null) {
         $this->defaultOptions = $defaultOptions;
         $this->randomGenerator = $randomGenerator ?: new Util\RandomGenerator();
         $this->initUserAgentInfo();
@@ -75,13 +87,11 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         $this->enableHttp2 = $this->canSafelyUseHttp2();
     }
 
-    public function __destruct()
-    {
+    public function __destruct() {
         $this->closeCurlHandle();
     }
 
-    public function initUserAgentInfo()
-    {
+    public function initUserAgentInfo() {
         $curlVersion = \curl_version();
         $this->userAgentInfo = [
             'httplib' => 'curl ' . $curlVersion['version'],
@@ -89,53 +99,46 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         ];
     }
 
-    public function getDefaultOptions()
-    {
+    public function getDefaultOptions() {
         return $this->defaultOptions;
     }
 
-    public function getUserAgentInfo()
-    {
+    public function getUserAgentInfo() {
         return $this->userAgentInfo;
     }
 
     /**
      * @return bool
      */
-    public function getEnablePersistentConnections()
-    {
+    public function getEnablePersistentConnections() {
         return $this->enablePersistentConnections;
     }
 
     /**
      * @param bool $enable
      */
-    public function setEnablePersistentConnections($enable)
-    {
+    public function setEnablePersistentConnections($enable) {
         $this->enablePersistentConnections = $enable;
     }
 
     /**
      * @return bool
      */
-    public function getEnableHttp2()
-    {
+    public function getEnableHttp2() {
         return $this->enableHttp2;
     }
 
     /**
      * @param bool $enable
      */
-    public function setEnableHttp2($enable)
-    {
+    public function setEnableHttp2($enable) {
         $this->enableHttp2 = $enable;
     }
 
     /**
      * @return null|callable
      */
-    public function getRequestStatusCallback()
-    {
+    public function getRequestStatusCallback() {
         return $this->requestStatusCallback;
     }
 
@@ -154,8 +157,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @param null|callable $requestStatusCallback
      */
-    public function setRequestStatusCallback($requestStatusCallback)
-    {
+    public function setRequestStatusCallback($requestStatusCallback) {
         $this->requestStatusCallback = $requestStatusCallback;
     }
 
@@ -167,27 +169,23 @@ class CurlClient implements ClientInterface, StreamingClientInterface
     private $timeout = self::DEFAULT_TIMEOUT;
     private $connectTimeout = self::DEFAULT_CONNECT_TIMEOUT;
 
-    public function setTimeout($seconds)
-    {
+    public function setTimeout($seconds) {
         $this->timeout = (int) \max($seconds, 0);
 
         return $this;
     }
 
-    public function setConnectTimeout($seconds)
-    {
+    public function setConnectTimeout($seconds) {
         $this->connectTimeout = (int) \max($seconds, 0);
 
         return $this;
     }
 
-    public function getTimeout()
-    {
+    public function getTimeout() {
         return $this->timeout;
     }
 
-    public function getConnectTimeout()
-    {
+    public function getConnectTimeout() {
         return $this->connectTimeout;
     }
 
@@ -200,8 +198,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param bool $hasFile
      * @param 'v1'|'v2' $apiMode
      */
-    private function constructUrlAndBody($method, $absUrl, $params, $hasFile, $apiMode)
-    {
+    private function constructUrlAndBody($method, $absUrl, $params, $hasFile, $apiMode) {
         $params = Util\Util::objectsToIds($params);
         if ('post' === $method) {
             $absUrl = Util\Util::utf8($absUrl);
@@ -235,8 +232,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         return [$absUrl, null];
     }
 
-    private function calculateDefaultOptions($method, $absUrl, $headers, $params, $hasFile)
-    {
+    private function calculateDefaultOptions($method, $absUrl, $headers, $params, $hasFile) {
         if (\is_callable($this->defaultOptions)) { // call defaultOptions callback, set options to return value
             $ret = \call_user_func_array($this->defaultOptions, [$method, $absUrl, $headers, $params, $hasFile]);
             if (!\is_array($ret)) {
@@ -252,13 +248,12 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         return [];
     }
 
-    private function constructCurlOptions($method, $absUrl, $headers, $body, $opts, $apiMode)
-    {
+    private function constructCurlOptions($method, $absUrl, $headers, $body, $opts, $apiMode) {
         if ('get' === $method) {
             $opts[\CURLOPT_HTTPGET] = 1;
-        } elseif ('post' === $method) {
+        } else if ('post' === $method) {
             $opts[\CURLOPT_POST] = 1;
-        } elseif ('delete' === $method) {
+        } else if ('delete' === $method) {
             $opts[\CURLOPT_CUSTOMREQUEST] = 'DELETE';
         } else {
             throw new Exception\UnexpectedValueException("Unrecognized method {$method}");
@@ -322,12 +317,11 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param bool $hasFile
      * @param 'v1'|'v2' $apiMode
      */
-    private function constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode)
-    {
+    private function constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode) {
         $method = \strtolower($method);
 
         $opts = $this->calculateDefaultOptions($method, $absUrl, $headers, $params, $hasFile);
-        list($absUrl, $body) = $this->constructUrlAndBody($method, $absUrl, $params, $hasFile, $apiMode);
+        [$absUrl, $body] = $this->constructUrlAndBody($method, $absUrl, $params, $hasFile, $apiMode);
         $opts = $this->constructCurlOptions($method, $absUrl, $headers, $body, $opts, $apiMode);
 
         return [$opts, $absUrl];
@@ -341,10 +335,9 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param bool $hasFile
      * @param 'v1'|'v2' $apiMode
      */
-    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1')
-    {
-        list($opts, $absUrl) = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode);
-        list($rbody, $rcode, $rheaders) = $this->executeRequestWithRetries($opts, $absUrl);
+    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1') {
+        [$opts, $absUrl] = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode);
+        [$rbody, $rcode, $rheaders] = $this->executeRequestWithRetries($opts, $absUrl);
 
         return [$rbody, $rcode, $rheaders];
     }
@@ -358,11 +351,10 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param callable $readBodyChunk
      * @param 'v1'|'v2' $apiMode
      */
-    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunk, $apiMode = 'v1')
-    {
-        list($opts, $absUrl) = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode);
+    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunk, $apiMode = 'v1') {
+        [$opts, $absUrl] = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile, $apiMode);
         $opts[\CURLOPT_RETURNTRANSFER] = false;
-        list($rbody, $rcode, $rheaders) = $this->executeStreamingRequestWithRetries($opts, $absUrl, $readBodyChunk);
+        [$rbody, $rcode, $rheaders] = $this->executeStreamingRequestWithRetries($opts, $absUrl, $readBodyChunk);
 
         return [$rbody, $rcode, $rheaders];
     }
@@ -385,8 +377,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return array
      */
-    private function useHeadersToDetermineWriteCallback($opts, $determineWriteCallback)
-    {
+    private function useHeadersToDetermineWriteCallback($opts, $determineWriteCallback) {
         $rheaders = new Util\CaseInsensitiveArray();
         $headerCallback = function ($curl, $header_line) use (&$rheaders) {
             return self::parseLineIntoHeaderArray($header_line, $rheaders);
@@ -404,12 +395,11 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         return [$headerCallback, $writeCallbackWrapper];
     }
 
-    private static function parseLineIntoHeaderArray($line, &$headers)
-    {
+    private static function parseLineIntoHeaderArray($line, &$headers) {
         if (false === \strpos($line, ':')) {
             return \strlen($line);
         }
-        list($key, $value) = \explode(':', \trim($line), 2);
+        [$key, $value] = \explode(':', \trim($line), 2);
         $headers[\trim($key)] = \trim($value);
 
         return \strlen($line);
@@ -429,8 +419,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return array
      */
-    public function executeStreamingRequestWithRetries($opts, $absUrl, $readBodyChunk)
-    {
+    public function executeStreamingRequestWithRetries($opts, $absUrl, $readBodyChunk) {
         /** @var bool */
         $shouldRetry = false;
         /** @var int */
@@ -492,7 +481,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
         };
 
         while (true) {
-            list($headerCallback, $writeCallback) = $this->useHeadersToDetermineWriteCallback($opts, $determineWriteCallback);
+            [$headerCallback, $writeCallback] = $this->useHeadersToDetermineWriteCallback($opts, $determineWriteCallback);
             $opts[\CURLOPT_HEADERFUNCTION] = $headerCallback;
             $opts[\CURLOPT_WRITEFUNCTION] = $writeCallback;
 
@@ -536,8 +525,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * @param array $opts cURL options
      * @param string $absUrl
      */
-    public function executeRequestWithRetries($opts, $absUrl)
-    {
+    public function executeRequestWithRetries($opts, $absUrl) {
         $numRetries = 0;
 
         while (true) {
@@ -599,8 +587,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @throws Exception\ApiConnectionException
      */
-    private function handleCurlError($url, $errno, $message, $numRetries)
-    {
+    private function handleCurlError($url, $errno, $message, $numRetries) {
         switch ($errno) {
             case \CURLE_COULDNT_CONNECT:
             case \CURLE_COULDNT_RESOLVE_HOST:
@@ -648,8 +635,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return bool
      */
-    private function shouldRetry($errno, $rcode, $rheaders, $numRetries)
-    {
+    private function shouldRetry($errno, $rcode, $rheaders, $numRetries) {
         if ($numRetries >= Stripe::getMaxNetworkRetries()) {
             return false;
         }
@@ -702,8 +688,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return int
      */
-    private function sleepTime($numRetries, $rheaders)
-    {
+    private function sleepTime($numRetries, $rheaders) {
         // Apply exponential backoff with $initialNetworkRetryDelay on the
         // number of $numRetries so far as inputs. Do not allow the number to exceed
         // $maxNetworkRetryDelay.
@@ -731,8 +716,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
     /**
      * Initializes the curl handle. If already initialized, the handle is closed first.
      */
-    private function initCurlHandle()
-    {
+    private function initCurlHandle() {
         $this->closeCurlHandle();
         $this->curlHandle = \curl_init();
     }
@@ -740,8 +724,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
     /**
      * Closes the curl handle if initialized. Do nothing if already closed.
      */
-    private function closeCurlHandle()
-    {
+    private function closeCurlHandle() {
         if (null !== $this->curlHandle) {
             \curl_close($this->curlHandle);
             $this->curlHandle = null;
@@ -752,8 +735,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      * Resets the curl handle. If the handle is not already initialized, or if persistent
      * connections are disabled, the handle is reinitialized instead.
      */
-    private function resetCurlHandle()
-    {
+    private function resetCurlHandle() {
         if (null !== $this->curlHandle && $this->getEnablePersistentConnections()) {
             \curl_reset($this->curlHandle);
         } else {
@@ -766,8 +748,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return bool
      */
-    private function canSafelyUseHttp2()
-    {
+    private function canSafelyUseHttp2() {
         // Versions of curl older than 7.60.0 don't respect GOAWAY frames
         // (cf. https://github.com/curl/curl/issues/2416), which Stripe use.
         $curlVersion = \curl_version()['version'];
@@ -783,8 +764,7 @@ class CurlClient implements ClientInterface, StreamingClientInterface
      *
      * @return bool
      */
-    private function hasHeader($headers, $name)
-    {
+    private function hasHeader($headers, $name) {
         foreach ($headers as $header) {
             if (0 === \strncasecmp($header, "{$name}: ", \strlen($name) + 2)) {
                 return true;

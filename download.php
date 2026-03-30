@@ -44,11 +44,11 @@ $reportid = required_param('reportid', PARAM_TEXT);
 $format = required_param('format', PARAM_ALPHA);
 $sesskey = required_param('sesskey', PARAM_ALPHANUM);
 
-// chart_data is a JSON blob from the frontend; validated below.
+// Chart_data is a JSON blob from the frontend; validated below.
 $chartdata = optional_param('chart_data', '', PARAM_RAW);
 
 $charttype = optional_param('chart_type', 'bar', PARAM_ALPHA);
-// chart_image is a base64 data URI; validated below via regex and size check.
+// Chart_image is a base64 data URI; validated below via regex and size check.
 $chartimage = optional_param('chart_image', '', PARAM_RAW);
 
 // Validate chart_data: must be valid JSON if provided.
@@ -86,7 +86,7 @@ if (!confirm_sesskey($sesskey)) {
 try {
     // Check if we have report data from frontend.
 
-    // report_data is a JSON blob from the frontend containing report results; validated below.
+    // Report_data is a JSON blob from the frontend containing report results; validated below.
     $reportdatajson = optional_param('report_data', '', PARAM_RAW);
 
     // Validate report_data: must be valid JSON if provided.

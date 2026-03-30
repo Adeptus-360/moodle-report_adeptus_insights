@@ -32,7 +32,7 @@ namespace report_adeptus_insights;
  */
 class notification_manager {
     /** @var error_handler Error handler instance. */
-    private $error_handler;
+    private $errorhandler;
 
     /** @var array Array of notification messages. */
     private $notifications;
@@ -41,7 +41,7 @@ class notification_manager {
      * Constructor.
      */
     public function __construct() {
-        $this->error_handler = new \report_adeptus_insights\error_handler();
+        $this->errorhandler = new \report_adeptus_insights\error_handler();
         $this->notifications = [];
     }
 
@@ -55,10 +55,10 @@ class notification_manager {
      */
     public function display_error($errorcode, $additionaldata = [], $logerror = true) {
         if ($logerror) {
-            $this->error_handler->log_error($errorcode, $additionaldata);
+            $this->errorhandler->log_error($errorcode, $additionaldata);
         }
 
-        $errormessage = $this->error_handler->create_error_message($errorcode, $additionaldata);
+        $errormessage = $this->errorhandler->create_error_message($errorcode, $additionaldata);
         $html = $this->render_error_message($errormessage);
 
         // Store notification for potential reuse.

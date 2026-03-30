@@ -1,9 +1,24 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
 /**
  * Class Stripe.
+ * @package report_adeptus_insights
  */
 class Stripe
 {
@@ -69,16 +84,14 @@ class Stripe
     /**
      * @return string the API key used for requests
      */
-    public static function getApiKey()
-    {
+    public static function getApiKey() {
         return self::$apiKey;
     }
 
     /**
      * @return string the client_id used for Connect requests
      */
-    public static function getClientId()
-    {
+    public static function getClientId() {
         return self::$clientId;
     }
 
@@ -86,8 +99,7 @@ class Stripe
      * @return Util\LoggerInterface the logger to which the library will
      *   produce messages
      */
-    public static function getLogger()
-    {
+    public static function getLogger() {
         if (null === self::$logger) {
             return new Util\DefaultLogger();
         }
@@ -99,8 +111,7 @@ class Stripe
      * @param \Psr\Log\LoggerInterface|Util\LoggerInterface $logger the logger to which the library
      *   will produce messages
      */
-    public static function setLogger($logger)
-    {
+    public static function setLogger($logger) {
         self::$logger = $logger;
     }
 
@@ -109,8 +120,7 @@ class Stripe
      *
      * @param string $apiKey
      */
-    public static function setApiKey($apiKey)
-    {
+    public static function setApiKey($apiKey) {
         self::$apiKey = $apiKey;
     }
 
@@ -119,64 +129,56 @@ class Stripe
      *
      * @param string $clientId
      */
-    public static function setClientId($clientId)
-    {
+    public static function setClientId($clientId) {
         self::$clientId = $clientId;
     }
 
     /**
      * @return string the API version used for requests
      */
-    public static function getApiVersion()
-    {
+    public static function getApiVersion() {
         return self::$apiVersion;
     }
 
     /**
      * @param string $apiVersion the API version to use for requests
      */
-    public static function setApiVersion($apiVersion)
-    {
+    public static function setApiVersion($apiVersion) {
         self::$apiVersion = $apiVersion;
     }
 
     /**
      * @return string
      */
-    private static function getDefaultCABundlePath()
-    {
+    private static function getDefaultCABundlePath() {
         return \realpath(__DIR__ . '/../data/ca-certificates.crt');
     }
 
     /**
      * @return string
      */
-    public static function getCABundlePath()
-    {
+    public static function getCABundlePath() {
         return self::$caBundlePath ?: self::getDefaultCABundlePath();
     }
 
     /**
      * @param string $caBundlePath
      */
-    public static function setCABundlePath($caBundlePath)
-    {
+    public static function setCABundlePath($caBundlePath) {
         self::$caBundlePath = $caBundlePath;
     }
 
     /**
      * @return bool
      */
-    public static function getVerifySslCerts()
-    {
+    public static function getVerifySslCerts() {
         return self::$verifySslCerts;
     }
 
     /**
      * @param bool $verify
      */
-    public static function setVerifySslCerts($verify)
-    {
+    public static function setVerifySslCerts($verify) {
         self::$verifySslCerts = $verify;
     }
 
@@ -184,8 +186,7 @@ class Stripe
      * @return null|string The Stripe account ID for connected account
      *   requests
      */
-    public static function getAccountId()
-    {
+    public static function getAccountId() {
         return self::$accountId;
     }
 
@@ -193,16 +194,14 @@ class Stripe
      * @param null|string $accountId the Stripe account ID to set for connected
      *   account requests
      */
-    public static function setAccountId($accountId)
-    {
+    public static function setAccountId($accountId) {
         self::$accountId = $accountId;
     }
 
     /**
      * @return null|array The application's information
      */
-    public static function getAppInfo()
-    {
+    public static function getAppInfo() {
         return self::$appInfo;
     }
 
@@ -212,8 +211,7 @@ class Stripe
      * @param null|string $appUrl The application's URL
      * @param null|string $appPartnerId The application's partner ID
      */
-    public static function setAppInfo($appName, $appVersion = null, $appUrl = null, $appPartnerId = null)
-    {
+    public static function setAppInfo($appName, $appVersion = null, $appUrl = null, $appPartnerId = null) {
         self::$appInfo = self::$appInfo ?: [];
         self::$appInfo['name'] = $appName;
         self::$appInfo['partner_id'] = $appPartnerId;
@@ -224,48 +222,42 @@ class Stripe
     /**
      * @return int Maximum number of request retries
      */
-    public static function getMaxNetworkRetries()
-    {
+    public static function getMaxNetworkRetries() {
         return self::$maxNetworkRetries;
     }
 
     /**
      * @param int $maxNetworkRetries Maximum number of request retries
      */
-    public static function setMaxNetworkRetries($maxNetworkRetries)
-    {
+    public static function setMaxNetworkRetries($maxNetworkRetries) {
         self::$maxNetworkRetries = $maxNetworkRetries;
     }
 
     /**
      * @return float Maximum delay between retries, in seconds
      */
-    public static function getMaxNetworkRetryDelay()
-    {
+    public static function getMaxNetworkRetryDelay() {
         return self::$maxNetworkRetryDelay;
     }
 
     /**
      * @return float Maximum delay between retries, in seconds, that will be respected from the Stripe API
      */
-    public static function getMaxRetryAfter()
-    {
+    public static function getMaxRetryAfter() {
         return self::$maxRetryAfter;
     }
 
     /**
      * @return float Initial delay between retries, in seconds
      */
-    public static function getInitialNetworkRetryDelay()
-    {
+    public static function getInitialNetworkRetryDelay() {
         return self::$initialNetworkRetryDelay;
     }
 
     /**
      * @return bool Whether client telemetry is enabled
      */
-    public static function getEnableTelemetry()
-    {
+    public static function getEnableTelemetry() {
         return self::$enableTelemetry;
     }
 
@@ -276,8 +268,7 @@ class Stripe
      * with the current request. This enables Stripe to do latency and metrics analysis without adding extra
      * overhead (such as extra network calls) on the client.
      */
-    public static function setEnableTelemetry($enableTelemetry)
-    {
+    public static function setEnableTelemetry($enableTelemetry) {
         self::$enableTelemetry = $enableTelemetry;
     }
 }

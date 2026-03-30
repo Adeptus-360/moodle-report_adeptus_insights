@@ -43,7 +43,7 @@ class stripe_service {
     private $config;
 
     /** @var bool Whether test mode is enabled. */
-    private $is_test_mode;
+    private $istestmode;
 
     /**
      * Constructor.
@@ -83,7 +83,7 @@ class stripe_service {
                 // Create default config.
                 $this->create_default_config();
             }
-            $this->is_test_mode = (bool)$this->config->is_test_mode;
+            $this->istestmode = (bool)$this->config->is_test_mode;
         } catch (\Exception $e) {
             $this->create_default_config();
         }
@@ -155,7 +155,7 @@ class stripe_service {
 
         $DB->update_record('report_adeptus_insights_stripe', $record);
         $this->config = (object)$record;
-        $this->is_test_mode = (bool)$record['is_test_mode'];
+        $this->istestmode = (bool)$record['is_test_mode'];
 
         // Reinitialize Stripe with new key.
         \Stripe\Stripe::setApiKey($this->config->secret_key);
@@ -407,7 +407,7 @@ class stripe_service {
      * Check if in test mode
      */
     public function is_test_mode() {
-        return $this->is_test_mode;
+        return $this->istestmode;
     }
 
     /**

@@ -34,7 +34,6 @@ require_once($CFG->libdir . '/filelib.php');
  * @package     report_adeptus_insights
  */
 class builder_api_client {
-
     /** @var string Base API URL. */
     private $baseurl;
 

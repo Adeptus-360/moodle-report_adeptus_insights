@@ -45,28 +45,28 @@ class branded_pdf extends \TCPDF {
      *
      * @var array
      */
-    protected $branding_config;
+    protected $brandingconfig;
 
     /**
      * Report title for header.
      *
      * @var string
      */
-    protected $report_title = '';
+    protected $reporttitle = '';
 
     /**
      * Generation timestamp.
      *
      * @var string
      */
-    protected $generation_timestamp = '';
+    protected $generationtimestamp = '';
 
     /**
      * Temporary file path for logo.
      *
      * @var string|null
      */
-    protected $logo_temp_file = null;
+    protected $logotempfile = null;
 
     /**
      * Constructor.
@@ -84,8 +84,8 @@ class branded_pdf extends \TCPDF {
     ) {
         parent::__construct($orientation, $unit, $format, true, 'UTF-8', false);
 
-        $this->branding_config = $brandingconfig;
-        $this->generation_timestamp = date('Y-m-d H:i:s');
+        $this->brandingconfig = $brandingconfig;
+        $this->generationtimestamp = date('Y-m-d H:i:s');
 
         // Prepare logo temp file if branding is available.
         $this->prepare_logo_temp_file();
@@ -110,7 +110,7 @@ class branded_pdf extends \TCPDF {
      * @param string $title Report title.
      */
     public function set_report_title(string $title): void {
-        $this->report_title = $title;
+        $this->reporttitle = $title;
     }
 
     /**
@@ -130,16 +130,16 @@ class branded_pdf extends \TCPDF {
         $this->Rect(0, 0, $this->getPageWidth(), 22, 'F');
 
         // Logo on the left (if available).
-        if ($this->branding_config['has_branding'] && $this->logo_temp_file && file_exists($this->logo_temp_file)) {
+        if ($this->brandingconfig['has_branding'] && $this->logotempfile && file_exists($this->logotempfile)) {
             // Calculate logo dimensions for header (max height 12mm).
             $maxheight = 12;
-            $ratio = $this->branding_config['logo_width'] / max($this->branding_config['logo_height'], 1);
-            $logoheight = min($maxheight, $this->branding_config['logo_height'] * 0.2);
+            $ratio = $this->brandingconfig['logo_width'] / max($this->brandingconfig['logo_height'], 1);
+            $logoheight = min($maxheight, $this->brandingconfig['logo_height'] * 0.2);
             $logowidth = $logoheight * $ratio;
 
             // Position logo.
             $this->Image(
-                $this->logo_temp_file,
+                $this->logotempfile,
                 15,
                 5,
                 $logowidth,
@@ -163,13 +163,13 @@ class branded_pdf extends \TCPDF {
         $this->SetFont('helvetica', 'B', 12);
         $this->SetTextColor(44, 62, 80);
         $this->SetXY(0, 7);
-        $this->Cell(0, 8, $this->report_title, 0, 0, 'C');
+        $this->Cell(0, 8, $this->reporttitle, 0, 0, 'C');
 
         // Timestamp on the right.
         $this->SetFont('helvetica', '', 8);
         $this->SetTextColor(127, 140, 141);
         $this->SetXY(0, 7);
-        $this->Cell($this->getPageWidth() - 15, 8, $this->generation_timestamp, 0, 0, 'R');
+        $this->Cell($this->getPageWidth() - 15, 8, $this->generationtimestamp, 0, 0, 'R');
 
         // Header line.
         $this->SetDrawColor(41, 128, 185);
@@ -202,7 +202,7 @@ class branded_pdf extends \TCPDF {
         $this->SetFont('helvetica', '', 8);
         $this->SetTextColor(127, 140, 141);
 
-        $footertext = $this->branding_config['footer_text'];
+        $footertext = $this->brandingconfig['footer_text'];
         $this->Cell(0, 5, $footertext, 0, 0, 'L');
 
         // Page numbers on right.
@@ -217,30 +217,30 @@ class branded_pdf extends \TCPDF {
      * data to a temporary file that is cleaned up on destruct.
      */
     protected function prepare_logo_temp_file(): void {
-        if (!$this->branding_config['has_branding'] || empty($this->branding_config['logo'])) {
+        if (!$this->brandingconfig['has_branding'] || empty($this->brandingconfig['logo'])) {
             return;
         }
 
         $brandingmanager = new branding_manager();
-        $imagedata = $brandingmanager->extract_image_data($this->branding_config['logo']);
+        $imagedata = $brandingmanager->extract_image_data($this->brandingconfig['logo']);
 
         if ($imagedata === null) {
             return;
         }
 
-        $extension = $brandingmanager->get_image_extension($this->branding_config['logo']);
-        $this->logo_temp_file = tempnam(sys_get_temp_dir(), 'adeptus_logo_') . '.' . $extension;
+        $extension = $brandingmanager->get_image_extension($this->brandingconfig['logo']);
+        $this->logotempfile = tempnam(sys_get_temp_dir(), 'adeptus_logo_') . '.' . $extension;
 
-        file_put_contents($this->logo_temp_file, $imagedata);
+        file_put_contents($this->logotempfile, $imagedata);
     }
 
     /**
      * Clean up temporary files.
      */
     protected function cleanup_temp_files(): void {
-        if ($this->logo_temp_file && file_exists($this->logo_temp_file)) {
-            @unlink($this->logo_temp_file);
-            $this->logo_temp_file = null;
+        if ($this->logotempfile && file_exists($this->logotempfile)) {
+            @unlink($this->logotempfile);
+            $this->logotempfile = null;
         }
     }
 

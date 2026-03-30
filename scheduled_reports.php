@@ -178,9 +178,11 @@ if (empty($schedules)) {
                 'sesskey' => sesskey(),
             ]);
             if ($schedule->active) {
-                $actions[] = $OUTPUT->action_icon($toggleurl, new pix_icon('t/hide', get_string('schedule_status_paused', 'report_adeptus_insights')));
+                $pausestr = get_string('schedule_status_paused', 'report_adeptus_insights');
+                $actions[] = $OUTPUT->action_icon($toggleurl, new pix_icon('t/hide', $pausestr));
             } else {
-                $actions[] = $OUTPUT->action_icon($toggleurl, new pix_icon('t/show', get_string('schedule_status_active', 'report_adeptus_insights')));
+                $activestr = get_string('schedule_status_active', 'report_adeptus_insights');
+                $actions[] = $OUTPUT->action_icon($toggleurl, new pix_icon('t/show', $activestr));
             }
 
             // Delete.

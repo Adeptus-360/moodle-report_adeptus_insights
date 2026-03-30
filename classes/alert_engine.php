@@ -24,7 +24,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Alert conditions engine — evaluates at-risk learner conditions.
@@ -34,7 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class alert_engine {
-
     /** @var int Inactivity threshold in days. */
     protected int $inactivitydays;
 

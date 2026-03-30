@@ -34,7 +34,6 @@ namespace report_adeptus_insights;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class report_executor {
-
     /** @var int Maximum rows to return from a report query. */
     const MAX_ROWS = 100000;
 
@@ -174,7 +173,7 @@ class report_executor {
         fwrite($handle, "\xEF\xBB\xBF");
 
         // Write headers.
-        $formattedheaders = array_map(function($h) {
+        $formattedheaders = array_map(function ($h) {
             return ucwords(str_replace('_', ' ', $h));
         }, $headers);
         fputcsv($handle, $formattedheaders);

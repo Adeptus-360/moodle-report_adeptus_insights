@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace Stripe;
 
@@ -22,8 +36,7 @@ abstract class WebhookSignature
      *
      * @return bool
      */
-    public static function verifyHeader($payload, $header, $secret, $tolerance = null)
-    {
+    public static function verifyHeader($payload, $header, $secret, $tolerance = null) {
         // Extract timestamp and signatures from header
         $timestamp = self::getTimestamp($header);
         $signatures = self::getSignatures($header, self::EXPECTED_SCHEME);
@@ -82,8 +95,7 @@ abstract class WebhookSignature
      * @return int the timestamp contained in the header, or -1 if no valid
      *  timestamp is found
      */
-    private static function getTimestamp($header)
-    {
+    private static function getTimestamp($header) {
         $items = \explode(',', $header);
 
         foreach ($items as $item) {
@@ -108,8 +120,7 @@ abstract class WebhookSignature
      *
      * @return array the list of signatures matching the provided scheme
      */
-    private static function getSignatures($header, $scheme)
-    {
+    private static function getSignatures($header, $scheme) {
         $signatures = [];
         $items = \explode(',', $header);
 
@@ -133,8 +144,7 @@ abstract class WebhookSignature
      *
      * @return string the signature as a string
      */
-    private static function computeSignature($payload, $secret)
-    {
+    private static function computeSignature($payload, $secret) {
         return \hash_hmac('sha256', $payload, $secret);
     }
 }

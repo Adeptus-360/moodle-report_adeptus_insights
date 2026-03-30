@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -7,6 +21,7 @@ namespace Stripe\Service;
 /**
  * @phpstan-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
+ * @package report_adeptus_insights
  */
 class InvoiceService extends \Stripe\Service\AbstractService
 {
@@ -22,8 +37,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function addLines($id, $params = null, $opts = null)
-    {
+    public function addLines($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/add_lines', $id), $params, $opts);
     }
 
@@ -39,8 +53,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\Invoice>
      */
-    public function all($params = null, $opts = null)
-    {
+    public function all($params = null, $opts = null) {
         return $this->requestCollection('get', '/v1/invoices', $params, $opts);
     }
 
@@ -58,8 +71,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\InvoiceLineItem>
      */
-    public function allLines($parentId, $params = null, $opts = null)
-    {
+    public function allLines($parentId, $params = null, $opts = null) {
         return $this->requestCollection('get', $this->buildPath('/v1/invoices/%s/lines', $parentId), $params, $opts);
     }
 
@@ -76,8 +88,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function create($params = null, $opts = null)
-    {
+    public function create($params = null, $opts = null) {
         return $this->request('post', '/v1/invoices', $params, $opts);
     }
 
@@ -115,8 +126,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function createPreview($params = null, $opts = null)
-    {
+    public function createPreview($params = null, $opts = null) {
         return $this->request('post', '/v1/invoices/create_preview', $params, $opts);
     }
 
@@ -134,8 +144,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function delete($id, $params = null, $opts = null)
-    {
+    public function delete($id, $params = null, $opts = null) {
         return $this->request('delete', $this->buildPath('/v1/invoices/%s', $id), $params, $opts);
     }
 
@@ -152,8 +161,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function finalizeInvoice($id, $params = null, $opts = null)
-    {
+    public function finalizeInvoice($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/finalize', $id), $params, $opts);
     }
 
@@ -169,8 +177,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function markUncollectible($id, $params = null, $opts = null)
-    {
+    public function markUncollectible($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/mark_uncollectible', $id), $params, $opts);
     }
 
@@ -189,8 +196,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function pay($id, $params = null, $opts = null)
-    {
+    public function pay($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/pay', $id), $params, $opts);
     }
 
@@ -206,8 +212,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function removeLines($id, $params = null, $opts = null)
-    {
+    public function removeLines($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/remove_lines', $id), $params, $opts);
     }
 
@@ -222,8 +227,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function retrieve($id, $params = null, $opts = null)
-    {
+    public function retrieve($id, $params = null, $opts = null) {
         return $this->request('get', $this->buildPath('/v1/invoices/%s', $id), $params, $opts);
     }
 
@@ -242,8 +246,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\SearchResult<\Stripe\Invoice>
      */
-    public function search($params = null, $opts = null)
-    {
+    public function search($params = null, $opts = null) {
         return $this->requestSearchResult('get', '/v1/invoices/search', $params, $opts);
     }
 
@@ -265,8 +268,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function sendInvoice($id, $params = null, $opts = null)
-    {
+    public function sendInvoice($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/send', $id), $params, $opts);
     }
 
@@ -304,8 +306,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function upcoming($params = null, $opts = null)
-    {
+    public function upcoming($params = null, $opts = null) {
         return $this->request('get', '/v1/invoices/upcoming', $params, $opts);
     }
 
@@ -322,8 +323,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Collection<\Stripe\InvoiceLineItem>
      */
-    public function upcomingLines($params = null, $opts = null)
-    {
+    public function upcomingLines($params = null, $opts = null) {
         return $this->requestCollection('get', '/v1/invoices/upcoming/lines', $params, $opts);
     }
 
@@ -345,8 +345,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function update($id, $params = null, $opts = null)
-    {
+    public function update($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s', $id), $params, $opts);
     }
 
@@ -367,8 +366,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\InvoiceLineItem
      */
-    public function updateLine($parentId, $id, $params = null, $opts = null)
-    {
+    public function updateLine($parentId, $id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/lines/%s', $parentId, $id), $params, $opts);
     }
 
@@ -384,8 +382,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function updateLines($id, $params = null, $opts = null)
-    {
+    public function updateLines($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/update_lines', $id), $params, $opts);
     }
 
@@ -409,8 +406,7 @@ class InvoiceService extends \Stripe\Service\AbstractService
      *
      * @return \Stripe\Invoice
      */
-    public function voidInvoice($id, $params = null, $opts = null)
-    {
+    public function voidInvoice($id, $params = null, $opts = null) {
         return $this->request('post', $this->buildPath('/v1/invoices/%s/void', $id), $params, $opts);
     }
 }

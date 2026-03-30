@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -30,6 +44,7 @@ namespace Stripe\Climate;
  * @property string|\Stripe\Climate\Product $product Unique ID for the Climate <code>Product</code> this order is purchasing.
  * @property null|int $product_substituted_at Time at which the order's product was substituted for a different product. Measured in seconds since the Unix epoch.
  * @property string $status The current status of this order.
+ * @package report_adeptus_insights
  */
 class Order extends \Stripe\ApiResource
 {
@@ -59,12 +74,11 @@ class Order extends \Stripe\ApiResource
      *
      * @return \Stripe\Climate\Order the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -82,8 +96,7 @@ class Order extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Climate\Order> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -99,8 +112,7 @@ class Order extends \Stripe\ApiResource
      *
      * @return \Stripe\Climate\Order
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -119,12 +131,11 @@ class Order extends \Stripe\ApiResource
      *
      * @return \Stripe\Climate\Order the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -139,10 +150,9 @@ class Order extends \Stripe\ApiResource
      *
      * @return \Stripe\Climate\Order the canceled order
      */
-    public function cancel($params = null, $opts = null)
-    {
+    public function cancel($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

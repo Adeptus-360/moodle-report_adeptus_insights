@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -12,6 +26,7 @@ namespace Stripe;
  * @property string $customer The ID of the customer whose cash balance this object represents.
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property \Stripe\StripeObject $settings
+ * @package report_adeptus_insights
  */
 class CashBalance extends ApiResource
 {
@@ -20,8 +35,7 @@ class CashBalance extends ApiResource
     /**
      * @return string the API URL for this balance transaction
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         $customer = $this['customer'];
         $customer = Util\Util::utf8($customer);
 
@@ -37,8 +51,7 @@ class CashBalance extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function retrieve($_id, $_opts = null)
-    {
+    public static function retrieve($_id, $_opts = null) {
         $msg = 'Customer Cash Balance cannot be retrieved without a ' .
                'customer ID. Retrieve a Customer Cash Balance using ' .
                "`Customer::retrieveCashBalance('customer_id')`.";
@@ -53,8 +66,7 @@ class CashBalance extends ApiResource
      *
      * @throws \Stripe\Exception\BadMethodCallException
      */
-    public static function update($_id, $_params = null, $_options = null)
-    {
+    public static function update($_id, $_params = null, $_options = null) {
         $msg = 'Customer Cash Balance cannot be updated without a ' .
         'customer ID. Retrieve a Customer Cash Balance using ' .
         "`Customer::updateCashBalance('customer_id')`.";

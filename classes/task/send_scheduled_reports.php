@@ -38,7 +38,6 @@ use report_adeptus_insights\report_executor;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_scheduled_reports extends \core\task\scheduled_task {
-
     /** @var int Maximum consecutive failures before auto-pausing a schedule. */
     const MAX_FAILURES = 3;
 

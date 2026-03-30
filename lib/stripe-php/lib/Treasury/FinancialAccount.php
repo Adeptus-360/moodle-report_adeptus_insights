@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -24,6 +38,7 @@ namespace Stripe\Treasury;
  * @property string $status Status of this FinancialAccount.
  * @property \Stripe\StripeObject $status_details
  * @property string[] $supported_currencies The currencies the FinancialAccount can hold a balance in. Three-letter <a href="https://www.iso.org/iso-4217-currency-codes.html">ISO currency code</a>, in lowercase.
+ * @package report_adeptus_insights
  */
 class FinancialAccount extends \Stripe\ApiResource
 {
@@ -45,12 +60,11 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\FinancialAccount the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -67,8 +81,7 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Treasury\FinancialAccount> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -84,8 +97,7 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\FinancialAccount
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -104,12 +116,11 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\FinancialAccount the updated resource
      */
-    public static function update($id, $params = null, $opts = null)
-    {
+    public static function update($id, $params = null, $opts = null) {
         self::_validateParams($params);
         $url = static::resourceUrl($id);
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -124,10 +135,9 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\FinancialAccountFeatures the retrieved financial account features
      */
-    public function retrieveFeatures($params = null, $opts = null)
-    {
+    public function retrieveFeatures($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/features';
-        list($response, $opts) = $this->_request('get', $url, $params, $opts);
+        [$response, $opts] = $this->_request('get', $url, $params, $opts);
         $obj = \Stripe\Util\Util::convertToStripeObject($response, $opts);
         $obj->setLastResponse($response);
 
@@ -142,10 +152,9 @@ class FinancialAccount extends \Stripe\ApiResource
      *
      * @return \Stripe\Treasury\FinancialAccountFeatures the updated financial account features
      */
-    public function updateFeatures($params = null, $opts = null)
-    {
+    public function updateFeatures($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/features';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

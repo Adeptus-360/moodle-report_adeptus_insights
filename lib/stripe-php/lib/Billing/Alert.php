@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -14,6 +28,7 @@ namespace Stripe\Billing;
  * @property null|string $status Status of the alert. This can be active, inactive or archived.
  * @property string $title Title of the alert.
  * @property null|\Stripe\StripeObject $usage_threshold Encapsulates configuration of the alert to monitor usage on a specific <a href="https://stripe.com/docs/api/billing/meter">Billing Meter</a>.
+ * @package report_adeptus_insights
  */
 class Alert extends \Stripe\ApiResource
 {
@@ -33,12 +48,11 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Billing\Alert the created resource
      */
-    public static function create($params = null, $options = null)
-    {
+    public static function create($params = null, $options = null) {
         self::_validateParams($params);
         $url = static::classUrl();
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $options);
+        [$response, $opts] = static::_staticRequest('post', $url, $params, $options);
         $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
         $obj->setLastResponse($response);
 
@@ -55,8 +69,7 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Collection<\Stripe\Billing\Alert> of ApiResources
      */
-    public static function all($params = null, $opts = null)
-    {
+    public static function all($params = null, $opts = null) {
         $url = static::classUrl();
 
         return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
@@ -72,8 +85,7 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Billing\Alert
      */
-    public static function retrieve($id, $opts = null)
-    {
+    public static function retrieve($id, $opts = null) {
         $opts = \Stripe\Util\RequestOptions::parse($opts);
         $instance = new static($id, $opts);
         $instance->refresh();
@@ -89,10 +101,9 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Billing\Alert the activated alert
      */
-    public function activate($params = null, $opts = null)
-    {
+    public function activate($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/activate';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -106,10 +117,9 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Billing\Alert the archived alert
      */
-    public function archive($params = null, $opts = null)
-    {
+    public function archive($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/archive';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;
@@ -123,10 +133,9 @@ class Alert extends \Stripe\ApiResource
      *
      * @return \Stripe\Billing\Alert the deactivated alert
      */
-    public function deactivate($params = null, $opts = null)
-    {
+    public function deactivate($params = null, $opts = null) {
         $url = $this->instanceUrl() . '/deactivate';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
+        [$response, $opts] = $this->_request('post', $url, $params, $opts);
         $this->refreshFrom($response, $opts);
 
         return $this;

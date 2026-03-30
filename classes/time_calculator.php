@@ -24,7 +24,6 @@
 
 namespace report_adeptus_insights;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Time calculation helper for log-event delta method.
@@ -37,7 +36,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class time_calculator {
-
     /** @var int Maximum gap between events in seconds (30 minutes). */
     const SESSION_TIMEOUT = 1800;
 
@@ -174,7 +172,10 @@ class time_calculator {
      * @return string SQL subquery.
      */
     public static function get_time_trend_sql(
-        int $fromtime, int $totime, string $period = 'weekly', string $prefix = 'prefix_'
+        int $fromtime,
+        int $totime,
+        string $period = 'weekly',
+        string $prefix = 'prefix_'
     ): string {
         $timeout = self::SESSION_TIMEOUT;
         if ($period === 'monthly') {

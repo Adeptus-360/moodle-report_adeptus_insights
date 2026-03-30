@@ -24,13 +24,11 @@
 
 namespace report_adeptus_insights\alert;
 
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Evaluates alert rules against Moodle data and logs triggered alerts.
  */
 class rule_engine {
-
     /** @var int Deduplication window in seconds (7 days). */
     const DEDUP_WINDOW = 604800;
 

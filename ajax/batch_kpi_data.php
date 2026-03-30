@@ -31,7 +31,7 @@ require_sesskey();
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    // reportids is a JSON-encoded array; validated by the external service class.
+    // Reportids is a JSON-encoded array; validated by the external service class.
     $reportids = required_param('reportids', PARAM_RAW);
 
     // Validate that reportids is valid JSON before passing to the external service.

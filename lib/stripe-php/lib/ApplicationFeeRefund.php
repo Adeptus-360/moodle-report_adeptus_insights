@@ -1,4 +1,18 @@
 <?php
+// This file is part of Moodle - https://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 // File generated from our OpenAPI spec
 
@@ -19,6 +33,7 @@ namespace Stripe;
  * @property string $currency Three-letter <a href="https://www.iso.org/iso-4217-currency-codes.html">ISO currency code</a>, in lowercase. Must be a <a href="https://stripe.com/docs/currencies">supported currency</a>.
  * @property string|\Stripe\ApplicationFee $fee ID of the application fee that was refunded.
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
+ * @package report_adeptus_insights
  */
 class ApplicationFeeRefund extends ApiResource
 {
@@ -31,8 +46,7 @@ class ApplicationFeeRefund extends ApiResource
     /**
      * @return string the API URL for this Stripe refund
      */
-    public function instanceUrl()
-    {
+    public function instanceUrl() {
         $id = $this['id'];
         $fee = $this['fee'];
         if (!$id) {
@@ -57,8 +71,7 @@ class ApplicationFeeRefund extends ApiResource
      *
      * @return ApplicationFeeRefund the saved refund
      */
-    public function save($opts = null)
-    {
+    public function save($opts = null) {
         return $this->_save($opts);
     }
 }
