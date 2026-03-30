@@ -22,7 +22,8 @@
  * @module     report_adeptus_insights/builder
  * @copyright  2026 Adeptus 360 <info@adeptus360.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+     * @return {void}
+     */
 
 define([], function() {
     'use strict';
@@ -46,6 +47,7 @@ define([], function() {
     /**
      * Render column checkboxes into the container.
      * @param {string} entity
+     * @return {void}
      */
     const renderColumns = function(entity) {
         const container = document.getElementById('builder-columns-container');
@@ -120,6 +122,7 @@ define([], function() {
 
     /**
      * Sync checked column checkboxes to the hidden JSON field.
+     * @return {void}
      */
     const syncColumnsToHidden = function() {
         const hiddenField = document.querySelector('input[name="columns_json"]');
@@ -136,6 +139,7 @@ define([], function() {
     /**
      * Render the filter builder UI.
      * @param {string} entity
+     * @return {void}
      */
     const renderFilters = function(entity) {
         const container = document.getElementById('builder-filters-container');
@@ -219,6 +223,7 @@ define([], function() {
 
     /**
      * Bind change/remove events on filter rows.
+     * @return {void}
      */
     const bindFilterEvents = function() {
         document.querySelectorAll('.builder-filter-row').forEach(function(row) {
@@ -241,6 +246,7 @@ define([], function() {
 
     /**
      * Sync filter rows to hidden JSON field.
+     * @return {void}
      */
     const syncFiltersToHidden = function() {
         const hiddenField = document.querySelector('input[name="filters_json"]');
@@ -262,6 +268,7 @@ define([], function() {
     /**
      * Render sort order selector.
      * @param {string} entity
+     * @return {void}
      */
     const renderSort = function(entity) {
         const container = document.getElementById('builder-sort-container');
@@ -322,6 +329,7 @@ define([], function() {
 
     /**
      * Handle data source change — re-render columns, filters, sort.
+     * @return {void}
      */
     const onDatasourceChange = function() {
         const select = document.getElementById('id_datasource');
@@ -340,7 +348,8 @@ define([], function() {
          * @param {Object} params
          * @param {string} params.catalogJson
          * @param {string} params.reportJson
-         */
+     * @return {void}
+     */
         init: function(params) {
             try {
                 catalog = JSON.parse(params.catalogJson || '{}');
