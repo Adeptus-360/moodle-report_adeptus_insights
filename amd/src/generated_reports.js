@@ -525,7 +525,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                     var data = result.data ? result.data : result;
                     resolve(data);
                 }).fail(function(error) {
-                    window.console.error('Error checking export eligibility:', error);
                     resolve({success: false, eligible: false, message: 'Unable to verify export eligibility.'});
                 });
             });
@@ -544,7 +543,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 setTimeout(function() {
                     var chartCanvas = document.getElementById('report-chart');
                     if (!chartCanvas) {
-                        window.console.warn('[GeneratedReports] Chart canvas not found');
                         resolve(null);
                         return;
                     }
@@ -553,12 +551,10 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                     try {
                         var dataUrl = chartCanvas.toDataURL('image/png', 0.8);
                         if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                            window.console.log('[GeneratedReports] Chart captured via toDataURL, size:', dataUrl.length);
                             resolve(dataUrl);
                             return;
                         }
                     } catch (e) {
-                        window.console.warn('[GeneratedReports] Native canvas capture failed:', e);
                     }
 
                     // Method 2: html2canvas fallback (handles CORS/tainted canvas)
@@ -573,7 +569,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                             }).then(function(capturedCanvas) {
                                 var dataUrl = capturedCanvas.toDataURL('image/png', 0.8);
                                 if (dataUrl && dataUrl.length > 100 && dataUrl.length < 2000000) {
-                                    window.console.log('[GeneratedReports] Chart captured via html2canvas, size:', dataUrl.length);
                                     resolve(dataUrl);
                                     return;
                                 }
@@ -682,10 +677,8 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 return response.json();
             })
             .then(function(data) {
-                window.console.log('[GeneratedReports] Export tracked:', data);
             })
             .catch(function(error) {
-                window.console.error('[GeneratedReports] Error tracking export:', error);
             });
         },
 
@@ -1389,9 +1382,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                     sesskey: M.cfg.sesskey
                 }
             }).done(function(response) {
-                window.console.log('[GeneratedReports] Report deletion tracked:', response);
             }).fail(function(error) {
-                window.console.warn('[GeneratedReports] Failed to track report deletion:', error);
             });
         },
 
@@ -1929,7 +1920,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                         }
                     }, 150);
                 } catch (e) {
-                    window.console.warn('DataTable initialization failed:', e);
                 }
             }, 100);
         },
@@ -2484,7 +2474,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
             try {
                 this.chartInstance = new this.Chart(canvas.getContext('2d'), chartConfig);
             } catch (error) {
-                window.console.error('Error creating chart:', error);
                 $('#report-chart-view .adeptus-chart-container').html(
                     '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' +
                     STRINGS.errorRenderingChart + ': ' + error.message + '</div>'
@@ -2675,7 +2664,6 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 chartImagePromise.then(function(chartImage) {
                     if (chartImage && chartImage.length > 100) {
                         body += '&chart_image=' + encodeURIComponent(chartImage);
-                        window.console.log('[GeneratedReports] Chart image included in export');
                     }
 
                     return fetch(M.cfg.wwwroot + '/report/adeptus_insights/ajax/export_report.php', {

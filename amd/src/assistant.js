@@ -472,7 +472,6 @@ define([
         init: function(config) {
             var self = this;
             // eslint-disable-next-line no-console
-            console.log('[AdeptusInsights] init() called', config);
 
             // Handle both object config and legacy positional params.
             var authenticated, isFreePlan, backendUrl;
@@ -494,12 +493,10 @@ define([
             }
             if (this._initCalled) {
                 // eslint-disable-next-line no-console
-                console.log('[AdeptusInsights] init() already called, returning');
                 return;
             }
             this._initCalled = true;
             // eslint-disable-next-line no-console
-            console.log('[AdeptusInsights] init() proceeding with initialization');
             this.currentChatId = 0;
 
             // Get the specific AI Assistant container by ID (more reliable than sibling selection)

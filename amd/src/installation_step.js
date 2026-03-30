@@ -258,7 +258,6 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
                 }
             },
             fail: function(error) {
-                window.console.error('Billing portal error:', error);
                 Notification.addNotification({
                     message: STRINGS.connectionError,
                     type: 'error'
