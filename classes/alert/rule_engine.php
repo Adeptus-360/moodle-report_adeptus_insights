@@ -40,7 +40,7 @@ class rule_engine {
     public static function evaluate_all(): int {
         global $DB;
 
-        $rules = $DB->get_records('report_adeptus_alert_rules', ['enabled' => 1]);
+        $rules = $DB->get_records('report_adeptus_insights_alert_rules', ['enabled' => 1]);
         $count = 0;
 
         foreach ($rules as $rule) {
@@ -56,7 +56,7 @@ class rule_engine {
                 $log->triggered_value = $match->value;
                 $log->notified = 0;
                 $log->timecreated = time();
-                $DB->insert_record('report_adeptus_alert_logs', $log);
+                $DB->insert_record('report_adeptus_insights_alert_logs', $log);
                 $count++;
             }
         }
@@ -226,7 +226,7 @@ class rule_engine {
         }
 
         return $DB->record_exists_select(
-            'report_adeptus_alert_logs',
+            'report_adeptus_insights_alert_logs',
             "rule_id = :rule_id AND user_id = :user_id AND timecreated > :since{$coursecond}",
             $params
         );
@@ -240,9 +240,9 @@ class rule_engine {
     public static function get_and_mark_pending(): array {
         global $DB;
 
-        $logs = $DB->get_records('report_adeptus_alert_logs', ['notified' => 0]);
+        $logs = $DB->get_records('report_adeptus_insights_alert_logs', ['notified' => 0]);
         foreach ($logs as $log) {
-            $DB->set_field('report_adeptus_alert_logs', 'notified', 1, ['id' => $log->id]);
+            $DB->set_field('report_adeptus_insights_alert_logs', 'notified', 1, ['id' => $log->id]);
         }
 
         return $logs;

@@ -28,7 +28,6 @@ define([], function() {
     'use strict';
 
     let catalog = {};
-    let reportData = {};
 
     /**
      * Get columns for a given entity from the catalog.
@@ -347,8 +346,8 @@ define([], function() {
          * @param {Object} params
          * @param {string} params.catalogJson
          * @param {string} params.reportJson
-     * @return {void}
-     */
+         * @return {void}
+         */
         init: function(params) {
             try {
                 catalog = JSON.parse(params.catalogJson || '{}');
@@ -356,9 +355,7 @@ define([], function() {
                 catalog = {};
             }
             try {
-                reportData = JSON.parse(params.reportJson || '{}');
             } catch (e) {
-                reportData = {};
             }
 
             const select = document.getElementById('id_datasource');

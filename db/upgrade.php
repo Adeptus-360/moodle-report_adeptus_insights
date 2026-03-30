@@ -205,8 +205,8 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
     if ($oldversion < 2026021906) {
         // Version 1.11.0: Inactivity Alerts & At-Risk Digest (G8).
 
-        // Table: report_adeptus_alert_config.
-        $table = new xmldb_table('report_adeptus_alert_config');
+        // Table: report_adeptus_insights_alert_config.
+        $table = new xmldb_table('report_adeptus_insights_alert_config');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('alert_type', XMLDB_TYPE_CHAR, '50', null, XMLDB_NOTNULL, null, null);
         $table->add_field('threshold_value', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -220,8 +220,8 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        // Table: report_adeptus_alert_log.
-        $table = new xmldb_table('report_adeptus_alert_log');
+        // Table: report_adeptus_insights_alert_log.
+        $table = new xmldb_table('report_adeptus_insights_alert_log');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('period_key', XMLDB_TYPE_CHAR, '20', null, XMLDB_NOTNULL, null, null);
         $table->add_field('recipients_sent', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
@@ -239,8 +239,8 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
     if ($oldversion < 2026021908) {
         // Version 1.13.0: Rule-Based Alert Triggers (G10).
 
-        // Table: report_adeptus_alert_rules.
-        $table = new xmldb_table('report_adeptus_alert_rules');
+        // Table: report_adeptus_insights_alert_rules.
+        $table = new xmldb_table('report_adeptus_insights_alert_rules');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('rule_type', XMLDB_TYPE_CHAR, '30', null, XMLDB_NOTNULL, null, null);
@@ -261,8 +261,8 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        // Table: report_adeptus_alert_logs.
-        $table = new xmldb_table('report_adeptus_alert_logs');
+        // Table: report_adeptus_insights_alert_logs.
+        $table = new xmldb_table('report_adeptus_insights_alert_logs');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('rule_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('user_id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -271,7 +271,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         $table->add_field('notified', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('fk_rule_id', XMLDB_KEY_FOREIGN, ['rule_id'], 'report_adeptus_alert_rules', ['id']);
+        $table->add_key('fk_rule_id', XMLDB_KEY_FOREIGN, ['rule_id'], 'report_adeptus_insights_alert_rules', ['id']);
         $table->add_key('fk_user_id', XMLDB_KEY_FOREIGN, ['user_id'], 'user', ['id']);
         $table->add_index('idx_rule_user_time', XMLDB_INDEX_NOTUNIQUE, ['rule_id', 'user_id', 'timecreated']);
         if (!$dbman->table_exists($table)) {
@@ -321,7 +321,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         }
 
         // Fix 2: Ensure decimal precision on alert_rules.threshold (10,2).
-        $table = new xmldb_table('report_adeptus_alert_rules');
+        $table = new xmldb_table('report_adeptus_insights_alert_rules');
         if ($dbman->table_exists($table)) {
             $field = new xmldb_field('threshold', XMLDB_TYPE_NUMBER, '10', null, XMLDB_NOTNULL, null, null, 'rule_type');
             $field->setDecimals(2);
@@ -329,7 +329,7 @@ function xmldb_report_adeptus_insights_upgrade($oldversion) {
         }
 
         // Fix 3: Ensure decimal precision on alert_logs.triggered_value (10,2).
-        $table = new xmldb_table('report_adeptus_alert_logs');
+        $table = new xmldb_table('report_adeptus_insights_alert_logs');
         if ($dbman->table_exists($table)) {
             $field = new xmldb_field('triggered_value', XMLDB_TYPE_NUMBER, '10', null, null, null, null, 'course_id');
             $field->setDecimals(2);

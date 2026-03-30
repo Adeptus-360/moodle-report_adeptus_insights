@@ -58,7 +58,7 @@ class evaluate_alert_rules extends \core\task\scheduled_task {
         $sent = 0;
 
         foreach ($logs as $log) {
-            $rule = $DB->get_record('report_adeptus_alert_rules', ['id' => $log->rule_id]);
+            $rule = $DB->get_record('report_adeptus_insights_alert_rules', ['id' => $log->rule_id]);
             if (!$rule) {
                 continue;
             }

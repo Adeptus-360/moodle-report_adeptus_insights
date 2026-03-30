@@ -45,9 +45,9 @@ $canmanage = has_capability('report/adeptus_insights:managealerts', $context);
 if ($action === 'delete' && $ruleid && $canmanage) {
     require_sesskey();
     if ($confirm) {
-        $DB->delete_records('report_adeptus_alert_rules', ['id' => $ruleid]);
+        $DB->delete_records('report_adeptus_insights_alert_rules', ['id' => $ruleid]);
         // Also delete associated logs.
-        $DB->delete_records('report_adeptus_alert_logs', ['rule_id' => $ruleid]);
+        $DB->delete_records('report_adeptus_insights_alert_logs', ['rule_id' => $ruleid]);
         redirect(
             new moodle_url('/report/adeptus_insights/alert_rules.php', ['courseid' => $courseid]),
             get_string('alert_rule_deleted', 'report_adeptus_insights'),
@@ -59,10 +59,10 @@ if ($action === 'delete' && $ruleid && $canmanage) {
 
 if ($action === 'toggle' && $ruleid && $canmanage) {
     require_sesskey();
-    $rule = $DB->get_record('report_adeptus_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
+    $rule = $DB->get_record('report_adeptus_insights_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
     $rule->enabled = $rule->enabled ? 0 : 1;
     $rule->timemodified = time();
-    $DB->update_record('report_adeptus_alert_rules', $rule);
+    $DB->update_record('report_adeptus_insights_alert_rules', $rule);
     redirect(
         new moodle_url('/report/adeptus_insights/alert_rules.php', ['courseid' => $courseid]),
         get_string('alert_rule_updated', 'report_adeptus_insights'),
@@ -75,7 +75,7 @@ echo $OUTPUT->header();
 
 // Delete confirmation.
 if ($action === 'delete' && $ruleid && $canmanage && !$confirm) {
-    $rule = $DB->get_record('report_adeptus_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
+    $rule = $DB->get_record('report_adeptus_insights_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
     echo $OUTPUT->confirm(
         get_string('alert_rule_delete_confirm', 'report_adeptus_insights', $rule->name),
         new moodle_url('/report/adeptus_insights/alert_rules.php', [
@@ -115,8 +115,8 @@ echo html_writer::div(
 
 // Fetch rules.
 $params = [];
-$sql = "SELECT r.*, (SELECT MAX(l.timecreated) FROM {report_adeptus_alert_logs} l WHERE l.rule_id = r.id) AS last_triggered
-        FROM {report_adeptus_alert_rules} r";
+$sql = "SELECT r.*, (SELECT MAX(l.timecreated) FROM {report_adeptus_insights_alert_logs} l WHERE l.rule_id = r.id) AS last_triggered
+        FROM {report_adeptus_insights_alert_rules} r";
 if ($courseid) {
     $sql .= " WHERE r.course_id = :courseid OR r.course_id IS NULL";
     $params['courseid'] = $courseid;

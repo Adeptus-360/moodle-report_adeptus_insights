@@ -52,24 +52,24 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
             var obj = {
                 _wrapped: true,
                 length: els.length,
-                0: els[0],
+                "0": els[0],
                 get: function(i) { return els[i]; },
                 each: function(fn) { els.forEach(function(el, i) { fn.call(el, i, el); }); return obj; },
                 find: function(sel) { var r = []; els.forEach(function(el) { r.push.apply(r, Array.from(el.querySelectorAll(sel))); }); return wrap(r); },
                 closest: function(sel) { return els[0] ? wrap(els[0].closest(sel) || []) : wrap([]); },
-                addClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) el.classList.add(cn); }); }); return obj; },
-                removeClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) el.classList.remove(cn); }); }); return obj; },
+                addClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) { el.classList.add(cn); } }); }); return obj; },
+                removeClass: function(c) { els.forEach(function(el) { c.split(' ').forEach(function(cn) { if (cn) { el.classList.remove(cn); } }); }); return obj; },
                 hasClass: function(c) { return els[0] ? els[0].classList.contains(c) : false; },
                 toggleClass: function(c) { els.forEach(function(el) { el.classList.toggle(c); }); return obj; },
-                css: function(a, b) { if (typeof a === 'object') { els.forEach(function(el) { Object.keys(a).forEach(function(k) { el.style[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = a[k]; }); }); } else if (b !== undefined) { els.forEach(function(el) { el.style[a.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = b; }); } else { return els[0] ? getComputedStyle(els[0])[a] : ''; } return obj; },
-                text: function(t) { if (t === undefined) return els[0] ? els[0].textContent : ''; els.forEach(function(el) { el.textContent = t; }); return obj; },
-                html: function(h) { if (h === undefined) return els[0] ? els[0].innerHTML : ''; els.forEach(function(el) { el.innerHTML = h; }); return obj; },
-                val: function(v) { if (v === undefined) return els[0] ? els[0].value : ''; els.forEach(function(el) { el.value = v; }); return obj; },
-                attr: function(a, v) { if (v === undefined) return els[0] ? els[0].getAttribute(a) : null; els.forEach(function(el) { el.setAttribute(a, v); }); return obj; },
+                css: function(a, b) { if (typeof a === 'object') { els.forEach(function(el) { Object.keys(a).forEach(function(k) { el.style[k.replace(/-([a-z])/g, function(m,c2) { return c2.toUpperCase(); })] = a[k]; }); }); } else if (b !== undefined) { els.forEach(function(el) { el.style[a.replace(/-([a-z])/g, function(m,c2) { return c2.toUpperCase(); })] = b; }); } else { return els[0] ? getComputedStyle(els[0])[a] : ''; } return obj; }, // eslint-disable-line max-len
+                text: function(t) { if (t === undefined) { return els[0] ? els[0].textContent : ''; } els.forEach(function(el) { el.textContent = t; }); return obj; },
+                html: function(h) { if (h === undefined) { return els[0] ? els[0].innerHTML : ''; } els.forEach(function(el) { el.innerHTML = h; }); return obj; },
+                val: function(v) { if (v === undefined) { return els[0] ? els[0].value : ''; } els.forEach(function(el) { el.value = v; }); return obj; },
+                attr: function(a, v) { if (v === undefined) { return els[0] ? els[0].getAttribute(a) : null; } els.forEach(function(el) { el.setAttribute(a, v); }); return obj; },
                 removeAttr: function(a) { els.forEach(function(el) { el.removeAttribute(a); }); return obj; },
-                prop: function(p, v) { if (v === undefined) return els[0] ? els[0][p] : undefined; els.forEach(function(el) { el[p] = v; }); return obj; },
-                data: function(k, v) { if (v === undefined) { if (!els[0]) return undefined; var dk = k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();}); var val2 = els[0].dataset[dk]; if (val2 === undefined) return undefined; try { return JSON.parse(val2); } catch(e) { return val2; } } els.forEach(function(el) { el.dataset[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})] = v; }); return obj; },
-                removeData: function(k) { els.forEach(function(el) { delete el.dataset[k.replace(/-([a-z])/g, function(m,c2){return c2.toUpperCase();})]; }); return obj; },
+                prop: function(p, v) { if (v === undefined) { return els[0] ? els[0][p] : undefined; } els.forEach(function(el) { el[p] = v; }); return obj; },
+                data: function(k, v) { if (v === undefined) { if (!els[0]) { return undefined; } var dk = k.replace(/-([a-z])/g, function(m,c2) { return c2.toUpperCase(); }); var val2 = els[0].dataset[dk]; if (val2 === undefined) { return undefined; } try { return JSON.parse(val2); } catch(e) { return val2; } } els.forEach(function(el) { el.dataset[k.replace(/-([a-z])/g, function(m,c2) { return c2.toUpperCase(); })] = v; }); return obj; }, // eslint-disable-line max-len
+                removeData: function(k) { els.forEach(function(el) { delete el.dataset[k.replace(/-([a-z])/g, function(m,c2) { return c2.toUpperCase(); })]; }); return obj; },
                 on: function(evt, selOrFn, fn) {
                     var parts = evt.split('.');
                     var evtName = parts[0];
@@ -94,14 +94,14 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                     var parts = evt ? evt.split('.') : [];
                     var evtName = parts[0] || '';
                     els.forEach(function(el) {
-                        if (!el._handlers) return;
+                        if (!el._handlers) { return; }
                         if (evt && el._handlers[evt]) {
                             el._handlers[evt].forEach(function(h) {
                                 if (!selOrFn || (typeof selOrFn === 'string' ? h.sel === selOrFn : h.orig === selOrFn)) {
                                     el.removeEventListener(evtName, h.wrapped);
                                 }
                             });
-                            if (!selOrFn) delete el._handlers[evt];
+                            if (!selOrFn) { delete el._handlers[evt]; }
                         }
                     });
                     return obj;
@@ -109,37 +109,37 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 one: function(evt, fn) { els.forEach(function(el) { el.addEventListener(evt, function h(e) { el.removeEventListener(evt, h); fn.call(el, e); }); }); return obj; },
                 trigger: function(evt) { els.forEach(function(el) { el.dispatchEvent(new CustomEvent(evt, {bubbles: true})); }); return obj; },
                 append: function(child) {
-                    if (!els[0]) return obj;
+                    if (!els[0]) { return obj; }
                     if (typeof child === 'string') { els[0].insertAdjacentHTML('beforeend', child); }
-                    else if (child && child._wrapped) { if (child[0]) els[0].appendChild(child[0]); }
+                    else if (child && child._wrapped) { if (child[0]) { els[0].appendChild(child[0]); } }
                     else if (child instanceof Node) { els[0].appendChild(child); }
                     else if (child instanceof DocumentFragment) { els[0].appendChild(child); }
                     return obj;
                 },
-                prepend: function(child) { if (!els[0]) return obj; if (typeof child === 'string') { els[0].insertAdjacentHTML('afterbegin', child); } else if (child && child._wrapped && child[0]) { els[0].insertBefore(child[0], els[0].firstChild); } else if (child instanceof Node) { els[0].insertBefore(child, els[0].firstChild); } return obj; },
-                before: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].insertAdjacentHTML('beforebegin', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0]); } return obj; },
-                after: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].insertAdjacentHTML('afterend', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0].nextSibling); } return obj; },
-                replaceWith: function(h) { if (!els[0]) return obj; if (typeof h === 'string') { els[0].outerHTML = h; } else if (h && h._wrapped && h[0]) { els[0].parentNode.replaceChild(h[0], els[0]); } return obj; },
-                remove: function() { els.forEach(function(el) { if (el.parentNode) el.parentNode.removeChild(el); }); return obj; },
+                prepend: function(child) { if (!els[0]) { return obj; } if (typeof child === 'string') { els[0].insertAdjacentHTML('afterbegin', child); } else if (child && child._wrapped && child[0]) { els[0].insertBefore(child[0], els[0].firstChild); } else if (child instanceof Node) { els[0].insertBefore(child, els[0].firstChild); } return obj; }, // eslint-disable-line max-len
+                before: function(h) { if (!els[0]) { return obj; } if (typeof h === 'string') { els[0].insertAdjacentHTML('beforebegin', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0]); } return obj; },
+                after: function(h) { if (!els[0]) { return obj; } if (typeof h === 'string') { els[0].insertAdjacentHTML('afterend', h); } else if (h && h._wrapped && h[0]) { els[0].parentNode.insertBefore(h[0], els[0].nextSibling); } return obj; },
+                replaceWith: function(h) { if (!els[0]) { return obj; } if (typeof h === 'string') { els[0].outerHTML = h; } else if (h && h._wrapped && h[0]) { els[0].parentNode.replaceChild(h[0], els[0]); } return obj; },
+                remove: function() { els.forEach(function(el) { if (el.parentNode) { el.parentNode.removeChild(el); } }); return obj; },
                 empty: function() { els.forEach(function(el) { el.innerHTML = ''; }); return obj; },
                 show: function() { els.forEach(function(el) { el.style.display = ''; }); return obj; },
                 hide: function() { els.forEach(function(el) { el.style.display = 'none'; }); return obj; },
-                focus: function() { if (els[0]) els[0].focus(); return obj; },
+                focus: function() { if (els[0]) { els[0].focus(); } return obj; },
                 eq: function(i) { return wrap(els[i] ? [els[i]] : []); },
                 first: function() { return wrap(els[0] ? [els[0]] : []); },
                 last: function() { return wrap(els.length ? [els[els.length - 1]] : []); },
                 children: function() { return els[0] ? wrap(Array.from(els[0].children)) : wrap([]); },
                 parent: function() { return els[0] && els[0].parentNode ? wrap([els[0].parentNode]) : wrap([]); },
-                fadeOut: function(dur, cb) { els.forEach(function(el) { el.style.transition = 'opacity ' + (dur || 300) + 'ms'; el.style.opacity = '0'; setTimeout(function() { el.style.display = 'none'; el.style.transition = ''; el.style.opacity = ''; if (cb) cb.call(el); }, dur || 300); }); return obj; },
+                fadeOut: function(dur, cb) { els.forEach(function(el) { el.style.transition = 'opacity ' + (dur || 300) + 'ms'; el.style.opacity = '0'; setTimeout(function() { el.style.display = 'none'; el.style.transition = ''; el.style.opacity = ''; if (cb) { cb.call(el); } }, dur || 300); }); return obj; },
                 fadeIn: function(dur) { els.forEach(function(el) { el.style.display = ''; el.style.opacity = '0'; el.style.transition = 'opacity ' + (dur || 300) + 'ms'; requestAnimationFrame(function() { el.style.opacity = '1'; }); setTimeout(function() { el.style.transition = ''; }, dur || 300); }); return obj; },
-                tab: function(action) { if (els[0] && action === 'show') { var tab2 = window.bootstrap ? new window.bootstrap.Tab(els[0]) : null; if (tab2) tab2.show(); else els[0].click(); } return obj; },
+                tab: function(action) { if (els[0] && action === 'show') { var tab2 = window.bootstrap ? new window.bootstrap.Tab(els[0]) : null; if (tab2) { tab2.show(); } else { els[0].click(); } } return obj; },
                 click: function(fn) { if (fn) { return obj.on('click', fn); } els.forEach(function(el) { el.click(); }); return obj; },
-                scrollTop: function(v) { if (v === undefined) return els[0] ? els[0].scrollTop : 0; els.forEach(function(el) { el.scrollTop = v; }); return obj; },
-                next: function(sel) { var n = els[0] ? els[0].nextElementSibling : null; if (sel && n && !n.matches(sel)) n = null; return wrap(n ? [n] : []); },
-                prev: function(sel) { var p2 = els[0] ? els[0].previousElementSibling : null; if (sel && p2 && !p2.matches(sel)) p2 = null; return wrap(p2 ? [p2] : []); },
-                siblings: function() { var p2 = els[0] ? els[0].parentNode : null; if (!p2) return wrap([]); return wrap(Array.from(p2.children).filter(function(c3) { return c3 !== els[0]; })); },
+                scrollTop: function(v) { if (v === undefined) { return els[0] ? els[0].scrollTop : 0; } els.forEach(function(el) { el.scrollTop = v; }); return obj; },
+                next: function(sel) { var n = els[0] ? els[0].nextElementSibling : null; if (sel && n && !n.matches(sel)) { n = null; } return wrap(n ? [n] : []); },
+                prev: function(sel) { var p2 = els[0] ? els[0].previousElementSibling : null; if (sel && p2 && !p2.matches(sel)) { p2 = null; } return wrap(p2 ? [p2] : []); },
+                siblings: function() { var p2 = els[0] ? els[0].parentNode : null; if (!p2) { return wrap([]); } return wrap(Array.from(p2.children).filter(function(c3) { return c3 !== els[0]; })); },
                 is: function(sel) { return els[0] ? els[0].matches(sel) : false; },
-                index: function() { if (!els[0] || !els[0].parentNode) return -1; return Array.from(els[0].parentNode.children).indexOf(els[0]); },
+                index: function() { if (!els[0] || !els[0].parentNode) { return -1; } return Array.from(els[0].parentNode.children).indexOf(els[0]); },
                 outerHeight: function() { return els[0] ? els[0].offsetHeight : 0; },
                 height: function() { return els[0] ? els[0].clientHeight : 0; },
                 width: function() { return els[0] ? els[0].clientWidth : 0; }
@@ -162,13 +162,13 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 body: (opts.type || opts.method || 'GET').toUpperCase() === 'GET' ? undefined : body,
                 credentials: opts.xhrFields && opts.xhrFields.withCredentials ? 'include' : 'same-origin'
             }).then(function(resp) {
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                if (!resp.ok) { throw new Error('HTTP ' + resp.status); }
                 return opts.dataType === 'json' || !opts.dataType ? resp.json() : resp.text();
             }).then(function(data) {
-                if (opts.success) opts.success(data);
+                if (opts.success) { opts.success(data); }
                 return data;
             }).catch(function(err) {
-                if (opts.error) opts.error(err);
+                if (opts.error) { opts.error(err); }
                 throw err;
             });
             return p;
@@ -524,7 +524,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                 }])[0].done(function(result) {
                     var data = result.data ? result.data : result;
                     resolve(data);
-                }).fail(function(error) {
+                }).fail(function() {
                     resolve({success: false, eligible: false, message: 'Unable to verify export eligibility.'});
                 });
             });
@@ -676,10 +676,8 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
             .then(function(response) {
                 return response.json();
             })
-            .then(function(data) {
-            })
-            .catch(function(error) {
-            });
+            .then(function() { return; })
+            .catch(function() { return; });
         },
 
         /**
@@ -1381,9 +1379,7 @@ define(['core/ajax', 'core/str', 'core/chartjs', 'report_adeptus_insights/cohort
                     is_ai_generated: isAiGenerated ? 1 : 0,
                     sesskey: M.cfg.sesskey
                 }
-            }).done(function(response) {
-            }).fail(function(error) {
-            });
+            }).done(function() { return; }).fail(function() { return; });
         },
 
         /**

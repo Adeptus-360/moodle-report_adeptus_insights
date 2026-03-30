@@ -342,7 +342,7 @@
         </TABLE>
 
         <!-- 18. Alert Configuration -->
-        <TABLE NAME="report_adeptus_alert_config" COMMENT="Alert configuration settings for at-risk learner digests">
+        <TABLE NAME="report_adeptus_insights_alert_config" COMMENT="Alert configuration settings for at-risk learner digests">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="alert_type" TYPE="char" LENGTH="50" NOTNULL="true"/>
@@ -361,7 +361,7 @@
         </TABLE>
 
         <!-- 19. Alert Digest Log (G8) -->
-        <TABLE NAME="report_adeptus_alert_log" COMMENT="Tracks sent alert digests to prevent duplicates">
+        <TABLE NAME="report_adeptus_insights_alert_log" COMMENT="Tracks sent alert digests to prevent duplicates">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="period_key" TYPE="char" LENGTH="20" NOTNULL="true"/>
@@ -378,7 +378,7 @@
         </TABLE>
 
         <!-- 20. Rule-Based Alert Rules (G10) -->
-        <TABLE NAME="report_adeptus_alert_rules" COMMENT="Admin-defined alert trigger rules evaluated on cron">
+        <TABLE NAME="report_adeptus_insights_alert_rules" COMMENT="Admin-defined alert trigger rules evaluated on cron">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true"/>
@@ -404,7 +404,7 @@
         </TABLE>
 
         <!-- 21. Rule-Based Alert Logs (G10) -->
-        <TABLE NAME="report_adeptus_alert_logs" COMMENT="Log of triggered rule-based alerts per user">
+        <TABLE NAME="report_adeptus_insights_alert_logs" COMMENT="Log of triggered rule-based alerts per user">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="rule_id" TYPE="int" LENGTH="10" NOTNULL="true"/>
@@ -416,7 +416,7 @@
             </FIELDS>
             <KEYS>
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-                <KEY NAME="fk_rule_id" TYPE="foreign" FIELDS="rule_id" REFTABLE="report_adeptus_alert_rules" REFFIELDS="id"/>
+                <KEY NAME="fk_rule_id" TYPE="foreign" FIELDS="rule_id" REFTABLE="report_adeptus_insights_alert_rules" REFFIELDS="id"/>
                 <KEY NAME="fk_user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
             </KEYS>
             <INDEXES>

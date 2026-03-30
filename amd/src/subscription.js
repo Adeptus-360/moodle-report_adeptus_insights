@@ -428,7 +428,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
 
         /**
          * Handle upgrade plan
-         * @param $button
+         * @param {Element} button - The button element
          */
         handleUpgradePlan: function(button) {
             var planId = button.dataset ? button.dataset.planId : button;
@@ -463,7 +463,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
 
         /**
          * Handle downgrade plan
-         * @param $button
+         * @param {Element} button - The button element
          */
         handleDowngradePlan: function(button) {
             var planId = button.dataset ? button.dataset.planId : button;
@@ -1234,9 +1234,9 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
 
         /**
          * Handle select plan (for new subscriptions)
-         * @param $button
-         * @param planId
-         * @param planName
+         * @param {Element} button - The button element
+         * @param {string} planId - The plan ID
+         * @param {string} planName - The plan name
          */
         handleSelectPlan: function(button, planId, planName) {
             if (!planId) {

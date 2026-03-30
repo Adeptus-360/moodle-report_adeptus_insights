@@ -163,7 +163,7 @@ class alert_engine {
      */
     public function was_digest_sent(string $period): bool {
         global $DB;
-        return $DB->record_exists('report_adeptus_alert_log', ['period_key' => $period]);
+        return $DB->record_exists('report_adeptus_insights_alert_log', ['period_key' => $period]);
     }
 
     /**
@@ -175,7 +175,7 @@ class alert_engine {
      */
     public function log_digest(string $period, int $recipientcount, int $learnercount): void {
         global $DB;
-        $DB->insert_record('report_adeptus_alert_log', (object) [
+        $DB->insert_record('report_adeptus_insights_alert_log', (object) [
             'period_key' => $period,
             'recipients_sent' => $recipientcount,
             'learners_found' => $learnercount,

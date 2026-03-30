@@ -40,7 +40,7 @@ $PAGE->set_pagelayout('report');
 $returnurl = new moodle_url('/report/adeptus_insights/alert_rules.php', ['courseid' => $courseid]);
 
 if ($ruleid) {
-    $rule = $DB->get_record('report_adeptus_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
+    $rule = $DB->get_record('report_adeptus_insights_alert_rules', ['id' => $ruleid], '*', MUST_EXIST);
     $PAGE->set_title(get_string('alert_rule_edit', 'report_adeptus_insights'));
     $PAGE->set_heading(get_string('alert_rule_edit', 'report_adeptus_insights'));
 } else {
@@ -84,12 +84,12 @@ if ($data = $form->get_data()) {
 
     if ($data->id) {
         $record->id = $data->id;
-        $DB->update_record('report_adeptus_alert_rules', $record);
+        $DB->update_record('report_adeptus_insights_alert_rules', $record);
         $message = get_string('alert_rule_updated', 'report_adeptus_insights');
     } else {
         $record->created_by = $USER->id;
         $record->timecreated = $now;
-        $DB->insert_record('report_adeptus_alert_rules', $record);
+        $DB->insert_record('report_adeptus_insights_alert_rules', $record);
         $message = get_string('alert_rule_created', 'report_adeptus_insights');
     }
 

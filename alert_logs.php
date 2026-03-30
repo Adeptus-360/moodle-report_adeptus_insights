@@ -60,7 +60,7 @@ echo html_writer::div(
 );
 
 // Filter by rule.
-$allrules = $DB->get_records('report_adeptus_alert_rules', null, 'name ASC', 'id, name');
+$allrules = $DB->get_records('report_adeptus_insights_alert_rules', null, 'name ASC', 'id, name');
 $ruleoptions = [0 => get_string('all')];
 foreach ($allrules as $r) {
     $ruleoptions[$r->id] = format_string($r->name);
@@ -104,14 +104,14 @@ if ($dateto) {
 
 $wheresql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-$countsql = "SELECT COUNT(*) FROM {report_adeptus_alert_logs} l $wheresql";
+$countsql = "SELECT COUNT(*) FROM {report_adeptus_insights_alert_logs} l $wheresql";
 $total = $DB->count_records_sql($countsql, $params);
 
 $sql = "SELECT l.*, r.name AS rule_name, r.rule_type,
                u.firstname, u.lastname, u.email,
                c.fullname AS coursename
-        FROM {report_adeptus_alert_logs} l
-        LEFT JOIN {report_adeptus_alert_rules} r ON r.id = l.rule_id
+        FROM {report_adeptus_insights_alert_logs} l
+        LEFT JOIN {report_adeptus_insights_alert_rules} r ON r.id = l.rule_id
         LEFT JOIN {user} u ON u.id = l.user_id
         LEFT JOIN {course} c ON c.id = l.course_id
         $wheresql

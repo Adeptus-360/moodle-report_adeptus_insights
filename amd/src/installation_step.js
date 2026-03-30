@@ -257,7 +257,7 @@ define(['core/ajax', 'core/notification', 'core/str'], function(Ajax, Notificati
                     });
                 }
             },
-            fail: function(error) {
+            fail: function() {
                 Notification.addNotification({
                     message: STRINGS.connectionError,
                     type: 'error'
